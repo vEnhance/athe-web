@@ -22,9 +22,6 @@ jobs:
     - name: 📦 Install Hatch
       run: pip install hatch
 
-    - name: 📦 Install project dependencies
-      run: hatch env create
-
     - name: 🧼 Run formatter
       run: hatch fmt
 
