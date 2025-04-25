@@ -5,7 +5,7 @@ class Semester(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -16,5 +16,5 @@ class Course(models.Model):
         Semester, on_delete=models.CASCADE, related_name="courses"
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
