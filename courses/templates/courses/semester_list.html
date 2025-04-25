@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Semesters</h1>
+    <ul>
+    {% for semester in semesters %}
+        <li><a href="{{ semester.slug }}/">{{ semester.name }}</a></li>
+    {% endfor %}
+    </ul>
+</body>
+</html>

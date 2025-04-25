@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+  <body>
+    <h1>Courses for {{ semester.name }}</h1>
+    <ul>
+      {% for course in semester.courses.all %}
+      <li><strong>{{ course.name }}</strong>: {{ course.description }}</li>
+      {% endfor %}
+    </ul>
+    <a href="/">Back to semesters</a>
+  </body>
+</html>
