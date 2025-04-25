@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  hatch-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🧾 Checkout code
+      uses: actions/checkout@v3
+
+    - name: 🐍 Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+
+    - name: 📦 Install Hatch
+      run: pip install hatch
+
+    - name: 📦 Install project dependencies
+      run: hatch env create
+
+    - name: 🧼 Run formatter
+      run: hatch fmt
+
+    - name: ✅ Run check
+      run: hatch run dev:check
+
+    - name: 🧪 Run tests
+      run: hatch run dev:test
