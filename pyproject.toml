@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "atheweb"
 version = "0.1.0"
 description = "TBD"
-authors = [{ name = "Evan Chen", email = "evan@evanchen.cc" }]
+authors = [{ name = "Evan Chen", email = "evan@evanchen.cc" }, { name = "Violet Xu", email = "violet@vbnm.dev"}]
 dependencies = [
     "django>=5.2,<6.0",
     "django-bootstrap5>=24.2,<25.0",
