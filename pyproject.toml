@@ -10,6 +10,7 @@ authors = [{ name = "Evan Chen", email = "evan@evanchen.cc" }]
 dependencies = [
     "django>=5.2,<6.0",
     "django-bootstrap5>=24.2,<25.0",
+    "django-extensions>=3.2,<3.3"
 ]
 
 [tool.hatch.envs.default]
@@ -23,6 +24,9 @@ dependencies = [
     "djlint",
     "pytest",
     "pytest-django",
+    "pyright",
+    "django-stubs",
+    "django-stubs-ext",
 ]
 
 [tool.hatch.envs.dev.scripts]
@@ -30,3 +34,82 @@ runserver = "python manage.py runserver"
 makemigrations = "python manage.py makemigrations"
 migrate = "python manage.py migrate"
 createsuperuser = "python manage.py createsuperuser"
+check = [
+    "python manage.py check",
+    "pyright .",
+]
+
+
+[tool.djlint]
+profile = "django"
+
+[tool.ruff.lint]
+extend-select = ["E4", "E7", "E9", "F", "I", "DJ"]
+exclude = ["**/migrations/*.py", "manage.py"]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"atheweb/settings.py" = ["S105"]
+
+[tool.pyright]
+enableTypeIgnoreComments = true
+exclude = ["**/node_modules", "**/typings", "**/__pycache__", ".git", "venv", ".venv", "**/migrations", "**/tests.py", "**/apps.py"]
+pythonPlatform = "Linux"
+pythonVersion = "3.13"
+typeCheckingMode = "basic"
+useLibraryCodeForTypes = true
+
+reportAssertAlwaysTrue = "error"
+reportCallInDefaultInitializer = "warning"
+reportConstantRedefinition = "none"
+reportDuplicateImport = "error"
+reportFunctionMemberAccess = "none"
+reportGeneralTypeIssues = "error"
+reportImplicitStringConcatenation = "none"
+reportImportCycles = "none"
+reportIncompatibleMethodOverride = "none"
+reportIncompatibleVariableOverride = "none"
+reportIncompleteStub = "none"
+reportInvalidStringEscapeSequence = "error"
+reportInvalidTypeVarUse = "warning"
+reportMissingImports = "error"
+reportMissingModuleSource = "warning"
+reportMissingTypeArgument = false
+reportMissingTypeStubs = false
+reportOptionalCall = "error"
+reportOptionalContextManager = "error"
+reportOptionalIterable = "error"
+reportOptionalMemberAccess = "error"
+reportOptionalOperand = "error"
+reportOptionalSubscript = "error"
+reportOverlappingOverload = "error"
+reportPrivateUsage = "error"
+reportPropertyTypeMismatch = "error"
+reportSelfClsParameterName = "warning"
+reportTypedDictNotRequiredAccess = "warning"
+reportUnboundVariable = "error"
+reportUndefinedVariable = "error"
+reportUnitializedInstanceVariable = "warning"
+reportUnknownArgumentType = "none"
+reportUnknownMemberType = "none"
+reportUnknownParameterType = "error"
+reportUnknownVariableType = "none"
+reportUnnecessaryCast = "error"
+reportUnnecessaryComparison = "error"
+reportUnnecessaryIsInstance = "error"
+reportUnsupportDunderAll = "warning"
+reportUntypedBaseClass = "none"
+reportUntypedClassDecorator = "none"
+reportUntypedFunctionDecorator = "none"
+reportUntypedNamedTuple = "error"
+reportUnusedCallResult = "none"
+reportUnusedClass = "error"
+reportUnusedCoroutine = "error"
+reportUnusedFunction = "error"
+reportUnusedImport = "warning"
+reportUnusedNamedTuple = "error"
+reportUnusedVariable = "error"
+reportWildcardImportFromLibrary = "warning"
+strictDictionaryInference = false
+strictListInference = false
+strictParameterNoneValue = false
+strictSetInference = false
