@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "django_bootstrap5",
+    "django_extensions",
     "atheweb",
     "courses",
     "django.contrib.admin",
