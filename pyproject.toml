@@ -38,6 +38,7 @@ check = [
     "python manage.py check",
     "pyright .",
 ]
+test = "pytest"
 
 [tool.djlint]
 profile = "django"
