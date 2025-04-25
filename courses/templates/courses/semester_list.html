@@ -1,11 +1,18 @@
-<!DOCTYPE html>
-<html>
-<body>
+{% extends "layout.html" %}
+{% block layout-content %}
+    {# copy-paste of splash screen just for eye candy #}
+    <div class="splash">
+        <div class="container">
+            <h1 class="splash-text">Bringing extraordinary young women together, through math.</h1>
+        </div>
+    </div>
+    {# list of semesters #}
     <h1>Semesters</h1>
     <ul>
-    {% for semester in semesters %}
-        <li><a href="{{ semester.slug }}/">{{ semester.name }}</a></li>
-    {% endfor %}
+        {% for semester in semesters %}
+            <li>
+                <a href="{{ semester.slug }}/">{{ semester.name }}</a>
+            </li>
+        {% endfor %}
     </ul>
-</body>
-</html>
+{% endblock layout-content %}

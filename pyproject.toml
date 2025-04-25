@@ -9,11 +9,11 @@ description = "TBD"
 authors = [{ name = "Evan Chen", email = "evan@evanchen.cc" }]
 dependencies = [
     "django>=4.2,<5.0",
+    "django-bootstrap5>=24.2,<25.0",
 ]
 
 [tool.hatch.envs.default]
 dependencies = [
-    "django>=4.2,<5.0",
     "ipython",
 ]
 
