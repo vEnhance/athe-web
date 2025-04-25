@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "atheweb"
+version = "0.1.0"
+description = "TBD"
+authors = [{ name = "Evan Chen", email = "evan@evanchen.cc" }]
+dependencies = [
+    "django>=4.2,<5.0",
+]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "django>=4.2,<5.0",
+    "ipython",
+]
+
+[tool.hatch.envs.dev]
+dependencies = [
+    "ruff",
+    "djlint",
+    "pytest",
+    "pytest-django",
+]
+
+[tool.hatch.envs.dev.scripts]
+runserver = "python manage.py runserver"
+makemigrations = "python manage.py makemigrations"
+migrate = "python manage.py migrate"
+createsuperuser = "python manage.py createsuperuser"
