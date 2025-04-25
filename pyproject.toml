@@ -51,6 +51,7 @@ exclude = ["**/migrations/*.py", "manage.py"]
 
 [tool.ruff.lint.extend-per-file-ignores]
 "atheweb/settings.py" = ["S105"]
+"**/tests.py" = ["S101"]
 
 [tool.pyright]
 enableTypeIgnoreComments = true
