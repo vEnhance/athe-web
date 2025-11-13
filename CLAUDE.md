@@ -6,20 +6,6 @@ This document contains development notes and decisions for the athe-web project.
 
 This is a Django web application (not a library/package), managed with **uv** for dependency management.
 
-### Why uv over hatch?
-
-The project was migrated from hatch to uv for the following reasons:
-
-1. **Conceptual alignment**: This is a Django application, not an installable package. uv is designed for application dependency management, while hatch is better suited for building and distributing Python packages.
-
-2. **Performance**: uv is 10-100x faster than pip/hatch for dependency resolution and installation, written in Rust.
-
-3. **Lockfile**: uv provides `uv.lock` for reproducible builds across all environments. Hatch doesn't provide lockfile functionality by default.
-
-4. **Ecosystem**: uv is from Astral (creators of ruff), providing a consistent tooling philosophy.
-
-5. **Simplicity**: No need for build-system configuration or multiple environment abstractions.
-
 ## Development Workflow
 
 ### Quick Start
