@@ -10,6 +10,9 @@ body {
 
 .navbar {
   background-color: #fff7f7 !important;
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .athered {
@@ -727,6 +730,12 @@ li.breadcrumb-item {
   }
 }
 
+#athe-footer {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .sitemap-big {
   background-color: #111;
   padding-top: 50px;
@@ -734,8 +743,7 @@ li.breadcrumb-item {
   padding-right: 0px;
   padding-bottom: 30px;
   margin: 0px;
-  width: 100vw;
-  max-width: 100%;
+  width: 100%;
   hyphens: auto;
 }
 
@@ -746,8 +754,7 @@ li.breadcrumb-item {
   padding-right: 0px;
   padding-bottom: 30px;
   margin: 0px;
-  width: 100vw;
-  max-width: 100%;
+  width: 100%;
   hyphens: auto;
   display: none;
 }
@@ -759,8 +766,7 @@ li.breadcrumb-item {
   padding-right: 0px;
   padding-bottom: 30px;
   margin: 0px;
-  width: 100vw;
-  max-width: 100%;
+  width: 100%;
   hyphens: auto;
   display: none;
 }
@@ -841,17 +847,12 @@ a.f-head {
   padding-left: 50px;
   font-size: 12px;
   color: #fff;
-  width: 100vw;
+  width: 100%;
   margin: 0px;
-  max-width: 100%;
 }
 
 a:hover {
   color: #ff9d00;
-}
-
-.copy {
-  max-width: 100%;
 }
 
 .warning-box {
