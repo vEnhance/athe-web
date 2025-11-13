@@ -13,6 +13,8 @@ body {
   max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
+  padding-left: 1vw;
+  padding-right: 1vw;
 }
 
 .athered {
@@ -27,9 +29,8 @@ body {
 /* Content area typography */
 #content {
   font-size: 18px;
-  padding-left: 3vw;
-  padding-right: 15vw;
-  padding-bottom: 30px;
+  padding-left: 5vw;
+  padding-right: 5vw;
 }
 
 #content h1 {
@@ -69,11 +70,6 @@ body {
   text-indent: 0px;
 }
 
-@media (max-width: 1200px) {
-  #content {
-    padding-right: 5vw;
-  }
-}
 
 @media (max-width: 600px) {
   #content {
@@ -97,6 +93,8 @@ body {
   background-color: #fff7f7;
   background-image: url("../artwork/home-banner.png");
   background-size: cover;
+  padding-left: 2vw;
+  padding-right: 2vw;
 }
 
 .splash-text {
@@ -178,8 +176,6 @@ li.splash-item:hover a {
 
 /* Home page content layout */
 .home-content {
-  margin-left: 9vw;
-  margin-right: 20vw;
   margin-top: 40px;
   margin-bottom: 40px;
 }
