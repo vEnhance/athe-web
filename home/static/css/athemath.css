@@ -194,7 +194,7 @@ li.splash-item:hover a {
   padding-top: 50px;
   padding-bottom: 40px;
   background-color: #fff7f7;
-  background-image: url("../artwork/home-banner.png");
+  background-image: url("../home-banner.png");
   background-size: cover;
 }
 
@@ -365,7 +365,6 @@ li.breadcrumb-item {
 }
 
 .main-content {
-  margin-left: 30vw; /* Same as the width of the sidebar */
   padding-left: 3vw;
   padding-right: 15vw;
   padding-bottom: 30px;
