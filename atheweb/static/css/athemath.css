@@ -121,13 +121,30 @@ li.splash-item:hover a {
   margin-bottom: 0px;
 }
 
-.twocolumn-small {
-  margin-bottom: 30px;
-  display: none;
+/* Remove Bootstrap table borders */
+.twocolumn tr,
+.twocolumn td,
+.twocolumn th {
+  border: none !important;
 }
 
+/* Text indent for paragraphs */
+.twocolumn .small-text p,
+.twocolumn-small .small-text p {
+  text-indent: 40px;
+}
+
+/* Centered images */
 .twocolumn-img {
   max-width: 20vw;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Underlined links */
+.athered.underline {
+  text-decoration: underline;
 }
 
 @media (max-width: 1000px) {
