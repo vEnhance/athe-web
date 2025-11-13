@@ -36,25 +36,20 @@ body {
 #content h1 {
   font-size: 50px;
   font-weight: 600;
-  text-indent: 0px;
   padding-bottom: 20px;
 }
 
 #content h2 {
   font-size: 30px;
   font-weight: 500;
-  text-indent: 0px;
-  padding-top: 25px;
-  padding-bottom: 18px;
+  padding: 25px 0 18px;
 }
 
 #content h3 {
   font-size: 20px;
   font-weight: 600;
   color: #a02828;
-  text-indent: 0px;
-  padding-top: 15px;
-  padding-bottom: 15px;
+  padding: 15px 0;
 }
 
 #content p {
@@ -67,18 +62,13 @@ body {
 }
 
 #content li {
-  text-indent: 0px;
+  text-indent: 0;
 }
 
 
 @media (max-width: 600px) {
   #content {
     font-size: 16px;
-  }
-}
-
-@media (max-width: 500px) {
-  #content {
     padding-left: 10px;
     padding-right: 10px;
   }
@@ -86,15 +76,11 @@ body {
 
 /* Splash section */
 .splash {
-  margin-bottom: 0px;
   margin-top: -30px;
-  padding-top: 50px;
-  padding-bottom: 40px;
+  padding: 50px 2vw 40px;
   background-color: #fff7f7;
   background-image: url("../artwork/home-banner.png");
   background-size: cover;
-  padding-left: 2vw;
-  padding-right: 2vw;
 }
 
 .splash-text {
@@ -107,10 +93,7 @@ body {
 ul.splash-list {
   list-style-type: none;
   padding: 0;
-  margin: 0;
-  margin-top: 40px;
-  margin-bottom: 20px;
-  margin-left: 50px;
+  margin: 40px 0 20px 50px;
 }
 
 li.splash-item {
@@ -136,17 +119,13 @@ li.splash-item:hover a {
   color: #ff9d00;
 }
 
-@media (max-width: 1000px) and (min-width: 800px) {
+@media (max-width: 800px) {
   .splash {
     background-image: none;
   }
 }
 
 @media (max-width: 500px) {
-  .splash {
-    background-image: none;
-  }
-
   .splash-text {
     margin-top: 80px;
     font-size: 30px;
@@ -227,11 +206,8 @@ li.splash-item:hover a {
 /* Optional link styling */
 .opt-link {
   background: url("../icons/arrow-right-circle.svg") no-repeat left center;
-  margin-left: 30px;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin: 10px 0 10px 30px;
   padding-left: 30px;
-  padding-bottom: 0px;
   font-weight: 400;
 }
 
@@ -311,38 +287,18 @@ a.opt-text {
   margin-right: auto;
 }
 
-.sitemap-big {
-  background-color: #111;
-  padding-top: 50px;
-  padding-left: 0px;
-  padding-right: 0px;
-  padding-bottom: 30px;
-  margin: 0px;
-  width: 100%;
-  hyphens: auto;
-}
-
-.sitemap-medium {
-  background-color: #111;
-  padding-top: 50px;
-  padding-left: 0px;
-  padding-right: 0px;
-  padding-bottom: 30px;
-  margin: 0px;
-  width: 100%;
-  hyphens: auto;
-  display: none;
-}
-
+.sitemap-big,
+.sitemap-medium,
 .sitemap-small {
   background-color: #111;
-  padding-top: 50px;
-  padding-left: 0px;
-  padding-right: 0px;
-  padding-bottom: 30px;
-  margin: 0px;
+  padding: 50px 0 30px;
+  margin: 0;
   width: 100%;
   hyphens: auto;
+}
+
+.sitemap-medium,
+.sitemap-small {
   display: none;
 }
 
@@ -377,7 +333,7 @@ a.opt-text {
 }
 
 .f-lastcol {
-  padding-right: 0px;
+  padding-right: 0;
 }
 
 .f-title {
@@ -396,13 +352,12 @@ span.f-head {
 a.f-head {
   color: #fff;
   font-weight: 600;
-  text-indent: 0px;
 }
 
 .f-list {
   list-style-type: none;
-  padding-left: 0px;
-  margin-bottom: 0px;
+  padding-left: 0;
+  margin-bottom: 0;
 }
 
 .f-body {
@@ -417,13 +372,11 @@ a.f-head {
 
 .copy {
   background-color: #000;
-  padding: 20px;
-  padding-bottom: 0px;
-  padding-left: 50px;
+  padding: 20px 0 0 50px;
   font-size: 12px;
   color: #fff;
   width: 100%;
-  margin: 0px;
+  margin: 0;
 }
 
 /* Global hover effect */
