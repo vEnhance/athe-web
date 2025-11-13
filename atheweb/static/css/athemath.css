@@ -104,17 +104,11 @@ li.splash-item:hover a {
   grid-template-columns: 200px 1fr;
   gap: 30px;
   margin-bottom: 30px;
-  border-right: 1.5px solid #000;
   padding-bottom: 30px;
-}
-
-.home-section:last-child {
-  border-right: none;
 }
 
 .home-section-image {
   grid-template-columns: 1fr;
-  border-right: none;
 }
 
 .section-header {
@@ -124,6 +118,7 @@ li.splash-item:hover a {
   margin: 0;
   padding-right: 30px;
   text-align: right;
+  border-right: 1.5px solid #000;
 }
 
 .section-content {
@@ -158,7 +153,6 @@ li.splash-item:hover a {
   .home-section {
     grid-template-columns: 1fr;
     gap: 15px;
-    border-right: none;
     border-bottom: 1px solid #ddd;
     padding-bottom: 30px;
   }
@@ -167,6 +161,7 @@ li.splash-item:hover a {
     text-align: left;
     padding-right: 0;
     padding-bottom: 10px;
+    border-right: none;
   }
 
   .section-content {
