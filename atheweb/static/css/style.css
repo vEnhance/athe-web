@@ -1,0 +1,215 @@
+/* RED COLOR: #a02828 (160, 40, 40)*/
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin-top: 70px;
+  font-family: "Lora", serif;
+}
+
+.navbar {
+  background-color: #fff7f7;
+}
+
+.athered {
+  color: #a02828;
+}
+
+.logo {
+  padding-bottom: 5px;
+  padding-left: 5px;
+}
+
+/* Splash section */
+.splash {
+  padding: 60px 0;
+  background-color: #f8f9fa;
+}
+
+.splash-text {
+  font-size: 50px;
+  font-weight: 600;
+  margin-top: 60px;
+  margin-bottom: 40px;
+  color: #a02828;
+  text-align: center;
+}
+
+.splash-list {
+  list-style: none;
+  padding: 0;
+  text-align: center;
+}
+
+.splash-item {
+  display: inline-block;
+  margin: 10px 15px;
+}
+
+.splash-link {
+  color: #a02828;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.splash-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 500px) {
+  .splash-text {
+    margin-top: 40px;
+    font-size: 30px;
+  }
+}
+
+/* Two column layout */
+.twocolumn {
+  margin: 40px auto;
+  max-width: 1200px;
+}
+
+.twocolumn-small {
+  display: none;
+}
+
+.twocolumn-img {
+  max-width: 100%;
+  height: auto;
+}
+
+.big-text {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #a02828;
+  padding: 20px;
+}
+
+.small-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.opt-link {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.opt-text {
+  color: #a02828;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.opt-text:hover {
+  text-decoration: underline;
+}
+
+.donor-logo {
+  max-width: 200px;
+  height: auto;
+  margin: 10px 20px;
+  display: inline-block;
+}
+
+/* Footer */
+#athe-footer {
+  background-color: #f8f9fa;
+  padding: 40px 20px 20px;
+  margin-top: 60px;
+}
+
+.f-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #000;
+}
+
+.f-title:hover {
+  text-decoration: none;
+}
+
+.f-head {
+  font-weight: 600;
+  color: #000;
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.f-head:hover {
+  color: #a02828;
+  text-decoration: none;
+}
+
+.f-body {
+  color: #666;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.f-body:hover {
+  color: #a02828;
+  text-decoration: none;
+}
+
+.f-list {
+  list-style: none;
+  padding: 0;
+}
+
+.f-list li {
+  margin: 8px 0;
+}
+
+.f-lastcol {
+  text-align: right;
+}
+
+.sitemap-medium,
+.sitemap-small {
+  display: none;
+}
+
+.copy {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+  text-align: center;
+}
+
+.copy-text {
+  color: #666;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Responsive layouts */
+@media (max-width: 992px) {
+  .sitemap-big {
+    display: none;
+  }
+  .sitemap-medium {
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .twocolumn {
+    display: none;
+  }
+  .twocolumn-small {
+    display: block;
+    padding: 20px;
+  }
+  .sitemap-medium {
+    display: none;
+  }
+  .sitemap-small {
+    display: block;
+  }
+}

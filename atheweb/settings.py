@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "atheweb",
     "courses",
+    "home",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
