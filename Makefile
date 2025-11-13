@@ -15,7 +15,7 @@ install:
 	uv sync --all-extras
 
 runserver:
-	uv run python manage.py runserver
+	uv run python manage.py runserver_plus
 
 migrate:
 	uv run python manage.py migrate

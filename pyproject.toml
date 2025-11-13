@@ -103,3 +103,8 @@ strictDictionaryInference = false
 strictListInference = false
 strictParameterNoneValue = false
 strictSetInference = false
+
+[dependency-groups]
+dev = [
+    "werkzeug>=3.1.3",
+]
