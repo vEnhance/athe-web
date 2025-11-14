@@ -1,0 +1,20 @@
+{% load static %}
+<div class="staff-list">
+    {% for staff in objects %}
+        <div class="staff-container-hidden">
+            <div class="staff-left">
+                <img class="staff-img"
+                     src="{{ staff.photo.url }}"
+                     alt="{{ staff.display_name }}" />
+                <img class="staff-max-icon"
+                     src="{% static 'icons/maximize.svg' %}"
+                     alt="Maximize icon" />
+                <div class="staff-name-hidden">
+                    <h4 class="card-title">{{ staff.display_name }}</h4>
+                    <h5 class="staff-desc">{{ staff.role }}</h5>
+                </div>
+            </div>
+            <div class="staff-right-hidden">{{ staff.biography_rendered|safe }}</div>
+        </div>
+    {% endfor %}
+</div>

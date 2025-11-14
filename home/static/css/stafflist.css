@@ -17,6 +17,7 @@
   flex-grow: 0;
   text-align: center;
   color: #fff;
+  width: 200px;
 }
 
 .staff-name-visible,
@@ -24,12 +25,13 @@
   background-color: #a02828;
   padding: 15px;
   position: relative;
-  top: -25px;
+  top: -30px;
 }
 
 .staff-img {
   display: inline-block;
   position: relative;
+  height: 200px;
 }
 
 .staff-max-icon {
