@@ -1,9 +1,11 @@
+from datetime import timedelta
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
 from django.views.generic import DetailView
+from django.utils import timezone
 
 from courses.models import Course, CourseMeeting, Semester, Student
 
@@ -101,9 +103,14 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Get upcoming meetings (from now onwards)
-        now = timezone.now()
-        context["upcoming_meetings"] = CourseMeeting.objects.filter(
-            course=self.object, start_time__gte=now
-        ).order_by("start_time")
+        context["meetings"] = CourseMeeting.objects.filter(course=self.object).order_by(
+            "start_time"
+        )
+        context["next_meeting"] = (
+            CourseMeeting.objects.filter(
+                course=self.object, start_time__gt=timezone.now() - timedelta(hours=1)
+            )
+            .order_by("start_time")
+            .first()
+        )
         return context

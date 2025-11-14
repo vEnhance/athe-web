@@ -21,7 +21,6 @@
             <div class="course-text">
                 <div class="course-ds">
                     <span class="course-description">
-                        {{ course.description|linebreaks }}
                         {% if course.instructor %}
                             <p>
                                 <strong>Instructor:</strong> {{ course.instructor }}
@@ -32,51 +31,45 @@
                                 <strong>Regular Meeting Time:</strong> {{ course.regular_meeting_time }}
                             </p>
                         {% endif %}
-                        {% if course.difficulty %}
-                            <p>
-                                <i>Difficulty: {{ course.difficulty }}</i>
-                            </p>
+                        {% if course.google_classroom_direct_link %}
+                            <div class="opt-link">
+                                <a href="{{ course.google_classroom_direct_link }}" target="_blank">Open Google Classroom</a>
+                            </div>
+                        {% endif %}
+                        {% if course.zoom_meeting_link %}
+                            <div class="opt-link">
+                                <a href="{{ course.zoom_meeting_link }}" target="_blank">Join Zoom Meeting</a>
+                            </div>
                         {% endif %}
                     </span>
                 </div>
                 {% include "courses/components/lesson_plan.html" %}
             </div>
-            <div class="mt-4">
-                <h3>Course Resources</h3>
-                {% if course.google_classroom_direct_link %}
-                    <div class="opt-link">
-                        <a href="{{ course.google_classroom_direct_link }}" target="_blank">Open Google Classroom</a>
-                    </div>
-                {% endif %}
-                {% if course.zoom_meeting_link %}
-                    <div class="opt-link">
-                        <a href="{{ course.zoom_meeting_link }}" target="_blank">Join Zoom Meeting</a>
-                    </div>
-                {% endif %}
-            </div>
-            <div class="mt-4">
-                <h3>Upcoming Meetings</h3>
-                {% if upcoming_meetings %}
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Date & Time</th>
-                                <th>Topic</th>
+            <h2>Schedule</h2>
+            {% if meetings %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="table-dark">
+                            <th>#</th>
+                            <th>Date & Time</th>
+                            <th>Topic</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for meeting in meetings %}
+                            <tr {% if meeting == next_meeting %}class="table-danger fw-bold"{% endif %}>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ meeting.start_time|date:"F j, Y, g:i A e" }}</td>
+                                <td>{{ meeting.title }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {% for meeting in upcoming_meetings %}
-                                <tr>
-                                    <td>{{ meeting.start_time|date:"F j, Y, g:i A" }}</td>
-                                    <td>{{ meeting.title }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p class="text-muted">No upcoming meetings scheduled.</p>
-                {% endif %}
-            </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">No meetings scheduled.</p>
+            {% endif %}
+            <h2>Description</h2>
+            <div>{{ course.description|linebreaks }}</div>
         </div>
     </div>
 {% endblock %}
