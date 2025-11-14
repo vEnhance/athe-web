@@ -1,0 +1,138 @@
+.course {
+  margin-left: 20vw;
+  margin-right: 20vw;
+  padding-bottom: 30px;
+}
+
+.course-title-wrap {
+  padding: 12.5px;
+  padding-bottom: 2.5px;
+  /*background-color: #a02828;*/
+  border-style: solid;
+  border-width: 0px;
+  border-bottom-width: 1.25px;
+  border-color: #000;
+}
+
+.course-title {
+  display:inline-block;
+  font-weight: 600;
+  color: #000;
+}
+
+.course-teach {
+  font-style: italic;
+  color: #a02828;
+}
+
+.course-text {
+  display: flex;
+}
+
+.course-ds {
+  flex: 3;
+}
+
+.course-description {
+  padding: 30px;
+  padding-bottom: 0px;
+  /*border-style: solid;
+  border-color: #a02828;
+  border-width: 0px;
+  border-left-width: 1px;*/
+  margin-bottom: 0px;
+  padding-bottom: 20px;
+}
+
+.course-sample {
+  padding: 30px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  color: #777;
+  font-style: italic;
+  /*border-style: solid;
+  border-color: #a02828;
+  border-width: 0px;
+  border-left-width: 1px;
+  border-bottom-width: 1px;*/
+  margin-bottom: 0px;
+  padding-bottom: 20px;
+}
+
+.course-sample a {
+  color: #a02828;
+  text-decoration: underline;
+}
+
+.course-sched-container {
+  background-color: #fff7f7;
+  padding: 30px;
+  border-style: solid;
+  border-color: #a02828;
+  border-width: 1px;
+  border-top-width: 0px;
+  padding-bottom: 20px;
+  padding-top: 10px;
+  flex: 1;
+  display: flex;
+  height: 100%;
+  margin-right: 20px;
+}
+
+.course-sched-wrap {
+  flex: 1;
+}
+
+.course-sched-title {
+  font-size: 10pt;
+  text-indent: 0px;
+  font-weight: 600;
+  margin: 0px;
+  color: #a02828;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.course-sched-title::before, .course-sched-title::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #a02828;
+}
+.course-sched-title::before {
+    margin-right: .25em;
+}
+.course-sched-title::after {
+    margin-left: .25em;
+}
+
+.course-sched-l {
+  font-size: 8pt;
+  font-weight: 600;
+  color: #777;
+}
+
+.course-sched-text {
+  margin: 0px;
+  font-weight: 400;
+  font-size: 11pt;
+}
+
+@media(max-width: 950px) {
+  .course {
+    margin-left: 10vw;
+    margin-right: 10vw;
+    padding-bottom: 30px;
+  }
+
+  .course-text {
+    display: initial;
+  }
+
+  .course-sched-container {
+    border-top-width: 1px;
+    max-width: 250px;
+    margin: auto;
+  }
+}
