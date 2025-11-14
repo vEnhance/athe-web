@@ -9,7 +9,7 @@
                     <p class="text-muted">You don't have access to any active semesters.</p>
                 {% else %}
                     {% if enrolled_clubs %}
-                        <div class="mt-4 mb-4">
+                        <div class="mb-4">
                             <h2>Enrolled Clubs</h2>
                             <div class="list-group">
                                 {% for club in enrolled_clubs %}
@@ -33,7 +33,7 @@
                         </div>
                     {% endif %}
                     {% if available_clubs %}
-                        <div class="mt-4 mb-4">
+                        <div class="mb-4">
                             <h2>Available Clubs</h2>
                             <div class="list-group">
                                 {% for club in available_clubs %}
