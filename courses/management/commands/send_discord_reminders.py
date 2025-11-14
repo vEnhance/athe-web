@@ -54,14 +54,13 @@ class Command(BaseCommand):
 
             # Build message content
             message_parts = [
-                f"{role_mention}",
-                f"**Reminder: {course.name}**",
-                f"Topic: {meeting.title}",
-                f"Time: <t:{unix_timestamp}:F> (<t:{unix_timestamp}:R>)",
+                f"{role_mention} Reminder: **{course.name}** is meeting soon!",
+                f"Lecture topic: {meeting.title}",
+                f"Time: <t:{unix_timestamp}:F> --- <t:{unix_timestamp}:R>",
             ]
 
             if course.zoom_meeting_link:
-                message_parts.append(f"Zoom: {course.zoom_meeting_link}")
+                message_parts.append(f"Zoom link: {course.zoom_meeting_link}")
 
             message_content = "\n".join(message_parts)
 
