@@ -10,35 +10,27 @@
     <div id="content">
         <div class="course">
             <div class="course-title-wrap">
-                <h1 class="course-title">
-                    {{ course.name }}
-                    {% if course.is_club %}<span class="badge bg-info">Club</span>{% endif %}
-                </h1>
+                <h1 class="course-title">{{ course.name }}</h1>
                 <p class="text-muted">
+                    {% if course.is_club %}<span class="badge bg-dark">Club</span>{% endif %}
                     {{ course.semester }}
                     {% if user.is_staff %}
-                        | <a href="{% url 'admin:courses_course_change' course.pk %}">Edit in Admin</a>
+                        | <a href="{% url 'admin:courses_course_change' course.pk %}">Edit</a>
                     {% endif %}
                 </p>
-                {% if can_join_drop %}
-                    <div class="mt-2">
-                        {% if is_enrolled %}
-                            <a href="{% url 'courses:drop_club' pk=course.pk %}"
-                               class="btn btn-outline-danger"
-                               onclick="return confirm('Are you sure you want to drop this club?');">Drop Club</a>
-                        {% else %}
-                            <a href="{% url 'courses:join_club' pk=course.pk %}"
-                               class="btn btn-primary">Join Club</a>
-                        {% endif %}
-                    </div>
-                {% endif %}
             </div>
             <div class="course-text">
                 <div class="course-ds">
                     <span class="course-description">
                         {% if course.instructor %}
                             <p>
-                                <strong>Instructor:</strong>
+                                <strong>
+                                    {% if course.is_club %}
+                                        Club Leader:
+                                    {% else %}
+                                        Instructor:
+                                    {% endif %}
+                                </strong>
                                 <a class="course-teach" href="{{ course.instructor.get_absolute_url }}">{{ course.instructor.display_name }}</a>
                             </p>
                         {% endif %}
@@ -46,6 +38,18 @@
                             <p>
                                 <strong>Regular Meeting Time:</strong> {{ course.regular_meeting_time }}
                             </p>
+                        {% endif %}
+                        {% if can_join_drop %}
+                            <div class="opt-link">
+                                <strong>
+                                    {% if is_enrolled %}
+                                        <a href="{% url 'courses:drop_club' pk=course.pk %}"
+                                           onclick="return confirm('Are you sure you want to drop this club?');">Drop Club</a>
+                                    {% else %}
+                                        <a href="{% url 'courses:join_club' pk=course.pk %}">Join Club</a>
+                                    {% endif %}
+                                </strong>
+                            </div>
                         {% endif %}
                         {% if course.google_classroom_direct_link %}
                             <div class="opt-link">
@@ -89,7 +93,7 @@
             <h2 class="mt-4">Members</h2>
             {% if members %}
                 <ul>
-                    {% for student in members %}<li>{{ student.user.username }}</li>{% endfor %}
+                    {% for student in members %}<li>{{ student.user.get_full_name|default:student.user.username }}</li>{% endfor %}
                 </ul>
             {% else %}
                 <p class="text-muted">No members enrolled yet.</p>
