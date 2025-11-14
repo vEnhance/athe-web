@@ -72,6 +72,9 @@ class Course(models.Model):
         max_length=100,
         help_text="Discord role ID to mention in reminders.",
     )
+    discord_reminders_enabled = models.BooleanField(
+        default=True, help_text="Whether to send Discord reminders."
+    )
 
     def __str__(self) -> str:
         return self.name

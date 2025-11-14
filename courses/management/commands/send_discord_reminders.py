@@ -23,6 +23,7 @@ class Command(BaseCommand):
             start_time__gte=now,
             start_time__lte=deadline,
             reminder_sent=False,
+            course__discord_reminders_enabled=True,
         ).select_related("course")
 
         if not upcoming_meetings.exists():
@@ -53,11 +54,13 @@ class Command(BaseCommand):
             )
 
             # Build message content
+            kind = "club" if course.is_club else "class"
             message_parts = [
-                f"{role_mention} Reminder: **{course.name}** is meeting soon!",
-                f"Lecture topic: {meeting.title}",
+                f"{role_mention} Reminder: the {kind} **{course.name}** is meeting soon!",
                 f"Time: <t:{unix_timestamp}:F> --- <t:{unix_timestamp}:R>",
             ]
+            if meeting.title:
+                message_parts.append(f"Topic: {meeting.title}")
 
             if course.zoom_meeting_link:
                 message_parts.append(f"Zoom link: {course.zoom_meeting_link}")
