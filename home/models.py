@@ -10,7 +10,7 @@ class StaffPhotoListing(models.Model):
 
     CATEGORY_CHOICES = [
         ("board", "Board"),
-        ("teachers", "Teachers"),
+        ("teachers", "Current Instructors"),
         ("tas", "TAs"),
         ("past", "Past Staff"),
     ]

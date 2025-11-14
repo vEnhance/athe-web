@@ -96,30 +96,23 @@
 {% block content %}
     <div class="staff-detail-container">
         <a href="{% url 'home:staff' %}" class="back-link">← Back to Staff</a>
-
         <div class="staff-detail-header">
             <img src="{{ staff_member.photo.url }}"
                  alt="{{ staff_member.display_name }}"
                  class="staff-detail-photo">
             <div class="staff-detail-info">
                 <h1>{{ staff_member.display_name }}</h1>
-                <div class="staff-detail-role">{{ staff_member.role }}</div>
+                <div class="staff-detail-role">{{ staff_member.get_category_display }} | {{ staff_member.role }}</div>
             </div>
         </div>
-
-        <div class="staff-detail-biography">
-            {{ staff_member.biography_rendered|safe }}
-        </div>
-
+        <div class="staff-detail-biography">{{ staff_member.biography_rendered|safe }}</div>
         {% if courses_taught %}
             <div class="courses-taught">
                 <h2>Classes Taught</h2>
                 {% for course in courses_taught %}
                     <div class="course-item">
                         <h3>{{ course.name }}</h3>
-                        <div class="course-semester">
-                            {{ course.semester.name }} ({{ course.semester.start_date|date:"F Y" }})
-                        </div>
+                        <div class="course-semester">{{ course.semester.name }} ({{ course.semester.start_date|date:"F Y" }})</div>
                     </div>
                 {% endfor %}
             </div>
