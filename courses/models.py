@@ -77,7 +77,7 @@ class Course(models.Model):
         return self.name
 
     class Meta:
-        ordering = ("-semester__start_date", "name")
+        ordering = ("-semester__start_date", "is_club", "name")
 
 
 class Student(models.Model):
