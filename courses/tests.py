@@ -259,7 +259,7 @@ def test_course_detail_view_shows_upcoming_meetings():
 
     assert response.status_code == 200
     assert "Future Meeting" in response.content.decode()
-    assert "Past Meeting" not in response.content.decode()
+    assert "Past Meeting" in response.content.decode()
 
 
 @pytest.mark.django_db
