@@ -8,6 +8,7 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("about/", views.AboutView.as_view(), name="about"),
     path("staff/", views.StaffView.as_view(), name="staff"),
+    path("staff/past", views.PastStaffView.as_view(), name="past_staff"),
     path("staff/edit/", views.StaffPhotoUpdateView.as_view(), name="staff_edit"),
     path("donors/", views.DonorsView.as_view(), name="donors"),
     path("history/", views.HistoryView.as_view(), name="history"),

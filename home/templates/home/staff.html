@@ -8,13 +8,15 @@
     <div id="content">
         <h1>Our Staff</h1>
         <h2>Board</h2>
-        {% include "home/components/staff-list.html" with objects=board %}
+        {% include "home/components/staff_list.html" with objects=board %}
         <h2>Teachers</h2>
-        {% include "home/components/staff-list.html" with objects=teachers %}
+        {% include "home/components/staff_list.html" with objects=teachers %}
         <h2>TAs</h2>
-        {% include "home/components/staff-list.html" with objects=tas %}
+        {% include "home/components/staff_list.html" with objects=tas %}
         <h2>Past Staff</h2>
-        {% include "home/components/staff-list.html" with objects=past %}
+        <p>
+            See <a href="{% url "home:past_staff" %}">past staff</a>.
+        </p>
     </div>
 {% endblock content %}
 {% block extra_js %}

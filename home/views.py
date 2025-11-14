@@ -29,6 +29,17 @@ class StaffView(TemplateView):
         context["board"] = StaffPhotoListing.objects.filter(category="board")
         context["teachers"] = StaffPhotoListing.objects.filter(category="teachers")
         context["tas"] = StaffPhotoListing.objects.filter(category="tas")
+        return context
+
+
+class PastStaffView(TemplateView):
+    """Staff page."""
+
+    template_name = "home/past_staff.html"
+
+    def get_context_data(self, **kwargs):  # type: ignore
+        """Add staff listings grouped by category."""
+        context = super().get_context_data(**kwargs)
         context["past"] = StaffPhotoListing.objects.filter(category="past")
         return context
 
