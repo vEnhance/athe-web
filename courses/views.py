@@ -9,7 +9,7 @@ def catalog_root(request: HttpRequest) -> HttpResponse:
     # Get the most recent semester (by start_date)
     latest_semester = Semester.objects.order_by("-start_date").first()
     if latest_semester:
-        return redirect("course_list", slug=latest_semester.slug)
+        return redirect("courses:course_list", slug=latest_semester.slug)
     return render(request, "courses/semester_list.html", {"semesters": []})
 
 

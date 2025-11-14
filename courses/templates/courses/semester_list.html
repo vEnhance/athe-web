@@ -5,7 +5,7 @@
         <ul>
             {% for semester in semesters %}
                 <li>
-                    <a href="{% url 'course_list' slug=semester.slug %}">{{ semester.name }}</a>:
+                    <a href="{% url 'courses:course_list' slug=semester.slug %}">{{ semester.name }}</a>:
                     {{ semester.start_date|date:"F jS, Y" }}—{{ semester.end_date|date:"F jS, Y" }}
                     ({{ semester.courses.count }} course{{ semester.courses.count|pluralize }})
                 </li>

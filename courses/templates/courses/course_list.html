@@ -15,7 +15,7 @@
                          id="catnav-forward-chev"
                          alt="Next">
                     <a id="catnav-back-link"
-                       href="{% url 'course_list' slug=prev_semester.slug %}">
+                       href="{% url 'courses:course_list' slug=prev_semester.slug %}">
                         <span class="catnav-back-text-long">Previous</span><span class="catnav-back-text-short">Prev.</span>
                     </a>
                 </div>
@@ -23,7 +23,7 @@
             {% if next_semester %}
                 <div class="catnav-forward">
                     <a id="catnav-forward-link"
-                       href="{% url 'course_list' slug=next_semester.slug %}">
+                       href="{% url 'courses:course_list' slug=next_semester.slug %}">
                         <span class="catnav-forward-text">Next</span>
                     </a>
                     <img src="{% static "icons/chevrons-right.svg" %}"
@@ -36,7 +36,7 @@
             <div class="session-time">
                 <i>Held {{ semester.start_date|date:"F jS, Y" }}—{{ semester.end_date|date:"F jS, Y" }}</i>
                 <p>
-                    <a href="{% url 'semester_list' %}">View all semesters</a>
+                    <a href="{% url 'courses:semester_list' %}">View all semesters</a>
                 </p>
             </div>
             {% for course in semester.courses.all %}
