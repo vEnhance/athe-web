@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -12,6 +14,11 @@ class Semester(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def is_active(self) -> bool:
+        """Check if the semester is currently active."""
+        today = date.today()
+        return self.start_date <= today <= self.end_date
 
     class Meta:
         ordering = ("-start_date",)
@@ -60,6 +67,10 @@ class Course(models.Model):
         blank=True,
         max_length=100,
         help_text="Discord role ID to mention in reminders.",
+    )
+    is_club = models.BooleanField(
+        default=False,
+        help_text="Whether this is a club (vs. a class).",
     )
 
     def __str__(self) -> str:

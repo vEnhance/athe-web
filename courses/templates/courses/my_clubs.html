@@ -1,0 +1,65 @@
+{% extends "home/base.html" %}
+{% block title %}My Clubs - Athemath{% endblock %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 50px;">
+        <div class="row">
+            <div class="col-12">
+                <h1>My Clubs</h1>
+                {% if not has_active_semester %}
+                    <p class="text-muted">You don't have access to any active semesters.</p>
+                {% else %}
+                    {% if enrolled_clubs %}
+                        <div class="mt-4">
+                            <h2>Enrolled Clubs</h2>
+                            <div class="list-group">
+                                {% for club in enrolled_clubs %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between align-items-start">
+                                            <div>
+                                                <h5 class="mb-1">
+                                                    <a href="{% url 'courses:course_detail' pk=club.pk %}">{{ club.name }}</a>
+                                                </h5>
+                                                <p class="mb-1">
+                                                    <small class="text-muted">{{ club.semester }}</small>
+                                                </p>
+                                                {% if club.regular_meeting_time %}<small class="text-muted">{{ club.regular_meeting_time }}</small>{% endif %}
+                                            </div>
+                                            <a href="{% url 'courses:drop_club' pk=club.pk %}"
+                                               class="btn btn-sm btn-outline-danger"
+                                               onclick="return confirm('Are you sure you want to drop {{ club.name }}?');">Drop</a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if available_clubs %}
+                        <div class="mt-4">
+                            <h2>Available Clubs</h2>
+                            <div class="list-group">
+                                {% for club in available_clubs %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between align-items-start">
+                                            <div>
+                                                <h5 class="mb-1">
+                                                    <a href="{% url 'courses:course_detail' pk=club.pk %}">{{ club.name }}</a>
+                                                </h5>
+                                                <p class="mb-1">
+                                                    <small class="text-muted">{{ club.semester }}</small>
+                                                </p>
+                                                {% if club.regular_meeting_time %}<small class="text-muted">{{ club.regular_meeting_time }}</small>{% endif %}
+                                            </div>
+                                            <a href="{% url 'courses:join_club' pk=club.pk %}"
+                                               class="btn btn-sm btn-primary">Join</a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if not enrolled_clubs and not available_clubs %}<p>No clubs are available in active semesters.</p>{% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

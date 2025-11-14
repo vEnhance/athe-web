@@ -110,7 +110,19 @@
                                     <li>
                                         <a class="dropdown-item" href="{% url 'courses:my_courses' %}">My Courses</a>
                                     </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'courses:my_clubs' %}">My Clubs</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'courses:past_clubs' %}">Past Clubs</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'courses:upcoming' %}">Upcoming</a>
+                                    </li>
                                     {% if user.is_staff %}
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
                                         <li>
                                             <a class="dropdown-item" href="{% url 'admin:index' %}">Admin Panel</a>
                                         </li>

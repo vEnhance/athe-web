@@ -1,0 +1,40 @@
+{% extends "home/base.html" %}
+{% block title %}Upcoming Meetings - Athemath{% endblock %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 50px;">
+        <div class="row">
+            <div class="col-12">
+                <h1>Upcoming Meetings</h1>
+                <p class="text-muted">All upcoming meetings for courses and clubs you're enrolled in.</p>
+                {% if upcoming_meetings %}
+                    <div class="mt-4">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr class="table-dark">
+                                    <th>Date & Time</th>
+                                    <th>Course/Club</th>
+                                    <th>Topic</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for meeting in upcoming_meetings %}
+                                    <tr>
+                                        <td>{{ meeting.start_time|date:"F j, Y, g:i A e" }}</td>
+                                        <td>
+                                            <a href="{% url 'courses:course_detail' pk=meeting.course.pk %}">{{ meeting.course.name }}</a>
+                                            <br>
+                                            <small class="text-muted">{{ meeting.course.semester }}</small>
+                                        </td>
+                                        <td>{{ meeting.title }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p>No upcoming meetings scheduled.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
