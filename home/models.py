@@ -16,13 +16,14 @@ class StaffPhotoListing(models.Model):
 
     user = models.OneToOneField(
         User,
+        null=True,
         on_delete=models.CASCADE,
         help_text="Django user account for this staff member",
     )
     display_name = models.CharField(
         max_length=100, help_text="Name to display on the staff page"
     )
-    role = models.CharField(max_length=100, help_text="Role/title (e.g., President)")
+    role = models.CharField(max_length=100, help_text="Role or title")
     category = models.CharField(
         max_length=20,
         choices=CATEGORY_CHOICES,
@@ -40,7 +41,7 @@ class StaffPhotoListing(models.Model):
     )
     ordering = models.IntegerField(
         default=0,
-        help_text="Ordering priority (0 for alphabetical, higher numbers come first)",
+        help_text="Ordering priority (higher numbers come first)",
     )
 
     class Meta:
