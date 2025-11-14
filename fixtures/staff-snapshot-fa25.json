@@ -9,7 +9,8 @@
       "category": "board",
       "biography": "Greta is a high school junior from Canada. She has qualified\nfor USAJMO twice and attended MOP in 2024. She loves interacting\nwith the math community; she hopes to share her passion for math\nand inspire other girls to enjoy the subject as well. Outside of\nmath, Greta enjoys chess and listening to music.\n\nGreta will be teaching *Combo Heuristics* this Fall!\nShe also taught *Combo Heuristics* during the 2024-2025 school year!\n\nGreta was also an Athemath student from 2022 to 2024!",
       "photo": "staff_photos/gretaqu.jpg",
-      "ordering": 9001
+      "ordering": 9001,
+      "slug": "greta-qu"
     }
   },
   {
@@ -20,9 +21,10 @@
       "display_name": "Catherine Xu",
       "role": "Community Director and Teacher",
       "category": "board",
-      "biography": "Catherine is a high school senior at West High School in Iowa\nCity, IA. She began doing math competitions seriously in 2020,\nbeginning with her junior high\u2019s math team. She attended MOP in\n2024 and placed 6th and 5th at Math Prize for Girls in 2022 and\n2023. Outside of math, Catherine can be found listening to music\nand taking walks outside!\n\nCatherine will be teaching *Fun + Heights* this Fall!\n            She also taught *Fun + Heights* during the 2024-2025 school year!\n\nAs Community Director, Catherine will manage Athemath community events to help students\nand staff connect outside of class settings!\n\nCatherine was also an Athemath student in 2021 and 2022!",
+      "biography": "Catherine is a high school senior at West High School in Iowa\nCity, IA. She began doing math competitions seriously in 2020,\nbeginning with her junior high’s math team. She attended MOP in\n2024 and placed 6th and 5th at Math Prize for Girls in 2022 and\n2023. Outside of math, Catherine can be found listening to music\nand taking walks outside!\n\nCatherine will be teaching *Fun + Heights* this Fall!\n            She also taught *Fun + Heights* during the 2024-2025 school year!\n\nAs Community Director, Catherine will manage Athemath community events to help students\nand staff connect outside of class settings!\n\nCatherine was also an Athemath student in 2021 and 2022!",
       "photo": "staff_photos/catherine.png",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "catherine-xu"
     }
   },
   {
@@ -35,7 +37,8 @@
       "category": "board",
       "biography": "Rachel is a senior residing in California but originally from Canada. She's qualified for USAJMO, \nCMO, and APMO and the Canada IMO Training Camp. Outside of olympiad math, she enjoys studying higher \nmath: she attended Canada/USA Mathcamp in 2023 and is a participant in the PRIMES-USA program. You \ncan often find her studying higher math, especially algebraic combinatorics. She also enjoys chess, \nhaving participated in numerous international tournaments. Outside of math and chess, she enjoys \nreading (her favorite author is Ishiguro), writing, Taylor Swift, and talking on discord.\n\nAs Contests Director, Rachel will coordinate Athemath team participation at various contests, including\nHMMT, PUMaC, CMIMC, and CMM.",
       "photo": "staff_photos/rachel.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "rachel-chen"
     }
   },
   {
@@ -46,9 +49,10 @@
       "display_name": "Tayakorn (Patrick) Suwanich",
       "role": "Math Director and TA",
       "category": "board",
-      "biography": "Patrick from Thailand, also known as Celestia in some communities,\nis a current MIT student in the Class of 2029. He went to MOP 2023\nas an international student (black group), and also got a gold in\nIMO 2023 scoring at 35/42. He is a combi main first and foremost,\nbut geo appeals to him as well. He does rhythm games but is not\nthat good at them (rn it\u2019s just arcaea), and he also enjoys being\nan MO trainer for some of his friends during his free time.\nOutside maths, he also aspires to be a researcher in computational\nneuroscience someday. He is so so excited to meet with all of\nyou!!!\n\nAs Math Director, Patrick will ensure quality of the math\ncurriculum and class materials.",
+      "biography": "Patrick from Thailand, also known as Celestia in some communities,\nis a current MIT student in the Class of 2029. He went to MOP 2023\nas an international student (black group), and also got a gold in\nIMO 2023 scoring at 35/42. He is a combi main first and foremost,\nbut geo appeals to him as well. He does rhythm games but is not\nthat good at them (rn it’s just arcaea), and he also enjoys being\nan MO trainer for some of his friends during his free time.\nOutside maths, he also aspires to be a researcher in computational\nneuroscience someday. He is so so excited to meet with all of\nyou!!!\n\nAs Math Director, Patrick will ensure quality of the math\ncurriculum and class materials.",
       "photo": "staff_photos/patrick.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "tayakorn-suwanich"
     }
   },
   {
@@ -61,7 +65,8 @@
       "category": "board",
       "biography": "Vera is in her fifth year at NUS High School\n(equivalent to high school junior) in Singapore, and has qualified\nfor SIMO Senior Team in 2023 and 2024, and won a silver medal at\nthe CGMO in 2024. She hopes to foster the interests of other girls\nin mathematics. She also enjoys physics olympiads and tournaments,\nas well as ballet and music.\n\nAs International Outreach Director, Vera will help spread the word\nabout Athemath to communities around the globe!",
       "photo": "staff_photos/verapuah.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "vera-puah"
     }
   },
   {
@@ -74,7 +79,8 @@
       "category": "board",
       "biography": "Vivian (v4913) is a current Caltech student in the Class of 2028, \noriginally from Pittsburgh, Pennsylvania. She loves math, especially geometry, and\nshe attended MOP in 2021-2023 and was part of the U.S. team at the\nEGMO in 2022 and 2023. Aside from doing cool math problems, she\nalso enjoys listening to EDM, origami, biking, teaching, and\ninteracting with the math community.\n\nVivian taught *Cute Geometry* in Fall 2021, Spring 2022, Fall 2022,\nSpring 2023, Fall 2024, and Spring 2025, and *NT Olympiad Fundamentals*\nin Fall 2023 and Spring 2024!\n\nVivian was the President of Athemath from 2023 to 2024 and Community Director from 2022 to 2023!",
       "photo": "staff_photos/vivianloh.png",
-      "ordering": -100
+      "ordering": -100,
+      "slug": "vivian-loh"
     }
   },
   {
@@ -87,7 +93,8 @@
       "category": "board",
       "biography": "Ali is a senior at MIT. She was an Honorable Mention for the 2020\nUSAJMO, and was on the 2020 USA European Girls' Math Olympiad\nteam, at which she got a silver medal. She started doing math\ncontests seriously in seventh grade. While participating in math\ncontests, she saw the way in which girls were isolated in math and\nhow that helped lead to the under-representation of girls at\ncontests. She founded Athemath in 2020 in order to help math girls\nconnect to each other. Nowadays, Ali enjoys programming and\nreading webcomics.",
       "photo": "staff_photos/alicy.jpg",
-      "ordering": -100
+      "ordering": -100,
+      "slug": "ali-cy"
     }
   },
   {
@@ -100,7 +107,8 @@
       "category": "board",
       "biography": "Evan Chen (v_Enhance) completed his math PhD at\nMIT and is one of the coaches of the USA IMO team. As a high school\nstudent, Evan was an IMO gold medalist and winner of the 2014\nUSAMO (which he took from 12:30am to 5am in Taiwan). Outside of\nmath and teaching, Evan enjoys playing competitive Hanabi and\nentertaining students on Twitch.",
       "photo": "staff_photos/evanchen.jpg",
-      "ordering": -9001
+      "ordering": -9001,
+      "slug": "evan-chen"
     }
   },
   {
@@ -113,7 +121,8 @@
       "category": "teachers",
       "biography": "Amy is a high school senior at Lakeside School in Washington. She\nhas qualified for USAJMO three times and attended MOP in 2023 and\n2024. Her love for math began in elementary school, and she is\nexcited to share this passion with other young girls. Outside of\nmath, she enjoys fencing, running, reading, and listening to\nmusic.\n\nAmy will be teaching *Outstanding Olympiad Geometry* this Fall! She also taught \n*Outstanding Olympiad Geometry* during the 2023-2024 and 2024-2025 school years!",
       "photo": "staff_photos/amycui.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "amy-cui"
     }
   },
   {
@@ -126,7 +135,8 @@
       "category": "teachers",
       "biography": "Ekam is a senior at Stanford Online High School. She has been\ndoing math contests since elementary and attended MOP in 2023 and 2025. Her\nfavorite math subject is combinatorics. Outside of math, she likes\nreading, digital art, and listening to music.\n\nEkam will be teaching *Classy Adventures in Combinatorics and Algebra*\nthis Fall! She also taught *Classy Adventures in Combinatorics and Algebra* during \nthe 2024-2025 school year!",
       "photo": "staff_photos/ekamkaur.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "ekam-kaur"
     }
   },
   {
@@ -139,7 +149,8 @@
       "category": "teachers",
       "biography": "Jiya is a high school senior at the Liberal Arts and Science\nAcademy in Austin, TX. They started their journey of learning\ncompetition math in the middle of 7th grade, and since then have\nqualified for USAJMO twice, attended MOP in 2024, and are a\nparticipant of the PRIMES-USA math research program. Outside of\nmath, Jiya enjoys playing guitar, learning electronics, and\nchilling to ambient guitar music or vibing to random pop music.\n\nJiya will be teaching *NT Terrain Navigation* this Fall! They also taught\n             *NT Terrain Navigation* during the 2024-2025 school year!",
       "photo": "staff_photos/jiya.png",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "jiya-dani"
     }
   },
   {
@@ -152,7 +163,8 @@
       "category": "teachers",
       "biography": "Lanie is a sophomore at Central High School in Springfield, Missouri. \nShe attended MOP in 2025, and her favorite olympiad subject is combinatorics. \nOutside of math, Lanie enjoys playing card/board games, crocheting, doing puzzles, \noccasionally playing the piano, and sculpting random things!\n\nLanie will be teaching *AIME Geo* this Fall!\n\nLanie was also an Athemath student from 2023 to 2025!",
       "photo": "staff_photos/laniedeng.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "lanie-deng"
     }
   },
   {
@@ -165,7 +177,8 @@
       "category": "teachers",
       "biography": "Pimmy from Thailand is a postgraduate student at the Hotchkiss School in Connecticut.\nShe attended MOP 2023 as an international student and she is in TST\ncamp in her country. Apart of Math, Pimmy likes taking a walk,\nreading webtoon and she also like a ton of other stuffs too.\n\nPimmy will be teaching *Get to Know Number Theory* this Spring! She also taught \n*Get to Know Number Theory* during the 2023-2024 and 2024-2025 school years!",
       "photo": "staff_photos/pimmy.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "thanaree-maneepairoj"
     }
   },
   {
@@ -178,7 +191,8 @@
       "category": "teachers",
       "biography": "Selena is a sophomore at Lexington High School in Massachusetts. \nShe has competed in math competitions since elementary school and attended MOP in 2025. \nOther than math, she enjoys reading, cryptograms, and sudokus.\n\nSelena will be teaching *Cute Geometry* this Fall!\n\nSelena was also an Athemath student from 2022 to 2023!",
       "photo": "staff_photos/selenage.png",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "selena-ge"
     }
   },
   {
@@ -191,7 +205,8 @@
       "category": "teachers",
       "biography": "Sophia is a high school senior at Stuyvesant High School in New\nYork City. She attended MOP in 2024. Her favorite olympiad subject\nis geometry, and outside of math, Sophia enjoys drawing, singing,\nlistening to music, and hanging out with friends.\n\nSophia will be teaching *Nifty NT and Algebra* this Fall! She also taught \n*Nifty NT and Algebra* during the 2024-2025 school year!",
       "photo": "staff_photos/sophiajin.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "sophia-jin"
     }
   },
   {
@@ -204,7 +219,8 @@
       "category": "teachers",
       "biography": "Wendy is a Y4 (10th grade) student from Raffles Girls' School,\nSingapore. She attended MOP 2023, 2024, and 2025 as an international student, and\nis a member of the SIMO National Team 2024. She is fascinated by\nthe creativity and depth behind math problems, and is eager to\nshare this passion with likeminded young girls!\n\nBesides math, she also likes Kakuro, Killer Sudoku, and painting\ndigitally on Procreate.\n\nWendy will be teaching *ComboneNT* this Fall! She also taught *ComboneNT* \nduring the 2024-2025 school year!",
       "photo": "staff_photos/wendyleong.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "wendy-leong"
     }
   },
   {
@@ -217,7 +233,8 @@
       "category": "tas",
       "biography": "Akshitaa Arun (Akshu/Ash) is from Tamil Nadu, India. She has attended various math camps\nin India such as PROMYS INDIA 2024, RAMTP 2023, AGMNC 2022 & 2023. She's part of the outreach team\nin the Urban Harmony Project and ParagonX. She co-runs the math philosophy program NC^2.\nShe enjoys tutoring her friends outside school, and showing them that math can be fun!\nOutside of math, she loves singing, playing the ukulele, playing card games or puzzles(especially killer sudoku),\nwaveboarding and reading!",
       "photo": "staff_photos/akshu_arun.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "akshitaa-arun"
     }
   },
   {
@@ -230,7 +247,8 @@
       "category": "tas",
       "biography": "Arjun is a sophomore at Middleton High School in Wisconsin.\nHe is a two-time AIME qualifier and received honors on USAJMO in 2025.\nApart from math, he enjoys listening to music, reading, and writing.",
       "photo": "staff_photos/arjunsuresh.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "arjun-suresh"
     }
   },
   {
@@ -238,12 +256,13 @@
     "pk": 19,
     "fields": {
       "user": null,
-      "display_name": "D\u00f3ra S\u00e1rdinecz",
+      "display_name": "Dóra Sárdinecz",
       "role": "TA",
       "category": "tas",
-      "biography": "D\u00f3ra is a senior high school student from Hungary and a member of the 2025 MEMO team.\nShe attended MOP 2025 and has participated in different math camps and European competitions.\nHer favorite Olympiad subjects are combinatorics and geometry. Outside of math, D\u00f3ra enjoys\ndoing sports like handball, reading, and listening to music.",
+      "biography": "Dóra is a senior high school student from Hungary and a member of the 2025 MEMO team.\nShe attended MOP 2025 and has participated in different math camps and European competitions.\nHer favorite Olympiad subjects are combinatorics and geometry. Outside of math, Dóra enjoys\ndoing sports like handball, reading, and listening to music.",
       "photo": "staff_photos/dora.png",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "dora-sardinecz"
     }
   },
   {
@@ -256,7 +275,8 @@
       "category": "tas",
       "biography": "Heather is a junior at the Harker School in California. \nShe attended MOP in 2025, and her favorite subjects are combinatorics and geometry.\nOutside of math, she likes to read, play the piano, and listen to music.",
       "photo": "staff_photos/heather.JPG",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "heather-wang"
     }
   },
   {
@@ -269,7 +289,8 @@
       "category": "tas",
       "biography": "Jingni, from Australia, is a sophomore at the University of Sydney. He is an Australia MO 2024 Gold Medalist, \nand has qualified for Australia TSTs in 2023 and 2024. His favourite math genre is combinatorics, \nbut his general math interest lies in uncovering the problem-solving process itself. \nOutside of math, he enjoys playing chess, squash, photography, journaling and music composition.\n\nJingni ran the *Cherry Seminar Series* during the Spring 2025 session!",
       "photo": "staff_photos/jingni.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "jingni-liao"
     }
   },
   {
@@ -282,7 +303,8 @@
       "category": "tas",
       "biography": "Lillian is a senior at Shanghai World Foreign Language Academy. She has participated in a \nnumber of math competitions like AMC 12 and AIME, qualifying for USAMO, as well as team \ncompetitions like BMT. She was also a student in the Ross Mathematics Program in Summer 2024. \nOther than math, she enjoys playing frisbee and boxing, and is also a huge fan of musicals. \nShe is also the president of the Gender Studies club at her school.",
       "photo": "staff_photos/lillian.png",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "lillian-xu"
     }
   },
   {
@@ -295,7 +317,8 @@
       "category": "tas",
       "biography": "This is Paras from India! He loves Maths(A=N>>>C>>>>>>G) and football (Madridista) and other \nsports as well. When he is not doing Maths he tries to explore new places, food, and other stuffs! \nHe is always down to interacting with new people.",
       "photo": "staff_photos/Paras.png",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "paras-mani"
     }
   },
   {
@@ -308,7 +331,8 @@
       "category": "tas",
       "biography": "Ritwin is a current Stanford student in the Class of 2029. He began doing math competitions\nin elementary school, and his passion was ignited in high school after\nbeing introduced to the online math community. Ritwin attended MOP in 2024\nand USACO Camp in 2023. Besides math, he loves playing card games and\nchatting with people, as well as red pandas and the blobheart\nemoji (so wholesome :D).\n\nHe also runs the Problem of the Day seasons in Athemath and is\nexcited to show cool problems to all of you!",
       "photo": "staff_photos/ritwinnarra.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "ritwin-narra"
     }
   },
   {
@@ -321,7 +345,8 @@
       "category": "tas",
       "biography": "Swastika is from Kolkata. She has been doing competition math for\n3 years and has taken part in various competitions. Her favorite\nsubjects are geometry and number theory. She is a Sophie fellow\nand a staff at MOTP. Apart from math, she loves listening to\nTaylor Swift songs and playing the guitar.",
       "photo": "staff_photos/swastikadeb.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "swastika-deb"
     }
   },
   {
@@ -334,7 +359,8 @@
       "category": "tas",
       "biography": "Tarun is a junior from Houston, Texas. He is a 2025 USAMO Silver Medalist and a MOP attendee. \nHe is also part of the MIT PRIMES-USA research program and has attended Canada/USA Mathcamp in \n2024 and 2025. In his free time, Tarun enjoys solving Olympiad Geometry problems, playing PC \ngames, and hanging out with friends.",
       "photo": "staff_photos/tarun.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "tarun-rapaka"
     }
   },
   {
@@ -347,7 +373,8 @@
       "category": "tas",
       "biography": "Uddipa, a senior from Kolkata, India, loves Maths (specially combi and NT :)) and Physics. \nShe has excelled in IOQM, RMO, MO (IITB), BMT, the Sir Isaac Newton Exam (UoWaterloo), \nTOSC (IITK), FSJM, IRO, and other contests. She has attended MTRP (ISI K), Math.Biz (RAM), \nIISF (Govt. of India), Perimeter Institute, and SAIFR Brazil programs. A trained Odissi \ndancer who enjoys editing, Uddipa is Vice President of the Math Club at Entwinity. She also \nloves teaching maths and is passionate about making STEM opportunities more accessible, \nespecially for girls.",
       "photo": "staff_photos/uddipa.png",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "uddipa-pal"
     }
   },
   {
@@ -360,7 +387,8 @@
       "category": "past",
       "biography": "Emily is a current MIT student in the Class of 2029.\nShe has done math competitions since elementary school, has\nattended MOP in 2023 and 2024, and also placed 5th at the 2022\nMath Prize for Girls competition. Outside of math, she enjoys card\ngames, pole-vaulting, and drawing.\n\nEmily taught *Adorable Algebra* during the 2023-2024 school year!\n\nEmily was Community Director during the 2024-2025 school year!",
       "photo": "staff_photos/emily_yu.png",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "emily-yu"
     }
   },
   {
@@ -373,7 +401,8 @@
       "category": "past",
       "biography": "Andrew is a current MIT student in the Class of 2029. An avid\nfan of math olympiads, he attended MOP in 2023. His favorite\nsubject is combinatorics, which he hopes to understand more\nadvanced theory in. Outside of math, Andrew enjoys playing the\npiano, running long distances, reading contemporary poetry, and\nlistening to R&B.\n\nAndrew was Contests Director during the 2024-2025 school year!",
       "photo": "staff_photos/weian.png",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "andrew-xie"
     }
   },
   {
@@ -386,7 +415,8 @@
       "category": "past",
       "biography": "Neal is a math contest enthusiast from the Bay Area, despite\ngrowing up in Wisconsin, and Athemath TA since F23.\nAlthough mostly retired from the olympiad math world after MOP\n2023, he spends much of his time on making problem proposals by\nmessing around on GeoGebra. Other than that, he also does random\nthings like listening to a random classical / electronic music,\nmaking philosophical blog posts on AoPS, and making geometry\ndiagrams with asy.",
       "photo": "staff_photos/neal.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "neal-yan"
     }
   },
   {
@@ -399,7 +429,8 @@
       "category": "past",
       "biography": "Matilde Iannaccone is a student at the University of Pisa and Scuola Normale Superiore in Italy.\nShe attended MOP in 2023 as an international\nstudent and attended TST camps in her country. Her favorite\nsubject in Math is Geometry but she is slowly starting to\nappreciate Combinatorics. Apart from Math she enjoys reading comic\nbooks, listening to Harry Styles and hanging out with friends.\n\nMatilde taught *AIME Combo* during the 2023-2024 and 2024-2025 school years!",
       "photo": "staff_photos/matilde.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "matilde-iannaccone"
     }
   },
   {
@@ -412,7 +443,8 @@
       "category": "past",
       "biography": "Julia Xiang is a current MIT student in the Class of 2029. She has been\nparticipating in math contests for several years and attended MOP\nin 2024. Her favorite subject is number theory, but over the years\nshe has come to love all math for its fun and challenges. Outside\nof math, Julia likes writing and listening to music.\n\nJulia taught *Affable Algebraic Affairs* during the 2024-2025 school year!",
       "photo": "staff_photos/julia.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "julia-xiang"
     }
   },
   {
@@ -425,7 +457,8 @@
       "category": "past",
       "biography": "Emily is a current MIT student in the Class of 2029.\nShe has been doing math competitions since elementary and middle\nschool and she attended MOP in 2023. She especially enjoys\nolympiad geometry. Outside of math, Emily likes to go on hikes\nwith her family, hanging out with friends, and listening to music.\n\nEmily taught *Comical Combo* during the 2023-2024 and 2024-2025 school years!",
       "photo": "staff_photos/emilyliu.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "emily-liu"
     }
   },
   {
@@ -436,9 +469,10 @@
       "display_name": "Ashley Zhu",
       "role": "Teacher",
       "category": "past",
-      "biography": "Ashley Zhu is a current Harvard student in the Class of 2029. \nShe attended MOP \u201823. She hopes to help girls feel more\ncomfortable pursuing math. Outside of math, she loves to read,\ndraw, and write.\n\nAshley taught\n*Art of Trigonometry (ft. Problem Solving)* during the 2023-2024 and 2024-2025 school years!",
+      "biography": "Ashley Zhu is a current Harvard student in the Class of 2029. \nShe attended MOP ‘23. She hopes to help girls feel more\ncomfortable pursuing math. Outside of math, she loves to read,\ndraw, and write.\n\nAshley taught\n*Art of Trigonometry (ft. Problem Solving)* during the 2023-2024 and 2024-2025 school years!",
       "photo": "staff_photos/ashleyzhu.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "ashley-zhu"
     }
   },
   {
@@ -451,7 +485,8 @@
       "category": "past",
       "biography": "Ana is a current Princeton student in the Class of 2029. \nShe is an EGMO 2023 gold medalist and she attended MOP in 2023 as an international\nstudent. Her favourite part of Math is Geometry, but she can get\nalong with Number Theory if need be. Outside of Math, she enjoys\nwriting (about anything), playing table tennis and going on long\nwalks.\n\nAna taught *Quirky Geometry* during the 2023-2024 and 2024-2025 school years!",
       "photo": "staff_photos/anaboiangiu.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "ana-boiangiu"
     }
   },
   {
@@ -464,7 +499,8 @@
       "category": "past",
       "biography": "Peyton is a current MIT student in the Class of 2029. Ever since starting math competitions in\nelementary school, Peyton has participated in the Canadian Winter\nTraining Camp and MOP in 2022 and 2023 respectively. His favorite\nsubject is combinatorics, but he used to be much better at\ngeometry. When not doing math, you can find Peyton playing\nquizbowl, piano, or reading random wikipedia articles.",
       "photo": "staff_photos/peytonli.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "peyton-li"
     }
   },
   {
@@ -477,7 +513,8 @@
       "category": "past",
       "biography": "Laura is currently a year 12 in Australia, having attended the EGMO\ntwice and the IMO once and obtaining a gold medal each time.\n\nWhen she's not chatting with other maths enthusiasts, she enjoys\nbadminton, listening to music, losing the game, making the\nsmallest origami cranes humanly possible and playing board/card\ngames.",
       "photo": "staff_photos/lauranan.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "laura-nan"
     }
   },
   {
@@ -490,7 +527,8 @@
       "category": "past",
       "biography": "A math enthusiast from India, Yash was a part of the training camp\nfor the IMO team in 2024.He has participated in various math\ncontests throughout his high school years and especially likes\ncombinatorics even though he is an NT main. When not doing math,\nhe likes to swim, hangout with friends and spend numerous hours on\nhis phone.",
       "photo": "staff_photos/yash.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "yash-vardhan"
     }
   },
   {
@@ -503,7 +541,8 @@
       "category": "past",
       "biography": "Alexander is a current student at Millburn High School graduating in 2026.\nHe is a 2-time IMO Gold Medalist in 2023 and 2024.\nHe won a gold medal at RMM 2023 and APMO 2024.\nHe is a 2-time USAMO Gold Medalist and obtained a perfect score in 2023.\nHe attended the prestigious MOP program from 2022-2024.\nHe attended the MIT PRIMES-USA math research program in 2024.\nIn his spare time, he enjoys playing sports, especially tennis.",
       "photo": "staff_photos/dotted.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "alexander-wang"
     }
   },
   {
@@ -516,7 +555,8 @@
       "category": "past",
       "biography": "Angeline is a current Harvard student in the Class of 2029. She\nqualified for the USAJMO and received several awards for females\nin mathematics, including the Maryam Mirazkhani award. She loves\nsharing her passion for math with other students. Outside of math,\nAngeline loves journalism and playing poker with her friends.",
       "photo": "staff_photos/angelinezhao.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "angeline-zhao"
     }
   },
   {
@@ -529,7 +569,8 @@
       "category": "past",
       "biography": "Hannah is a current MIT student in the Class of 2029. She attended MOP\nin 2023 and 2024, and G2 in 2023. She was also an Athemath student\nin the spring 2022 session.\n\nHannah taught *AIME Geo* in Fall 2023 and Spring 2024!",
       "photo": "staff_photos/hannahfox.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "hannah-fox"
     }
   },
   {
@@ -542,7 +583,8 @@
       "category": "past",
       "biography": "Sunaina is a third year student at CMI. She is an EGMO 2023\nsilver medalist and attended IMO training Camp three times. In her\nfree time, she loves to write blogposts, work on some Olympiad\nmath problems and talk to her friends. She also loves to watch\nromcom k-dramas and listen to k-pop and Indian Indies.",
       "photo": "staff_photos/sunainapati.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "sunaina-pati"
     }
   },
   {
@@ -555,7 +597,8 @@
       "category": "past",
       "biography": "Serena is a current MIT student in the Class of 2026 majoring in math. In high school, she\nwas a two-time MOP qualifier and EGMO gold medalist, and before\ncollege, she took a gap year to study abroad in South Korea. She\nalso founded the Brookings Math Circle and ran it for five years\nto address the lack of math interest and resources in her town. In\nher free time, she enjoys playing card games, learning languages,\nand going on walks.\n\nSerena taught *Computational Geometry* in Spring 2021!",
       "photo": "staff_photos/serenaan1.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "serena-an"
     }
   },
   {
@@ -568,7 +611,8 @@
       "category": "past",
       "biography": "Michelle Kang is a current MIT student in the Class of 2028 who attended Thomas Jefferson\nHigh School for Science and Technology in Virginia. She attended\nMOP in 2021 and 2022 and has competed in math contests from a\nyoung age. She hopes to inspire and motivate other girls who have\na passion in STEM. Outside of math, she loves watching movies,\nplaying card games (especially ERS), and playing table tennis.\n\nMichelle taught *Counting Strategies* in Fall 2021, Spring\n2022, Fall 2022, and Spring 2023!\n\nMichelle was Community Director during the 2023-2024 school year!",
       "photo": "staff_photos/michellekang.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "michelle-kang"
     }
   },
   {
@@ -581,7 +625,8 @@
       "category": "past",
       "biography": "Laura Zhang is a current MIT student in the Class of 2028 who attended Thomas Jefferson\nHigh School for Science and Technology in northern Virginia. She\nattended MOP in 2022 and also competes with her school's math\nteam. Laura hopes to encourage young girls and nonbinary people to\ncontinue pursuing their dreams. Along with math, she enjoys\njournalism, reading romance novels, and having meaningful\nconversations.\n\nLaura taught *Algebra and NT Fundamentals* in Fall 2022 and\nSpring 2023!\n\nLaura was Contests Director during the 2023-2024 school year!",
       "photo": "staff_photos/laurazhang.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "laura-zhang"
     }
   },
   {
@@ -594,7 +639,8 @@
       "category": "past",
       "biography": "Raina is a current MIT student in the Class of 2028 who attended Lakeside School in\nSeattle, Washington. She attended MOP in 2022 and has participated\nin math contests since elementary school. Outside of math, she\nenjoys reading, drawing, and playing card games.",
       "photo": "staff_photos/rainawu.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "raina-wu"
     }
   },
   {
@@ -607,7 +653,8 @@
       "category": "past",
       "biography": "Debayu is a current IIT Kanpur student in the Class of 2029\nfrom India who has been participating in\nmath contests for 4 years now and has made it to the National MO\nof his country twice. He qualified in the Sharygin Correspondence\nRound and participated in the Sharygin finals this year (2023).\nHis favorite math subject is number theory but he absolutely\nadores combinatorics as well. Other than math, he also likes\nphysics, astronomy, quizzing and listening to Post Malone.",
       "photo": "staff_photos/debayu.png",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "debayu-chakrabarti"
     }
   },
   {
@@ -620,7 +667,8 @@
       "category": "past",
       "biography": "Elsa is from the UK. She is an EGMO bronze medalist and she loves\nto row and listen to music. She's super excited to TA for\nAthemath!",
       "photo": "staff_photos/elsa.png",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "elsa-lin"
     }
   },
   {
@@ -633,7 +681,8 @@
       "category": "past",
       "biography": "Pranav (Pranav1056) is a sophomore at Oxford from India.\nHe has been participating in math contests for 2 years and\ncleared INMO in 2022. He has also cleared various stages of IFOMG\nand now represents India at FSJM. Apart from math, he likes to\nplay chess, cards, read physics, go out with friends and talk with\nnew people.",
       "photo": "staff_photos/pranavchoudhary.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "pranav-choudhary"
     }
   },
   {
@@ -646,7 +695,8 @@
       "category": "past",
       "biography": "Gunjan is from India. She has enjoyed Olympiad mathematics ever\nsince she was nine, and has participated in numerous contests over\nthe past few years. She is a 2 time European Math Girl's Olympiad\nparticipant and won a bronze medal in 2022, she has attended IMOTC\nthrice. She is also the director of MOTP. When she is not doing\nmath she likes to sketch, bake and spend hours on her phone.",
       "photo": "staff_photos/gunjanaggarwal.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "gunjan-aggarwal"
     }
   },
   {
@@ -659,7 +709,8 @@
       "category": "past",
       "biography": "Jessica is a current MIT student in the Class of 2028 from Parkland, Florida. Since\nstarting math competitions in elementary school, she has attended\nMOP in 2020 and 2021 and was a gold medalist at EGMO 2021.\nProblems involving functional equations are her favorite. Outside\nof math, she enjoys drawing, watching anime, and running.",
       "photo": "staff_photos/jessicawan.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "jessica-wan"
     }
   },
   {
@@ -672,7 +723,8 @@
       "category": "past",
       "biography": "Annabel is a current MIT student in the Class of 2028 from Seattle. She's enjoyed math\nsince elementary school and has attended MOP twice. Outside of\nmath, she likes drawing, listening to music, and rowing.",
       "photo": "staff_photos/annabelge.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "annabel-ge"
     }
   },
   {
@@ -685,7 +737,8 @@
       "category": "past",
       "biography": "Anurag is from New Delhi, India. His interests are reading,\nworking out, combinatorics, number theory and geometry (he is an\nalgebra anti-main except poly ofc which is super good). He is also\ninterested in Human Psychology and Neurology.",
       "photo": "staff_photos/anuragsingh.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "anurag-singh"
     }
   },
   {
@@ -698,7 +751,8 @@
       "category": "past",
       "biography": "Alex is a current MIT student in the Class of 2028 who attended Lakeside School in Seattle,\nWashington. Alex is a two-time USAJMO winner, USAMO silver, and\nthree-time MOP participant, and also attended USA-Canada Mathcamp\nin 2021 and for the first time in-person in 2022. On the list of\nthings Alex enjoys doing but is terrible at are soccer, his\nfavorite subject rigid combo, and playing the piano. Alex is a\nhardcore science fiction fan (Dune, Foundation, recently Le Guin),\nand plays too many video games.",
       "photo": "staff_photos/alexzhao.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "alex-zhao"
     }
   },
   {
@@ -709,9 +763,10 @@
       "display_name": "Emily Ma",
       "role": "Teacher",
       "category": "past",
-      "biography": "Emily is a current Harvard student in the Class of 2028 from Toronto, Canada. She earned an\nhonourable mention on the Canadian Mathematical Olympiad and a\nperfect score on the Pan-American Girls\u2019 Mathematical Olympiad.\nShe enjoys reading, playing games with her friends, and watching\nmusicals.\n\nEmily taught *j'AIME the AMC: Algebra Meets Combinatorics* in\nFall 2023 and Spring 2024!",
+      "biography": "Emily is a current Harvard student in the Class of 2028 from Toronto, Canada. She earned an\nhonourable mention on the Canadian Mathematical Olympiad and a\nperfect score on the Pan-American Girls’ Mathematical Olympiad.\nShe enjoys reading, playing games with her friends, and watching\nmusicals.\n\nEmily taught *j'AIME the AMC: Algebra Meets Combinatorics* in\nFall 2023 and Spring 2024!",
       "photo": "staff_photos/emilyma.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "emily-ma"
     }
   },
   {
@@ -724,7 +779,8 @@
       "category": "past",
       "biography": "Kristine is a current MIT student in the Class of 2028. She attended MOP in 2023 and has\nparticipated in math contests from a young age. She hopes to\nencourage and support other girls on their journeys in math. In\nher free time, she enjoys reading, rock climbing, and all things\nmusic!\n\nKristine taught *Combinections* in Fall 2023 and Spring 2024!",
       "photo": "staff_photos/kristinelu.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "kristine-lu"
     }
   },
   {
@@ -737,7 +793,8 @@
       "category": "past",
       "biography": "Rey Li is a current MIT student in the Class of 2026 who was a USAJMO winner in 2020 and\nattended MOP in 2020 and 2021. Rey loves math and helping others\nwith math, and hopes to share the best parts of it with others.\nOutside of math, Rey plays copious amounts of Slay the Spire and\nreads a little too much manga.",
       "photo": "staff_photos/reyli.jpeg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "rey-li"
     }
   },
   {
@@ -750,7 +807,8 @@
       "category": "past",
       "biography": "Janabel Xia is an MIT graduate who majored in mathematics. In high\nschool, she served as her school's math team captain, and was also\na two-time MOP attendee and an EGMO individual silver medalist on\nteam USA. She has seen first-hand and second-hand the experiences\nthat discourage young girls to continue pursuing math, and hopes\nto provide support for these girls through Athemath. Outside of\nmath, she also enjoys dancing / choreographing, studying music,\nand reading.",
       "photo": "staff_photos/janabelxia.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "janabel-xia"
     }
   },
   {
@@ -763,7 +821,8 @@
       "category": "past",
       "biography": "Nicole is a current MIT student in the Class of 2027. She has competed in various math\ncompetitions throughout middle and high school and attended MOP in\n2021. Nicole hopes to encourage girls and nonbinary students to\nparticipate in whatever excites them, whether it be math, other\nSTEM paths, or anything else! Outside of math, she enjoys learning\nlanguages, listening to music, and hanging out with friends.\n\nNicole taught *Algebra and Combinatorics Trail Mix* in Fall\n2021, Spring 2022, Fall 2022, and Spring 2023!",
       "photo": "staff_photos/nicoleshen.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "nicole-shen"
     }
   },
   {
@@ -774,9 +833,10 @@
       "display_name": "Serena Xu",
       "role": "Teacher",
       "category": "past",
-      "biography": "Serena Xu is a current MIT student in the Class of 2027. She was a 2021 MOPper and once\ngot a perfect score in AMC12. She established GmathIRL and wrote\nRabbit's Geometry to encourage more participation in STEM fields,\nespecially underrepresented genders. She was also an alum of\nAthemath\u2019s first session. Moreover, she is really obsessed with\nEDM and sometimes even remixes different pieces (also 10% DJ) or\ncuts short videos for fun.\n\nSerena taught *Spicy Geo* in Spring 2022, Fall 2022, and\nSpring 2023!",
+      "biography": "Serena Xu is a current MIT student in the Class of 2027. She was a 2021 MOPper and once\ngot a perfect score in AMC12. She established GmathIRL and wrote\nRabbit's Geometry to encourage more participation in STEM fields,\nespecially underrepresented genders. She was also an alum of\nAthemath’s first session. Moreover, she is really obsessed with\nEDM and sometimes even remixes different pieces (also 10% DJ) or\ncuts short videos for fun.\n\nSerena taught *Spicy Geo* in Spring 2022, Fall 2022, and\nSpring 2023!",
       "photo": "staff_photos/serenaxu.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "serena-xu"
     }
   },
   {
@@ -789,7 +849,8 @@
       "category": "past",
       "biography": "Cordelia is a current MIT student in the Class of 2027. She was a winner for the USAJMO\n2022 and a MOP participant, and she began doing math competitions\nsince elementary school. As a transgender woman, she sees\nfirsthand many of the struggles women and other gender minorities\nface in STEM fields, and hopes to do a small part in helping to\nalleviate some of their struggles. Aside from math, she enjoys\nplaying piano, listening to EDM, and swimming.\n\nCordelia taught *NT Olympiad Fundamentals* in Fall 2022 and\nSpring 2023!",
       "photo": "staff_photos/cordeliahu.png",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "cordelia-hu"
     }
   },
   {
@@ -802,7 +863,8 @@
       "category": "past",
       "biography": "Holden Mui is an MIT graduate. He taught at a local gifted academy\nand also ran a local math circle. He attended MOP three times, was\na USAMO Honorable Mention, and placed in the top 25 in the Putnam.\nIn addition to math, he also enjoys playing chamber music with\nfriends and writing music. He thinks he is the reincarnation of\nRavel but other people think he is just a turtle.",
       "photo": "staff_photos/holdenmui.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "holden-mui"
     }
   },
   {
@@ -815,7 +877,8 @@
       "category": "past",
       "biography": "Isabella Quan is a current MIT student in the Class of 2026. She has competed in math\ncontests since 4th grade and attended MOP in 2020 and RSI in 2021.\nWhen competing in team contests, she was often the only girl among\nseveral boys, and hopes to encourage and inspire girls who are\nstarting off in math. When not working, she enjoys playing\nPokemon, writing, and listening to music, especially K-pop.\n\nIsabella taught *My Favorite Things* in Spring 2021, Fall\n2021, Spring 2022, and Fall 2022!",
       "photo": "staff_photos/isabellaquan.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "isabella-quan"
     }
   },
   {
@@ -828,7 +891,8 @@
       "category": "past",
       "biography": "Sanjana is a current MIT student in the Class of 2026. She attended MOP in 2019 and 2020, and\nwas an EGMO gold medalist in 2020 and 2021. Outside of math, she\nenjoys reading, crosswords, and puzzles.\n\nSanjana taught *Counting and Probability Principles* in\nSpring 2021 and Spring 2022!",
       "photo": "staff_photos/sanjanadas.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "sanjana-das"
     }
   },
   {
@@ -841,7 +905,8 @@
       "category": "past",
       "biography": "Pravalika is a current MIT student in the Class of 2026. She won a gold medal at the Math\nPrize for Girls Olympiad in 2019 and attended MOP in 2020 and\n2021. Pravalika is also a central leader of the math nonprofit\ninteGIRLS and a regular volunteer at Academy of Hope Adult Public\nCharter School, and she is highly passionate about mathematics,\neducation, and activism. She hopes to encourage people of all\nbackgrounds to pursue their STEM passions without fear! Outside of\nmath, she enjoys reading sci-fi/fantasy (current read:\n*The Weight of the Stars* - K. Ancrum), painting, and\nlistening to Rainbow Kitten Surprise.\n\nPravalika taught *Spicy Counting* in Spring 2021 and Spring\n2022!",
       "photo": "staff_photos/pravalikaputalapattu.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "pravalika-putalapattu"
     }
   },
   {
@@ -854,7 +919,8 @@
       "category": "past",
       "biography": "Kaylee Ji is a current MIT student in the Class of 2026. Kaylee is a two-time USAJMO\nhonorable mention and MOP participant. She was on the Canada\nEuropean Girls' Math Olympiad Team and won a gold medal. Kaylee\nhas seen girls discouraged from preparing for harder competitions\nand wishes to assist other girls in their math goals. In her free\ntime, she enjoys reading, drawing, and taking walks outside.\n\nKaylee taught *Algebra in AIME* in Spring 2022!",
       "photo": "staff_photos/kayleeji.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "kaylee-ji"
     }
   },
   {
@@ -865,9 +931,10 @@
       "display_name": "Andrew Wu",
       "role": "Vice President",
       "category": "past",
-      "biography": "Andrew Wu is a Yale University graduate, living in the DC\nmetropolitan area. He worked as the head problem editor for the\nYale-run competitions MMATHS and Girls in Math. In high school he\nqualified for USA(J)MO thrice, and published two papers in\nEuclidean geometry. Outside of math, Andrew loves playing piano \u2014\nclassical, pop, musical theatre, anything \u2014 and he\u2019s passionate\nabout educational equity, good writing, and graphic design.",
+      "biography": "Andrew Wu is a Yale University graduate, living in the DC\nmetropolitan area. He worked as the head problem editor for the\nYale-run competitions MMATHS and Girls in Math. In high school he\nqualified for USA(J)MO thrice, and published two papers in\nEuclidean geometry. Outside of math, Andrew loves playing piano —\nclassical, pop, musical theatre, anything — and he’s passionate\nabout educational equity, good writing, and graphic design.",
       "photo": "staff_photos/andrewwu.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "andrew-wu"
     }
   },
   {
@@ -880,7 +947,8 @@
       "category": "past",
       "biography": "Ilaria Seidel is a current Harvard student in the Class of 2026. She is a second-year\nresearch student at the MIT PRIMES program, and attended\nUSA/Canada Mathcamp in 2019. In her free time, she enjoys playing\nthe flute, painting octopuses, and learning languages.",
       "photo": "staff_photos/ilariaseidel.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "ilaria-seidel"
     }
   },
   {
@@ -893,7 +961,8 @@
       "category": "past",
       "biography": "Janette is an MIT graduate who studied Electrical Engineering and\nComputer Science. In middle and high school, she participated in\nvarious math competitions, including MathCounts, the AMC series,\nand other local and national competitions. She especially loves\ngeometry and enjoys sharing her passion in math with younger\nstudents. Outside of math, Janette is interested in the\nlinguistics field of study and spends her free time watching kpop\nand dramas.",
       "photo": "staff_photos/janettepark.jpg",
-      "ordering": 0
+      "ordering": 0,
+      "slug": "janette-park"
     }
   }
 ]

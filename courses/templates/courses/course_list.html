@@ -49,7 +49,7 @@
                         <div class="course-title-text">
                             <h3 class="course-title">{{ course.name }}</h3>
                             {% if course.instructor %}
-                                <a class="course-teach" href="{% url 'home:staff_detail' pk=course.instructor.pk %}">Instructor: {{ course.instructor.display_name }}</a>
+                                <a class="course-teach" href="{{ course.instructor.get_absolute_url }}">Instructor: {{ course.instructor.display_name }}</a>
                             {% endif %}
                         </div>
                     </div>
