@@ -10,4 +10,4 @@ class StaffPhotoListingAdmin(admin.ModelAdmin):
     list_display = ["display_name", "role", "category", "ordering", "user"]
     list_filter = ["category"]
     search_fields = ["display_name", "role", "user__username"]
-    ordering = ["-ordering", "display_name"]
+    autocomplete_fields = ("user",)

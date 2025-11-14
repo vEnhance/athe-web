@@ -20,6 +20,7 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ("name", "semester", "instructor", "difficulty")
     list_filter = ("semester", "difficulty")
     search_fields = ("name", "description")
+    autocomplete_fields = ("instructor",)
     inlines = [CourseMeetingInline]
 
 

@@ -49,7 +49,7 @@ class StaffPhotoListing(models.Model):
     )
 
     class Meta:
-        ordering = ["-ordering", "display_name"]
+        ordering = ["category", "-ordering", "display_name"]
         verbose_name = "Staff Photo Listing"
         verbose_name_plural = "Staff Photo Listings"
 
