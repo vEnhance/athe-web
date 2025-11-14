@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from home.models import StaffPhotoListing
 
@@ -80,6 +81,22 @@ class Student(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user.username} ({self.semester})"
+
+    def clean(self) -> None:
+        """Validate that all enrolled courses belong to the student's semester."""
+        super().clean()
+        # Only validate if the instance has been saved (has a pk)
+        if self.pk:
+            wrong_semester_courses = self.enrolled_courses.exclude(
+                semester=self.semester
+            )
+            if wrong_semester_courses.exists():
+                course_names = ", ".join(
+                    wrong_semester_courses.values_list("name", flat=True)
+                )
+                raise ValidationError(
+                    f"The following courses are not in {self.semester}: {course_names}"
+                )
 
     class Meta:
         unique_together = ("user", "semester")

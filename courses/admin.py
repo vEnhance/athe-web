@@ -30,6 +30,22 @@ class StudentAdmin(admin.ModelAdmin):
     search_fields = ("user__username", "user__email")
     filter_horizontal = ("enrolled_courses",)
 
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        """Filter enrolled_courses to only show courses from the student's semester."""
+        if db_field.name == "enrolled_courses":
+            # Get the student instance being edited
+            student_id = request.resolver_match.kwargs.get("object_id")
+            if student_id:
+                try:
+                    student = Student.objects.get(pk=student_id)
+                    # Filter courses to only those in the student's semester
+                    kwargs["queryset"] = Course.objects.filter(
+                        semester=student.semester
+                    )
+                except Student.DoesNotExist:
+                    pass
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
+
 
 @admin.register(CourseMeeting)
 class CourseMeetingAdmin(admin.ModelAdmin):

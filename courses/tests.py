@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
@@ -97,6 +98,43 @@ def test_student_enrollment():
     assert student.enrolled_courses.count() == 2
     assert course1 in student.enrolled_courses.all()
     assert course2 in student.enrolled_courses.all()
+
+
+@pytest.mark.django_db
+def test_student_enrollment_semester_validation():
+    """Test that students cannot enroll in courses from different semesters."""
+    user = User.objects.create_user(username="testuser", password="password")
+    fall = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    spring = Semester.objects.create(
+        name="Spring 2026",
+        slug="sp26",
+        start_date=(timezone.now() + timedelta(days=120)).date(),
+        end_date=(timezone.now() + timedelta(days=210)).date(),
+    )
+    fall_course = Course.objects.create(
+        name="Fall Math", description="Math in fall", semester=fall
+    )
+    spring_course = Course.objects.create(
+        name="Spring Math", description="Math in spring", semester=spring
+    )
+
+    # Create student for fall semester
+    student = Student.objects.create(user=user, semester=fall)
+    student.enrolled_courses.add(fall_course)
+
+    # Try to enroll in a spring course - this should fail validation
+    student.enrolled_courses.add(spring_course)
+
+    with pytest.raises(ValidationError) as exc_info:
+        student.clean()
+
+    assert "Spring Math" in str(exc_info.value)
+    assert str(fall) in str(exc_info.value)
 
 
 @pytest.mark.django_db
