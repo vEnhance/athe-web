@@ -1,13 +1,21 @@
 {% extends "home/base.html" %}
 {% block content %}
-    <div id="content">
-        <h1>Semesters</h1>
-        <ul>
+    <div class="content">
+        <h1>All Semesters</h1>
+        <div class="catalog-scroll">
             {% for semester in semesters %}
-                <li>
-                    <a href="{{ semester.slug }}/">{{ semester.name }}</a>
-                </li>
+                <div class="semester-entry">
+                    <h2>
+                        <a href="{% url 'course_list' slug=semester.slug %}">{{ semester.name }}</a>
+                    </h2>
+                    <p>
+                        <i>{{ semester.start_date|date:"F jS, Y" }}—{{ semester.end_date|date:"F jS, Y" }}</i>
+                    </p>
+                    <p>{{ semester.courses.count }} course{{ semester.courses.count|pluralize }}</p>
+                </div>
+            {% empty %}
+                <p>No semesters available yet.</p>
             {% endfor %}
-        </ul>
+        </div>
     </div>
 {% endblock content %}
