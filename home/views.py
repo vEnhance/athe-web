@@ -1,6 +1,10 @@
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
-from django.views.generic import TemplateView
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, UpdateView
+
+from .models import StaffPhotoListing
 
 
 def index(request: HttpRequest) -> HttpResponse:
@@ -18,6 +22,33 @@ class StaffView(TemplateView):
     """Staff page."""
 
     template_name = "home/staff.html"
+
+    def get_context_data(self, **kwargs):  # type: ignore
+        """Add staff listings grouped by category."""
+        context = super().get_context_data(**kwargs)
+        context["board"] = StaffPhotoListing.objects.filter(category="board")
+        context["teachers"] = StaffPhotoListing.objects.filter(category="teachers")
+        context["tas"] = StaffPhotoListing.objects.filter(category="tas")
+        context["past"] = StaffPhotoListing.objects.filter(category="past")
+        return context
+
+
+class StaffPhotoUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """View for staff members to update their own listing."""
+
+    model = StaffPhotoListing
+    fields = ["display_name", "biography", "photo"]
+    template_name = "home/staff_edit.html"
+    success_url = reverse_lazy("home:staff")
+
+    def test_func(self) -> bool:
+        """Only allow the user to edit their own listing."""
+        obj = self.get_object()
+        return obj.user == self.request.user
+
+    def get_object(self, queryset=None):  # type: ignore
+        """Get the staff listing for the current user."""
+        return get_object_or_404(StaffPhotoListing, user=self.request.user)
 
 
 class DonorsView(TemplateView):

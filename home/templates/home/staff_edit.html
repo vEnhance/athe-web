@@ -1,0 +1,18 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}Edit Staff Profile - Athemath{% endblock %}
+{% block content %}
+    <div id="content">
+        <h1>Edit Your Staff Profile</h1>
+        <p>
+            <strong>Role:</strong> {{ object.role }}
+            ({{ object.get_category_display }})
+        </p>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            {% bootstrap_button button_type="submit" content="Save Changes" button_class="btn-primary" %}
+            <a href="{% url 'home:staff' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+{% endblock content %}

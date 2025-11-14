@@ -1,24 +1,36 @@
-$(".staff-container-hidden").click(function () {
-  var parent = event.target;
-  while (
-    !parent.classList.contains("staff-container-hidden") &&
-    !parent.classList.contains("staff-container-visible")
-  ) {
-    parent = $(parent).parent().get(0);
-  }
-  var left = $(parent).children()[0];
-  var image = $(left).children()[1];
-  left = $(left).children()[2];
-  var right = $(parent).children()[1];
-  if ($(right).is(":visible")) {
-    parent.classList = new Array("staff-container-hidden");
-    right.classList = new Array("staff-right-hidden");
-    $(image).attr("src", "../athe_icons/maximize.svg");
-    left.classList = new Array("staff-name-hidden");
-  } else {
-    parent.classList = new Array("staff-container-visible");
-    right.classList = new Array("staff-right-visible");
-    $(image).attr("src", "../athe_icons/minimize.svg");
-    left.classList = new Array("staff-name-visible");
-  }
+// Staff list toggle functionality
+document.addEventListener("DOMContentLoaded", function () {
+  const staffContainers = document.querySelectorAll(
+    ".staff-container-hidden, .staff-container-visible"
+  );
+
+  staffContainers.forEach(function (container) {
+    container.addEventListener("click", function () {
+      const left = container.querySelector(".staff-left");
+      const icon = left.querySelectorAll("img")[1]; // Second img is the icon
+      const nameBox = left.querySelector(
+        ".staff-name-hidden, .staff-name-visible"
+      );
+      const right = container.querySelector(
+        ".staff-right-hidden, .staff-right-visible"
+      );
+
+      if (
+        right.classList.contains("staff-right-visible") ||
+        window.getComputedStyle(right).display !== "none"
+      ) {
+        // Hide biography
+        container.className = "staff-container-hidden";
+        right.className = "staff-right-hidden";
+        icon.src = icon.src.replace("minimize.svg", "maximize.svg");
+        nameBox.className = "staff-name-hidden";
+      } else {
+        // Show biography
+        container.className = "staff-container-visible";
+        right.className = "staff-right-visible";
+        icon.src = icon.src.replace("maximize.svg", "minimize.svg");
+        nameBox.className = "staff-name-visible";
+      }
+    });
+  });
 });
