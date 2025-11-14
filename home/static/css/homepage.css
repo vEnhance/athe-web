@@ -122,29 +122,6 @@ li.splash-item:hover a {
   margin-right: auto;
 }
 
-/* Optional link styling */
-.opt-link {
-  background: url("../icons/arrow-right-circle.svg") no-repeat left center;
-  margin: 10px 0 10px 30px;
-  padding-left: 30px;
-  font-weight: 400;
-}
-
-.opt-link:hover {
-  background: url("../icons/arrow-right-circle_orange.svg") no-repeat left
-    center;
-  margin-left: 50px;
-}
-
-.opt-link:hover a {
-  color: #ff9d00;
-  text-decoration: underline;
-}
-
-a.opt-text {
-  color: #a02828;
-}
-
 /* Donor logos */
 .donor-logo {
   display: block;

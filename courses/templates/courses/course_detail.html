@@ -1,7 +1,7 @@
 {% extends "home/base.html" %}
 {% block title %}{{ course.name }} - Athemath{% endblock %}
 {% block content %}
-    <div class="container" style="margin-top: 100px; margin-bottom: 50px;">
+    <div id="content">
         <div class="row">
             <div class="col-12">
                 <h1>{{ course.name }}</h1>
@@ -38,22 +38,16 @@
                 {% endif %}
                 <div class="mt-4">
                     <h3>Course Resources</h3>
-                    <ul class="list-unstyled">
-                        {% if course.google_classroom_direct_link %}
-                            <li class="mb-2">
-                                <a href="{{ course.google_classroom_direct_link }}"
-                                   class="btn btn-outline-primary"
-                                   target="_blank">Open Google Classroom</a>
-                            </li>
-                        {% endif %}
-                        {% if course.zoom_meeting_link %}
-                            <li class="mb-2">
-                                <a href="{{ course.zoom_meeting_link }}"
-                                   class="btn btn-outline-success"
-                                   target="_blank">Join Zoom Meeting</a>
-                            </li>
-                        {% endif %}
-                    </ul>
+                    {% if course.google_classroom_direct_link %}
+                        <div class="opt-link">
+                            <a href="{{ course.google_classroom_direct_link }}" target="_blank">Open Google Classroom</a>
+                        </div>
+                    {% endif %}
+                    {% if course.zoom_meeting_link %}
+                        <div class="opt-link">
+                            <a href="{{ course.zoom_meeting_link }}" target="_blank">Join Zoom Meeting</a>
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="mt-4">
                     <h3>Upcoming Meetings</h3>
