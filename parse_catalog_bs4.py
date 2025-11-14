@@ -46,13 +46,19 @@ def parse_html_file(file_path):
                 instructor_elem.get_text(strip=True).replace("Instructor:", "").strip()
             )
 
-        # Get description (all course-description paragraphs)
+        # Get description and difficulty (all course-description paragraphs)
         description_parts = []
+        difficulty = ""
         desc_paragraphs = course_div.find_all("p", class_="course-description")
         for p in desc_paragraphs:
-            text = p.get_text(strip=True)
-            # Skip difficulty markers
-            if not text.startswith("Difficulty:"):
+            # Use separator=' ' to ensure spaces between text nodes
+            text = p.get_text(separator=" ", strip=True)
+            # Normalize whitespace
+            text = re.sub(r"\s+", " ", text)
+            # Extract difficulty if present
+            if text.startswith("Difficulty:"):
+                difficulty = text.replace("Difficulty:", "").strip()
+            else:
                 description_parts.append(text)
         description = "\n\n".join(description_parts)
 
@@ -60,7 +66,8 @@ def parse_html_file(file_path):
         lessons = []
         lesson_paragraphs = course_div.find_all("p", class_="course-sched-text")
         for p in lesson_paragraphs:
-            lesson_text = p.get_text(strip=True)
+            # Use separator=' ' to ensure spaces between text nodes
+            lesson_text = p.get_text(separator=" ", strip=True)
             # Clean up spacing
             lesson_text = re.sub(r"\s+", " ", lesson_text)
             lessons.append(lesson_text)
@@ -70,6 +77,7 @@ def parse_html_file(file_path):
                 "name": course_name,
                 "instructor": instructor,
                 "description": description,
+                "difficulty": difficulty,
                 "lessons": lessons,
             }
         )
@@ -233,7 +241,7 @@ def main():
                         "description": course["description"],
                         "semester": semester_pk,
                         "instructor": instructor_pk,
-                        "difficulty": "",
+                        "difficulty": course["difficulty"],
                         "lesson_plan": lesson_plan,
                     },
                 }

@@ -14,11 +14,11 @@
     "pk": 1,
     "fields": {
       "name": "Computational Geometry",
-      "description": "This course will cover early-to-mid AIME level geometry related\n                        to triangles, circles, and trigonometry. Topics include similar\n                        triangles, triangle centers, cyclic quadrilaterals, power of a\n                        point, trigonometric identities, and coordinate bashing.\n\nThis course will run onSaturdays from 3-4pm Eastern.",
+      "description": "This course will cover early-to-mid AIME level geometry related to triangles, circles, and trigonometry. Topics include similar triangles, triangle centers, cyclic quadrilaterals, power of a point, trigonometric identities, and coordinate bashing.\n\nThis course will run on Saturdays from 3-4pm Eastern.",
       "semester": 1,
       "instructor": 43,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Triangles I\nLESSON 2:Triangles II\nLESSON 3:Circles\nLESSON 4:Trigonometry\nLESSON 5:Miscellaneous\nLESSON 6:Review and Test"
+      "lesson_plan": "LESSON 1: Triangles I\nLESSON 2: Triangles II\nLESSON 3: Circles\nLESSON 4: Trigonometry\nLESSON 5: Miscellaneous\nLESSON 6: Review and Test"
     }
   },
   {
@@ -26,11 +26,11 @@
     "pk": 2,
     "fields": {
       "name": "Counting and Probability Principles",
-      "description": "In this course, we cover common methods in counting and their\n                        applications, on early to mid AIME-level problems. Topics will\n                        include constructive and complementary counting, PIE and\n                        constructing sets, bijections (such as Stars and Bars),\n                        recursion, and path-counting.\n\nThis course will run onSaturdays from 4-5pm Eastern.",
+      "description": "In this course, we cover common methods in counting and their applications, on early to mid AIME-level problems. Topics will include constructive and complementary counting, PIE and constructing sets, bijections (such as Stars and Bars), recursion, and path-counting.\n\nThis course will run on Saturdays from 4-5pm Eastern.",
       "semester": 1,
       "instructor": 64,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Counting Basics\nLESSON 2:Sets\nLESSON 3:Bijections\nLESSON 4:Recursion\nLESSON 5:Counting Paths\nLESSON 6:Counting Test!"
+      "lesson_plan": "LESSON 1: Counting Basics\nLESSON 2: Sets\nLESSON 3: Bijections\nLESSON 4: Recursion\nLESSON 5: Counting Paths\nLESSON 6: Counting Test!"
     }
   },
   {
@@ -38,11 +38,11 @@
     "pk": 3,
     "fields": {
       "name": "My Favorite Things",
-      "description": "Vieta, trig functions and prime number theories ♪Mass points, right triangles and coordinate bashing ♩Manipulation and geometric series ♬These are a few of my favorite things~\n\nIn this class, we’ll be talking about a variety of tricks that\n                        are prevalent on the AMCs and early to mid AIME which I find to\n                        be particularly elegant or beautiful.\n\nThis course will run onSundays from 4-5pm Eastern.",
+      "description": "Vieta, trig functions and prime number theories ♪ Mass points, right triangles and coordinate bashing ♩ Manipulation and geometric series ♬ These are a few of my favorite things~\n\nIn this class, we’ll be talking about a variety of tricks that are prevalent on the AMCs and early to mid AIME which I find to be particularly elegant or beautiful.\n\nThis course will run on Sundays from 4-5pm Eastern.",
       "semester": 1,
       "instructor": 63,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Odds and Ends of Geometry\nLESSON 2:Best Minecraft Mods: Modular Arithmetic\nLESSON 3:It's a Sin to not Know Trig: Trigonometry\nLESSON 4:I Used Algebra to Destroy the Algebra: Algebraic Manipulations\nLESSON 5:Tree Roots and Polynomial Roots: Vieta's\nLESSON 6:Stream Sequence by IZ*ONE: Sequences and Series"
+      "lesson_plan": "LESSON 1: Odds and Ends of Geometry\nLESSON 2: Best Minecraft Mods: Modular Arithmetic\nLESSON 3: It's a Sin to not Know Trig: Trigonometry\nLESSON 4: I Used Algebra to Destroy the Algebra: Algebraic Manipulations\nLESSON 5: Tree Roots and Polynomial Roots: Vieta's\nLESSON 6: Stream Sequence by IZ*ONE: Sequences and Series"
     }
   },
   {
@@ -50,11 +50,11 @@
     "pk": 4,
     "fields": {
       "name": "Spicy Counting",
-      "description": "This course is designed to strengthen students’ counting and\n                        probability intuition skills at the early-/mid-AIME level.\n                        Students will learn a range of approaches, including\n                        constructive and complementary counting, simplification and\n                        recursion, invariants, bijections, and strategic bashing.\n                        Lectures will be heavily problem-based as AIME counting problems\n                        tend to rely on strategies and ideas rather than formulas.\n\nThis course will run onSundays from 5-6pm Eastern.",
+      "description": "This course is designed to strengthen students’ counting and probability intuition skills at the early-/mid-AIME level. Students will learn a range of approaches, including constructive and complementary counting, simplification and recursion, invariants, bijections, and strategic bashing. Lectures will be heavily problem-based as AIME counting problems tend to rely on strategies and ideas rather than formulas.\n\nThis course will run on Sundays from 5-6pm Eastern.",
       "semester": 1,
       "instructor": 65,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:The Three C's\nLESSON 2:Judicious Adding\nLESSON 3:Level Up!\nLESSON 4:Bijections\nLESSON 5:Graph Theory\nLESSON 6:Farewell"
+      "lesson_plan": "LESSON 1: The Three C's\nLESSON 2: Judicious Adding\nLESSON 3: Level Up!\nLESSON 4: Bijections\nLESSON 5: Graph Theory\nLESSON 6: Farewell"
     }
   },
   {
@@ -72,11 +72,11 @@
     "pk": 5,
     "fields": {
       "name": "Algebra and Combinatorics Trail Mix",
-      "description": "In this course, we will go over some common techniques used on\n                        mid AMC- to early AIME-level problems. Students will become\n                        familiar with methods and tricks that cover a variety of topics,\n                        especially in combinatorics and algebra. Topics include\n                        bijections, algebraic manipulation, using inequalities,\n                        sequences and series, and recursions.",
+      "description": "In this course, we will go over some common techniques used on mid AMC- to early AIME-level problems. Students will become familiar with methods and tricks that cover a variety of topics, especially in combinatorics and algebra. Topics include bijections, algebraic manipulation, using inequalities, sequences and series, and recursions.",
       "semester": 2,
       "instructor": 59,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Counting Clever Correspondences\nLESSON 2:Algebraic Manipulation\nLESSON 3:Inequalities\nLESSON 4:∑equences and ∑eries\nLESSON 5:Recursion and States\nLESSON 6:Look to the Future"
+      "lesson_plan": "LESSON 1: Counting Clever Correspondences\nLESSON 2: Algebraic Manipulation\nLESSON 3: Inequalities\nLESSON 4: ∑equences and ∑eries\nLESSON 5: Recursion and States\nLESSON 6: Look to the Future"
     }
   },
   {
@@ -84,11 +84,11 @@
     "pk": 6,
     "fields": {
       "name": "Counting Strategies",
-      "description": "This course is designed to help you enhance your combinatorics\n                        problem solving skills for early to mid AIME level problems. We\n                        will cover many different techniques, such as constructive and\n                        complementary counting, recursion, expected value, and\n                        bijections.",
+      "description": "This course is designed to help you enhance your combinatorics problem solving skills for early to mid AIME level problems. We will cover many different techniques, such as constructive and complementary counting, recursion, expected value, and bijections.",
       "semester": 2,
       "instructor": 44,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Counting Principles\nLESSON 2:Sets\nLESSON 3:Bijections\nLESSON 4:Recursion\nLESSON 5:Other Topics\nLESSON 6:Combo Test"
+      "lesson_plan": "LESSON 1: Counting Principles\nLESSON 2: Sets\nLESSON 3: Bijections\nLESSON 4: Recursion\nLESSON 5: Other Topics\nLESSON 6: Combo Test"
     }
   },
   {
@@ -96,11 +96,11 @@
     "pk": 7,
     "fields": {
       "name": "Cute Geometry",
-      "description": "This course covers all sorts of AIME-level topics related to\n                        triangles, plus a tiny peek into olympiad geo with cyclic\n                        quadrilaterals and cool orthocenter properties. Some topics\n                        included are area, Power of a Point, and trig bashing.",
+      "description": "This course covers all sorts of AIME-level topics related to triangles, plus a tiny peek into olympiad geo with cyclic quadrilaterals and cool orthocenter properties. Some topics included are area, Power of a Point, and trig bashing.",
       "semester": 2,
       "instructor": 6,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Similarity and Congruence\nLESSON 2:Lengths and Areas\nLESSON 3:Triangle Centers\nLESSON 4:Circle Magic\nLESSON 5:Trig\nLESSON 6:Geometry Test!"
+      "lesson_plan": "LESSON 1: Similarity and Congruence\nLESSON 2: Lengths and Areas\nLESSON 3: Triangle Centers\nLESSON 4: Circle Magic\nLESSON 5: Trig\nLESSON 6: Geometry Test!"
     }
   },
   {
@@ -108,11 +108,11 @@
     "pk": 8,
     "fields": {
       "name": "My Favorite Things",
-      "description": "Vieta, trig functions and prime number theories ♪Mass points, right triangles and coordinate bashing ♩Manipulation and geometric series ♬These are a few of my favorite things~\n\nIn this class, we’ll be talking about a variety of tricks that\n                        are prevalent on the AMCs and early to mid AIME which I find to\n                        be particularly elegant or beautiful.",
+      "description": "Vieta, trig functions and prime number theories ♪ Mass points, right triangles and coordinate bashing ♩ Manipulation and geometric series ♬ These are a few of my favorite things~\n\nIn this class, we’ll be talking about a variety of tricks that are prevalent on the AMCs and early to mid AIME which I find to be particularly elegant or beautiful.",
       "semester": 2,
       "instructor": 63,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Odds and Ends of Geometry\nLESSON 2:Best Minecraft Mods: Modular Arithmetic\nLESSON 3:It's a Sin to not Know Trig: Trigonometry\nLESSON 4:I Used Algebra to Destroy the Algebra: Algebraic Manipulations\nLESSON 5:Tree Roots and Polynomial Roots: Vieta's\nLESSON 6:Stream Sequence by IZ*ONE: Sequences and Series"
+      "lesson_plan": "LESSON 1: Odds and Ends of Geometry\nLESSON 2: Best Minecraft Mods: Modular Arithmetic\nLESSON 3: It's a Sin to not Know Trig: Trigonometry\nLESSON 4: I Used Algebra to Destroy the Algebra: Algebraic Manipulations\nLESSON 5: Tree Roots and Polynomial Roots: Vieta's\nLESSON 6: Stream Sequence by IZ*ONE: Sequences and Series"
     }
   },
   {
@@ -130,11 +130,11 @@
     "pk": 9,
     "fields": {
       "name": "Counting and Probability Principles",
-      "description": "In this course, we cover common methods in counting and their\n                        applications, on early to mid AIME-level problems. Topics will\n                        include constructive and complementary counting, PIE and\n                        constructing sets, bijections (such as Stars and Bars),\n                        recursion, and path-counting.",
+      "description": "In this course, we cover common methods in counting and their applications, on early to mid AIME-level problems. Topics will include constructive and complementary counting, PIE and constructing sets, bijections (such as Stars and Bars), recursion, and path-counting.",
       "semester": 3,
       "instructor": 64,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Counting Basics\nLESSON 2:Sets\nLESSON 3:Bijections\nLESSON 4:Recursion\nLESSON 5:Counting Paths\nLESSON 6:Counting Test!"
+      "lesson_plan": "LESSON 1: Counting Basics\nLESSON 2: Sets\nLESSON 3: Bijections\nLESSON 4: Recursion\nLESSON 5: Counting Paths\nLESSON 6: Counting Test!"
     }
   },
   {
@@ -142,11 +142,11 @@
     "pk": 10,
     "fields": {
       "name": "Spicy Counting",
-      "description": "This course is designed to strengthen students’ counting and\n                        probability intuition skills at the early-/mid-AIME level.\n                        Students will learn a range of approaches, including\n                        constructive and complementary counting, simplification and\n                        recursion, invariants, bijections, and strategic bashing.\n                        Lectures will be heavily problem-based as AIME counting problems\n                        tend to rely on strategies and ideas rather than formulas.",
+      "description": "This course is designed to strengthen students’ counting and probability intuition skills at the early-/mid-AIME level. Students will learn a range of approaches, including constructive and complementary counting, simplification and recursion, invariants, bijections, and strategic bashing. Lectures will be heavily problem-based as AIME counting problems tend to rely on strategies and ideas rather than formulas.",
       "semester": 3,
       "instructor": 65,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:The Three C's\nLESSON 2:Judicious Adding\nLESSON 3:Level Up!\nLESSON 4:Bijections\nLESSON 5:Graph Theory\nLESSON 6:Farewell"
+      "lesson_plan": "LESSON 1: The Three C's\nLESSON 2: Judicious Adding\nLESSON 3: Level Up!\nLESSON 4: Bijections\nLESSON 5: Graph Theory\nLESSON 6: Farewell"
     }
   },
   {
@@ -154,11 +154,11 @@
     "pk": 11,
     "fields": {
       "name": "Spicy Geometry",
-      "description": "In this course, we are going to talk about the five unique\n                        hearts of triangles and some famous theorems. Topics will\n                        include the special property of five centers and some\n                        interesting theorems, such as Ceva, Ptolemy, Monge and so on. In\n                        particular, we will solve some kinda-wonderful problems in each\n                        class!",
+      "description": "In this course, we are going to talk about the five unique hearts of triangles and some famous theorems. Topics will include the special property of five centers and some interesting theorems, such as Ceva, Ptolemy, Monge and so on. In particular, we will solve some kinda-wonderful problems in each class!",
       "semester": 3,
       "instructor": 60,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Circumcenter and incenter\nLESSON 2:Centroid, orthocenter and excenter\nLESSON 3:Menelaus and Ceva\nLESSON 4:Ptolemy and Simson\nLESSON 5:Power of a Point and Radical Axis\nLESSON 6:Review and Group Solve"
+      "lesson_plan": "LESSON 1: Circumcenter and incenter\nLESSON 2: Centroid, orthocenter and excenter\nLESSON 3: Menelaus and Ceva\nLESSON 4: Ptolemy and Simson\nLESSON 5: Power of a Point and Radical Axis\nLESSON 6: Review and Group Solve"
     }
   },
   {
@@ -166,11 +166,11 @@
     "pk": 12,
     "fields": {
       "name": "Algebra in AIME",
-      "description": "In this course, we will cover many algebra topics in mid-to-late\n                        AIME: trigonometry, complex numbers, polynomials, and conics.\n                        The focus of this course will be solving problems. Expect\n                        content to be covered quickly under the assumption that students\n                        are vaguely familiar with the concepts discussed.",
+      "description": "In this course, we will cover many algebra topics in mid-to-late AIME: trigonometry, complex numbers, polynomials, and conics. The focus of this course will be solving problems. Expect content to be covered quickly under the assumption that students are vaguely familiar with the concepts discussed.",
       "semester": 3,
       "instructor": 66,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Trigonometric Identities\nLESSON 2:Complex Numbers\nLESSON 3:Polynomials I\nLESSON 4:Polynomials II\nLESSON 5:Conics\nLESSON 6:Review and Test"
+      "lesson_plan": "LESSON 1: Trigonometric Identities\nLESSON 2: Complex Numbers\nLESSON 3: Polynomials I\nLESSON 4: Polynomials II\nLESSON 5: Conics\nLESSON 6: Review and Test"
     }
   },
   {
@@ -178,11 +178,11 @@
     "pk": 13,
     "fields": {
       "name": "Algebra and Combinatorics Trail Mix",
-      "description": "In this course, we will go over some common techniques used on\n                        mid AMC- to early AIME-level problems. Students will become\n                        familiar with methods and tricks that cover a variety of topics,\n                        especially in combinatorics and algebra. Topics include\n                        bijections, algebraic manipulation, using inequalities,\n                        sequences and series, and recursions.",
+      "description": "In this course, we will go over some common techniques used on mid AMC- to early AIME-level problems. Students will become familiar with methods and tricks that cover a variety of topics, especially in combinatorics and algebra. Topics include bijections, algebraic manipulation, using inequalities, sequences and series, and recursions.",
       "semester": 3,
       "instructor": 59,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Counting Clever Correspondences\nLESSON 2:Algebraic Manipulation\nLESSON 3:Inequalities\nLESSON 4:∑equences and ∑eries\nLESSON 5:Recursion and States\nLESSON 6:Look to the Future"
+      "lesson_plan": "LESSON 1: Counting Clever Correspondences\nLESSON 2: Algebraic Manipulation\nLESSON 3: Inequalities\nLESSON 4: ∑equences and ∑eries\nLESSON 5: Recursion and States\nLESSON 6: Look to the Future"
     }
   },
   {
@@ -190,11 +190,11 @@
     "pk": 14,
     "fields": {
       "name": "Cute Geometry",
-      "description": "This course covers all sorts of AIME-level topics related to\n                        triangles, plus a tiny peek into olympiad geo with cyclic\n                        quadrilaterals and cool orthocenter properties. Some topics\n                        included are area, Power of a Point, and trig bashing.",
+      "description": "This course covers all sorts of AIME-level topics related to triangles, plus a tiny peek into olympiad geo with cyclic quadrilaterals and cool orthocenter properties. Some topics included are area, Power of a Point, and trig bashing.",
       "semester": 3,
       "instructor": 6,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Similarity and Congruence\nLESSON 2:Lengths and Areas\nLESSON 3:Triangle Centers\nLESSON 4:Circle Magic\nLESSON 5:Trig\nLESSON 6:Geometry Test!"
+      "lesson_plan": "LESSON 1: Similarity and Congruence\nLESSON 2: Lengths and Areas\nLESSON 3: Triangle Centers\nLESSON 4: Circle Magic\nLESSON 5: Trig\nLESSON 6: Geometry Test!"
     }
   },
   {
@@ -202,11 +202,11 @@
     "pk": 15,
     "fields": {
       "name": "My Favorite Things",
-      "description": "Vieta, trig functions and prime number theories ♪Mass points, right triangles and coordinate bashing ♩Manipulation and geometric series ♬These are a few of my favorite things~\n\nIn this class, we’ll be talking about a variety of tricks that\n                        are prevalent on the AMCs and early to mid AIME which I find to\n                        be particularly elegant or beautiful.",
+      "description": "Vieta, trig functions and prime number theories ♪ Mass points, right triangles and coordinate bashing ♩ Manipulation and geometric series ♬ These are a few of my favorite things~\n\nIn this class, we’ll be talking about a variety of tricks that are prevalent on the AMCs and early to mid AIME which I find to be particularly elegant or beautiful.",
       "semester": 3,
       "instructor": 63,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Odds and Ends of Geometry\nLESSON 2:Best Minecraft Mods: Modular Arithmetic\nLESSON 3:It's a Sin to not Know Trig: Trigonometry\nLESSON 4:I Used Algebra to Destroy the Algebra: Algebraic Manipulations\nLESSON 5:Tree Roots and Polynomial Roots: Vieta's\nLESSON 6:Stream Sequence by IZ*ONE: Sequences and Series"
+      "lesson_plan": "LESSON 1: Odds and Ends of Geometry\nLESSON 2: Best Minecraft Mods: Modular Arithmetic\nLESSON 3: It's a Sin to not Know Trig: Trigonometry\nLESSON 4: I Used Algebra to Destroy the Algebra: Algebraic Manipulations\nLESSON 5: Tree Roots and Polynomial Roots: Vieta's\nLESSON 6: Stream Sequence by IZ*ONE: Sequences and Series"
     }
   },
   {
@@ -214,11 +214,11 @@
     "pk": 16,
     "fields": {
       "name": "Counting Strategies",
-      "description": "This course is designed to help you enhance your combinatorics\n                        problem solving skills for early to mid AIME level problems. We\n                        will cover many different techniques, such as constructive and\n                        complementary counting, recursion, expected value, and\n                        bijections.",
+      "description": "This course is designed to help you enhance your combinatorics problem solving skills for early to mid AIME level problems. We will cover many different techniques, such as constructive and complementary counting, recursion, expected value, and bijections.",
       "semester": 3,
       "instructor": 44,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Counting Principles\nLESSON 2:Sets\nLESSON 3:Bijections\nLESSON 4:Recursion\nLESSON 5:Other Topics\nLESSON 6:Combo Test"
+      "lesson_plan": "LESSON 1: Counting Principles\nLESSON 2: Sets\nLESSON 3: Bijections\nLESSON 4: Recursion\nLESSON 5: Other Topics\nLESSON 6: Combo Test"
     }
   },
   {
@@ -236,11 +236,11 @@
     "pk": 17,
     "fields": {
       "name": "NT Olympiad Fundamentals",
-      "description": "In this course, we cover many of the fundamental concepts in\n                        late-AIME and Olympiad number theory, such as divisibility, size\n                        bounding, modular arithmetic, polynomials, and orders. By taking\n                        this course, you'll gain a solid foundation on number theory at\n                        a high level.",
+      "description": "In this course, we cover many of the fundamental concepts in late-AIME and Olympiad number theory, such as divisibility, size bounding, modular arithmetic, polynomials, and orders. By taking this course, you'll gain a solid foundation on number theory at a high level.",
       "semester": 4,
       "instructor": 61,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Divisibility\nLESSON 2:Modular Arithmetic\nLESSON 3:Exponents and Orders\nLESSON 4:Polynomials\nLESSON 5:Miscellaneous\nLESSON 6:Review and Test"
+      "lesson_plan": "LESSON 1: Divisibility\nLESSON 2: Modular Arithmetic\nLESSON 3: Exponents and Orders\nLESSON 4: Polynomials\nLESSON 5: Miscellaneous\nLESSON 6: Review and Test"
     }
   },
   {
@@ -248,11 +248,11 @@
     "pk": 18,
     "fields": {
       "name": "Algebra and NT Fundamentals",
-      "description": "This course will provide an introduction to early-AIME algebra\n                        and number theory. Students will learn how to tackle problems\n                        using techniques like Vieta's formulas, roots of unity, modular\n                        arithmetic, logarithm properties, and more.",
+      "description": "This course will provide an introduction to early-AIME algebra and number theory. Students will learn how to tackle problems using techniques like Vieta's formulas, roots of unity, modular arithmetic, logarithm properties, and more.",
       "semester": 4,
       "instructor": 45,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Polynomials\nLESSON 2:Divisibility and Bases\nLESSON 3:Complex Numbers\nLESSON 4:Modular Arithmetic\nLESSON 5:Harder Equations and Inequalities\nLESSON 6:Review and Test"
+      "lesson_plan": "LESSON 1: Polynomials\nLESSON 2: Divisibility and Bases\nLESSON 3: Complex Numbers\nLESSON 4: Modular Arithmetic\nLESSON 5: Harder Equations and Inequalities\nLESSON 6: Review and Test"
     }
   },
   {
@@ -260,11 +260,11 @@
     "pk": 19,
     "fields": {
       "name": "Spicy Geometry",
-      "description": "In this course, we are going to talk about the five unique\n                        hearts of triangles and some famous theorems. Topics will\n                        include the special property of five centers and some\n                        interesting theorems, such as Ceva, Ptolemy, Monge and so on. In\n                        particular, we will solve some kinda-wonderful problems in each\n                        class!",
+      "description": "In this course, we are going to talk about the five unique hearts of triangles and some famous theorems. Topics will include the special property of five centers and some interesting theorems, such as Ceva, Ptolemy, Monge and so on. In particular, we will solve some kinda-wonderful problems in each class!",
       "semester": 4,
       "instructor": 60,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Circumcenter and Incenter\nLESSON 2:Centroid, Orthocenter and Excenter\nLESSON 3:Menelaus and Ceva\nLESSON 4:Ptolemy and Simson\nLESSON 5:Power of a Point and Radical Axis\nLESSON 6:Review and Group Solve"
+      "lesson_plan": "LESSON 1: Circumcenter and Incenter\nLESSON 2: Centroid, Orthocenter and Excenter\nLESSON 3: Menelaus and Ceva\nLESSON 4: Ptolemy and Simson\nLESSON 5: Power of a Point and Radical Axis\nLESSON 6: Review and Group Solve"
     }
   },
   {
@@ -272,11 +272,11 @@
     "pk": 20,
     "fields": {
       "name": "Algebra and Combinatorics Trail Mix",
-      "description": "In this course, we will go over some common techniques used on\n                        mid AMC- to early AIME-level problems. Students will become\n                        familiar with methods and tricks that cover a variety of topics,\n                        especially in combinatorics and algebra. Topics include\n                        bijections, algebraic manipulation, using inequalities,\n                        sequences and series, and recursions.",
+      "description": "In this course, we will go over some common techniques used on mid AMC- to early AIME-level problems. Students will become familiar with methods and tricks that cover a variety of topics, especially in combinatorics and algebra. Topics include bijections, algebraic manipulation, using inequalities, sequences and series, and recursions.",
       "semester": 4,
       "instructor": 59,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Counting Clever Correspondences\nLESSON 2:Algebraic Manipulation\nLESSON 3:Inequalities\nLESSON 4:∑equences and ∑eries\nLESSON 5:Recursion and States\nLESSON 6:Look to the Future"
+      "lesson_plan": "LESSON 1: Counting Clever Correspondences\nLESSON 2: Algebraic Manipulation\nLESSON 3: Inequalities\nLESSON 4: ∑equences and ∑eries\nLESSON 5: Recursion and States\nLESSON 6: Look to the Future"
     }
   },
   {
@@ -284,11 +284,11 @@
     "pk": 21,
     "fields": {
       "name": "Cute Geometry",
-      "description": "This course covers all sorts of AIME-level topics related to\n                        triangles, plus a tiny peek into olympiad geo with cyclic\n                        quadrilaterals and cool orthocenter properties. Some topics\n                        included are area, Power of a Point, and trig bashing.",
+      "description": "This course covers all sorts of AIME-level topics related to triangles, plus a tiny peek into olympiad geo with cyclic quadrilaterals and cool orthocenter properties. Some topics included are area, Power of a Point, and trig bashing.",
       "semester": 4,
       "instructor": 6,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Similarity and Congruence\nLESSON 2:Lengths and Areas\nLESSON 3:Triangle Centers\nLESSON 4:Circle Magic\nLESSON 5:Trig\nLESSON 6:Geometry Test!"
+      "lesson_plan": "LESSON 1: Similarity and Congruence\nLESSON 2: Lengths and Areas\nLESSON 3: Triangle Centers\nLESSON 4: Circle Magic\nLESSON 5: Trig\nLESSON 6: Geometry Test!"
     }
   },
   {
@@ -296,11 +296,11 @@
     "pk": 22,
     "fields": {
       "name": "My Favorite Things",
-      "description": "Vieta, trig functions and prime number theories ♪Mass points, right triangles and coordinate bashing ♩Manipulation and geometric series ♬These are a few of my favorite things~\n\nIn this class, we’ll be talking about a variety of tricks that\n                        are prevalent on the AMCs and early to mid AIME which I find to\n                        be particularly elegant or beautiful.",
+      "description": "Vieta, trig functions and prime number theories ♪ Mass points, right triangles and coordinate bashing ♩ Manipulation and geometric series ♬ These are a few of my favorite things~\n\nIn this class, we’ll be talking about a variety of tricks that are prevalent on the AMCs and early to mid AIME which I find to be particularly elegant or beautiful.",
       "semester": 4,
       "instructor": 63,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Odds and Ends of Geometry\nLESSON 2:Best Minecraft Mods: Modular Arithmetic\nLESSON 3:It's a Sin to Not Know Trig: Trigonometry\nLESSON 4:I Used Algebra to Destroy the Algebra: Algebraic Manipulations\nLESSON 5:Tree Roots and Polynomial Roots: Vieta's\nLESSON 6:Stream Sequence by IZ*ONE: Sequences and Series"
+      "lesson_plan": "LESSON 1: Odds and Ends of Geometry\nLESSON 2: Best Minecraft Mods: Modular Arithmetic\nLESSON 3: It's a Sin to Not Know Trig: Trigonometry\nLESSON 4: I Used Algebra to Destroy the Algebra: Algebraic Manipulations\nLESSON 5: Tree Roots and Polynomial Roots: Vieta's\nLESSON 6: Stream Sequence by IZ*ONE: Sequences and Series"
     }
   },
   {
@@ -308,11 +308,11 @@
     "pk": 23,
     "fields": {
       "name": "Counting Strategies",
-      "description": "This course is designed to help you enhance your combinatorics\n                        problem solving skills for early to mid AIME level problems. We\n                        will cover many different techniques, such as constructive and\n                        complementary counting, recursion, expected value, and\n                        bijections.",
+      "description": "This course is designed to help you enhance your combinatorics problem solving skills for early to mid AIME level problems. We will cover many different techniques, such as constructive and complementary counting, recursion, expected value, and bijections.",
       "semester": 4,
       "instructor": 44,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Counting Principles\nLESSON 2:Sets\nLESSON 3:Bijections\nLESSON 4:Recursion\nLESSON 5:Other Topics\nLESSON 6:Combo Test"
+      "lesson_plan": "LESSON 1: Counting Principles\nLESSON 2: Sets\nLESSON 3: Bijections\nLESSON 4: Recursion\nLESSON 5: Other Topics\nLESSON 6: Combo Test"
     }
   },
   {
@@ -330,11 +330,11 @@
     "pk": 24,
     "fields": {
       "name": "NT Olympiad Fundamentals",
-      "description": "In this course, we cover many of the fundamental concepts in\n                        late-AIME and Olympiad number theory, such as divisibility, size\n                        bounding, modular arithmetic, polynomials, and orders. By taking\n                        this course, you'll gain a solid foundation on number theory at\n                        a high level.",
+      "description": "In this course, we cover many of the fundamental concepts in late-AIME and Olympiad number theory, such as divisibility, size bounding, modular arithmetic, polynomials, and orders. By taking this course, you'll gain a solid foundation on number theory at a high level.",
       "semester": 5,
       "instructor": 61,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Divisibility\nLESSON 2:Modular Arithmetic\nLESSON 3:Exponents and Orders\nLESSON 4:Polynomials\nLESSON 5:Miscellaneous\nLESSON 6:Review and Test"
+      "lesson_plan": "LESSON 1: Divisibility\nLESSON 2: Modular Arithmetic\nLESSON 3: Exponents and Orders\nLESSON 4: Polynomials\nLESSON 5: Miscellaneous\nLESSON 6: Review and Test"
     }
   },
   {
@@ -342,11 +342,11 @@
     "pk": 25,
     "fields": {
       "name": "Algebra and NT Fundamentals",
-      "description": "This course will provide an introduction to early-AIME algebra\n                        and number theory. Students will learn how to tackle problems\n                        using techniques like Vieta's formulas, roots of unity, modular\n                        arithmetic, logarithm properties, and more.",
+      "description": "This course will provide an introduction to early-AIME algebra and number theory. Students will learn how to tackle problems using techniques like Vieta's formulas, roots of unity, modular arithmetic, logarithm properties, and more.",
       "semester": 5,
       "instructor": 45,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Polynomials\nLESSON 2:Divisibility and Bases\nLESSON 3:Complex Numbers\nLESSON 4:Modular Arithmetic\nLESSON 5:Harder Equations and Inequalities\nLESSON 6:Review and Test"
+      "lesson_plan": "LESSON 1: Polynomials\nLESSON 2: Divisibility and Bases\nLESSON 3: Complex Numbers\nLESSON 4: Modular Arithmetic\nLESSON 5: Harder Equations and Inequalities\nLESSON 6: Review and Test"
     }
   },
   {
@@ -354,11 +354,11 @@
     "pk": 26,
     "fields": {
       "name": "Spicy Geometry",
-      "description": "In this course, we are going to talk about the five unique\n                        hearts of triangles and some famous theorems. Topics will\n                        include the special property of five centers and some\n                        interesting theorems, such as Ceva, Ptolemy, Monge and so on. In\n                        particular, we will solve some kinda-wonderful problems in each\n                        class!",
+      "description": "In this course, we are going to talk about the five unique hearts of triangles and some famous theorems. Topics will include the special property of five centers and some interesting theorems, such as Ceva, Ptolemy, Monge and so on. In particular, we will solve some kinda-wonderful problems in each class!",
       "semester": 5,
       "instructor": 60,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Circumcenter and Incenter\nLESSON 2:Centroid, Orthocenter and Excenter\nLESSON 3:Menelaus and Ceva\nLESSON 4:Ptolemy and Simson\nLESSON 5:Power of a Point and Radical Axis\nLESSON 6:Review and Group Solve"
+      "lesson_plan": "LESSON 1: Circumcenter and Incenter\nLESSON 2: Centroid, Orthocenter and Excenter\nLESSON 3: Menelaus and Ceva\nLESSON 4: Ptolemy and Simson\nLESSON 5: Power of a Point and Radical Axis\nLESSON 6: Review and Group Solve"
     }
   },
   {
@@ -366,11 +366,11 @@
     "pk": 27,
     "fields": {
       "name": "Algebra and Combinatorics Trail Mix",
-      "description": "In this course, we will go over some common techniques used on\n                        mid AMC- to early AIME-level problems. Students will become\n                        familiar with methods and tricks that cover a variety of topics,\n                        especially in combinatorics and algebra. Topics include\n                        bijections, algebraic manipulation, using inequalities,\n                        sequences and series, and recursions.",
+      "description": "In this course, we will go over some common techniques used on mid AMC- to early AIME-level problems. Students will become familiar with methods and tricks that cover a variety of topics, especially in combinatorics and algebra. Topics include bijections, algebraic manipulation, using inequalities, sequences and series, and recursions.",
       "semester": 5,
       "instructor": 59,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Counting Clever Correspondences\nLESSON 2:Algebraic Manipulation\nLESSON 3:Inequalities\nLESSON 4:∑equences and ∑eries\nLESSON 5:Recursion and States\nLESSON 6:Look to the Future"
+      "lesson_plan": "LESSON 1: Counting Clever Correspondences\nLESSON 2: Algebraic Manipulation\nLESSON 3: Inequalities\nLESSON 4: ∑equences and ∑eries\nLESSON 5: Recursion and States\nLESSON 6: Look to the Future"
     }
   },
   {
@@ -378,11 +378,11 @@
     "pk": 28,
     "fields": {
       "name": "Cute Geometry",
-      "description": "This course covers all sorts of AIME-level topics related to\n                        triangles, plus a tiny peek into olympiad geo with cyclic\n                        quadrilaterals and cool orthocenter properties. Some topics\n                        included are area, Power of a Point, and trig bashing.",
+      "description": "This course covers all sorts of AIME-level topics related to triangles, plus a tiny peek into olympiad geo with cyclic quadrilaterals and cool orthocenter properties. Some topics included are area, Power of a Point, and trig bashing.",
       "semester": 5,
       "instructor": 6,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Similarity and Congruence\nLESSON 2:Lengths and Areas\nLESSON 3:Triangle Centers\nLESSON 4:Circle Magic\nLESSON 5:Trig\nLESSON 6:Geometry Test!"
+      "lesson_plan": "LESSON 1: Similarity and Congruence\nLESSON 2: Lengths and Areas\nLESSON 3: Triangle Centers\nLESSON 4: Circle Magic\nLESSON 5: Trig\nLESSON 6: Geometry Test!"
     }
   },
   {
@@ -390,11 +390,11 @@
     "pk": 29,
     "fields": {
       "name": "Counting Strategies",
-      "description": "This course is designed to help you enhance your combinatorics\n                        problem solving skills for early to mid AIME level problems. We\n                        will cover many different techniques, such as constructive and\n                        complementary counting, recursion, expected value, and\n                        bijections.",
+      "description": "This course is designed to help you enhance your combinatorics problem solving skills for early to mid AIME level problems. We will cover many different techniques, such as constructive and complementary counting, recursion, expected value, and bijections.",
       "semester": 5,
       "instructor": 44,
       "difficulty": "",
-      "lesson_plan": "LESSON 1:Counting Principles\nLESSON 2:Sets\nLESSON 3:Bijections\nLESSON 4:Recursion\nLESSON 5:Other Topics\nLESSON 6:Combo Test"
+      "lesson_plan": "LESSON 1: Counting Principles\nLESSON 2: Sets\nLESSON 3: Bijections\nLESSON 4: Recursion\nLESSON 5: Other Topics\nLESSON 6: Combo Test"
     }
   },
   {
@@ -412,11 +412,11 @@
     "pk": 30,
     "fields": {
       "name": "Adorable Algebra",
-      "description": "This course will cover many of the fundamental Algebra\n                        techniques you will need to know for the AMC 12 and the AIME,\n                        such as Exponents and Logarithms, Piecewise Functions, Rates,\n                        Trigonometry and Complex Numbers, Polynomials and Symmetric\n                        equations, and Inequalities. Taking this course will help\n                        solidify your understanding of these topics and feel comfortable\n                        applying them.",
+      "description": "This course will cover many of the fundamental Algebra techniques you will need to know for the AMC 12 and the AIME, such as Exponents and Logarithms, Piecewise Functions, Rates, Trigonometry and Complex Numbers, Polynomials and Symmetric equations, and Inequalities. Taking this course will help solidify your understanding of these topics and feel comfortable applying them.",
       "semester": 6,
       "instructor": 28,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Rates\nLESSON 2:Polynomials and Symmetric Expressions\nLESSON 3:Trigonometry and Complex Numbers\nLESSON 4:Exponents and Logarithms\nLESSON 5:Piecewise Functions\nLESSON 6:Inequalities"
+      "difficulty": "AMC to AIME",
+      "lesson_plan": "LESSON 1: Rates\nLESSON 2: Polynomials and Symmetric Expressions\nLESSON 3: Trigonometry and Complex Numbers\nLESSON 4: Exponents and Logarithms\nLESSON 5: Piecewise Functions\nLESSON 6: Inequalities"
     }
   },
   {
@@ -424,11 +424,11 @@
     "pk": 31,
     "fields": {
       "name": "Combinections",
-      "description": "In this course, we cover all the fundamental concepts and\n                        techniques used in combinatorics at the AMC/AIME level,\n                        including recursion, probability states, expected value,\n                        generating functions, and much more. This course aims to help\n                        you develop your intuition and build your toolkit so you can\n                        tackle any combo problem you face!",
+      "description": "In this course, we cover all the fundamental concepts and techniques used in combinatorics at the AMC/AIME level, including recursion, probability states, expected value, generating functions, and much more. This course aims to help you develop your intuition and build your toolkit so you can tackle any combo problem you face!",
       "semester": 6,
       "instructor": 56,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Constructive Counting\nLESSON 2:One to One Correspondences\nLESSON 3:Induction and Recursion\nLESSON 4:Combinatorial Arguments\nLESSON 5:Interesting Cases\nLESSON 6:General Tips + Test"
+      "difficulty": "AMC to AIME",
+      "lesson_plan": "LESSON 1: Constructive Counting\nLESSON 2: One to One Correspondences\nLESSON 3: Induction and Recursion\nLESSON 4: Combinatorial Arguments\nLESSON 5: Interesting Cases\nLESSON 6: General Tips + Test"
     }
   },
   {
@@ -436,11 +436,11 @@
     "pk": 32,
     "fields": {
       "name": "j'AIME the AMC: Algebra Meets Combinatorics",
-      "description": "In this course, you will learn important concepts in AMC to\n                        early-AIME level algebra and combinatorics. Through seeing\n                        examples and doing problem sets, you’ll be able to apply\n                        concepts such as complementary counting, recurrences, and\n                        complex numbers. This course will help you recognize when\n                        certain strategies in algebra and combinatorics may be helpful\n                        on problems and how to solve them.",
+      "description": "In this course, you will learn important concepts in AMC to early-AIME level algebra and combinatorics. Through seeing examples and doing problem sets, you’ll be able to apply concepts such as complementary counting, recurrences, and complex numbers. This course will help you recognize when certain strategies in algebra and combinatorics may be helpful on problems and how to solve them.",
       "semester": 6,
       "instructor": 55,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Counting Techniques\nLESSON 2:Probability\nLESSON 3:Recurrences and Bijections\nLESSON 4:Equations and Polynomials\nLESSON 5:Complex Numbers\nLESSON 6:Sequences and Logarithms"
+      "difficulty": "AMC to AIME",
+      "lesson_plan": "LESSON 1: Counting Techniques\nLESSON 2: Probability\nLESSON 3: Recurrences and Bijections\nLESSON 4: Equations and Polynomials\nLESSON 5: Complex Numbers\nLESSON 6: Sequences and Logarithms"
     }
   },
   {
@@ -448,11 +448,11 @@
     "pk": 33,
     "fields": {
       "name": "Comical Combo",
-      "description": "This course will cover the combinatorial techniques and general\n                        strategies used in AIME-level problems. Topics include how to\n                        deal with restrictions, casework, bijections, recursion, and\n                        Principle of Inclusion-Exclusion.",
+      "description": "This course will cover the combinatorial techniques and general strategies used in AIME-level problems. Topics include how to deal with restrictions, casework, bijections, recursion, and Principle of Inclusion-Exclusion.",
       "semester": 6,
       "instructor": 33,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Basics\nLESSON 2:Restrictions\nLESSON 3:Casework\nLESSON 4:Perspectives\nLESSON 5:Frogs and Recursion\nLESSON 6:Principle of Inclusion and Exclusion"
+      "difficulty": "AIME",
+      "lesson_plan": "LESSON 1: Basics\nLESSON 2: Restrictions\nLESSON 3: Casework\nLESSON 4: Perspectives\nLESSON 5: Frogs and Recursion\nLESSON 6: Principle of Inclusion and Exclusion"
     }
   },
   {
@@ -460,11 +460,11 @@
     "pk": 34,
     "fields": {
       "name": "Get to Know Number Theory",
-      "description": "In this course, you will learn about an introduction in number\n                        theory and some of stuffs that very useful for problems. We also\n                        cover many of important concepts and some of strategies.",
+      "description": "In this course, you will learn about an introduction in number theory and some of stuffs that very useful for problems. We also cover many of important concepts and some of strategies.",
       "semester": 6,
       "instructor": 13,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Basic stuff for the beginners\nLESSON 2:Prime numbers\nLESSON 3:Useful things for solving NT problems\nLESSON 4:Famous theorems\nLESSON 5:Order and Primitive roots\nLESSON 6:Review"
+      "difficulty": "AIME",
+      "lesson_plan": "LESSON 1: Basic stuff for the beginners\nLESSON 2: Prime numbers\nLESSON 3: Useful things for solving NT problems\nLESSON 4: Famous theorems\nLESSON 5: Order and Primitive roots\nLESSON 6: Review"
     }
   },
   {
@@ -472,11 +472,11 @@
     "pk": 35,
     "fields": {
       "name": "AIME Geo",
-      "description": "This course will cover the fundamentals of AIME-level geometry\n                        problems. We will cover some useful theorems and problem-solving\n                        strategies. We will also cover some basic olympiad geometry.",
+      "description": "This course will cover the fundamentals of AIME-level geometry problems. We will cover some useful theorems and problem-solving strategies. We will also cover some basic olympiad geometry.",
       "semester": 6,
       "instructor": 41,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Similarity\nLESSON 2:Circles\nLESSON 3:Trigonometry\nLESSON 4:Length Chasing\nLESSON 5:Triangle Centers\nLESSON 6:Construction"
+      "difficulty": "AIME to Olympiad",
+      "lesson_plan": "LESSON 1: Similarity\nLESSON 2: Circles\nLESSON 3: Trigonometry\nLESSON 4: Length Chasing\nLESSON 5: Triangle Centers\nLESSON 6: Construction"
     }
   },
   {
@@ -484,11 +484,11 @@
     "pk": 36,
     "fields": {
       "name": "Art of Trigonometry (ft. Problem Solving)",
-      "description": "Art of Trigonometry (ft. Problem Solving) is a mid AIME to\n                        beginning olympiad level class focused on how to use\n                        trigonometry as a tool to simply solve high difficulty problems.\n                        The class will cover applications of trigonometry in both\n                        algebra and geometry.",
+      "description": "Art of Trigonometry (ft. Problem Solving) is a mid AIME to beginning olympiad level class focused on how to use trigonometry as a tool to simply solve high difficulty problems. The class will cover applications of trigonometry in both algebra and geometry.",
       "semester": 6,
       "instructor": 34,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Trig Definitions and Basics\nLESSON 2:Trig Formulas (Law of Sine, Law of Cosine, Ratio Lemma, Trig Ceva's, etc.)\nLESSON 3:Simplifying Geo Diagrams with Trig\nLESSON 4:Trigonometric Equations\nLESSON 5:Applications in the Complex Plane\nLESSON 6:Is Using Trig Always A Good Idea?"
+      "difficulty": "AIME to Olympiad",
+      "lesson_plan": "LESSON 1: Trig Definitions and Basics\nLESSON 2: Trig Formulas (Law of Sine, Law of Cosine, Ratio Lemma, Trig Ceva's, etc.)\nLESSON 3: Simplifying Geo Diagrams with Trig\nLESSON 4: Trigonometric Equations\nLESSON 5: Applications in the Complex Plane\nLESSON 6: Is Using Trig Always A Good Idea?"
     }
   },
   {
@@ -496,11 +496,11 @@
     "pk": 37,
     "fields": {
       "name": "NT Olympiad Fundamentals",
-      "description": "In this course, we cover many of the fundamental concepts in\n                        late-AIME and Olympiad number theory, such as divisibility, size\n                        bounding, modular arithmetic, polynomials, and orders. By taking\n                        this course, you'll gain a solid foundation on number theory at\n                        a high level.",
+      "description": "In this course, we cover many of the fundamental concepts in late-AIME and Olympiad number theory, such as divisibility, size bounding, modular arithmetic, polynomials, and orders. By taking this course, you'll gain a solid foundation on number theory at a high level.",
       "semester": 6,
       "instructor": 6,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Divisibility\nLESSON 2:Modular Arithmetic\nLESSON 3:Exponents and Orders\nLESSON 4:Polynomials\nLESSON 5:Miscellaneous\nLESSON 6:Review and Test"
+      "difficulty": "AIME to Olympiad",
+      "lesson_plan": "LESSON 1: Divisibility\nLESSON 2: Modular Arithmetic\nLESSON 3: Exponents and Orders\nLESSON 4: Polynomials\nLESSON 5: Miscellaneous\nLESSON 6: Review and Test"
     }
   },
   {
@@ -508,11 +508,11 @@
     "pk": 38,
     "fields": {
       "name": "AIME Combo",
-      "description": "In this course we cover some of the fundamental concepts of\n                        olympiad combinatorics, such as permutations, probability,\n                        catalan numbers, and dismutations as well as different\n                        principles like pigeonhole and inclusion-exclusion. By taking\n                        this course you will learn how to approach and set up\n                        computational olympiad problems.",
+      "description": "In this course we cover some of the fundamental concepts of olympiad combinatorics, such as permutations, probability, catalan numbers, and dismutations as well as different principles like pigeonhole and inclusion-exclusion. By taking this course you will learn how to approach and set up computational olympiad problems.",
       "semester": 6,
       "instructor": 31,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Everything with Anagrams\nLESSON 2:Sets and the Principle of Inclusion-Exclusion\nLESSON 3:Probability Fundamentals\nLESSON 4:Derangements and Catalan Numbers\nLESSON 5:Pigeonhole Principle\nLESSON 6:Setting Up Problems"
+      "difficulty": "AIME to Olympiad",
+      "lesson_plan": "LESSON 1: Everything with Anagrams\nLESSON 2: Sets and the Principle of Inclusion-Exclusion\nLESSON 3: Probability Fundamentals\nLESSON 4: Derangements and Catalan Numbers\nLESSON 5: Pigeonhole Principle\nLESSON 6: Setting Up Problems"
     }
   },
   {
@@ -520,11 +520,11 @@
     "pk": 39,
     "fields": {
       "name": "Outstanding Olympiad Geometry",
-      "description": "This course will cover many fundamental theorems and concepts in\n                        Olympiad geometry. Some topics we will discuss include the Euler\n                        Line, the Nine-Point Circle, the Incenter/Excenter Lemma, Power\n                        of a Point, Ceva’s Theorem, the Simson Line, and many other cool\n                        configurations!",
+      "description": "This course will cover many fundamental theorems and concepts in Olympiad geometry. Some topics we will discuss include the Euler Line, the Nine-Point Circle, the Incenter/Excenter Lemma, Power of a Point, Ceva’s Theorem, the Simson Line, and many other cool configurations!",
       "semester": 6,
       "instructor": 9,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Triangles I\nLESSON 2:Triangles II\nLESSON 3:Circles\nLESSON 4:Length and Area Ratios\nLESSON 5:Cool Configurations\nLESSON 6:Group Solve"
+      "difficulty": "Olympiad",
+      "lesson_plan": "LESSON 1: Triangles I\nLESSON 2: Triangles II\nLESSON 3: Circles\nLESSON 4: Length and Area Ratios\nLESSON 5: Cool Configurations\nLESSON 6: Group Solve"
     }
   },
   {
@@ -532,11 +532,11 @@
     "pk": 40,
     "fields": {
       "name": "Quirky Geometry",
-      "description": "In this class, we will be exploring several heuristics and\n                        philosophies that are useful in tackling Olympiad Geometry of\n                        any level (with occasional computational exercises). The\n                        lectures are designed not to be theory-heavy (so you will not be\n                        learning scary lemmas and theorems): instead, the goal is to\n                        discover ideas through problem-solving. A solid grasp of\n                        chapters 1-3 of EGMO is recommended to attend this course.",
+      "description": "In this class, we will be exploring several heuristics and philosophies that are useful in tackling Olympiad Geometry of any level (with occasional computational exercises). The lectures are designed not to be theory-heavy (so you will not be learning scary lemmas and theorems): instead, the goal is to discover ideas through problem-solving. A solid grasp of chapters 1-3 of EGMO is recommended to attend this course.",
       "semester": 6,
       "instructor": 35,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Midpoints and Parallelograms\nLESSON 2:Construct\nLESSON 3:Triangle Centers\nLESSON 4:Power of a Point\nLESSON 5:Eraser\nLESSON 6:Quick!"
+      "difficulty": "Olympiad",
+      "lesson_plan": "LESSON 1: Midpoints and Parallelograms\nLESSON 2: Construct\nLESSON 3: Triangle Centers\nLESSON 4: Power of a Point\nLESSON 5: Eraser\nLESSON 6: Quick!"
     }
   },
   {
@@ -554,11 +554,11 @@
     "pk": 41,
     "fields": {
       "name": "Adorable Algebra",
-      "description": "This course will cover many of the fundamental Algebra\n                        techniques you will need to know for the AMC 12 and the AIME,\n                        such as Exponents and Logarithms, Piecewise Functions, Rates,\n                        Trigonometry and Complex Numbers, Polynomials and Symmetric\n                        equations, and Inequalities. Taking this course will help\n                        solidify your understanding of these topics and feel comfortable\n                        applying them.",
+      "description": "This course will cover many of the fundamental Algebra techniques you will need to know for the AMC 12 and the AIME, such as Exponents and Logarithms, Piecewise Functions, Rates, Trigonometry and Complex Numbers, Polynomials and Symmetric equations, and Inequalities. Taking this course will help solidify your understanding of these topics and feel comfortable applying them.",
       "semester": 7,
       "instructor": 28,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Rates\nLESSON 2:Polynomials and Symmetric Expressions\nLESSON 3:Trigonometry and Complex Numbers\nLESSON 4:Exponents and Logarithms\nLESSON 5:Piecewise Functions\nLESSON 6:Inequalities"
+      "difficulty": "AMC 12 to Mid AIME",
+      "lesson_plan": "LESSON 1: Rates\nLESSON 2: Polynomials and Symmetric Expressions\nLESSON 3: Trigonometry and Complex Numbers\nLESSON 4: Exponents and Logarithms\nLESSON 5: Piecewise Functions\nLESSON 6: Inequalities"
     }
   },
   {
@@ -566,11 +566,11 @@
     "pk": 42,
     "fields": {
       "name": "Combinections",
-      "description": "In this course, we cover all the fundamental concepts and\n                        techniques used in combinatorics at the AMC/AIME level,\n                        including recursion, probability states, expected value,\n                        generating functions, and much more. This course aims to help\n                        you develop your intuition and build your toolkit so you can\n                        tackle any combo problem you face!",
+      "description": "In this course, we cover all the fundamental concepts and techniques used in combinatorics at the AMC/AIME level, including recursion, probability states, expected value, generating functions, and much more. This course aims to help you develop your intuition and build your toolkit so you can tackle any combo problem you face!",
       "semester": 7,
       "instructor": 56,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Constructive Counting\nLESSON 2:One to One Correspondences\nLESSON 3:Induction and Recursion\nLESSON 4:Combinatorial Arguments\nLESSON 5:Interesting Cases\nLESSON 6:General Tips + Test"
+      "difficulty": "AMC 12 to Mid AIME",
+      "lesson_plan": "LESSON 1: Constructive Counting\nLESSON 2: One to One Correspondences\nLESSON 3: Induction and Recursion\nLESSON 4: Combinatorial Arguments\nLESSON 5: Interesting Cases\nLESSON 6: General Tips + Test"
     }
   },
   {
@@ -578,11 +578,11 @@
     "pk": 43,
     "fields": {
       "name": "j'AIME the AMC: Algebra Meets Combinatorics",
-      "description": "In this course, you will learn important concepts in AMC to\n                        early-AIME level algebra and combinatorics. Through seeing\n                        examples and doing problem sets, you’ll be able to apply\n                        concepts such as complementary counting, recurrences, and\n                        complex numbers. This course will help you recognize when\n                        certain strategies in algebra and combinatorics may be helpful\n                        on problems and how to solve them.",
+      "description": "In this course, you will learn important concepts in AMC to early-AIME level algebra and combinatorics. Through seeing examples and doing problem sets, you’ll be able to apply concepts such as complementary counting, recurrences, and complex numbers. This course will help you recognize when certain strategies in algebra and combinatorics may be helpful on problems and how to solve them.",
       "semester": 7,
       "instructor": 55,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Counting Techniques\nLESSON 2:Probability\nLESSON 3:Recurrences and Bijections\nLESSON 4:Equations and Polynomials\nLESSON 5:Complex Numbers\nLESSON 6:Sequences and Logarithms"
+      "difficulty": "AMC 12 to Early AIME",
+      "lesson_plan": "LESSON 1: Counting Techniques\nLESSON 2: Probability\nLESSON 3: Recurrences and Bijections\nLESSON 4: Equations and Polynomials\nLESSON 5: Complex Numbers\nLESSON 6: Sequences and Logarithms"
     }
   },
   {
@@ -590,11 +590,11 @@
     "pk": 44,
     "fields": {
       "name": "Comical Combo",
-      "description": "This course will cover the combinatorial techniques and general\n                        strategies used in AIME-level problems. Topics include how to\n                        deal with restrictions, casework, bijections, recursion, and\n                        Principle of Inclusion-Exclusion.",
+      "description": "This course will cover the combinatorial techniques and general strategies used in AIME-level problems. Topics include how to deal with restrictions, casework, bijections, recursion, and Principle of Inclusion-Exclusion.",
       "semester": 7,
       "instructor": 33,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Basics\nLESSON 2:Restrictions\nLESSON 3:Casework\nLESSON 4:Perspectives\nLESSON 5:Frogs and Recursion\nLESSON 6:Principle of Inclusion and Exclusion"
+      "difficulty": "AMC 12 to Late AIME",
+      "lesson_plan": "LESSON 1: Basics\nLESSON 2: Restrictions\nLESSON 3: Casework\nLESSON 4: Perspectives\nLESSON 5: Frogs and Recursion\nLESSON 6: Principle of Inclusion and Exclusion"
     }
   },
   {
@@ -602,11 +602,11 @@
     "pk": 45,
     "fields": {
       "name": "Get to Know Number Theory",
-      "description": "In this course, you will learn about an introduction in number\n                        theory and some of stuffs that very useful for problems. We also\n                        cover many of important concepts and some of strategies.",
+      "description": "In this course, you will learn about an introduction in number theory and some of stuffs that very useful for problems. We also cover many of important concepts and some of strategies.",
       "semester": 7,
       "instructor": 13,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Basic stuff for the beginners\nLESSON 2:Prime numbers and Congruence\nLESSON 3:Famous theorems\nLESSON 4:p-adic valuation\nLESSON 5:Diophantine equations\nLESSON 6:Reviewing"
+      "difficulty": "Mid AIME to Mid Oly",
+      "lesson_plan": "LESSON 1: Basic stuff for the beginners\nLESSON 2: Prime numbers and Congruence\nLESSON 3: Famous theorems\nLESSON 4: p-adic valuation\nLESSON 5: Diophantine equations\nLESSON 6: Reviewing"
     }
   },
   {
@@ -614,11 +614,11 @@
     "pk": 46,
     "fields": {
       "name": "AIME Geo",
-      "description": "This course will cover the fundamentals of AIME-level geometry\n                        problems. We will cover some useful theorems and problem-solving\n                        strategies. We will also cover some basic olympiad geometry.",
+      "description": "This course will cover the fundamentals of AIME-level geometry problems. We will cover some useful theorems and problem-solving strategies. We will also cover some basic olympiad geometry.",
       "semester": 7,
       "instructor": 41,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Similarity\nLESSON 2:Circles\nLESSON 3:Trigonometry\nLESSON 4:Length Chasing\nLESSON 5:Triangle Centers\nLESSON 6:Construction"
+      "difficulty": "Early AIME to Beginner Oly",
+      "lesson_plan": "LESSON 1: Similarity\nLESSON 2: Circles\nLESSON 3: Trigonometry\nLESSON 4: Length Chasing\nLESSON 5: Triangle Centers\nLESSON 6: Construction"
     }
   },
   {
@@ -626,11 +626,11 @@
     "pk": 47,
     "fields": {
       "name": "Art of Trigonometry (ft. Problem Solving)",
-      "description": "Art of Trigonometry (ft. Problem Solving) is a mid AIME to\n                        beginning olympiad level class focused on how to use\n                        trigonometry as a tool to simply solve high difficulty problems.\n                        The class will cover applications of trigonometry in both\n                        algebra and geometry.",
+      "description": "Art of Trigonometry (ft. Problem Solving) is a mid AIME to beginning olympiad level class focused on how to use trigonometry as a tool to simply solve high difficulty problems. The class will cover applications of trigonometry in both algebra and geometry.",
       "semester": 7,
       "instructor": 34,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Trig Definitions and Basics\nLESSON 2:Trig Formulas (Law of Sine, Law of Cosine, Ratio Lemma, Trig Ceva's, etc.)\nLESSON 3:Simplifying Geo Diagrams with Trig\nLESSON 4:Trigonometric Equations\nLESSON 5:Applications in the Complex Plane\nLESSON 6:Is Using Trig Always A Good Idea?"
+      "difficulty": "Late AIME to Beginner Oly",
+      "lesson_plan": "LESSON 1: Trig Definitions and Basics\nLESSON 2: Trig Formulas (Law of Sine, Law of Cosine, Ratio Lemma, Trig Ceva's, etc.)\nLESSON 3: Simplifying Geo Diagrams with Trig\nLESSON 4: Trigonometric Equations\nLESSON 5: Applications in the Complex Plane\nLESSON 6: Is Using Trig Always A Good Idea?"
     }
   },
   {
@@ -638,11 +638,11 @@
     "pk": 48,
     "fields": {
       "name": "NT Olympiad Fundamentals",
-      "description": "In this course, we cover many of the fundamental concepts in\n                        late-AIME and Olympiad number theory, such as divisibility, size\n                        bounding, modular arithmetic, polynomials, and orders. By taking\n                        this course, you'll gain a solid foundation on number theory at\n                        a high level.",
+      "description": "In this course, we cover many of the fundamental concepts in late-AIME and Olympiad number theory, such as divisibility, size bounding, modular arithmetic, polynomials, and orders. By taking this course, you'll gain a solid foundation on number theory at a high level.",
       "semester": 7,
       "instructor": 6,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Divisibility\nLESSON 2:Modular Arithmetic\nLESSON 3:Exponents and Orders\nLESSON 4:Polynomials\nLESSON 5:Miscellaneous\nLESSON 6:Review and Test"
+      "difficulty": "Late AIME to Mid Oly",
+      "lesson_plan": "LESSON 1: Divisibility\nLESSON 2: Modular Arithmetic\nLESSON 3: Exponents and Orders\nLESSON 4: Polynomials\nLESSON 5: Miscellaneous\nLESSON 6: Review and Test"
     }
   },
   {
@@ -650,11 +650,11 @@
     "pk": 49,
     "fields": {
       "name": "AIME Combo",
-      "description": "In this course we cover some of the fundamental concepts of\n                        olympiad combinatorics, such as permutations, probability,\n                        catalan numbers, and dismutations as well as different\n                        principles like pigeonhole and inclusion-exclusion. By taking\n                        this course you will learn how to approach and set up\n                        computational olympiad problems.",
+      "description": "In this course we cover some of the fundamental concepts of olympiad combinatorics, such as permutations, probability, catalan numbers, and dismutations as well as different principles like pigeonhole and inclusion-exclusion. By taking this course you will learn how to approach and set up computational olympiad problems.",
       "semester": 7,
       "instructor": 31,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Everything with Anagrams\nLESSON 2:Sets and the Principle of Inclusion-Exclusion\nLESSON 3:Probability Fundamentals\nLESSON 4:Derangements and Catalan Numbers\nLESSON 5:Pigeonhole Principle\nLESSON 6:Setting Up Problems"
+      "difficulty": "Mid AIME to Beginner Oly",
+      "lesson_plan": "LESSON 1: Everything with Anagrams\nLESSON 2: Sets and the Principle of Inclusion-Exclusion\nLESSON 3: Probability Fundamentals\nLESSON 4: Derangements and Catalan Numbers\nLESSON 5: Pigeonhole Principle\nLESSON 6: Setting Up Problems"
     }
   },
   {
@@ -662,11 +662,11 @@
     "pk": 50,
     "fields": {
       "name": "Outstanding Olympiad Geometry",
-      "description": "This course will cover many fundamental theorems and concepts in\n                        Olympiad geometry. Some topics we will discuss include the Euler\n                        Line, the Nine-Point Circle, the Incenter/Excenter Lemma, Power\n                        of a Point, Ceva’s Theorem, the Simson Line, and many other cool\n                        configurations!",
+      "description": "This course will cover many fundamental theorems and concepts in Olympiad geometry. Some topics we will discuss include the Euler Line, the Nine-Point Circle, the Incenter/Excenter Lemma, Power of a Point, Ceva’s Theorem, the Simson Line, and many other cool configurations!",
       "semester": 7,
       "instructor": 9,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Triangles I\nLESSON 2:Triangles II\nLESSON 3:Circles\nLESSON 4:Length and Area Ratios\nLESSON 5:Cool Configurations\nLESSON 6:Group Solve"
+      "difficulty": "Beginner Oly to Mid Oly",
+      "lesson_plan": "LESSON 1: Triangles I\nLESSON 2: Triangles II\nLESSON 3: Circles\nLESSON 4: Length and Area Ratios\nLESSON 5: Cool Configurations\nLESSON 6: Group Solve"
     }
   },
   {
@@ -674,11 +674,11 @@
     "pk": 51,
     "fields": {
       "name": "Quirky Geometry",
-      "description": "In this class, we will be exploring several heuristics and\n                        philosophies that are useful in tackling Olympiad Geometry of\n                        any level (with occasional computational exercises). The\n                        lectures are designed not to be theory-heavy (so you will not be\n                        learning scary lemmas and theorems): instead, the goal is to\n                        discover ideas through problem-solving. A solid grasp of\n                        chapters 1-3 of EGMO is recommended to attend this course.",
+      "description": "In this class, we will be exploring several heuristics and philosophies that are useful in tackling Olympiad Geometry of any level (with occasional computational exercises). The lectures are designed not to be theory-heavy (so you will not be learning scary lemmas and theorems): instead, the goal is to discover ideas through problem-solving. A solid grasp of chapters 1-3 of EGMO is recommended to attend this course.",
       "semester": 7,
       "instructor": 35,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Midpoints and Parallelograms\nLESSON 2:Construct\nLESSON 3:Triangle Centers\nLESSON 4:Power of a Point\nLESSON 5:Eraser\nLESSON 6:Quick!"
+      "difficulty": "Beginner Oly to Mid Oly",
+      "lesson_plan": "LESSON 1: Midpoints and Parallelograms\nLESSON 2: Construct\nLESSON 3: Triangle Centers\nLESSON 4: Power of a Point\nLESSON 5: Eraser\nLESSON 6: Quick!"
     }
   },
   {
@@ -696,11 +696,11 @@
     "pk": 52,
     "fields": {
       "name": "Nifty NT and Algebra",
-      "description": "In this class, we will be learning important ideas of algebra and\n                    number theory that often appear on the AMC or AIME, such as the\n                    Division Theorem, Vieta's formulas, modular arithmetic, the\n                    Euclidean Algorithm, and the Chinese Remainder Theorem. In\n                    addition, we will be exploring some fun topics like weird\n                    divisibility rules and finite differences!",
+      "description": "In this class, we will be learning important ideas of algebra and number theory that often appear on the AMC or AIME, such as the Division Theorem, Vieta's formulas, modular arithmetic, the Euclidean Algorithm, and the Chinese Remainder Theorem. In addition, we will be exploring some fun topics like weird divisibility rules and finite differences!",
       "semester": 8,
       "instructor": 15,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Algebraic Identities and Manipulation\nLESSON 2:Polynomials\nLESSON 3:Modular Arithmetic I\nLESSON 4:Modular Arithmetic II\nLESSON 5:Bases and Divisibility\nLESSON 6:Finite Differences"
+      "difficulty": "AMC to Mid AIME",
+      "lesson_plan": "LESSON 1: Algebraic Identities and Manipulation\nLESSON 2: Polynomials\nLESSON 3: Modular Arithmetic I\nLESSON 4: Modular Arithmetic II\nLESSON 5: Bases and Divisibility\nLESSON 6: Finite Differences"
     }
   },
   {
@@ -708,11 +708,11 @@
     "pk": 53,
     "fields": {
       "name": "Cute Geometry",
-      "description": "This course covers lots of AMC-AIME level topics related to\n                    triangles, cyclic quadrilaterals, area, power of a point, and\n                    trig, plus a tiny peek into higher topics such as special centers\n                    of a triangle.",
+      "description": "This course covers lots of AMC-AIME level topics related to triangles, cyclic quadrilaterals, area, power of a point, and trig, plus a tiny peek into higher topics such as special centers of a triangle.",
       "semester": 8,
       "instructor": 6,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Similarity and Congruence\nLESSON 2:Lengths and Areas\nLESSON 3:Circle Magic\nLESSON 4:Trig\nLESSON 5:Triangle Centers I\nLESSON 6:Triangle Centers II"
+      "difficulty": "AMC to Mid AIME",
+      "lesson_plan": "LESSON 1: Similarity and Congruence\nLESSON 2: Lengths and Areas\nLESSON 3: Circle Magic\nLESSON 4: Trig\nLESSON 5: Triangle Centers I\nLESSON 6: Triangle Centers II"
     }
   },
   {
@@ -720,11 +720,11 @@
     "pk": 54,
     "fields": {
       "name": "ComboneNT",
-      "description": "ComboneNT is a course focusing on Combo-flavoured Number Theory –\n                    that is, how characteristics of the integers, such as\n                    divisibility, can translate into useful combinatorial properties.\n                    It presents insights and techniques from both the Combo and NT\n                    perspectives, exploring how such ideas have surfaced in recent\n                    years, and offering strategies for AMC, AIME, and introductory\n                    Olympiad problems.",
+      "description": "ComboneNT is a course focusing on Combo-flavoured Number Theory – that is, how characteristics of the integers, such as divisibility, can translate into useful combinatorial properties. It presents insights and techniques from both the Combo and NT perspectives, exploring how such ideas have surfaced in recent years, and offering strategies for AMC, AIME, and introductory Olympiad problems.",
       "semester": 8,
       "instructor": 16,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Prime Number Properties, GCD and LCM, Divisibility\nLESSON 2:Modular Arithmetic\nLESSON 3:Counting Techniques\nLESSON 4:Introduction to Olympiad Topics I\nLESSON 5:Introduction to Olympiad Topics II\nLESSON 6:Test and Recap"
+      "difficulty": "AMC to Mid AIME",
+      "lesson_plan": "LESSON 1: Prime Number Properties, GCD and LCM, Divisibility\nLESSON 2: Modular Arithmetic\nLESSON 3: Counting Techniques\nLESSON 4: Introduction to Olympiad Topics I\nLESSON 5: Introduction to Olympiad Topics II\nLESSON 6: Test and Recap"
     }
   },
   {
@@ -732,11 +732,11 @@
     "pk": 55,
     "fields": {
       "name": "NT Terrain Navigation",
-      "description": "In this course, we will be “navigating terrain” in number theory,\n                    exploring different ideas and useful techniques for computational\n                    number theory problems. Along with learning some famous\n                    fundamental theorems and other important topics, you will also\n                    gain more intuition on how to approach tricky problems.",
+      "description": "In this course, we will be “navigating terrain” in number theory, exploring different ideas and useful techniques for computational number theory problems. Along with learning some famous fundamental theorems and other important topics, you will also gain more intuition on how to approach tricky problems.",
       "semester": 8,
       "instructor": 11,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Mod Fundamentals\nLESSON 2:Bases and Digits\nLESSON 3:Famous Theorems\nLESSON 4:Factors and Divisibility\nLESSON 5:Prime Powers and Factorials\nLESSON 6:Intuition and Vibes"
+      "difficulty": "AMC to Late AIME",
+      "lesson_plan": "LESSON 1: Mod Fundamentals\nLESSON 2: Bases and Digits\nLESSON 3: Famous Theorems\nLESSON 4: Factors and Divisibility\nLESSON 5: Prime Powers and Factorials\nLESSON 6: Intuition and Vibes"
     }
   },
   {
@@ -744,11 +744,11 @@
     "pk": 56,
     "fields": {
       "name": "Comical Combo",
-      "description": "This course will cover the combinatorial techniques and general\n                    strategies used in AIME-level problems. Topics include how to deal\n                    with restrictions, casework, bijections, recursion, and Principle\n                    of Inclusion-Exclusion.",
+      "description": "This course will cover the combinatorial techniques and general strategies used in AIME-level problems. Topics include how to deal with restrictions, casework, bijections, recursion, and Principle of Inclusion-Exclusion.",
       "semester": 8,
       "instructor": 33,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Basics\nLESSON 2:Restrictions\nLESSON 3:Casework\nLESSON 4:Perspectives\nLESSON 5:Frogs and Recursion\nLESSON 6:Principle of Inclusion and Exclusion"
+      "difficulty": "AMC to Late AIME",
+      "lesson_plan": "LESSON 1: Basics\nLESSON 2: Restrictions\nLESSON 3: Casework\nLESSON 4: Perspectives\nLESSON 5: Frogs and Recursion\nLESSON 6: Principle of Inclusion and Exclusion"
     }
   },
   {
@@ -756,11 +756,11 @@
     "pk": 57,
     "fields": {
       "name": "Affable Algebraic Affairs",
-      "description": "This course covers common algebra topics that appear time and time\n                    again on the AMCs and AIMEs, such as polynomials, sequences and\n                    series, and trigonometry. We’ll cover the basics, then look at\n                    some more complex applications, including some clever\n                    manipulations and techniques.",
+      "description": "This course covers common algebra topics that appear time and time again on the AMCs and AIMEs, such as polynomials, sequences and series, and trigonometry. We’ll cover the basics, then look at some more complex applications, including some clever manipulations and techniques.",
       "semester": 8,
       "instructor": 32,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Factoring and Identities\nLESSON 2:Polynomials and Manipulations\nLESSON 3:Series and Weird Functions\nLESSON 4:Trig Formulas and Substitutions\nLESSON 5:Complex Numbers\nLESSON 6:Inequalities"
+      "difficulty": "AMC to Late AIME",
+      "lesson_plan": "LESSON 1: Factoring and Identities\nLESSON 2: Polynomials and Manipulations\nLESSON 3: Series and Weird Functions\nLESSON 4: Trig Formulas and Substitutions\nLESSON 5: Complex Numbers\nLESSON 6: Inequalities"
     }
   },
   {
@@ -768,11 +768,11 @@
     "pk": 58,
     "fields": {
       "name": "Classy Adventures in Combinatorics and Algebra",
-      "description": "In this class, we will cover many of my favorite topics in\n                    combinatorics and algebra which commonly appear on the AIME. Some\n                    topics we will cover include bijections, combinatorial\n                    perspectives, recursion, handling polynomials, and complex\n                    numbers. We will see how these topics show up in various ways and\n                    you will become more comfortable applying them, and also improve\n                    your general problem solving skills.",
+      "description": "In this class, we will cover many of my favorite topics in combinatorics and algebra which commonly appear on the AIME. Some topics we will cover include bijections, combinatorial perspectives, recursion, handling polynomials, and complex numbers. We will see how these topics show up in various ways and you will become more comfortable applying them, and also improve your general problem solving skills.",
       "semester": 8,
       "instructor": 10,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Polynomials\nLESSON 2:Bijections and Combinatorial Identities\nLESSON 3:Recursion and States\nLESSON 4:Trigonometry\nLESSON 5:Complex Numbers\nLESSON 6:Combinatorial Arguments"
+      "difficulty": "AIME",
+      "lesson_plan": "LESSON 1: Polynomials\nLESSON 2: Bijections and Combinatorial Identities\nLESSON 3: Recursion and States\nLESSON 4: Trigonometry\nLESSON 5: Complex Numbers\nLESSON 6: Combinatorial Arguments"
     }
   },
   {
@@ -780,11 +780,11 @@
     "pk": 59,
     "fields": {
       "name": "Art of Trigonometry (ft. Problem Solving)",
-      "description": "Art of Trigonometry (ft. Problem Solving) is a mid AIME to\n                    beginning olympiad level class focused on how to use trigonometry\n                    as a tool to simply solve high difficulty problems. The class will\n                    cover applications of trigonometry in both algebra and geometry.",
+      "description": "Art of Trigonometry (ft. Problem Solving) is a mid AIME to beginning olympiad level class focused on how to use trigonometry as a tool to simply solve high difficulty problems. The class will cover applications of trigonometry in both algebra and geometry.",
       "semester": 8,
       "instructor": 34,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Trig Definitions and Basics\nLESSON 2:Trig Formulas (Law of Sine, Law of Cosine, Ratio Lemma, Trig Ceva's, etc.)\nLESSON 3:Simplifying Geo Diagrams with Trig\nLESSON 4:Trigonometric Equations\nLESSON 5:Applications in the Complex Plane\nLESSON 6:Is Using Trig Always A Good Idea?"
+      "difficulty": "Mid-AIME to Beginner Olympiad",
+      "lesson_plan": "LESSON 1: Trig Definitions and Basics\nLESSON 2: Trig Formulas (Law of Sine, Law of Cosine, Ratio Lemma, Trig Ceva's, etc.)\nLESSON 3: Simplifying Geo Diagrams with Trig\nLESSON 4: Trigonometric Equations\nLESSON 5: Applications in the Complex Plane\nLESSON 6: Is Using Trig Always A Good Idea?"
     }
   },
   {
@@ -792,11 +792,11 @@
     "pk": 60,
     "fields": {
       "name": "AIME Combo",
-      "description": "In this course we cover some of the fundamental concepts of\n                    olympiad combinatorics, such as permutations, probability, catalan\n                    numbers, and dismutations as well as different principles like\n                    pigeonhole and inclusion-exclusion. By taking this course you will\n                    learn how to approach and set up computational olympiad problems.",
+      "description": "In this course we cover some of the fundamental concepts of olympiad combinatorics, such as permutations, probability, catalan numbers, and dismutations as well as different principles like pigeonhole and inclusion-exclusion. By taking this course you will learn how to approach and set up computational olympiad problems.",
       "semester": 8,
       "instructor": 31,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Everything with Anagrams\nLESSON 2:Sets and the Principle of Inclusion-Exclusion\nLESSON 3:Probability Fundamentals\nLESSON 4:Derangements and Catalan Numbers\nLESSON 5:Pigeonhole Principle\nLESSON 6:Setting Up Problems"
+      "difficulty": "Mid-AIME to Beginner Olympiad",
+      "lesson_plan": "LESSON 1: Everything with Anagrams\nLESSON 2: Sets and the Principle of Inclusion-Exclusion\nLESSON 3: Probability Fundamentals\nLESSON 4: Derangements and Catalan Numbers\nLESSON 5: Pigeonhole Principle\nLESSON 6: Setting Up Problems"
     }
   },
   {
@@ -804,11 +804,11 @@
     "pk": 61,
     "fields": {
       "name": "Get to Know Number Theory",
-      "description": "In this course, you will learn about an introduction in number\n                    theory and some of stuffs that very useful for problems. We also\n                    cover many of important concepts and some of strategies.",
+      "description": "In this course, you will learn about an introduction in number theory and some of stuffs that very useful for problems. We also cover many of important concepts and some of strategies.",
       "semester": 8,
       "instructor": 13,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Basic Things (Divisibility, GCD, LCM, Bezout, Division Algorithm)\nLESSON 2:Prime numbers and Congruence\nLESSON 3:Famous Theorems (Fermat Little Theorem, Euler, Wilson, Chinese Remainder)\nLESSON 4:Lifting the Exponent\nLESSON 5:Fusion Problems equations\nLESSON 6:Talk About Nontheory Things / Small Quiz"
+      "difficulty": "Mid-AIME to Beginner Olympiad",
+      "lesson_plan": "LESSON 1: Basic Things (Divisibility, GCD, LCM, Bezout, Division Algorithm)\nLESSON 2: Prime numbers and Congruence\nLESSON 3: Famous Theorems (Fermat Little Theorem, Euler, Wilson, Chinese Remainder)\nLESSON 4: Lifting the Exponent\nLESSON 5: Fusion Problems equations\nLESSON 6: Talk About Nontheory Things / Small Quiz"
     }
   },
   {
@@ -816,11 +816,11 @@
     "pk": 62,
     "fields": {
       "name": "Outstanding Olympiad Geometry",
-      "description": "This course will cover many fundamental theorems and concepts in\n                    Olympiad geometry. Some topics we will discuss include the Euler\n                    Line, the Nine-Point Circle, the Incenter/Excenter Lemma, Power of\n                    a Point, Ceva’s Theorem, the Simson Line, and many other cool\n                    configurations!",
+      "description": "This course will cover many fundamental theorems and concepts in Olympiad geometry. Some topics we will discuss include the Euler Line, the Nine-Point Circle, the Incenter/Excenter Lemma, Power of a Point, Ceva’s Theorem, the Simson Line, and many other cool configurations!",
       "semester": 8,
       "instructor": 9,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Triangles I\nLESSON 2:Triangles II\nLESSON 3:Circles\nLESSON 4:Length and Area Ratios\nLESSON 5:Cool Configurations\nLESSON 6:Group Solve"
+      "difficulty": "Late AIME to Beginner Olympiad",
+      "lesson_plan": "LESSON 1: Triangles I\nLESSON 2: Triangles II\nLESSON 3: Circles\nLESSON 4: Length and Area Ratios\nLESSON 5: Cool Configurations\nLESSON 6: Group Solve"
     }
   },
   {
@@ -828,11 +828,11 @@
     "pk": 63,
     "fields": {
       "name": "Combo Heuristics",
-      "description": "This course will cover various thinking processes and strategies\n                    used to solve olympiad problems (with some computational\n                    applications as well!). Rather than focusing on techniques, the\n                    topics emphasize intuitive reasoning and gaining a deep\n                    understanding of the subject. This class is suitable for anyone\n                    with a solid combinatorial background looking to try some cool\n                    problems!",
+      "description": "This course will cover various thinking processes and strategies used to solve olympiad problems (with some computational applications as well!). Rather than focusing on techniques, the topics emphasize intuitive reasoning and gaining a deep understanding of the subject. This class is suitable for anyone with a solid combinatorial background looking to try some cool problems!",
       "semester": 8,
       "instructor": 1,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Underlying Structure\nLESSON 2:Processes\nLESSON 3:Constructions\nLESSON 4:Intro to Graph Theory\nLESSON 5:Forcing Moves\nLESSON 6:Some Fun Challenges!"
+      "difficulty": "Late AIME to Mid-Olympiad",
+      "lesson_plan": "LESSON 1: Underlying Structure\nLESSON 2: Processes\nLESSON 3: Constructions\nLESSON 4: Intro to Graph Theory\nLESSON 5: Forcing Moves\nLESSON 6: Some Fun Challenges!"
     }
   },
   {
@@ -840,11 +840,11 @@
     "pk": 64,
     "fields": {
       "name": "Fun + Heights",
-      "description": "Fun + Heights is a beginning to middle olympiad level class\n                    focusing on fun(ctional equations) and diophantine equation-based\n                    number theory. This class will cover fundamentals in functional\n                    equations and the uses of prime divisors in number theory.",
+      "description": "Fun + Heights is a beginning to middle olympiad level class focusing on fun(ctional equations) and diophantine equation-based number theory. This class will cover fundamentals in functional equations and the uses of prime divisors in number theory.",
       "semester": 8,
       "instructor": 2,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Cauchy's Functional Equation\nLESSON 2:FEs, Part 2\nLESSON 3:Manipulations and Lagrange Interpolation\nLESSON 4:Introduction to Diophantine Equations\nLESSON 5:Diophantines, Part 1 - Orders\nLESSON 6:Diophantines, Part 2 - Lifting the Exponent"
+      "difficulty": "Beginner Olympiad to Mid-Olympiad",
+      "lesson_plan": "LESSON 1: Cauchy's Functional Equation\nLESSON 2: FEs, Part 2\nLESSON 3: Manipulations and Lagrange Interpolation\nLESSON 4: Introduction to Diophantine Equations\nLESSON 5: Diophantines, Part 1 - Orders\nLESSON 6: Diophantines, Part 2 - Lifting the Exponent"
     }
   },
   {
@@ -852,11 +852,11 @@
     "pk": 65,
     "fields": {
       "name": "Quirky Geometry",
-      "description": "In this class, we will be exploring several heuristics and\n                    philosophies that are useful in tackling Olympiad Geometry of any\n                    level (with occasional computational exercises). The lectures are\n                    designed not to be theory-heavy (so you will not be learning scary\n                    lemmas and theorems): instead, the goal is to discover ideas\n                    through problem-solving. A solid grasp of chapters 1-3 of EGMO is\n                    recommended to attend this course.",
+      "description": "In this class, we will be exploring several heuristics and philosophies that are useful in tackling Olympiad Geometry of any level (with occasional computational exercises). The lectures are designed not to be theory-heavy (so you will not be learning scary lemmas and theorems): instead, the goal is to discover ideas through problem-solving. A solid grasp of chapters 1-3 of EGMO is recommended to attend this course.",
       "semester": 8,
       "instructor": 35,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Midpoints and Parallelograms\nLESSON 2:Construct\nLESSON 3:Triangle Centers\nLESSON 4:Power of a Point\nLESSON 5:Eraser\nLESSON 6:Quick!"
+      "difficulty": "Beginner Olympiad to Mid-Olympiad",
+      "lesson_plan": "LESSON 1: Midpoints and Parallelograms\nLESSON 2: Construct\nLESSON 3: Triangle Centers\nLESSON 4: Power of a Point\nLESSON 5: Eraser\nLESSON 6: Quick!"
     }
   },
   {
@@ -874,11 +874,11 @@
     "pk": 66,
     "fields": {
       "name": "Nifty NT and Algebra",
-      "description": "In this class, we will be learning important ideas of algebra and\n                    number theory that often appear on the AMC or AIME, such as the\n                    Division Theorem, Vieta's formulas, modular arithmetic, the\n                    Euclidean Algorithm, and the Chinese Remainder Theorem. In\n                    addition, we will be exploring some fun topics like weird\n                    divisibility rules and finite differences!",
+      "description": "In this class, we will be learning important ideas of algebra and number theory that often appear on the AMC or AIME, such as the Division Theorem, Vieta's formulas, modular arithmetic, the Euclidean Algorithm, and the Chinese Remainder Theorem. In addition, we will be exploring some fun topics like weird divisibility rules and finite differences!",
       "semester": 9,
       "instructor": 15,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Algebraic Identities and Manipulation\nLESSON 2:Polynomials\nLESSON 3:Modular Arithmetic I\nLESSON 4:Modular Arithmetic II\nLESSON 5:Bases and Divisibility\nLESSON 6:Finite Differences"
+      "difficulty": "AMC to Mid AIME",
+      "lesson_plan": "LESSON 1: Algebraic Identities and Manipulation\nLESSON 2: Polynomials\nLESSON 3: Modular Arithmetic I\nLESSON 4: Modular Arithmetic II\nLESSON 5: Bases and Divisibility\nLESSON 6: Finite Differences"
     }
   },
   {
@@ -886,11 +886,11 @@
     "pk": 67,
     "fields": {
       "name": "ComboneNT",
-      "description": "ComboneNT is a course focusing on Combo-flavoured Number Theory –\n                    that is, how characteristics of the integers, such as\n                    divisibility, can translate into useful combinatorial properties.\n                    It presents insights and techniques from both the Combo and NT\n                    perspectives, exploring how such ideas have surfaced in recent\n                    years, and offering strategies for AMC, AIME, and introductory\n                    Olympiad problems.",
+      "description": "ComboneNT is a course focusing on Combo-flavoured Number Theory – that is, how characteristics of the integers, such as divisibility, can translate into useful combinatorial properties. It presents insights and techniques from both the Combo and NT perspectives, exploring how such ideas have surfaced in recent years, and offering strategies for AMC, AIME, and introductory Olympiad problems.",
       "semester": 9,
       "instructor": 16,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Prime Number Properties, GCD and LCM, Divisibility\nLESSON 2:Modular Arithmetic\nLESSON 3:Counting Techniques\nLESSON 4:Introduction to Olympiad Topics I\nLESSON 5:Introduction to Olympiad Topics II\nLESSON 6:Test and Recap"
+      "difficulty": "AMC to Mid AIME",
+      "lesson_plan": "LESSON 1: Prime Number Properties, GCD and LCM, Divisibility\nLESSON 2: Modular Arithmetic\nLESSON 3: Counting Techniques\nLESSON 4: Introduction to Olympiad Topics I\nLESSON 5: Introduction to Olympiad Topics II\nLESSON 6: Test and Recap"
     }
   },
   {
@@ -898,11 +898,11 @@
     "pk": 68,
     "fields": {
       "name": "Cute Geometry",
-      "description": "This course covers lots of AMC-AIME level topics related to\n                    triangles, cyclic quadrilaterals, area, power of a point, and\n                    trig, plus a tiny peek into higher topics such as special centers\n                    of a triangle.",
+      "description": "This course covers lots of AMC-AIME level topics related to triangles, cyclic quadrilaterals, area, power of a point, and trig, plus a tiny peek into higher topics such as special centers of a triangle.",
       "semester": 9,
       "instructor": 6,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Similarity and Congruence\nLESSON 2:Lengths and Areas\nLESSON 3:Circle Magic\nLESSON 4:Trig\nLESSON 5:Triangle Centers I\nLESSON 6:Triangle Centers II"
+      "difficulty": "AMC to Mid AIME",
+      "lesson_plan": "LESSON 1: Similarity and Congruence\nLESSON 2: Lengths and Areas\nLESSON 3: Circle Magic\nLESSON 4: Trig\nLESSON 5: Triangle Centers I\nLESSON 6: Triangle Centers II"
     }
   },
   {
@@ -910,11 +910,11 @@
     "pk": 69,
     "fields": {
       "name": "NT Terrain Navigation",
-      "description": "In this course, we will be “navigating terrain” in number theory,\n                    exploring different ideas and useful techniques for computational\n                    number theory problems. Along with learning some famous\n                    fundamental theorems and other important topics, you will also\n                    gain more intuition on how to approach tricky problems.",
+      "description": "In this course, we will be “navigating terrain” in number theory, exploring different ideas and useful techniques for computational number theory problems. Along with learning some famous fundamental theorems and other important topics, you will also gain more intuition on how to approach tricky problems.",
       "semester": 9,
       "instructor": 11,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Mod Fundamentals\nLESSON 2:Bases and Digits\nLESSON 3:Famous Theorems\nLESSON 4:Factors and Divisibility\nLESSON 5:Prime Powers and Factorials\nLESSON 6:Intuition and Vibes"
+      "difficulty": "AMC to Late AIME",
+      "lesson_plan": "LESSON 1: Mod Fundamentals\nLESSON 2: Bases and Digits\nLESSON 3: Famous Theorems\nLESSON 4: Factors and Divisibility\nLESSON 5: Prime Powers and Factorials\nLESSON 6: Intuition and Vibes"
     }
   },
   {
@@ -922,11 +922,11 @@
     "pk": 70,
     "fields": {
       "name": "Comical Combo",
-      "description": "This course will cover the combinatorial techniques and general\n                    strategies used in AIME-level problems. Topics include how to deal\n                    with restrictions, casework, bijections, recursion, and Principle\n                    of Inclusion-Exclusion.",
+      "description": "This course will cover the combinatorial techniques and general strategies used in AIME-level problems. Topics include how to deal with restrictions, casework, bijections, recursion, and Principle of Inclusion-Exclusion.",
       "semester": 9,
       "instructor": 33,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Basics\nLESSON 2:Restrictions\nLESSON 3:Casework\nLESSON 4:Perspectives\nLESSON 5:Frogs and Recursion\nLESSON 6:Principle of Inclusion and Exclusion"
+      "difficulty": "AMC to Late AIME",
+      "lesson_plan": "LESSON 1: Basics\nLESSON 2: Restrictions\nLESSON 3: Casework\nLESSON 4: Perspectives\nLESSON 5: Frogs and Recursion\nLESSON 6: Principle of Inclusion and Exclusion"
     }
   },
   {
@@ -934,11 +934,11 @@
     "pk": 71,
     "fields": {
       "name": "Affable Algebraic Affairs",
-      "description": "This course covers common algebra topics that appear time and time\n                    again on the AMCs and AIMEs, such as polynomials, sequences and\n                    series, and trigonometry. We’ll cover the basics, then look at\n                    some more complex applications, including some clever\n                    manipulations and techniques.",
+      "description": "This course covers common algebra topics that appear time and time again on the AMCs and AIMEs, such as polynomials, sequences and series, and trigonometry. We’ll cover the basics, then look at some more complex applications, including some clever manipulations and techniques.",
       "semester": 9,
       "instructor": 32,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Factoring and Identities\nLESSON 2:Polynomials and Manipulations\nLESSON 3:Series and Weird Functions\nLESSON 4:Trig Formulas and Substitutions\nLESSON 5:Complex Numbers\nLESSON 6:Inequalities"
+      "difficulty": "AMC to Late AIME",
+      "lesson_plan": "LESSON 1: Factoring and Identities\nLESSON 2: Polynomials and Manipulations\nLESSON 3: Series and Weird Functions\nLESSON 4: Trig Formulas and Substitutions\nLESSON 5: Complex Numbers\nLESSON 6: Inequalities"
     }
   },
   {
@@ -946,11 +946,11 @@
     "pk": 72,
     "fields": {
       "name": "Classy Adventures in Combinatorics and Algebra",
-      "description": "In this class, we will cover many of my favorite topics in\n                    combinatorics and algebra which commonly appear on the AIME. Some\n                    topics we will cover include bijections, combinatorial\n                    perspectives, recursion, handling polynomials, and complex\n                    numbers. We will see how these topics show up in various ways and\n                    you will become more comfortable applying them, and also improve\n                    your general problem solving skills.",
+      "description": "In this class, we will cover many of my favorite topics in combinatorics and algebra which commonly appear on the AIME. Some topics we will cover include bijections, combinatorial perspectives, recursion, handling polynomials, and complex numbers. We will see how these topics show up in various ways and you will become more comfortable applying them, and also improve your general problem solving skills.",
       "semester": 9,
       "instructor": 10,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Polynomials\nLESSON 2:Bijections and Combinatorial Identities\nLESSON 3:Recursion and States\nLESSON 4:Trigonometry\nLESSON 5:Complex Numbers\nLESSON 6:Combinatorial Arguments"
+      "difficulty": "AIME",
+      "lesson_plan": "LESSON 1: Polynomials\nLESSON 2: Bijections and Combinatorial Identities\nLESSON 3: Recursion and States\nLESSON 4: Trigonometry\nLESSON 5: Complex Numbers\nLESSON 6: Combinatorial Arguments"
     }
   },
   {
@@ -958,11 +958,11 @@
     "pk": 73,
     "fields": {
       "name": "Art of Trigonometry (ft. Problem Solving)",
-      "description": "Art of Trigonometry (ft. Problem Solving) is a mid AIME to\n                    beginning olympiad level class focused on how to use trigonometry\n                    as a tool to simply solve high difficulty problems. The class will\n                    cover applications of trigonometry in both algebra and geometry.",
+      "description": "Art of Trigonometry (ft. Problem Solving) is a mid AIME to beginning olympiad level class focused on how to use trigonometry as a tool to simply solve high difficulty problems. The class will cover applications of trigonometry in both algebra and geometry.",
       "semester": 9,
       "instructor": 34,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Trig Definitions and Basics\nLESSON 2:Trig Formulas (Law of Sine, Law of Cosine, Ratio Lemma, Trig Ceva's, etc.)\nLESSON 3:Simplifying Geo Diagrams with Trig\nLESSON 4:Trigonometric Equations\nLESSON 5:Applications in the Complex Plane\nLESSON 6:Is Using Trig Always A Good Idea?"
+      "difficulty": "Mid-AIME to Beginner Olympiad",
+      "lesson_plan": "LESSON 1: Trig Definitions and Basics\nLESSON 2: Trig Formulas (Law of Sine, Law of Cosine, Ratio Lemma, Trig Ceva's, etc.)\nLESSON 3: Simplifying Geo Diagrams with Trig\nLESSON 4: Trigonometric Equations\nLESSON 5: Applications in the Complex Plane\nLESSON 6: Is Using Trig Always A Good Idea?"
     }
   },
   {
@@ -970,11 +970,11 @@
     "pk": 74,
     "fields": {
       "name": "AIME Combo",
-      "description": "In this course we cover some of the fundamental concepts of\n                    olympiad combinatorics, such as permutations, probability, catalan\n                    numbers, and dismutations as well as different principles like\n                    pigeonhole and inclusion-exclusion. By taking this course you will\n                    learn how to approach and set up computational olympiad problems.",
+      "description": "In this course we cover some of the fundamental concepts of olympiad combinatorics, such as permutations, probability, catalan numbers, and dismutations as well as different principles like pigeonhole and inclusion-exclusion. By taking this course you will learn how to approach and set up computational olympiad problems.",
       "semester": 9,
       "instructor": 31,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Everything with Anagrams\nLESSON 2:Sets and the Principle of Inclusion-Exclusion\nLESSON 3:Probability Fundamentals\nLESSON 4:Derangements and Catalan Numbers\nLESSON 5:Pigeonhole Principle\nLESSON 6:Setting Up Problems"
+      "difficulty": "Mid-AIME to Beginner Olympiad",
+      "lesson_plan": "LESSON 1: Everything with Anagrams\nLESSON 2: Sets and the Principle of Inclusion-Exclusion\nLESSON 3: Probability Fundamentals\nLESSON 4: Derangements and Catalan Numbers\nLESSON 5: Pigeonhole Principle\nLESSON 6: Setting Up Problems"
     }
   },
   {
@@ -982,11 +982,11 @@
     "pk": 75,
     "fields": {
       "name": "Get to Know Number Theory",
-      "description": "In this course, you will learn about an introduction in number\n                    theory and some of stuffs that very useful for problems. We also\n                    cover many of important concepts and some of strategies.",
+      "description": "In this course, you will learn about an introduction in number theory and some of stuffs that very useful for problems. We also cover many of important concepts and some of strategies.",
       "semester": 9,
       "instructor": 13,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Basic Things (Divisibility, GCD, LCM, Bezout, Division Algorithm)\nLESSON 2:Prime numbers and Congruence\nLESSON 3:Famous Theorems (Fermat Little Theorem, Euler, Wilson, Chinese Remainder)\nLESSON 4:Lifting the Exponent\nLESSON 5:Fusion Problems equations\nLESSON 6:Talk About Nontheory Things / Small Quiz"
+      "difficulty": "Mid-AIME to Beginner Olympiad",
+      "lesson_plan": "LESSON 1: Basic Things (Divisibility, GCD, LCM, Bezout, Division Algorithm)\nLESSON 2: Prime numbers and Congruence\nLESSON 3: Famous Theorems (Fermat Little Theorem, Euler, Wilson, Chinese Remainder)\nLESSON 4: Lifting the Exponent\nLESSON 5: Fusion Problems equations\nLESSON 6: Talk About Nontheory Things / Small Quiz"
     }
   },
   {
@@ -994,11 +994,11 @@
     "pk": 76,
     "fields": {
       "name": "Outstanding Olympiad Geometry",
-      "description": "This course will cover many fundamental theorems and concepts in\n                    Olympiad geometry. Some topics we will discuss include the Euler\n                    Line, the Nine-Point Circle, the Incenter/Excenter Lemma, Power of\n                    a Point, Ceva’s Theorem, the Simson Line, and many other cool\n                    configurations!",
+      "description": "This course will cover many fundamental theorems and concepts in Olympiad geometry. Some topics we will discuss include the Euler Line, the Nine-Point Circle, the Incenter/Excenter Lemma, Power of a Point, Ceva’s Theorem, the Simson Line, and many other cool configurations!",
       "semester": 9,
       "instructor": 9,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Triangles I\nLESSON 2:Triangles II\nLESSON 3:Circles\nLESSON 4:Length and Area Ratios\nLESSON 5:Cool Configurations\nLESSON 6:Group Solve"
+      "difficulty": "Late AIME to Beginner Olympiad",
+      "lesson_plan": "LESSON 1: Triangles I\nLESSON 2: Triangles II\nLESSON 3: Circles\nLESSON 4: Length and Area Ratios\nLESSON 5: Cool Configurations\nLESSON 6: Group Solve"
     }
   },
   {
@@ -1006,11 +1006,11 @@
     "pk": 77,
     "fields": {
       "name": "Combo Heuristics",
-      "description": "This course will cover various thinking processes and strategies\n                    used to solve olympiad problems (with some computational\n                    applications as well!). Rather than focusing on techniques, the\n                    topics emphasize intuitive reasoning and gaining a deep\n                    understanding of the subject. This class is suitable for anyone\n                    with a solid combinatorial background looking to try some cool\n                    problems!",
+      "description": "This course will cover various thinking processes and strategies used to solve olympiad problems (with some computational applications as well!). Rather than focusing on techniques, the topics emphasize intuitive reasoning and gaining a deep understanding of the subject. This class is suitable for anyone with a solid combinatorial background looking to try some cool problems!",
       "semester": 9,
       "instructor": 1,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Underlying Structure\nLESSON 2:Processes\nLESSON 3:Constructions\nLESSON 4:Intro to Graph Theory\nLESSON 5:Forcing Moves\nLESSON 6:Some Fun Challenges!"
+      "difficulty": "Late AIME to Mid-Olympiad",
+      "lesson_plan": "LESSON 1: Underlying Structure\nLESSON 2: Processes\nLESSON 3: Constructions\nLESSON 4: Intro to Graph Theory\nLESSON 5: Forcing Moves\nLESSON 6: Some Fun Challenges!"
     }
   },
   {
@@ -1018,11 +1018,11 @@
     "pk": 78,
     "fields": {
       "name": "Fun + Heights",
-      "description": "Fun + Heights is a beginning to middle olympiad level class\n                    focusing on fun(ctional equations) and diophantine equation-based\n                    number theory. This class will cover fundamentals in functional\n                    equations and the uses of prime divisors in number theory.",
+      "description": "Fun + Heights is a beginning to middle olympiad level class focusing on fun(ctional equations) and diophantine equation-based number theory. This class will cover fundamentals in functional equations and the uses of prime divisors in number theory.",
       "semester": 9,
       "instructor": 2,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Cauchy's Functional Equation\nLESSON 2:FEs, Part 2\nLESSON 3:Manipulations and Lagrange Interpolation\nLESSON 4:Introduction to Diophantine Equations\nLESSON 5:Diophantines, Part 1 - Orders\nLESSON 6:Diophantines, Part 2 - Lifting the Exponent"
+      "difficulty": "Beginner Olympiad to Mid-Olympiad",
+      "lesson_plan": "LESSON 1: Cauchy's Functional Equation\nLESSON 2: FEs, Part 2\nLESSON 3: Manipulations and Lagrange Interpolation\nLESSON 4: Introduction to Diophantine Equations\nLESSON 5: Diophantines, Part 1 - Orders\nLESSON 6: Diophantines, Part 2 - Lifting the Exponent"
     }
   },
   {
@@ -1030,11 +1030,11 @@
     "pk": 79,
     "fields": {
       "name": "Quirky Geometry",
-      "description": "In this class, we will be exploring several heuristics and\n                    philosophies that are useful in tackling Olympiad Geometry of any\n                    level (with occasional computational exercises). The lectures are\n                    designed not to be theory-heavy (so you will not be learning scary\n                    lemmas and theorems): instead, the goal is to discover ideas\n                    through problem-solving. A solid grasp of chapters 1-3 of EGMO is\n                    recommended to attend this course.",
+      "description": "In this class, we will be exploring several heuristics and philosophies that are useful in tackling Olympiad Geometry of any level (with occasional computational exercises). The lectures are designed not to be theory-heavy (so you will not be learning scary lemmas and theorems): instead, the goal is to discover ideas through problem-solving. A solid grasp of chapters 1-3 of EGMO is recommended to attend this course.",
       "semester": 9,
       "instructor": 35,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Midpoints and Parallelograms\nLESSON 2:Construct\nLESSON 3:Triangle Centers\nLESSON 4:Power of a Point\nLESSON 5:Eraser\nLESSON 6:Quick!"
+      "difficulty": "Beginner Olympiad to Mid-Olympiad",
+      "lesson_plan": "LESSON 1: Midpoints and Parallelograms\nLESSON 2: Construct\nLESSON 3: Triangle Centers\nLESSON 4: Power of a Point\nLESSON 5: Eraser\nLESSON 6: Quick!"
     }
   },
   {
@@ -1052,11 +1052,11 @@
     "pk": 80,
     "fields": {
       "name": "Cute Geometry",
-      "description": "In this course, we will be exploring different geometry ideas often\n                            seen on the AMC and AIME, such as Stewart’s Theorem, Power of a Point,\n                            Law of Cosine, Law of Sine, and useful properties of different triangle centers.",
+      "description": "In this course, we will be exploring different geometry ideas often seen on the AMC and AIME, such as Stewart’s Theorem, Power of a Point, Law of Cosine, Law of Sine, and useful properties of different triangle centers.",
       "semester": 10,
       "instructor": 14,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Similarity and Congruence\nLESSON 2:Lengths and Areas\nLESSON 3:Circle Magic\nLESSON 4:Trigonometry\nLESSON 5:Triangle Centers 1\nLESSON 6:Triangle Centers 2"
+      "difficulty": "Mid-AMC to Early AIME",
+      "lesson_plan": "LESSON 1: Similarity and Congruence\nLESSON 2: Lengths and Areas\nLESSON 3: Circle Magic\nLESSON 4: Trigonometry\nLESSON 5: Triangle Centers 1\nLESSON 6: Triangle Centers 2"
     }
   },
   {
@@ -1064,11 +1064,11 @@
     "pk": 81,
     "fields": {
       "name": "Cozy Combo",
-      "description": "This course will cover many combinatorics topics seen on the AMC and AIME, such as permutations,\n                            probability. Principle of Inclusion-Exclusion, and different bijections.",
+      "description": "This course will cover many combinatorics topics seen on the AMC and AIME, such as permutations, probability. Principle of Inclusion-Exclusion, and different bijections.",
       "semester": 10,
       "instructor": 12,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Counting/Permutations\nLESSON 2:Casework\nLESSON 3:Probability Basics\nLESSON 4:PIE + Pigeonhole Principle\nLESSON 5:Bijections\nLESSON 6:TBD, something fun!"
+      "difficulty": "Mid-AMC to Mid-AIME",
+      "lesson_plan": "LESSON 1: Counting/Permutations\nLESSON 2: Casework\nLESSON 3: Probability Basics\nLESSON 4: PIE + Pigeonhole Principle\nLESSON 5: Bijections\nLESSON 6: TBD, something fun!"
     }
   },
   {
@@ -1076,11 +1076,11 @@
     "pk": 82,
     "fields": {
       "name": "Nifty NT and Algebra",
-      "description": "In this class, we will be learning important ideas of algebra and\n                            number theory that often appear on the AMC or AIME, such as the\n                            Division Theorem, Vieta's formulas, modular arithmetic, the\n                            Euclidean Algorithm, and the Chinese Remainder Theorem. In\n                            addition, we will be exploring some fun topics like weird\n                            divisibility rules and finite differences!",
+      "description": "In this class, we will be learning important ideas of algebra and number theory that often appear on the AMC or AIME, such as the Division Theorem, Vieta's formulas, modular arithmetic, the Euclidean Algorithm, and the Chinese Remainder Theorem. In addition, we will be exploring some fun topics like weird divisibility rules and finite differences!",
       "semester": 10,
       "instructor": 15,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Algebraic Identities and Manipulation\nLESSON 2:Polynomials\nLESSON 3:Modular Arithmetic I\nLESSON 4:Modular Arithmetic II\nLESSON 5:Bases and Divisibility\nLESSON 6:Finite Differences"
+      "difficulty": "AMC to Mid AIME",
+      "lesson_plan": "LESSON 1: Algebraic Identities and Manipulation\nLESSON 2: Polynomials\nLESSON 3: Modular Arithmetic I\nLESSON 4: Modular Arithmetic II\nLESSON 5: Bases and Divisibility\nLESSON 6: Finite Differences"
     }
   },
   {
@@ -1088,11 +1088,11 @@
     "pk": 83,
     "fields": {
       "name": "ComboneNT",
-      "description": "ComboneNT is a course focusing on Combo-flavoured Number Theory –\n                            that is, how characteristics of the integers, such as\n                            divisibility, can translate into useful combinatorial properties.\n                            It presents insights and techniques from both the Combo and NT\n                            perspectives, exploring how such ideas have surfaced in recent\n                            years, and offering strategies for AMC, AIME, and introductory\n                            Olympiad problems.",
+      "description": "ComboneNT is a course focusing on Combo-flavoured Number Theory – that is, how characteristics of the integers, such as divisibility, can translate into useful combinatorial properties. It presents insights and techniques from both the Combo and NT perspectives, exploring how such ideas have surfaced in recent years, and offering strategies for AMC, AIME, and introductory Olympiad problems.",
       "semester": 10,
       "instructor": 16,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Prime Number Properties, GCD and LCM, Divisibility\nLESSON 2:Modular Arithmetic\nLESSON 3:Counting Techniques\nLESSON 4:Introduction to Olympiad Topics I\nLESSON 5:Introduction to Olympiad Topics II\nLESSON 6:Test and Recap"
+      "difficulty": "AMC to Mid AIME",
+      "lesson_plan": "LESSON 1: Prime Number Properties, GCD and LCM, Divisibility\nLESSON 2: Modular Arithmetic\nLESSON 3: Counting Techniques\nLESSON 4: Introduction to Olympiad Topics I\nLESSON 5: Introduction to Olympiad Topics II\nLESSON 6: Test and Recap"
     }
   },
   {
@@ -1100,11 +1100,11 @@
     "pk": 84,
     "fields": {
       "name": "NT Terrain Navigation",
-      "description": "In this course, we will be “navigating terrain” in number theory,\n                            exploring different ideas and useful techniques for computational\n                            number theory problems. Along with learning some famous\n                            fundamental theorems and other important topics, you will also\n                            gain more intuition on how to approach tricky problems.",
+      "description": "In this course, we will be “navigating terrain” in number theory, exploring different ideas and useful techniques for computational number theory problems. Along with learning some famous fundamental theorems and other important topics, you will also gain more intuition on how to approach tricky problems.",
       "semester": 10,
       "instructor": 11,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Mod Fundamentals\nLESSON 2:Bases and Digits\nLESSON 3:Famous Theorems\nLESSON 4:Factors and Divisibility\nLESSON 5:Prime Powers and Factorials\nLESSON 6:Intuition and Vibes"
+      "difficulty": "AMC to Late AIME",
+      "lesson_plan": "LESSON 1: Mod Fundamentals\nLESSON 2: Bases and Digits\nLESSON 3: Famous Theorems\nLESSON 4: Factors and Divisibility\nLESSON 5: Prime Powers and Factorials\nLESSON 6: Intuition and Vibes"
     }
   },
   {
@@ -1112,11 +1112,11 @@
     "pk": 85,
     "fields": {
       "name": "Classy Adventures in Combinatorics and Algebra",
-      "description": "In this class, we will cover many of my favorite topics in\n                            combinatorics and algebra which commonly appear on the AIME. Some\n                            topics we will cover include bijections, combinatorial\n                            perspectives, recursion, handling polynomials, and complex\n                            numbers. We will see how these topics show up in various ways and\n                            you will become more comfortable applying them, and also improve\n                            your general problem solving skills.",
+      "description": "In this class, we will cover many of my favorite topics in combinatorics and algebra which commonly appear on the AIME. Some topics we will cover include bijections, combinatorial perspectives, recursion, handling polynomials, and complex numbers. We will see how these topics show up in various ways and you will become more comfortable applying them, and also improve your general problem solving skills.",
       "semester": 10,
       "instructor": 10,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Polynomials\nLESSON 2:Bijections and Combinatorial Identities\nLESSON 3:Recursion and States\nLESSON 4:Trigonometry\nLESSON 5:Complex Numbers\nLESSON 6:Combinatorial Arguments"
+      "difficulty": "AIME",
+      "lesson_plan": "LESSON 1: Polynomials\nLESSON 2: Bijections and Combinatorial Identities\nLESSON 3: Recursion and States\nLESSON 4: Trigonometry\nLESSON 5: Complex Numbers\nLESSON 6: Combinatorial Arguments"
     }
   },
   {
@@ -1124,11 +1124,11 @@
     "pk": 86,
     "fields": {
       "name": "Get to Know Number Theory",
-      "description": "In this course, you will learn about an introduction in number\n                            theory and some of stuffs that very useful for problems. We also\n                            cover many of important concepts and some of strategies.",
+      "description": "In this course, you will learn about an introduction in number theory and some of stuffs that very useful for problems. We also cover many of important concepts and some of strategies.",
       "semester": 10,
       "instructor": 13,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Basic Things (Divisibility, GCD, LCM, Bezout, Division Algorithm)\nLESSON 2:Prime numbers and Congruence\nLESSON 3:Famous Theorems (Fermat Little Theorem, Euler, Wilson, Chinese Remainder)\nLESSON 4:Lifting the Exponent\nLESSON 5:Fusion Problems equations\nLESSON 6:Talk About Nontheory Things / Small Quiz"
+      "difficulty": "Mid-AIME to Beginner Olympiad",
+      "lesson_plan": "LESSON 1: Basic Things (Divisibility, GCD, LCM, Bezout, Division Algorithm)\nLESSON 2: Prime numbers and Congruence\nLESSON 3: Famous Theorems (Fermat Little Theorem, Euler, Wilson, Chinese Remainder)\nLESSON 4: Lifting the Exponent\nLESSON 5: Fusion Problems equations\nLESSON 6: Talk About Nontheory Things / Small Quiz"
     }
   },
   {
@@ -1136,11 +1136,11 @@
     "pk": 87,
     "fields": {
       "name": "Outstanding Olympiad Geometry",
-      "description": "This course will cover many fundamental theorems and concepts in\n                            Olympiad geometry. Some topics we will discuss include the Euler\n                            Line, the Nine-Point Circle, the Incenter/Excenter Lemma, Power of\n                            a Point, Ceva’s Theorem, the Simson Line, and many other cool\n                            configurations!",
+      "description": "This course will cover many fundamental theorems and concepts in Olympiad geometry. Some topics we will discuss include the Euler Line, the Nine-Point Circle, the Incenter/Excenter Lemma, Power of a Point, Ceva’s Theorem, the Simson Line, and many other cool configurations!",
       "semester": 10,
       "instructor": 9,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Triangles I\nLESSON 2:Triangles II\nLESSON 3:Circles\nLESSON 4:Length and Area Ratios\nLESSON 5:Cool Configurations\nLESSON 6:Group Solve"
+      "difficulty": "Late AIME to Beginner Olympiad",
+      "lesson_plan": "LESSON 1: Triangles I\nLESSON 2: Triangles II\nLESSON 3: Circles\nLESSON 4: Length and Area Ratios\nLESSON 5: Cool Configurations\nLESSON 6: Group Solve"
     }
   },
   {
@@ -1148,11 +1148,11 @@
     "pk": 88,
     "fields": {
       "name": "Combo Heuristics",
-      "description": "This course will cover various thinking processes and strategies\n                            used to solve olympiad problems (with some computational\n                            applications as well!). Rather than focusing on techniques, the\n                            topics emphasize intuitive reasoning and gaining a deep\n                            understanding of the subject. This class is suitable for anyone\n                            with a solid combinatorial background looking to try some cool\n                            problems!",
+      "description": "This course will cover various thinking processes and strategies used to solve olympiad problems (with some computational applications as well!). Rather than focusing on techniques, the topics emphasize intuitive reasoning and gaining a deep understanding of the subject. This class is suitable for anyone with a solid combinatorial background looking to try some cool problems!",
       "semester": 10,
       "instructor": 1,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Underlying Structure\nLESSON 2:Processes\nLESSON 3:Constructions\nLESSON 4:Intro to Graph Theory\nLESSON 5:Forcing Moves\nLESSON 6:Some Fun Challenges!"
+      "difficulty": "Late AIME to Mid-Olympiad",
+      "lesson_plan": "LESSON 1: Underlying Structure\nLESSON 2: Processes\nLESSON 3: Constructions\nLESSON 4: Intro to Graph Theory\nLESSON 5: Forcing Moves\nLESSON 6: Some Fun Challenges!"
     }
   },
   {
@@ -1160,11 +1160,11 @@
     "pk": 89,
     "fields": {
       "name": "Fun + Heights",
-      "description": "Fun + Heights is a beginning to middle olympiad level class\n                            focusing on fun(ctional equations) and diophantine equation-based\n                            number theory. This class will cover fundamentals in functional\n                            equations and the uses of prime divisors in number theory.",
+      "description": "Fun + Heights is a beginning to middle olympiad level class focusing on fun(ctional equations) and diophantine equation-based number theory. This class will cover fundamentals in functional equations and the uses of prime divisors in number theory.",
       "semester": 10,
       "instructor": 2,
-      "difficulty": "",
-      "lesson_plan": "LESSON 1:Cauchy's Functional Equation\nLESSON 2:FEs, Part 2\nLESSON 3:Manipulations and Lagrange Interpolation\nLESSON 4:Introduction to Diophantine Equations\nLESSON 5:Diophantines, Part 1 - Orders\nLESSON 6:Diophantines, Part 2 - Lifting the Exponent"
+      "difficulty": "Beginner Olympiad to Mid-Olympiad",
+      "lesson_plan": "LESSON 1: Cauchy's Functional Equation\nLESSON 2: FEs, Part 2\nLESSON 3: Manipulations and Lagrange Interpolation\nLESSON 4: Introduction to Diophantine Equations\nLESSON 5: Diophantines, Part 1 - Orders\nLESSON 6: Diophantines, Part 2 - Lifting the Exponent"
     }
   }
 ]
