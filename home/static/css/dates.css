@@ -1,0 +1,23 @@
+.date-table {
+  margin-left: auto;
+  margin-right: auto;
+  border-collapse: separate;
+  border-spacing: 15px 0;
+}
+
+.date-table th {
+  border-bottom: 1px solid black;
+}
+
+#date-table-wrapper {
+  padding-top: 15px;
+  padding-bottom: 30px;
+}
+
+.date-table-left {
+  padding-right: 50px;
+}
+
+#date-table-date {
+  border-bottom: 0;
+}
