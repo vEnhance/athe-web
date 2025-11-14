@@ -3,14 +3,14 @@
 body {
   margin-top: 70px;
   font-family: "Lora", serif;
-  max-width: 1024px;
+  max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .navbar {
   background-color: #fff7f7 !important;
-  max-width: 1024px;
+  max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
   padding-left: 1vw;
@@ -29,8 +29,8 @@ body {
 /* Content area typography */
 #content {
   font-size: 18px;
-  padding-left: 5vw;
-  padding-right: 5vw;
+  padding-left: 2vw;
+  padding-right: 2vw;
 }
 
 #content h1 {
@@ -84,7 +84,7 @@ body {
 
 /* Footer */
 #athe-footer {
-  max-width: 1024px;
+  max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
 }
