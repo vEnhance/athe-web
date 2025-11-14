@@ -29,8 +29,8 @@ body {
 /* Content area typography */
 #content {
   font-size: 18px;
-  padding-left: 5vw;
-  padding-right: 5vw;
+  padding-left: 2vw;
+  padding-right: 2vw;
 }
 
 #content h1 {
@@ -53,7 +53,11 @@ body {
 }
 
 #content p {
-  text-indent: 40px;
+  text-indent: 1em;
+}
+
+#content blockquote p {
+  text-indent: 0;
 }
 
 #content a {
@@ -83,6 +87,10 @@ body {
   max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
+}
+
+#athe-footer a {
+  text-decoration: none;
 }
 
 .sitemap-big,
@@ -183,7 +191,7 @@ a:hover {
 }
 
 /* Quote styling */
-.quote {
+blockquote {
   margin-left: 20px;
   margin-top: 20px;
   margin-bottom: 30px;

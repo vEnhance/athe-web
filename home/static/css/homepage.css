@@ -3,16 +3,15 @@
 /* Splash section */
 .splash {
   margin-top: -30px;
-  padding: 50px 2vw 40px;
+  padding: 20px 2vw 40px;
   background-color: #fff7f7;
   background-image: url("../artwork/home-banner.png");
   background-size: cover;
 }
 
 .splash-text {
-  font-size: 50px;
+  font-size: 40px;
   font-weight: 600;
-  margin-top: 120px;
   color: #a02828;
 }
 
