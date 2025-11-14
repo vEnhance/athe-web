@@ -47,9 +47,12 @@
                                  class="course-instructor-photo">
                         {% endif %}
                         <div class="course-title-text">
-                            <h3 class="course-title">{{ course.name }}</h3>
+                            <h2 class="course-title">{{ course.name }}</h2>
                             {% if course.instructor %}
-                                <a class="course-teach" href="{{ course.instructor.get_absolute_url }}">Instructor: {{ course.instructor.display_name }}</a>
+                                <p>
+                                    Instructor:
+                                    <a class="course-teach" href="{{ course.instructor.get_absolute_url }}">{{ course.instructor.display_name }}</a>
+                                </p>
                             {% endif %}
                         </div>
                     </div>
