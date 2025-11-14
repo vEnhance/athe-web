@@ -15,7 +15,7 @@ def catalog_root(request: HttpRequest) -> HttpResponse:
 
 def semester_list(request: HttpRequest) -> HttpResponse:
     """Show all semesters in chronological order."""
-    semesters = Semester.objects.order_by("start_date")
+    semesters = Semester.objects.order_by("-start_date")
     return render(request, "courses/semester_list.html", {"semesters": semesters})
 
 
