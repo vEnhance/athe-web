@@ -2,5 +2,5 @@
 db.sqlite3
 __pycache__/
 
-static/*
-media/*
+/static
+/media
