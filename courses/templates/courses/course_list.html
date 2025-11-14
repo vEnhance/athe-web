@@ -38,7 +38,7 @@
                     <a href="{% url 'courses:semester_list' %}">View all semesters</a>
                 </p>
             </div>
-            {% for course in semester.courses.all %}
+            {% for course in courses %}
                 <div class="course">
                     <div class="course-title-wrap">
                         {% if course.instructor %}

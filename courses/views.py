@@ -1,7 +1,7 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from courses.models import Semester
+from courses.models import Semester, Course
 
 
 def catalog_root(request: HttpRequest) -> HttpResponse:
@@ -22,6 +22,7 @@ def semester_list(request: HttpRequest) -> HttpResponse:
 def course_list(request: HttpRequest, slug: str) -> HttpResponse:
     """Show courses for a specific semester with previous/next navigation."""
     semester = get_object_or_404(Semester, slug=slug)
+    courses = Course.objects.filter(semester=semester).select_related("instructor")
 
     # Get previous and next semesters
     prev_semester = (
@@ -40,6 +41,7 @@ def course_list(request: HttpRequest, slug: str) -> HttpResponse:
         "courses/course_list.html",
         {
             "semester": semester,
+            "courses": courses,
             "prev_semester": prev_semester,
             "next_semester": next_semester,
         },
