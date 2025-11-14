@@ -10,9 +10,9 @@ class StaffPhotoListing(models.Model):
 
     CATEGORY_CHOICES = [
         ("board", "Board"),
-        ("teachers", "Current Instructors"),
-        ("tas", "TAs"),
-        ("past", "Past Staff"),
+        ("instructor", "Current Instructors"),
+        ("ta", "TAs"),
+        ("xstaff", "Past Staff"),
     ]
 
     user = models.OneToOneField(
