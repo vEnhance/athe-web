@@ -52,10 +52,10 @@
                                 {% if user.is_staff %}
                                     <a href="{% url 'courses:course_detail' pk=course.pk %}"
                                        style="font-size: 0.6em;
-                                              margin-left: 10px">[View Details]</a>
+                                              margin-left: 10px">[View]</a>
                                     <a href="{% url 'admin:courses_course_change' course.pk %}"
                                        style="font-size: 0.6em;
-                                              margin-left: 5px">[Edit in Admin]</a>
+                                              margin-left: 5px">[Edit]</a>
                                 {% endif %}
                             </h2>
                             {% if course.instructor %}
