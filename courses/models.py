@@ -26,6 +26,10 @@ class Semester(models.Model):
 
 class Course(models.Model):
     name = models.CharField(max_length=200)
+    is_club = models.BooleanField(
+        default=False,
+        help_text="Whether this is a club (vs. a class).",
+    )
     description = models.TextField()
     semester = models.ForeignKey(
         Semester, on_delete=models.CASCADE, related_name="courses"
@@ -67,10 +71,6 @@ class Course(models.Model):
         blank=True,
         max_length=100,
         help_text="Discord role ID to mention in reminders.",
-    )
-    is_club = models.BooleanField(
-        default=False,
-        help_text="Whether this is a club (vs. a class).",
     )
 
     def __str__(self) -> str:
