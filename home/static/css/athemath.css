@@ -52,21 +52,9 @@ body {
   padding: 15px 0;
 }
 
-#content p {
-  text-indent: 1em;
-}
-
-#content blockquote p {
-  text-indent: 0;
-}
-
 #content a {
   color: #a02828;
   text-decoration: underline;
-}
-
-#content li {
-  text-indent: 0;
 }
 
 @media (max-width: 600px) {
