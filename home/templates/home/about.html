@@ -41,7 +41,7 @@
         </p>
         <p>
             Read more about our philosophy and our virtual program
-            <a href="virtual-program.html">here</a>.
+            <a href="{% url 'home:virtual_program' %}">here</a>.
         </p>
         <img src="{% static 'artwork/about-hands.png' %}"
              alt=""
@@ -63,13 +63,13 @@
             over two hundred non-binary and female students from around the world
             have congregated virtually in our virtual program for twelve weeks of
             class, community-building events, office hours, and casual voice
-            chats. Read about what it's been like <a href="history.html">here</a>.
+            chats. Read about what it's been like <a href="{% url 'home:history' %}">here</a>.
         </p>
         <p>
             Our staff has grown significantly larger, and the vast majority of us
             are math contest enthusiasts united by a desire to help girls reach
             their full mathematical potential. Read more about our staff
-            <a href="staff.html">here</a>.
+            <a href="{% url 'home:staff' %}">here</a>.
         </p>
     </div>
 {% endblock content %}
