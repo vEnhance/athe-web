@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, UpdateView
+from django.views.generic import DetailView, TemplateView, UpdateView
 
 from .models import StaffPhotoListing
 
@@ -41,6 +41,20 @@ class PastStaffView(TemplateView):
         """Add staff listings grouped by category."""
         context = super().get_context_data(**kwargs)
         context["past"] = StaffPhotoListing.objects.filter(category="past")
+        return context
+
+
+class StaffDetailView(DetailView):
+    """Staff member detail page."""
+
+    model = StaffPhotoListing
+    template_name = "home/staff_detail.html"
+    context_object_name = "staff_member"
+
+    def get_context_data(self, **kwargs):  # type: ignore
+        """Add courses taught by this staff member."""
+        context = super().get_context_data(**kwargs)
+        context["courses_taught"] = self.object.courses.select_related("semester").all()
         return context
 
 

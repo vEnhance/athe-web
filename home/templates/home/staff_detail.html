@@ -1,0 +1,128 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block title %}{{ staff_member.display_name }} - Athemath{% endblock %}
+{% block extra_css %}
+    <style>
+        .staff-detail-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .staff-detail-header {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            align-items: flex-start;
+        }
+
+        .staff-detail-photo {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .staff-detail-info h1 {
+            margin: 0 0 10px 0;
+            color: #000;
+        }
+
+        .staff-detail-role {
+            color: #a02828;
+            font-size: 1.2em;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .staff-detail-biography {
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .courses-taught {
+            border-top: 2px solid #a02828;
+            padding-top: 30px;
+        }
+
+        .courses-taught h2 {
+            color: #a02828;
+            margin-bottom: 20px;
+        }
+
+        .course-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-left: 3px solid #a02828;
+        }
+
+        .course-item h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.1em;
+        }
+
+        .course-semester {
+            color: #777;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #a02828;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .staff-detail-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .staff-detail-container {
+                padding: 15px;
+            }
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="staff-detail-container">
+        <a href="{% url 'home:staff' %}" class="back-link">← Back to Staff</a>
+
+        <div class="staff-detail-header">
+            <img src="{{ staff_member.photo.url }}"
+                 alt="{{ staff_member.display_name }}"
+                 class="staff-detail-photo">
+            <div class="staff-detail-info">
+                <h1>{{ staff_member.display_name }}</h1>
+                <div class="staff-detail-role">{{ staff_member.role }}</div>
+            </div>
+        </div>
+
+        <div class="staff-detail-biography">
+            {{ staff_member.biography_rendered|safe }}
+        </div>
+
+        {% if courses_taught %}
+            <div class="courses-taught">
+                <h2>Classes Taught</h2>
+                {% for course in courses_taught %}
+                    <div class="course-item">
+                        <h3>{{ course.name }}</h3>
+                        <div class="course-semester">
+                            {{ course.semester.name }} ({{ course.semester.start_date|date:"F Y" }})
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock content %}

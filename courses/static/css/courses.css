@@ -77,12 +77,27 @@
   border-width: 0px;
   border-bottom-width: 1.25px;
   border-color: #000;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.course-instructor-photo {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.course-title-text {
+  flex: 1;
 }
 
 #content h3.course-title {
-  display:inline-block;
   font-weight: 600;
   color: #000;
+  margin: 0;
 }
 
 .course-teach {
