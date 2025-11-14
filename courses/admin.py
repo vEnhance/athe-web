@@ -17,8 +17,8 @@ class CourseMeetingInline(admin.TabularInline):
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ("name", "semester", "instructor", "difficulty")
-    list_filter = ("semester", "difficulty")
+    list_display = ("name", "is_club", "semester", "instructor")
+    list_filter = ("is_club", "semester", "difficulty")
     search_fields = ("name", "description")
     autocomplete_fields = ("instructor",)
     inlines = [CourseMeetingInline]

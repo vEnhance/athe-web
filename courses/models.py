@@ -120,7 +120,9 @@ class CourseMeeting(models.Model):
         Course, on_delete=models.CASCADE, related_name="meetings"
     )
     start_time = models.DateTimeField(help_text="When this meeting starts.")
-    title = models.CharField(max_length=200, help_text="Topic for this lecture.")
+    title = models.CharField(
+        max_length=200, blank=True, help_text="Topic for this lecture."
+    )
     reminder_sent = models.BooleanField(
         default=False, help_text="Whether a reminder has been sent for this meeting."
     )
