@@ -9,11 +9,18 @@ class SemesterAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
 
 
+class CourseMeetingInline(admin.TabularInline):
+    model = CourseMeeting
+    extra = 3
+    fields = ("start_time", "title", "reminder_sent")
+
+
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     list_display = ("name", "semester", "instructor", "difficulty")
     list_filter = ("semester", "difficulty")
     search_fields = ("name", "description")
+    inlines = [CourseMeetingInline]
 
 
 @admin.register(Student)
