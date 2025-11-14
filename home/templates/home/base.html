@@ -22,6 +22,9 @@
         <link rel="shortcut icon"
               type="image/x-icon"
               href="{% static 'artwork/owl.png' %}" />
+        <link rel="shortcut icon"
+              type="image/png"
+              href="{% static 'favicon.ico' %}" />
     </head>
     <body>
         <nav class="navbar fixed-top navbar-expand-lg">
@@ -270,7 +273,6 @@
                 <p class="copy-text">© 2025 Athemath. All rights reserved.</p>
             </div>
         </footer>
-        {% block extra_js %}
-        {% endblock %}
+        {% block extra_js %}{% endblock %}
     </body>
 </html>
