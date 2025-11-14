@@ -9,7 +9,7 @@
       "category": "board",
       "biography": "Greta is a high school junior from Canada. She has qualified\n              for USAJMO twice and attended MOP in 2024. She loves interacting\n              with the math community; she hopes to share her passion for math\n              and inspire other girls to enjoy the subject as well. Outside of\n              math, Greta enjoys chess and listening to music.\n\nGreta will be teaching *Combo Heuristics* this Fall!\n              She also taught *Combo Heuristics* during the 2024-2025 school year!\n\nGreta was also an Athemath student from 2022 to 2024!",
       "photo": "staff_photos/gretaqu.jpg",
-      "ordering": 0
+      "ordering": 9001
     }
   },
   {
@@ -74,7 +74,7 @@
       "category": "board",
       "biography": "Vivian (v4913) is a current Caltech student in the Class of 2028, \n              originally from Pittsburgh, Pennsylvania. She loves math, especially geometry, and\n              she attended MOP in 2021-2023 and was part of the U.S. team at the\n              EGMO in 2022 and 2023. Aside from doing cool math problems, she\n              also enjoys listening to EDM, origami, biking, teaching, and\n              interacting with the math community.\n\nVivian taught *Cute Geometry* in Fall 2021, Spring 2022, Fall 2022,\n              Spring 2023, Fall 2024, and Spring 2025, and *NT Olympiad Fundamentals*\n              in Fall 2023 and Spring 2024!\n\nVivian was the President of Athemath from 2023 to 2024 and Community Director from 2022 to 2023!",
       "photo": "staff_photos/vivianloh.png",
-      "ordering": 0
+      "ordering": -100
     }
   },
   {
@@ -87,7 +87,7 @@
       "category": "board",
       "biography": "Ali is a senior at MIT. She was an Honorable Mention for the 2020\n              USAJMO, and was on the 2020 USA European Girls' Math Olympiad\n              team, at which she got a silver medal. She started doing math\n              contests seriously in seventh grade. While participating in math\n              contests, she saw the way in which girls were isolated in math and\n              how that helped lead to the under-representation of girls at\n              contests. She founded Athemath in 2020 in order to help math girls\n              connect to each other. Nowadays, Ali enjoys programming and\n              reading webcomics.",
       "photo": "staff_photos/alicy.jpg",
-      "ordering": 0
+      "ordering": -100
     }
   },
   {
@@ -96,11 +96,11 @@
     "fields": {
       "user": null,
       "display_name": "Evan Chen",
-      "role": "Advisor",
+      "role": "Advisor and Technician",
       "category": "board",
       "biography": "Evan Chen (v_Enhance) completed his math PhD at\n              MIT and is one of the coaches of the USA IMO team. As a high school\n              student, Evan was an IMO gold medalist and winner of the 2014\n              USAMO (which he took from 12:30am to 5am in Taiwan). Outside of\n              math and teaching, Evan enjoys playing competitive Hanabi and\n              entertaining students on Twitch.",
       "photo": "staff_photos/evanchen.jpg",
-      "ordering": 0
+      "ordering": -9001
     }
   },
   {
