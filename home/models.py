@@ -49,4 +49,4 @@ class StaffPhotoListing(models.Model):
         verbose_name_plural = "Staff Photo Listings"
 
     def __str__(self) -> str:
-        return f"{self.display_name} ({self.get_category_display()})"
+        return self.display_name
