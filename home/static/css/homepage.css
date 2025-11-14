@@ -9,6 +9,13 @@
   background-size: cover;
 }
 
+.splash-text {
+  font-size: 50px;
+  font-weight: 600;
+  margin-top: 120px;
+  color: #a02828;
+}
+
 ul.splash-list {
   list-style-type: none;
   padding: 0;
@@ -45,6 +52,11 @@ li.splash-item:hover a {
 }
 
 @media (max-width: 500px) {
+  .splash-text {
+    margin-top: 80px;
+    font-size: 30px;
+  }
+
   .splash-link {
     font-size: 20px;
   }
