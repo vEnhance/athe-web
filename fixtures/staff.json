@@ -1,23 +1,9 @@
 [
   {
-    "model": "auth.user",
-    "pk": 1,
-    "fields": {
-      "username": "greta_qu",
-      "first_name": "Greta",
-      "last_name": "Qu",
-      "email": "greta_qu@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 1,
     "fields": {
-      "user": 1,
+      "user": null,
       "display_name": "Greta Qu",
       "role": "President and Teacher",
       "category": "board",
@@ -27,24 +13,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 2,
-    "fields": {
-      "username": "catherine_xu",
-      "first_name": "Catherine",
-      "last_name": "Xu",
-      "email": "catherine_xu@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 2,
     "fields": {
-      "user": 2,
+      "user": null,
       "display_name": "Catherine Xu",
       "role": "Community Director and Teacher",
       "category": "board",
@@ -54,24 +26,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 3,
-    "fields": {
-      "username": "rachel_chen",
-      "first_name": "Rachel",
-      "last_name": "Chen",
-      "email": "rachel_chen@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 3,
     "fields": {
-      "user": 3,
+      "user": null,
       "display_name": "Rachel Chen",
       "role": "Contests Director and TA",
       "category": "board",
@@ -81,24 +39,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 4,
-    "fields": {
-      "username": "tayakorn_(patrick)_suwanich",
-      "first_name": "Tayakorn",
-      "last_name": "(Patrick) Suwanich",
-      "email": "tayakorn_(patrick)_suwanich@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 4,
     "fields": {
-      "user": 4,
+      "user": null,
       "display_name": "Tayakorn (Patrick) Suwanich",
       "role": "Math Director and TA",
       "category": "board",
@@ -108,24 +52,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 5,
-    "fields": {
-      "username": "vera_puah",
-      "first_name": "Vera",
-      "last_name": "Puah",
-      "email": "vera_puah@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 5,
     "fields": {
-      "user": 5,
+      "user": null,
       "display_name": "Vera Puah",
       "role": "International Outreach Director and TA",
       "category": "board",
@@ -135,24 +65,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 6,
-    "fields": {
-      "username": "vivian_loh",
-      "first_name": "Vivian",
-      "last_name": "Loh",
-      "email": "vivian_loh@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 6,
     "fields": {
-      "user": 6,
+      "user": null,
       "display_name": "Vivian Loh",
       "role": "Advisor",
       "category": "board",
@@ -162,24 +78,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 7,
-    "fields": {
-      "username": "ali_cy",
-      "first_name": "Ali",
-      "last_name": "Cy",
-      "email": "ali_cy@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 7,
     "fields": {
-      "user": 7,
+      "user": null,
       "display_name": "Ali Cy",
       "role": "Founder and Advisor",
       "category": "board",
@@ -189,24 +91,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 8,
-    "fields": {
-      "username": "evan_chen",
-      "first_name": "Evan",
-      "last_name": "Chen",
-      "email": "evan_chen@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 8,
     "fields": {
-      "user": 8,
+      "user": null,
       "display_name": "Evan Chen",
       "role": "Advisor",
       "category": "board",
@@ -216,24 +104,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 9,
-    "fields": {
-      "username": "amy_cui",
-      "first_name": "Amy",
-      "last_name": "Cui",
-      "email": "amy_cui@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 9,
     "fields": {
-      "user": 9,
+      "user": null,
       "display_name": "Amy Cui",
       "role": "Teacher",
       "category": "teachers",
@@ -243,24 +117,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 10,
-    "fields": {
-      "username": "ekam_kaur",
-      "first_name": "Ekam",
-      "last_name": "Kaur",
-      "email": "ekam_kaur@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 10,
     "fields": {
-      "user": 10,
+      "user": null,
       "display_name": "Ekam Kaur",
       "role": "Teacher",
       "category": "teachers",
@@ -270,24 +130,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 11,
-    "fields": {
-      "username": "jiya_dani",
-      "first_name": "Jiya",
-      "last_name": "Dani",
-      "email": "jiya_dani@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 11,
     "fields": {
-      "user": 11,
+      "user": null,
       "display_name": "Jiya Dani",
       "role": "Teacher",
       "category": "teachers",
@@ -297,24 +143,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 12,
-    "fields": {
-      "username": "lanie_deng",
-      "first_name": "Lanie",
-      "last_name": "Deng",
-      "email": "lanie_deng@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 12,
     "fields": {
-      "user": 12,
+      "user": null,
       "display_name": "Lanie Deng",
       "role": "Teacher",
       "category": "teachers",
@@ -324,24 +156,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 13,
-    "fields": {
-      "username": "thanaree_(pimmy)_maneepairoj",
-      "first_name": "Thanaree",
-      "last_name": "(Pimmy) Maneepairoj",
-      "email": "thanaree_(pimmy)_maneepairoj@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 13,
     "fields": {
-      "user": 13,
+      "user": null,
       "display_name": "Thanaree (Pimmy) Maneepairoj",
       "role": "Teacher",
       "category": "teachers",
@@ -351,24 +169,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 14,
-    "fields": {
-      "username": "selena_ge",
-      "first_name": "Selena",
-      "last_name": "Ge",
-      "email": "selena_ge@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 14,
     "fields": {
-      "user": 14,
+      "user": null,
       "display_name": "Selena Ge",
       "role": "Teacher",
       "category": "teachers",
@@ -378,24 +182,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 15,
-    "fields": {
-      "username": "sophia_jin",
-      "first_name": "Sophia",
-      "last_name": "Jin",
-      "email": "sophia_jin@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 15,
     "fields": {
-      "user": 15,
+      "user": null,
       "display_name": "Sophia Jin",
       "role": "Teacher",
       "category": "teachers",
@@ -405,24 +195,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 16,
-    "fields": {
-      "username": "wendy_leong",
-      "first_name": "Wendy",
-      "last_name": "Leong",
-      "email": "wendy_leong@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 16,
     "fields": {
-      "user": 16,
+      "user": null,
       "display_name": "Wendy Leong",
       "role": "Teacher",
       "category": "teachers",
@@ -432,24 +208,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 17,
-    "fields": {
-      "username": "akshitaa_arun",
-      "first_name": "Akshitaa",
-      "last_name": "Arun",
-      "email": "akshitaa_arun@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 17,
     "fields": {
-      "user": 17,
+      "user": null,
       "display_name": "Akshitaa Arun",
       "role": "TA",
       "category": "tas",
@@ -459,24 +221,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 18,
-    "fields": {
-      "username": "arjun_suresh",
-      "first_name": "Arjun",
-      "last_name": "Suresh",
-      "email": "arjun_suresh@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 18,
     "fields": {
-      "user": 18,
+      "user": null,
       "display_name": "Arjun Suresh",
       "role": "TA",
       "category": "tas",
@@ -486,24 +234,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 19,
-    "fields": {
-      "username": "d\u00f3ra_s\u00e1rdinecz",
-      "first_name": "D\u00f3ra",
-      "last_name": "S\u00e1rdinecz",
-      "email": "d\u00f3ra_s\u00e1rdinecz@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 19,
     "fields": {
-      "user": 19,
+      "user": null,
       "display_name": "D\u00f3ra S\u00e1rdinecz",
       "role": "TA",
       "category": "tas",
@@ -513,24 +247,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 20,
-    "fields": {
-      "username": "heather_wang",
-      "first_name": "Heather",
-      "last_name": "Wang",
-      "email": "heather_wang@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 20,
     "fields": {
-      "user": 20,
+      "user": null,
       "display_name": "Heather Wang",
       "role": "TA",
       "category": "tas",
@@ -540,24 +260,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 21,
-    "fields": {
-      "username": "jingni_liao",
-      "first_name": "Jingni",
-      "last_name": "Liao",
-      "email": "jingni_liao@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 21,
     "fields": {
-      "user": 21,
+      "user": null,
       "display_name": "Jingni Liao",
       "role": "TA",
       "category": "tas",
@@ -567,24 +273,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 22,
-    "fields": {
-      "username": "lillian_xu",
-      "first_name": "Lillian",
-      "last_name": "Xu",
-      "email": "lillian_xu@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 22,
     "fields": {
-      "user": 22,
+      "user": null,
       "display_name": "Lillian Xu",
       "role": "TA",
       "category": "tas",
@@ -594,24 +286,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 23,
-    "fields": {
-      "username": "paras_mani",
-      "first_name": "Paras",
-      "last_name": "Mani",
-      "email": "paras_mani@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 23,
     "fields": {
-      "user": 23,
+      "user": null,
       "display_name": "Paras Mani",
       "role": "TA",
       "category": "tas",
@@ -621,24 +299,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 24,
-    "fields": {
-      "username": "ritwin_narra",
-      "first_name": "Ritwin",
-      "last_name": "Narra",
-      "email": "ritwin_narra@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 24,
     "fields": {
-      "user": 24,
+      "user": null,
       "display_name": "Ritwin Narra",
       "role": "TA",
       "category": "tas",
@@ -648,24 +312,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 25,
-    "fields": {
-      "username": "swastika_deb",
-      "first_name": "Swastika",
-      "last_name": "Deb",
-      "email": "swastika_deb@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 25,
     "fields": {
-      "user": 25,
+      "user": null,
       "display_name": "Swastika Deb",
       "role": "TA",
       "category": "tas",
@@ -675,24 +325,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 26,
-    "fields": {
-      "username": "tarun_rapaka",
-      "first_name": "Tarun",
-      "last_name": "Rapaka",
-      "email": "tarun_rapaka@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 26,
     "fields": {
-      "user": 26,
+      "user": null,
       "display_name": "Tarun Rapaka",
       "role": "TA",
       "category": "tas",
@@ -702,24 +338,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 27,
-    "fields": {
-      "username": "uddipa_pal",
-      "first_name": "Uddipa",
-      "last_name": "Pal",
-      "email": "uddipa_pal@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 27,
     "fields": {
-      "user": 27,
+      "user": null,
       "display_name": "Uddipa Pal",
       "role": "TA",
       "category": "tas",
@@ -729,24 +351,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 28,
-    "fields": {
-      "username": "emily_yu",
-      "first_name": "Emily",
-      "last_name": "Yu",
-      "email": "emily_yu@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 28,
     "fields": {
-      "user": 28,
+      "user": null,
       "display_name": "Emily Yu",
       "role": "Community Director",
       "category": "past",
@@ -756,24 +364,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 29,
-    "fields": {
-      "username": "andrew_xie",
-      "first_name": "Andrew",
-      "last_name": "Xie",
-      "email": "andrew_xie@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 29,
     "fields": {
-      "user": 29,
+      "user": null,
       "display_name": "Andrew Xie",
       "role": "Contests Director and TA",
       "category": "past",
@@ -783,24 +377,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 30,
-    "fields": {
-      "username": "neal_yan",
-      "first_name": "Neal",
-      "last_name": "Yan",
-      "email": "neal_yan@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 30,
     "fields": {
-      "user": 30,
+      "user": null,
       "display_name": "Neal Yan",
       "role": "TA",
       "category": "past",
@@ -810,24 +390,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 31,
-    "fields": {
-      "username": "matilde_iannaccone",
-      "first_name": "Matilde",
-      "last_name": "Iannaccone",
-      "email": "matilde_iannaccone@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 31,
     "fields": {
-      "user": 31,
+      "user": null,
       "display_name": "Matilde Iannaccone",
       "role": "Teacher",
       "category": "past",
@@ -837,24 +403,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 32,
-    "fields": {
-      "username": "julia_xiang",
-      "first_name": "Julia",
-      "last_name": "Xiang",
-      "email": "julia_xiang@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 32,
     "fields": {
-      "user": 32,
+      "user": null,
       "display_name": "Julia Xiang",
       "role": "Teacher",
       "category": "past",
@@ -864,24 +416,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 33,
-    "fields": {
-      "username": "emily_liu",
-      "first_name": "Emily",
-      "last_name": "Liu",
-      "email": "emily_liu@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 33,
     "fields": {
-      "user": 33,
+      "user": null,
       "display_name": "Emily Liu",
       "role": "Teacher",
       "category": "past",
@@ -891,24 +429,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 34,
-    "fields": {
-      "username": "ashley_zhu",
-      "first_name": "Ashley",
-      "last_name": "Zhu",
-      "email": "ashley_zhu@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 34,
     "fields": {
-      "user": 34,
+      "user": null,
       "display_name": "Ashley Zhu",
       "role": "Teacher",
       "category": "past",
@@ -918,24 +442,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 35,
-    "fields": {
-      "username": "ana_boiangiu",
-      "first_name": "Ana",
-      "last_name": "Boiangiu",
-      "email": "ana_boiangiu@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 35,
     "fields": {
-      "user": 35,
+      "user": null,
       "display_name": "Ana Boiangiu",
       "role": "Teacher",
       "category": "past",
@@ -945,24 +455,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 36,
-    "fields": {
-      "username": "peyton_li",
-      "first_name": "Peyton",
-      "last_name": "Li",
-      "email": "peyton_li@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 36,
     "fields": {
-      "user": 36,
+      "user": null,
       "display_name": "Peyton Li",
       "role": "TA",
       "category": "past",
@@ -972,24 +468,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 37,
-    "fields": {
-      "username": "laura_nan",
-      "first_name": "Laura",
-      "last_name": "Nan",
-      "email": "laura_nan@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 37,
     "fields": {
-      "user": 37,
+      "user": null,
       "display_name": "Laura Nan",
       "role": "TA",
       "category": "past",
@@ -999,24 +481,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 38,
-    "fields": {
-      "username": "yash_vardhan",
-      "first_name": "Yash",
-      "last_name": "Vardhan",
-      "email": "yash_vardhan@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 38,
     "fields": {
-      "user": 38,
+      "user": null,
       "display_name": "Yash Vardhan",
       "role": "TA",
       "category": "past",
@@ -1026,24 +494,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 39,
-    "fields": {
-      "username": "alexander_wang",
-      "first_name": "Alexander",
-      "last_name": "Wang",
-      "email": "alexander_wang@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 39,
     "fields": {
-      "user": 39,
+      "user": null,
       "display_name": "Alexander Wang",
       "role": "TA",
       "category": "past",
@@ -1053,24 +507,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 40,
-    "fields": {
-      "username": "angeline_zhao",
-      "first_name": "Angeline",
-      "last_name": "Zhao",
-      "email": "angeline_zhao@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 40,
     "fields": {
-      "user": 40,
+      "user": null,
       "display_name": "Angeline Zhao",
       "role": "TA",
       "category": "past",
@@ -1080,24 +520,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 41,
-    "fields": {
-      "username": "hannah_fox",
-      "first_name": "Hannah",
-      "last_name": "Fox",
-      "email": "hannah_fox@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 41,
     "fields": {
-      "user": 41,
+      "user": null,
       "display_name": "Hannah Fox",
       "role": "Teacher",
       "category": "past",
@@ -1107,24 +533,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 42,
-    "fields": {
-      "username": "sunaina_pati",
-      "first_name": "Sunaina",
-      "last_name": "Pati",
-      "email": "sunaina_pati@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 42,
     "fields": {
-      "user": 42,
+      "user": null,
       "display_name": "Sunaina Pati",
       "role": "TA",
       "category": "past",
@@ -1134,24 +546,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 43,
-    "fields": {
-      "username": "serena_an",
-      "first_name": "Serena",
-      "last_name": "An",
-      "email": "serena_an@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 43,
     "fields": {
-      "user": 43,
+      "user": null,
       "display_name": "Serena An",
       "role": "Math Director",
       "category": "past",
@@ -1161,24 +559,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 44,
-    "fields": {
-      "username": "michelle_kang",
-      "first_name": "Michelle",
-      "last_name": "Kang",
-      "email": "michelle_kang@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 44,
     "fields": {
-      "user": 44,
+      "user": null,
       "display_name": "Michelle Kang",
       "role": "Community Director",
       "category": "past",
@@ -1188,24 +572,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 45,
-    "fields": {
-      "username": "laura_zhang",
-      "first_name": "Laura",
-      "last_name": "Zhang",
-      "email": "laura_zhang@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 45,
     "fields": {
-      "user": 45,
+      "user": null,
       "display_name": "Laura Zhang",
       "role": "Contests Director",
       "category": "past",
@@ -1215,24 +585,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 46,
-    "fields": {
-      "username": "raina_wu",
-      "first_name": "Raina",
-      "last_name": "Wu",
-      "email": "raina_wu@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 46,
     "fields": {
-      "user": 46,
+      "user": null,
       "display_name": "Raina Wu",
       "role": "TA",
       "category": "past",
@@ -1242,24 +598,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 47,
-    "fields": {
-      "username": "debayu_chakrabarti",
-      "first_name": "Debayu",
-      "last_name": "Chakrabarti",
-      "email": "debayu_chakrabarti@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 47,
     "fields": {
-      "user": 47,
+      "user": null,
       "display_name": "Debayu Chakrabarti",
       "role": "TA",
       "category": "past",
@@ -1269,24 +611,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 48,
-    "fields": {
-      "username": "elsa_lin",
-      "first_name": "Elsa",
-      "last_name": "Lin",
-      "email": "elsa_lin@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 48,
     "fields": {
-      "user": 48,
+      "user": null,
       "display_name": "Elsa Lin",
       "role": "TA",
       "category": "past",
@@ -1296,24 +624,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 49,
-    "fields": {
-      "username": "pranav_choudhary",
-      "first_name": "Pranav",
-      "last_name": "Choudhary",
-      "email": "pranav_choudhary@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 49,
     "fields": {
-      "user": 49,
+      "user": null,
       "display_name": "Pranav Choudhary",
       "role": "TA",
       "category": "past",
@@ -1323,24 +637,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 50,
-    "fields": {
-      "username": "gunjan_aggarwal",
-      "first_name": "Gunjan",
-      "last_name": "Aggarwal",
-      "email": "gunjan_aggarwal@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 50,
     "fields": {
-      "user": 50,
+      "user": null,
       "display_name": "Gunjan Aggarwal",
       "role": "TA",
       "category": "past",
@@ -1350,24 +650,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 51,
-    "fields": {
-      "username": "jessica_wan",
-      "first_name": "Jessica",
-      "last_name": "Wan",
-      "email": "jessica_wan@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 51,
     "fields": {
-      "user": 51,
+      "user": null,
       "display_name": "Jessica Wan",
       "role": "TA",
       "category": "past",
@@ -1377,24 +663,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 52,
-    "fields": {
-      "username": "annabel_ge",
-      "first_name": "Annabel",
-      "last_name": "Ge",
-      "email": "annabel_ge@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 52,
     "fields": {
-      "user": 52,
+      "user": null,
       "display_name": "Annabel Ge",
       "role": "TA",
       "category": "past",
@@ -1404,24 +676,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 53,
-    "fields": {
-      "username": "anurag_singh",
-      "first_name": "Anurag",
-      "last_name": "Singh",
-      "email": "anurag_singh@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 53,
     "fields": {
-      "user": 53,
+      "user": null,
       "display_name": "Anurag Singh",
       "role": "TA",
       "category": "past",
@@ -1431,24 +689,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 54,
-    "fields": {
-      "username": "alex_zhao",
-      "first_name": "Alex",
-      "last_name": "Zhao",
-      "email": "alex_zhao@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 54,
     "fields": {
-      "user": 54,
+      "user": null,
       "display_name": "Alex Zhao",
       "role": "TA",
       "category": "past",
@@ -1458,24 +702,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 55,
-    "fields": {
-      "username": "emily_ma",
-      "first_name": "Emily",
-      "last_name": "Ma",
-      "email": "emily_ma@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 55,
     "fields": {
-      "user": 55,
+      "user": null,
       "display_name": "Emily Ma",
       "role": "Teacher",
       "category": "past",
@@ -1485,24 +715,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 56,
-    "fields": {
-      "username": "kristine_lu",
-      "first_name": "Kristine",
-      "last_name": "Lu",
-      "email": "kristine_lu@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 56,
     "fields": {
-      "user": 56,
+      "user": null,
       "display_name": "Kristine Lu",
       "role": "Teacher",
       "category": "past",
@@ -1512,24 +728,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 57,
-    "fields": {
-      "username": "rey_li",
-      "first_name": "Rey",
-      "last_name": "Li",
-      "email": "rey_li@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 57,
     "fields": {
-      "user": 57,
+      "user": null,
       "display_name": "Rey Li",
       "role": "Contests Director",
       "category": "past",
@@ -1539,24 +741,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 58,
-    "fields": {
-      "username": "janabel_xia",
-      "first_name": "Janabel",
-      "last_name": "Xia",
-      "email": "janabel_xia@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 58,
     "fields": {
-      "user": 58,
+      "user": null,
       "display_name": "Janabel Xia",
       "role": "Director",
       "category": "past",
@@ -1566,24 +754,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 59,
-    "fields": {
-      "username": "nicole_shen",
-      "first_name": "Nicole",
-      "last_name": "Shen",
-      "email": "nicole_shen@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 59,
     "fields": {
-      "user": 59,
+      "user": null,
       "display_name": "Nicole Shen",
       "role": "Teacher",
       "category": "past",
@@ -1593,24 +767,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 60,
-    "fields": {
-      "username": "serena_xu",
-      "first_name": "Serena",
-      "last_name": "Xu",
-      "email": "serena_xu@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 60,
     "fields": {
-      "user": 60,
+      "user": null,
       "display_name": "Serena Xu",
       "role": "Teacher",
       "category": "past",
@@ -1620,24 +780,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 61,
-    "fields": {
-      "username": "cordelia_hu",
-      "first_name": "Cordelia",
-      "last_name": "Hu",
-      "email": "cordelia_hu@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 61,
     "fields": {
-      "user": 61,
+      "user": null,
       "display_name": "Cordelia Hu",
       "role": "Teacher",
       "category": "past",
@@ -1647,24 +793,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 62,
-    "fields": {
-      "username": "holden_mui",
-      "first_name": "Holden",
-      "last_name": "Mui",
-      "email": "holden_mui@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 62,
     "fields": {
-      "user": 62,
+      "user": null,
       "display_name": "Holden Mui",
       "role": "TA",
       "category": "past",
@@ -1674,24 +806,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 63,
-    "fields": {
-      "username": "isabella_quan",
-      "first_name": "Isabella",
-      "last_name": "Quan",
-      "email": "isabella_quan@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 63,
     "fields": {
-      "user": 63,
+      "user": null,
       "display_name": "Isabella Quan",
       "role": "Teacher",
       "category": "past",
@@ -1701,24 +819,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 64,
-    "fields": {
-      "username": "sanjana_das",
-      "first_name": "Sanjana",
-      "last_name": "Das",
-      "email": "sanjana_das@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 64,
     "fields": {
-      "user": 64,
+      "user": null,
       "display_name": "Sanjana Das",
       "role": "Teacher",
       "category": "past",
@@ -1728,24 +832,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 65,
-    "fields": {
-      "username": "pravalika_putalapattu",
-      "first_name": "Pravalika",
-      "last_name": "Putalapattu",
-      "email": "pravalika_putalapattu@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 65,
     "fields": {
-      "user": 65,
+      "user": null,
       "display_name": "Pravalika Putalapattu",
       "role": "Teacher",
       "category": "past",
@@ -1755,24 +845,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 66,
-    "fields": {
-      "username": "kaylee_ji",
-      "first_name": "Kaylee",
-      "last_name": "Ji",
-      "email": "kaylee_ji@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 66,
     "fields": {
-      "user": 66,
+      "user": null,
       "display_name": "Kaylee Ji",
       "role": "Teacher",
       "category": "past",
@@ -1782,24 +858,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 67,
-    "fields": {
-      "username": "andrew_wu",
-      "first_name": "Andrew",
-      "last_name": "Wu",
-      "email": "andrew_wu@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 67,
     "fields": {
-      "user": 67,
+      "user": null,
       "display_name": "Andrew Wu",
       "role": "Vice President",
       "category": "past",
@@ -1809,24 +871,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 68,
-    "fields": {
-      "username": "ilaria_seidel",
-      "first_name": "Ilaria",
-      "last_name": "Seidel",
-      "email": "ilaria_seidel@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 68,
     "fields": {
-      "user": 68,
+      "user": null,
       "display_name": "Ilaria Seidel",
       "role": "TA",
       "category": "past",
@@ -1836,24 +884,10 @@
     }
   },
   {
-    "model": "auth.user",
-    "pk": 69,
-    "fields": {
-      "username": "janette_park",
-      "first_name": "Janette",
-      "last_name": "Park",
-      "email": "janette_park@athemath.org",
-      "is_active": true,
-      "is_staff": false,
-      "is_superuser": false,
-      "password": "!unusable"
-    }
-  },
-  {
     "model": "home.staffphotolisting",
     "pk": 69,
     "fields": {
-      "user": 69,
+      "user": null,
       "display_name": "Janette Park",
       "role": "TA",
       "category": "past",
