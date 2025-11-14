@@ -26,6 +26,7 @@ class Course(models.Model):
     instructor = models.ForeignKey(
         StaffPhotoListing,
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
         related_name="courses",
         help_text="Link to the instructor for this course.",
