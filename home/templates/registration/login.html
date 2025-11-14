@@ -1,0 +1,37 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}Login - Athemath{% endblock %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 50px;">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">Login</h2>
+                        {% if form.errors %}
+                            <div class="alert alert-danger" role="alert">Your username and password didn't match. Please try again.</div>
+                        {% endif %}
+                        {% if next %}
+                            {% if user.is_authenticated %}
+                                <div class="alert alert-warning" role="alert">
+                                    Your account doesn't have access to this page. To proceed,
+                                    please login with an account that has access.
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info" role="alert">Please login to see this page.</div>
+                            {% endif %}
+                        {% endif %}
+                        <form method="post" action="{% url 'login' %}">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Login</button>
+                            </div>
+                            <input type="hidden" name="next" value="{{ next }}" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from home.models import StaffPhotoListing
 
@@ -36,9 +37,67 @@ class Course(models.Model):
     lesson_plan = models.TextField(
         blank=True, help_text="List of lessons planned for this course. One per line."
     )
+    regular_meeting_time = models.CharField(
+        blank=True,
+        max_length=200,
+        help_text="Regular meeting time for this course, e.g. '5pm-6pm ET on Saturday'.",
+    )
+    google_classroom_direct_link = models.URLField(
+        blank=True, help_text="Direct link to the Google Classroom for this course."
+    )
+    google_classroom_join_link = models.URLField(
+        blank=True, help_text="Join link for students to join the Google Classroom."
+    )
+    zoom_meeting_link = models.URLField(
+        blank=True, help_text="Zoom meeting link for this course."
+    )
+    discord_webhook = models.URLField(
+        blank=True, help_text="Discord webhook URL for posting reminders."
+    )
+    discord_role_id = models.CharField(
+        blank=True,
+        max_length=100,
+        help_text="Discord role ID to mention in reminders.",
+    )
 
     def __str__(self) -> str:
         return self.name
 
     class Meta:
         ordering = ("-semester__start_date", "name")
+
+
+class Student(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="students"
+    )
+    semester = models.ForeignKey(
+        Semester, on_delete=models.CASCADE, related_name="students"
+    )
+    enrolled_courses = models.ManyToManyField(
+        Course, related_name="enrolled_students", blank=True
+    )
+
+    def __str__(self) -> str:
+        return f"{self.user.username} ({self.semester})"
+
+    class Meta:
+        unique_together = ("user", "semester")
+        ordering = ("-semester__start_date", "user__username")
+
+
+class CourseMeeting(models.Model):
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE, related_name="meetings"
+    )
+    start_time = models.DateTimeField(help_text="When this meeting starts.")
+    title = models.CharField(max_length=200, help_text="Topic for this lecture.")
+    reminder_sent = models.BooleanField(
+        default=False, help_text="Whether a reminder has been sent for this meeting."
+    )
+
+    def __str__(self) -> str:
+        return f"{self.course.name} - {self.title} ({self.start_time})"
+
+    class Meta:
+        ordering = ("start_time",)

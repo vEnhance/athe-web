@@ -8,4 +8,5 @@ urlpatterns = [
     path("", views.catalog_root, name="catalog_root"),
     path("all/", views.semester_list, name="semester_list"),
     path("<slug:slug>/", views.course_list, name="course_list"),
+    path("course/<int:pk>/", views.CourseDetailView.as_view(), name="course_detail"),
 ]

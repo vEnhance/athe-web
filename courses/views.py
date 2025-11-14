@@ -1,7 +1,10 @@
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.views.generic import DetailView
 
-from courses.models import Semester, Course
+from courses.models import Course, CourseMeeting, Semester, Student
 
 
 def catalog_root(request: HttpRequest) -> HttpResponse:
@@ -46,3 +49,36 @@ def course_list(request: HttpRequest, slug: str) -> HttpResponse:
             "next_semester": next_semester,
         },
     )
+
+
+class CourseDetailView(UserPassesTestMixin, DetailView):
+    """
+    Detail view for a course showing Google Classroom, Zoom links,
+    and upcoming meetings. Accessible to staff or enrolled students.
+    """
+
+    model = Course
+    template_name = "courses/course_detail.html"
+    context_object_name = "course"
+
+    def test_func(self) -> bool:
+        """Check if user is staff or enrolled in this course."""
+        if not self.request.user.is_authenticated:
+            return False
+        if self.request.user.is_staff:  # type: ignore[attr-defined]
+            return True
+        # Check if user is enrolled in this course
+        course = self.get_object()
+        return Student.objects.filter(
+            user=self.request.user,
+            enrolled_courses=course,
+        ).exists()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get upcoming meetings (from now onwards)
+        now = timezone.now()
+        context["upcoming_meetings"] = CourseMeeting.objects.filter(
+            course=self.object, start_time__gte=now
+        ).order_by("start_time")
+        return context
