@@ -1,8 +1,106 @@
 {% extends "home/base.html" %}
+{% load static %}
 {% block title %}Staff - Athemath{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/stafflist.css' %}" />
+{% endblock %}
 {% block content %}
-    <div class="container mt-5 pt-5">
-        <h1>Staff</h1>
-        <p>Content coming soon...</p>
+    <div id="content">
+        <h1>Our Staff</h1>
+        {% if board %}
+            <h2>Board</h2>
+            <div class="staff-list">
+                {% for staff in board %}
+                    <div class="staff-container-hidden">
+                        <div class="staff-left" style="width: 200px">
+                            <img class="staff-img"
+                                 src="{{ staff.photo.url }}"
+                                 height="200"
+                                 alt="{{ staff.display_name }}" />
+                            <img class="staff-max-icon"
+                                 src="{% static 'icons/maximize.svg' %}"
+                                 alt="Maximize icon" />
+                            <div class="staff-name-hidden">
+                                <h4 class="card-title">{{ staff.display_name }}</h4>
+                                <h5 class="staff-desc">{{ staff.role }}</h5>
+                            </div>
+                        </div>
+                        <div class="staff-right-hidden">{{ staff.biography_rendered|safe }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if teachers %}
+            <h2>Teachers</h2>
+            <div class="staff-list">
+                {% for staff in teachers %}
+                    <div class="staff-container-hidden">
+                        <div class="staff-left" style="width: 200px">
+                            <img class="staff-img"
+                                 src="{{ staff.photo.url }}"
+                                 height="200"
+                                 alt="{{ staff.display_name }}" />
+                            <img class="staff-max-icon"
+                                 src="{% static 'icons/maximize.svg' %}"
+                                 alt="Maximize icon" />
+                            <div class="staff-name-hidden">
+                                <h4 class="card-title">{{ staff.display_name }}</h4>
+                                <h5 class="staff-desc">{{ staff.role }}</h5>
+                            </div>
+                        </div>
+                        <div class="staff-right-hidden">{{ staff.biography_rendered|safe }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if tas %}
+            <h2>TAs</h2>
+            <div class="staff-list">
+                {% for staff in tas %}
+                    <div class="staff-container-hidden">
+                        <div class="staff-left" style="width: 200px">
+                            <img class="staff-img"
+                                 src="{{ staff.photo.url }}"
+                                 height="200"
+                                 alt="{{ staff.display_name }}" />
+                            <img class="staff-max-icon"
+                                 src="{% static 'icons/maximize.svg' %}"
+                                 alt="Maximize icon" />
+                            <div class="staff-name-hidden">
+                                <h4 class="card-title">{{ staff.display_name }}</h4>
+                                <h5 class="staff-desc">{{ staff.role }}</h5>
+                            </div>
+                        </div>
+                        <div class="staff-right-hidden">{{ staff.biography_rendered|safe }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if past %}
+            <h2>Past Staff</h2>
+            <div class="staff-list">
+                {% for staff in past %}
+                    <div class="staff-container-hidden">
+                        <div class="staff-left" style="width: 200px">
+                            <img class="staff-img"
+                                 src="{{ staff.photo.url }}"
+                                 height="200"
+                                 alt="{{ staff.display_name }}" />
+                            <img class="staff-max-icon"
+                                 src="{% static 'icons/maximize.svg' %}"
+                                 alt="Maximize icon" />
+                            <div class="staff-name-hidden">
+                                <h4 class="card-title">{{ staff.display_name }}</h4>
+                                <h5 class="staff-desc">{{ staff.role }}</h5>
+                            </div>
+                        </div>
+                        <div class="staff-right-hidden">{{ staff.biography_rendered|safe }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 {% endblock content %}
+{% block extra_js %}
+    <script src="{% static 'js/stafflist.js' %}"></script>
+{% endblock %}

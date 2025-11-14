@@ -73,8 +73,7 @@ li.splash-item:hover a {
   }
 
   li.splash-item:hover {
-    background: url("../icons/arrow-right_orangethin.svg") no-repeat left
-      center;
+    background: url("../icons/arrow-right_orangethin.svg") no-repeat left center;
   }
 }
 
