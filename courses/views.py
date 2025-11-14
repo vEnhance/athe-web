@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpRequest, HttpResponse
@@ -92,7 +93,8 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
         """Check if user is staff or enrolled in this course."""
         if not self.request.user.is_authenticated:
             return False
-        if self.request.user.is_staff:  # type: ignore[attr-defined]
+        assert isinstance(self.request.user, User)
+        if self.request.user.is_staff:
             return True
         # Check if user is enrolled in this course
         course = self.get_object()
