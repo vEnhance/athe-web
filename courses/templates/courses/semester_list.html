@@ -5,9 +5,9 @@
         <div class="catalog-scroll">
             {% for semester in semesters %}
                 <div class="semester-entry">
-                    <h2>
+                    <h3>
                         <a href="{% url 'course_list' slug=semester.slug %}">{{ semester.name }}</a>
-                    </h2>
+                    </h3>
                     <p>
                         <i>{{ semester.start_date|date:"F jS, Y" }}—{{ semester.end_date|date:"F jS, Y" }}</i>
                     </p>
