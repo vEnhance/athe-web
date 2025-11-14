@@ -7,12 +7,9 @@
   position: absolute;
 }
 
-.catnav-back {
-  right: 80vw;
-}
-
 .catnav-back a {
   color: #000;
+  text-decoration: none;
 }
 
 .catnav-back-text-long {
@@ -46,6 +43,7 @@
 
 .catnav-forward a {
   color: #000;
+  text-decoration: none;
 }
 
 .catnav-forward-text {
