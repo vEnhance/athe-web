@@ -2,17 +2,19 @@
 {% block content %}
     <div class="content">
         <h1>All Semesters</h1>
-        <ul>
+        <table class="table table-striped">
             {% for semester in semesters %}
-                <li>
-                    <a href="{% url 'courses:course_list' slug=semester.slug %}">{{ semester.name }}</a>:
-                    {{ semester.start_date|date:"F jS, Y" }}—{{ semester.end_date|date:"F jS, Y" }}
-                    ({{ semester.courses.count }} course{{ semester.courses.count|pluralize }})
-                </li>
+                <tr>
+                    <td>
+                        <a href="{% url 'courses:course_list' slug=semester.slug %}">{{ semester.name }}</a>
+                    </td>
+                    <td>{{ semester.start_date|date:"F jS, Y" }}—{{ semester.end_date|date:"F jS, Y" }}</td>
+                    <td>{{ semester.courses.count }} course{{ semester.courses.count|pluralize }}</td>
+                </tr>
             {% empty %}
                 <p>No semesters available yet.</p>
             {% endfor %}
-        </ul>
+        </table>
     </div>
 </div>
 {% endblock content %}
