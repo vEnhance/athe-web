@@ -23,7 +23,8 @@
                     <span class="course-description">
                         {% if course.instructor %}
                             <p>
-                                <strong>Instructor:</strong> {{ course.instructor }}
+                                <strong>Instructor:</strong>
+                                <a class="course-teach" href="{{ course.instructor.get_absolute_url }}">{{ course.instructor.display_name }}</a>
                             </p>
                         {% endif %}
                         {% if course.regular_meeting_time %}
