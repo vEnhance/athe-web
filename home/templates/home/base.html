@@ -107,46 +107,26 @@
         {% endblock content %}
         <footer id="athe-footer">
             <div class="row sitemap-big">
-                <div class="col-5">
-                    {% include "home/components/footer_title.html" %}
-                </div>
-                <div class="col-1">
-                    {% include "home/components/footer_newsletter.html" %}
-                </div>
-                <div class="col-1">
-                    {% include "home/components/footer_nav_about.html" %}
-                </div>
-                <div class="col-2">
-                    {% include "home/components/footer_nav_programs.html" %}
-                </div>
-                <div class="col-2">
-                    {% include "home/components/footer_nav_applications.html" %}
-                </div>
+                <div class="col-5">{% include "home/components/footer_title.html" %}</div>
+                <div class="col-1">{% include "home/components/footer_newsletter.html" %}</div>
+                <div class="col-1">{% include "home/components/footer_nav_about.html" %}</div>
+                <div class="col-2">{% include "home/components/footer_nav_programs.html" %}</div>
+                <div class="col-2">{% include "home/components/footer_nav_applications.html" %}</div>
                 <div class="col-1 f-lastcol">
                     <a href="{% url 'home:legal' %}" class="f-head">Legal</a>
                 </div>
             </div>
             <div class="sitemap-medium">
                 <div class="row">
-                    <div class="col-4">
-                        {% include "home/components/footer_title.html" %}
-                    </div>
-                    <div class="col-2">
-                        {% include "home/components/footer_newsletter.html" %}
-                    </div>
-                    <div class="col-2">
-                        {% include "home/components/footer_nav_about.html" %}
-                    </div>
-                    <div class="col-2">
-                        {% include "home/components/footer_nav_programs.html" %}
-                    </div>
+                    <div class="col-4">{% include "home/components/footer_title.html" %}</div>
+                    <div class="col-2">{% include "home/components/footer_newsletter.html" %}</div>
+                    <div class="col-2">{% include "home/components/footer_nav_about.html" %}</div>
+                    <div class="col-2">{% include "home/components/footer_nav_programs.html" %}</div>
                 </div>
                 <div style="height: 40px; width: 100%"></div>
                 <div class="row">
                     <div class="col-6"></div>
-                    <div class="col-2">
-                        {% include "home/components/footer_nav_applications.html" %}
-                    </div>
+                    <div class="col-2">{% include "home/components/footer_nav_applications.html" %}</div>
                     <div class="col-2 f-lastcol">
                         <a href="{% url 'home:legal' %}" class="f-head">Legal</a>
                     </div>
@@ -155,29 +135,17 @@
             <div class="row sitemap-small">
                 <div>
                     {% include "home/components/footer_title.html" %}
-                    <div style="font-size: 10px">&nbsp;</div>
-                    <div>
-                        {% include "home/components/footer_newsletter.html" %}
-                    </div>
-                    <div>
-                        <a class="f-head" href="{% url 'home:about' %}">About</a>
-                    </div>
+                    <ul class="f-list">
+                        <li>{% include "home/components/footer_newsletter.html" %}</li>
+                    </ul>
+                    {% include "home/components/footer_nav_about.html" with small=true %}
+                    {% include "home/components/footer_nav_programs.html" with small=true %}
+                    {% include "home/components/footer_nav_applications.html" with small=true %}
                     <ul class="f-list">
                         <li>
-                            <a class="f-body" href="{% url 'home:staff' %}">Staff</a>
-                        </li>
-                        <li>
-                            <a class="f-body" href="{% url 'home:donors' %}">Donors</a>
-                        </li>
-                        <li>
-                            <a class="f-body" href="{% url 'home:history' %}">History</a>
+                            <a href="{% url 'home:legal' %}" class="f-head">Legal</a>
                         </li>
                     </ul>
-                    {% include "home/components/footer_nav_programs.html" %}
-                    {% include "home/components/footer_nav_applications.html" %}
-                    <div>
-                        <a href="{% url 'home:legal' %}" class="f-head">Legal</a>
-                    </div>
                 </div>
             </div>
             <div class="row copy">
