@@ -30,11 +30,11 @@ class StudentAdmin(admin.ModelAdmin):
     search_fields = ("user__username", "user__email")
     filter_horizontal = ("enrolled_courses",)
 
-    def formfield_for_manytomany(self, db_field, request, **kwargs):
+    def formfield_for_manytomany(self, db_field, request, **kwargs):  # type: ignore
         """Filter enrolled_courses to only show courses from the student's semester."""
         if db_field.name == "enrolled_courses":
             # Get the student instance being edited
-            student_id = request.resolver_match.kwargs.get("object_id")
+            student_id = request.resolver_match.kwargs.get("object_id")  # type: ignore[attr-defined]
             if student_id:
                 try:
                     student = Student.objects.get(pk=student_id)
