@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -48,6 +49,30 @@ def course_list(request: HttpRequest, slug: str) -> HttpResponse:
             "prev_semester": prev_semester,
             "next_semester": next_semester,
         },
+    )
+
+
+@login_required
+def my_courses(request: HttpRequest) -> HttpResponse:
+    """Show all courses the current user is enrolled in."""
+    # Get all student records for this user
+    student_records = Student.objects.filter(user=request.user).prefetch_related(
+        "enrolled_courses__semester", "enrolled_courses__instructor"
+    )
+
+    # Collect all enrolled courses
+    enrolled_courses = []
+    for student in student_records:
+        for course in student.enrolled_courses.all():
+            enrolled_courses.append(course)
+
+    # Sort by semester (most recent first), then by course name
+    enrolled_courses.sort(key=lambda c: (-c.semester.start_date.toordinal(), c.name))
+
+    return render(
+        request,
+        "courses/my_courses.html",
+        {"enrolled_courses": enrolled_courses},
     )
 
 

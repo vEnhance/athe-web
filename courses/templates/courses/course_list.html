@@ -47,7 +47,14 @@
                                  class="course-instructor-photo">
                         {% endif %}
                         <div class="course-title-text">
-                            <h2 class="course-title">{{ course.name }}</h2>
+                            <h2 class="course-title">
+                                {{ course.name }}
+                                {% if user.is_staff %}
+                                    <a href="{% url 'courses:course_detail' pk=course.pk %}"
+                                       style="font-size: 0.6em;
+                                              margin-left: 10px">[View Details]</a>
+                                {% endif %}
+                            </h2>
                             {% if course.instructor %}
                                 <p>
                                     Instructor:

@@ -100,8 +100,28 @@
                             </ul>
                         </li>
                         {% if user.is_authenticated %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'logout' %}">Logout ({{ user.username }})</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   id="navbarDropdownUser"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">{{ user.username }}</a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdownUser">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'courses:my_courses' %}">My Courses</a>
+                                    </li>
+                                    {% if user.is_staff %}
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'admin:index' %}">Admin Panel</a>
+                                        </li>
+                                    {% endif %}
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                                    </li>
+                                </ul>
                             </li>
                         {% else %}
                             <li class="nav-item">
