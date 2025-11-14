@@ -1,0 +1,13 @@
+{% if course.lesson_plan %}
+    <div class="course-sched-container">
+        <div class="course-sched-wrap">
+            <div class="course-sched-title">Schedule</div>
+            {% for lesson in course.lesson_plan.splitlines %}
+                <p class="course-sched-text">
+                    <span class="course-sched-l">LESSON {{ forloop.counter }}:</span>
+                    {{ lesson }}
+                </p>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
