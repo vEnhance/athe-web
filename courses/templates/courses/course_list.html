@@ -1,12 +1,14 @@
-{% extends "layout.html" %}
-{% block layout-content %}
-    <h1>Courses for {{ semester.name }}</h1>
-    <ul>
-        {% for course in semester.courses.all %}
-            <li>
-                <strong>{{ course.name }}</strong>: {{ course.description }}
-            </li>
-        {% endfor %}
-    </ul>
-    <a href="{% url 'semester_list' %}">Back to semesters</a>
-{% endblock layout-content %}
+{% extends "home/base.html" %}
+{% block content %}
+    <div id="content">
+        <h1>Courses for {{ semester.name }}</h1>
+        <ul>
+            {% for course in semester.courses.all %}
+                <li>
+                    <strong>{{ course.name }}</strong>: {{ course.description }}
+                </li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'semester_list' %}">Back to semesters</a>
+    </div>
+{% endblock content %}
