@@ -11,21 +11,27 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr class="table-dark">
-                                    <th>Date & Time</th>
-                                    <th>Course/Club</th>
+                                    <th>Class/Club</th>
+                                    <th>Date/Time</th>
                                     <th>Topic</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for meeting in upcoming_meetings %}
                                     <tr>
-                                        <td>{{ meeting.start_time|date:"F j, Y, g:i A e" }}</td>
                                         <td>
                                             <a href="{% url 'courses:course_detail' pk=meeting.course.pk %}">{{ meeting.course.name }}</a>
                                             <br>
                                             <small class="text-muted">{{ meeting.course.semester }}</small>
                                         </td>
-                                        <td>{{ meeting.title }}</td>
+                                        <td>{{ meeting.start_time|date:"F j, Y, g:i A e" }}</td>
+                                        <td>
+                                            {% if meeting.title %}
+                                                {{ meeting.title }}
+                                            {% else %}
+                                                <i>None specified</i>
+                                            {% endif %}
+                                        </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

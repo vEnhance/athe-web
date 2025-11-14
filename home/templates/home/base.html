@@ -108,16 +108,16 @@
                                    aria-expanded="false">{{ user.username }}</a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdownUser">
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'courses:my_courses' %}">My Courses</a>
+                                        <a class="dropdown-item" href="{% url 'courses:upcoming' %}">Upcoming</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'courses:my_courses' %}">Classes</a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="{% url 'courses:my_clubs' %}">My Clubs</a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="{% url 'courses:past_clubs' %}">Past Clubs</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'courses:upcoming' %}">Upcoming</a>
                                     </li>
                                     {% if user.is_staff %}
                                         <li>
@@ -131,7 +131,10 @@
                                         <hr class="dropdown-divider">
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                                        <form method="post" action="{% url 'logout' %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item btn-link">Logout</button>
+                                        </form>
                                     </li>
                                 </ul>
                             </li>
