@@ -31,8 +31,8 @@
                 </a>
                 <button class="navbar-toggler"
                         type="button"
-                        data-toggle="collapse"
-                        data-target="#navbarNav"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarNav"
                         aria-controls="navbarNav"
                         aria-expanded="false"
                         aria-label="Toggle navigation"
@@ -41,45 +41,60 @@
                           style="background-image: url('{% static 'icons/menu.svg' %}')"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ml-auto">
+                    <ul class="navbar-nav ms-auto">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle"
                                id="navbarDropdownAbout"
                                role="button"
-                               data-toggle="dropdown"
-                               aria-haspopup="true"
+                               data-bs-toggle="dropdown"
                                aria-expanded="false">About</a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdownAbout">
-                                <a class="dropdown-item" href="{% url 'home:about' %}">About Us</a>
-                                <a class="dropdown-item" href="{% url 'home:staff' %}">Staff</a>
-                                <a class="dropdown-item" href="{% url 'home:donors' %}">Donors</a>
-                                <a class="dropdown-item" href="{% url 'home:history' %}">History</a>
-                            </div>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownAbout">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'home:about' %}">About Us</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'home:staff' %}">Staff</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'home:donors' %}">Donors</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'home:history' %}">History</a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle"
                                id="navbarDropdownPrograms"
                                role="button"
-                               data-toggle="dropdown"
-                               aria-haspopup="true"
+                               data-bs-toggle="dropdown"
                                aria-expanded="false">Programs</a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdownPrograms">
-                                <a class="dropdown-item" href="{% url 'home:virtual_program' %}">Virtual Program</a>
-                                <a class="dropdown-item" href="{% url 'semester_list' %}">Catalog</a>
-                                <a class="dropdown-item" href="{% url 'home:scholarships' %}">Scholarships</a>
-                            </div>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownPrograms">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'home:virtual_program' %}">Virtual Program</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'semester_list' %}">Catalog</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'home:scholarships' %}">Scholarships</a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle"
                                id="navbarDropdownApply"
                                role="button"
-                               data-toggle="dropdown"
-                               aria-haspopup="true"
+                               data-bs-toggle="dropdown"
                                aria-expanded="false">Apply</a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdownApply">
-                                <a class="dropdown-item" href="{% url 'home:past_psets' %}">Apply in December!</a>
-                                <a class="dropdown-item" href="{% url 'home:past_psets' %}">Past Problem Sets</a>
-                            </div>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownApply">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'home:past_psets' %}">Apply in December!</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'home:past_psets' %}">Past Problem Sets</a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
@@ -255,16 +270,6 @@
                 <p class="copy-text">© 2025 Athemath. All rights reserved.</p>
             </div>
         </footer>
-        <!-- Bootstrap JS dependencies -->
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-                integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-                crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
-                integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
-                crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
-                integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
-                crossorigin="anonymous"></script>
         {% block extra_js %}
         {% endblock %}
     </body>
