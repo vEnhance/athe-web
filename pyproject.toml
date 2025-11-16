@@ -28,7 +28,7 @@ dev = [
     "pyright",
     "django-stubs",
     "django-stubs-ext",
-    "pre-commit",
+    "prek",
 ]
 
 [tool.djlint]
