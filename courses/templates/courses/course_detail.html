@@ -2,8 +2,10 @@
 {% load static %}
 {% block extra_css %}
     <link type="text/css" rel="stylesheet" href="{% static "css/courses.css" %}" />
-{% endblock %}
-{% block title %}{{ course.name }} - Athemath{% endblock %}
+{% endblock extra_css %}
+{% block title %}
+    {{ course.name }} - Athemath
+{% endblock title %}
 {% block content %}
     <div id="content">
         <div class="course">
@@ -104,4 +106,4 @@
             {% endif %}
         </div>
     </div>
-{% endblock %}
+{% endblock content %}

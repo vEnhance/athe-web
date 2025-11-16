@@ -2,8 +2,10 @@
 {% load static %}
 {% block extra_css %}
     <link rel="stylesheet" type="text/css" href="{% static "css/donors.css" %}" />
-{% endblock %}
-{% block title %}Donors - Athemath{% endblock %}
+{% endblock extra_css %}
+{% block title %}
+    Donors - Athemath
+{% endblock title %}
 {% block content %}
     <div id="content">
         <h1 id="donors">Donors</h1>
