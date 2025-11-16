@@ -31,6 +31,7 @@ createsuperuser:
 
 check:
 	uv run python manage.py check
+	uv run python manage.py validate_templates
 	uv run pyright .
 
 test:
