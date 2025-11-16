@@ -1,11 +1,11 @@
 {% extends "home/base.html" %}
 {% load static %}
-{% block title %}{{ staff_member.display_name }} - Athemath{% endblock %}
+{% block title %}
+    {{ staff_member.display_name }} - Athemath
+{% endblock title %}
 {% block extra_css %}
-    <link rel="stylesheet"
-          type="text/css"
-          href="{% static "css/staffdetail.css" %}" />
-{% endblock %}
+    <link rel="stylesheet" type="text/css" href="{% static "css/staffdetail.css" %}" />
+{% endblock extra_css %}
 {% block content %}
     <div class="staff-detail-container">
         <a href="{% url 'home:staff' %}" class="back-link">← Back to Staff</a>

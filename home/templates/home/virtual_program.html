@@ -1,9 +1,11 @@
 {% extends "home/base.html" %}
 {% load static %}
-{% block title %}Virtual Program - Athemath{% endblock %}
+{% block title %}
+    Virtual Program - Athemath
+{% endblock title %}
 {% block extra_css %}
     <link rel="stylesheet" type="text/css" href="{% static "css/dates.css" %}" />
-{% endblock %}
+{% endblock extra_css %}
 {% block content %}
     <div id="content">
         <h1 id="virtual-program">Virtual Program</h1>
@@ -132,7 +134,7 @@
         <p>
             The coolest part about Athemath classes is that each is taught by a
             recent nonbinary or female Math Olympiad Program alumni who designs
-            the course from scratch (see <a href="staff.html">staff</a>). They're
+            the course from scratch (see <a href="{% url 'home:staff' %}">staff</a>). They're
             a free (well, only <a href="#payment">$90</a>) role model! Not only do
             they bring deep math experience to the table, but they're also
             intimately familiar with the modern math contest scene.
@@ -299,7 +301,7 @@
             <i>optional but strongly recommended</i>. Along with that, we try to
             put our students in contact with other programs, courses, camps, and
             competitions that we feel may benefit them. We even provide
-            <a href="scholarships.html">travel scholarships</a> for students to
+            <a href="{% url 'home:scholarships' %}">travel scholarships</a> for students to
             attend contests during the school year.
         </p>
         <p>

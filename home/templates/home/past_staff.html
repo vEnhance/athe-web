@@ -1,9 +1,11 @@
 {% extends "home/base.html" %}
 {% load static %}
-{% block title %}Staff - Athemath{% endblock %}
+{% block title %}
+    Staff - Athemath
+{% endblock title %}
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/stafflist.css' %}" />
-{% endblock %}
+{% endblock extra_css %}
 {% block content %}
     <div id="content">
         <h1>Previous Staff</h1>
@@ -15,4 +17,4 @@
 {% endblock content %}
 {% block extra_js %}
     <script src="{% static 'js/stafflist.js' %}"></script>
-{% endblock %}
+{% endblock extra_js %}

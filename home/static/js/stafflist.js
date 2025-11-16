@@ -1,7 +1,7 @@
 // Staff list toggle functionality
 document.addEventListener("DOMContentLoaded", function () {
   const staffContainers = document.querySelectorAll(
-    ".staff-container-hidden, .staff-container-visible"
+    ".staff-container-hidden, .staff-container-visible",
   );
 
   staffContainers.forEach(function (container) {
@@ -9,10 +9,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const left = container.querySelector(".staff-left");
       const icon = left.querySelectorAll("img")[1]; // Second img is the icon
       const nameBox = left.querySelector(
-        ".staff-name-hidden, .staff-name-visible"
+        ".staff-name-hidden, .staff-name-visible",
       );
       const right = container.querySelector(
-        ".staff-right-hidden, .staff-right-visible"
+        ".staff-right-hidden, .staff-right-visible",
       );
 
       if (

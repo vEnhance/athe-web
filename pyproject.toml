@@ -28,10 +28,12 @@ dev = [
     "pyright",
     "django-stubs",
     "django-stubs-ext",
+    "pre-commit",
 ]
 
 [tool.djlint]
 profile = "django"
+ignore = "H006,H021,H023,H030,H031"
 
 [tool.ruff]
 line-length = 88

@@ -1,5 +1,7 @@
 {% extends "home/base.html" %}
-{% block title %}My Clubs - Athemath{% endblock %}
+{% block title %}
+    My Clubs - Athemath
+{% endblock title %}
 {% block content %}
     <div id="content">
         <h1>My Clubs</h1>
@@ -58,4 +60,4 @@
         <h2>Past Clubs</h2>
         <a class="dropdown-item" href="{% url 'courses:past_clubs' %}">Past clubs are listed separately.</a>
     </div>
-{% endblock %}
+{% endblock content %}
