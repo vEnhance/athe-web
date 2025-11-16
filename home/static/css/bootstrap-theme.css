@@ -1,0 +1,281 @@
+/*
+ * Bootstrap 5 Theme Overrides for Athemath
+ * Customizes Bootstrap color palette to match the site's red/black theme
+ */
+
+:root {
+  /* Primary Colors - Athemath Brand Red */
+  --bs-primary: #a02828;
+  --bs-primary-rgb: 160, 40, 40;
+
+  /* Secondary - Dark Gray/Black */
+  --bs-secondary: #444444;
+  --bs-secondary-rgb: 68, 68, 68;
+
+  /* Success - Muted Teal (complements red without clashing) */
+  --bs-success: #2a7a6a;
+  --bs-success-rgb: 42, 122, 106;
+
+  /* Info - Muted Blue-Gray */
+  --bs-info: #4a6a8a;
+  --bs-info-rgb: 74, 106, 138;
+
+  /* Warning - Athemath Orange */
+  --bs-warning: #d97a00;
+  --bs-warning-rgb: 217, 122, 0;
+
+  /* Danger - Darker Red */
+  --bs-danger: #8a1a1a;
+  --bs-danger-rgb: 138, 26, 26;
+
+  /* Light - Athemath Light Pink */
+  --bs-light: #fff7f7;
+  --bs-light-rgb: 255, 247, 247;
+
+  /* Dark - Athemath Black */
+  --bs-dark: #111111;
+  --bs-dark-rgb: 17, 17, 17;
+
+  /* Link colors */
+  --bs-link-color: #a02828;
+  --bs-link-color-rgb: 160, 40, 40;
+  --bs-link-hover-color: #ff9d00;
+  --bs-link-hover-color-rgb: 255, 157, 0;
+}
+
+/* Primary button */
+.btn-primary {
+  --bs-btn-bg: #a02828;
+  --bs-btn-border-color: #a02828;
+  --bs-btn-hover-bg: #8a2020;
+  --bs-btn-hover-border-color: #7a1a1a;
+  --bs-btn-focus-shadow-rgb: 160, 40, 40;
+  --bs-btn-active-bg: #7a1a1a;
+  --bs-btn-active-border-color: #6a1515;
+  --bs-btn-disabled-bg: #a02828;
+  --bs-btn-disabled-border-color: #a02828;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: #a02828;
+  --bs-btn-border-color: #a02828;
+  --bs-btn-hover-bg: #a02828;
+  --bs-btn-hover-border-color: #a02828;
+  --bs-btn-focus-shadow-rgb: 160, 40, 40;
+  --bs-btn-active-bg: #a02828;
+  --bs-btn-active-border-color: #a02828;
+}
+
+/* Success button */
+.btn-success {
+  --bs-btn-bg: #2a7a6a;
+  --bs-btn-border-color: #2a7a6a;
+  --bs-btn-hover-bg: #236a5a;
+  --bs-btn-hover-border-color: #1d5a4a;
+  --bs-btn-focus-shadow-rgb: 42, 122, 106;
+  --bs-btn-active-bg: #1d5a4a;
+  --bs-btn-active-border-color: #174a3a;
+  --bs-btn-disabled-bg: #2a7a6a;
+  --bs-btn-disabled-border-color: #2a7a6a;
+}
+
+.btn-outline-success {
+  --bs-btn-color: #2a7a6a;
+  --bs-btn-border-color: #2a7a6a;
+  --bs-btn-hover-bg: #2a7a6a;
+  --bs-btn-hover-border-color: #2a7a6a;
+  --bs-btn-focus-shadow-rgb: 42, 122, 106;
+  --bs-btn-active-bg: #2a7a6a;
+  --bs-btn-active-border-color: #2a7a6a;
+}
+
+/* Info button */
+.btn-info {
+  --bs-btn-bg: #4a6a8a;
+  --bs-btn-border-color: #4a6a8a;
+  --bs-btn-hover-bg: #3d5a7a;
+  --bs-btn-hover-border-color: #304a6a;
+  --bs-btn-focus-shadow-rgb: 74, 106, 138;
+  --bs-btn-active-bg: #304a6a;
+  --bs-btn-active-border-color: #233a5a;
+  --bs-btn-disabled-bg: #4a6a8a;
+  --bs-btn-disabled-border-color: #4a6a8a;
+}
+
+.btn-outline-info {
+  --bs-btn-color: #4a6a8a;
+  --bs-btn-border-color: #4a6a8a;
+  --bs-btn-hover-bg: #4a6a8a;
+  --bs-btn-hover-border-color: #4a6a8a;
+  --bs-btn-focus-shadow-rgb: 74, 106, 138;
+  --bs-btn-active-bg: #4a6a8a;
+  --bs-btn-active-border-color: #4a6a8a;
+}
+
+/* Warning button */
+.btn-warning {
+  --bs-btn-bg: #d97a00;
+  --bs-btn-border-color: #d97a00;
+  --bs-btn-hover-bg: #c06a00;
+  --bs-btn-hover-border-color: #a75a00;
+  --bs-btn-focus-shadow-rgb: 217, 122, 0;
+  --bs-btn-active-bg: #a75a00;
+  --bs-btn-active-border-color: #8e4a00;
+  --bs-btn-disabled-bg: #d97a00;
+  --bs-btn-disabled-border-color: #d97a00;
+}
+
+.btn-outline-warning {
+  --bs-btn-color: #d97a00;
+  --bs-btn-border-color: #d97a00;
+  --bs-btn-hover-bg: #d97a00;
+  --bs-btn-hover-border-color: #d97a00;
+  --bs-btn-focus-shadow-rgb: 217, 122, 0;
+  --bs-btn-active-bg: #d97a00;
+  --bs-btn-active-border-color: #d97a00;
+}
+
+/* Danger button */
+.btn-danger {
+  --bs-btn-bg: #8a1a1a;
+  --bs-btn-border-color: #8a1a1a;
+  --bs-btn-hover-bg: #7a1515;
+  --bs-btn-hover-border-color: #6a1010;
+  --bs-btn-focus-shadow-rgb: 138, 26, 26;
+  --bs-btn-active-bg: #6a1010;
+  --bs-btn-active-border-color: #5a0a0a;
+  --bs-btn-disabled-bg: #8a1a1a;
+  --bs-btn-disabled-border-color: #8a1a1a;
+}
+
+.btn-outline-danger {
+  --bs-btn-color: #8a1a1a;
+  --bs-btn-border-color: #8a1a1a;
+  --bs-btn-hover-bg: #8a1a1a;
+  --bs-btn-hover-border-color: #8a1a1a;
+  --bs-btn-focus-shadow-rgb: 138, 26, 26;
+  --bs-btn-active-bg: #8a1a1a;
+  --bs-btn-active-border-color: #8a1a1a;
+}
+
+/* Alert components */
+.alert-primary {
+  --bs-alert-color: #5a1818;
+  --bs-alert-bg: #f5e0e0;
+  --bs-alert-border-color: #eac8c8;
+}
+
+.alert-success {
+  --bs-alert-color: #1a4a3a;
+  --bs-alert-bg: #e0f0ea;
+  --bs-alert-border-color: #c8e0d8;
+}
+
+.alert-info {
+  --bs-alert-color: #2a3a5a;
+  --bs-alert-bg: #e0e8f0;
+  --bs-alert-border-color: #c8d8e8;
+}
+
+.alert-warning {
+  --bs-alert-color: #6a4000;
+  --bs-alert-bg: #fff0d8;
+  --bs-alert-border-color: #ffe0b8;
+}
+
+.alert-danger {
+  --bs-alert-color: #4a0a0a;
+  --bs-alert-bg: #f0d8d8;
+  --bs-alert-border-color: #e8c0c0;
+}
+
+/* Badge components */
+.badge.bg-primary {
+  background-color: #a02828 !important;
+}
+
+.badge.bg-success {
+  background-color: #2a7a6a !important;
+}
+
+.badge.bg-info {
+  background-color: #4a6a8a !important;
+}
+
+.badge.bg-warning {
+  background-color: #d97a00 !important;
+}
+
+.badge.bg-danger {
+  background-color: #8a1a1a !important;
+}
+
+/* Form focus states */
+.form-control:focus,
+.form-select:focus {
+  border-color: #d89898;
+  box-shadow: 0 0 0 0.25rem rgba(160, 40, 40, 0.25);
+}
+
+.form-check-input:checked {
+  background-color: #a02828;
+  border-color: #a02828;
+}
+
+.form-check-input:focus {
+  border-color: #d89898;
+  box-shadow: 0 0 0 0.25rem rgba(160, 40, 40, 0.25);
+}
+
+/* Progress bars */
+.progress-bar {
+  background-color: #a02828;
+}
+
+/* Spinners */
+.spinner-border.text-primary,
+.spinner-grow.text-primary {
+  color: #a02828 !important;
+}
+
+/* Links in context */
+.text-primary {
+  color: #a02828 !important;
+}
+
+.text-success {
+  color: #2a7a6a !important;
+}
+
+.text-info {
+  color: #4a6a8a !important;
+}
+
+.text-warning {
+  color: #d97a00 !important;
+}
+
+.text-danger {
+  color: #8a1a1a !important;
+}
+
+/* Background utilities */
+.bg-primary {
+  background-color: #a02828 !important;
+}
+
+.bg-success {
+  background-color: #2a7a6a !important;
+}
+
+.bg-info {
+  background-color: #4a6a8a !important;
+}
+
+.bg-warning {
+  background-color: #d97a00 !important;
+}
+
+.bg-danger {
+  background-color: #8a1a1a !important;
+}
