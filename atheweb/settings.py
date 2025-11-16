@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "atheweb",
     "courses",
     "home",
+    "housepoints",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

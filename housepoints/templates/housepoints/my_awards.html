@@ -1,0 +1,60 @@
+{% extends "home/base.html" %}
+{% block title %}
+    My House Points - Athemath
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 50px;">
+        <div class="row">
+            <div class="col-12">
+                <h1>My House Points</h1>
+                {% if semester_totals %}
+                    <div class="row mb-4">
+                        {% for total in semester_totals %}
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">{{ total.semester.name }}</h5>
+                                        <p class="card-text text-muted">House: {{ total.house }}</p>
+                                        <h2 class="text-primary">{{ total.total }}</h2>
+                                        <p class="mb-0">points earned</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <h3>Award History</h3>
+                {% if awards %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Points</th>
+                                    <th>Semester</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for award in awards %}
+                                    <tr>
+                                        <td>{{ award.awarded_at|date:"M j, Y" }}</td>
+                                        <td>{{ award.get_award_type_display }}</td>
+                                        <td>
+                                            <span class="badge bg-success">+{{ award.points }}</span>
+                                        </td>
+                                        <td>{{ award.student.semester.name }}</td>
+                                        <td>{{ award.description|default:"-" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">You haven't earned any house points yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

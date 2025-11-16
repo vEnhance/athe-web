@@ -5,7 +5,7 @@ from courses.models import Course, CourseMeeting, Semester, Student
 
 @admin.register(Semester)
 class SemesterAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug", "start_date", "end_date")
+    list_display = ("name", "slug", "start_date", "end_date", "house_points_freeze_date")
     prepopulated_fields = {"slug": ("name",)}
 
 
@@ -26,8 +26,8 @@ class CourseAdmin(admin.ModelAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ("user", "semester")
-    list_filter = ("semester",)
+    list_display = ("user", "semester", "house")
+    list_filter = ("semester", "house")
     search_fields = ("user__username", "user__email")
     filter_horizontal = ("enrolled_courses",)
 
