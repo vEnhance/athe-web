@@ -1,4 +1,4 @@
-.PHONY: help install runserver migrate makemigrations createsuperuser check test fmt
+.PHONY: help install runserver migrate makemigrations createsuperuser check test fmt pre-commit-install pre-commit
 
 help:
 	@echo "Available commands:"
@@ -10,9 +10,12 @@ help:
 	@echo "  make check            - Run Django checks and type checking"
 	@echo "  make test             - Run tests"
 	@echo "  make fmt              - Run code formatter"
+	@echo "  make pre-commit-install - Install pre-commit hooks"
+	@echo "  make pre-commit       - Run pre-commit on all files"
 
 install:
 	uv sync --all-extras
+	uv run pre-commit install
 
 runserver:
 	uv run python manage.py runserver_plus
@@ -37,3 +40,9 @@ fmt:
 	uv run ruff format
 	uv run ruff check --fix
 	uv run djlint --check $$(git ls-files '*.html')
+
+pre-commit-install:
+	uv run pre-commit install
+
+pre-commit:
+	uv run pre-commit run --all-files
