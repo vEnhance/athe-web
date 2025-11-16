@@ -37,9 +37,7 @@ test:
 	uv run pytest
 
 fmt:
-	uv run ruff format
-	uv run ruff check --fix
-	uv run djlint --check $$(git ls-files '*.html')
+	uv run pre-commit run --all-files
 
 pre-commit-install:
 	uv run pre-commit install
