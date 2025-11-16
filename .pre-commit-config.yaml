@@ -44,6 +44,13 @@ repos:
       - id: prettier
         types_or: [css, javascript]
 
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+    - id: codespell
+      additional_dependencies:
+        - tomli
+
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.3.0
     hooks:
