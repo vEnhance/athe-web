@@ -10,8 +10,8 @@ repos:
         args: [--fix]
         types: [python]
 
-  - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.36.1
+  - repo: https://github.com/djlint/djLint
+    rev: v1.36.4
     hooks:
       - id: djlint-reformat-django
         name: djlint reformat
