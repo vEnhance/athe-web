@@ -29,6 +29,7 @@ dev = [
     "django-stubs",
     "django-stubs-ext",
     "prek",
+    "werkzeug>=3.1.3",
 ]
 
 [tool.djlint]
@@ -105,8 +106,3 @@ strictDictionaryInference = false
 strictListInference = false
 strictParameterNoneValue = false
 strictSetInference = false
-
-[dependency-groups]
-dev = [
-    "werkzeug>=3.1.3",
-]

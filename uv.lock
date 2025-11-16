@@ -44,10 +44,6 @@ dev = [
     { name = "pytest" },
     { name = "pytest-django" },
     { name = "ruff" },
-]
-
-[package.dev-dependencies]
-dev = [
     { name = "werkzeug" },
 ]
 
@@ -68,11 +64,9 @@ requires-dist = [
     { name = "pytest-django", marker = "extra == 'dev'" },
     { name = "requests", specifier = ">=2.32.0" },
     { name = "ruff", marker = "extra == 'dev'" },
+    { name = "werkzeug", marker = "extra == 'dev'", specifier = ">=3.1.3" },
 ]
 provides-extras = ["dev"]
-
-[package.metadata.requires-dev]
-dev = [{ name = "werkzeug", specifier = ">=3.1.3" }]
 
 [[package]]
 name = "bleach"
