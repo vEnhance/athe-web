@@ -1,6 +1,7 @@
 default_install_hook_types:
   - pre-commit
   - commit-msg
+  - pre-push
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -49,3 +50,26 @@ repos:
       - id: conventional-pre-commit
         stages: [commit-msg]
         args: [feat, fix, build, ci, chore, docs, drop, edit, perf, polish, root, refactor, revert, style, test]
+
+  - repo: local
+    hooks:
+      - id: make-check
+        name: Run Django checks and type checking
+        entry: make check
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+
+      - id: make-test
+        name: Run tests
+        entry: make test
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+
+      - id: make-fmt
+        name: Check code formatting
+        entry: make fmt
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
