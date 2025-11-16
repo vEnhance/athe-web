@@ -8,14 +8,15 @@ on:
 
 jobs:
   ci:
+    name: ✨ CI
     runs-on: ubuntu-latest
 
     steps:
     - name: 🧾 Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: 🐍 Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.13'
 
@@ -27,16 +28,11 @@ jobs:
     - name: 📥 Install dependencies
       run: uv sync --all-extras
 
-    - name: 🧼 Run formatter check
-      run: uv run ruff format --check
-
-    - name: 🧹 Run linter
-      run: uv run ruff check
-
-    - name: ✅ Run checks
-      run: |
-        uv run python manage.py check
-        uv run pyright .
+    - name: 🔍 Run checks
+      run: make check
 
     - name: 🧪 Run tests
-      run: uv run pytest
+      run: make test
+
+    - name: 🧼 Check formatting
+      run: make fmt
