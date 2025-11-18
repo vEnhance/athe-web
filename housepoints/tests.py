@@ -887,3 +887,181 @@ def test_award_str_representation_house_only():
     assert "Bunny" in str(award)
     assert "House Activity Bonus" in str(award)
     assert "50 pts" in str(award)
+
+
+# ============================================================================
+# Autocomplete API Tests
+# ============================================================================
+
+
+@pytest.mark.django_db
+def test_autocomplete_requires_login():
+    """Test that autocomplete API requires authentication."""
+    client = Client()
+    url = reverse("housepoints:student_autocomplete")
+    response = client.get(url, {"q": "test"})
+
+    assert response.status_code == 302
+    assert "/login/" in response.url
+
+
+@pytest.mark.django_db
+def test_autocomplete_requires_staff():
+    """Test that autocomplete API requires staff access."""
+    client = Client()
+    User.objects.create_user(username="student", password="password")
+
+    client.login(username="student", password="password")
+    url = reverse("housepoints:student_autocomplete")
+    response = client.get(url, {"q": "test"})
+
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_autocomplete_searches_by_username():
+    """Test that autocomplete searches by username."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    user1 = User.objects.create_user(username="alice123", password="password")
+    user2 = User.objects.create_user(username="bob456", password="password")
+    Student.objects.create(user=user1, semester=semester, house=Student.House.OWL)
+    Student.objects.create(user=user2, semester=semester, house=Student.House.CAT)
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:student_autocomplete")
+    response = client.get(url, {"q": "alice"})
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["students"]) == 1
+    assert data["students"][0]["username"] == "alice123"
+
+
+@pytest.mark.django_db
+def test_autocomplete_searches_by_name():
+    """Test that autocomplete searches by first and last name."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    user = User.objects.create_user(
+        username="jdoe",
+        password="password",
+        first_name="John",
+        last_name="Doe",
+    )
+    Student.objects.create(user=user, semester=semester, house=Student.House.BLOB)
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:student_autocomplete")
+
+    # Search by first name
+    response = client.get(url, {"q": "john"})
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["students"]) == 1
+    assert data["students"][0]["username"] == "jdoe"
+    assert "John Doe" in data["students"][0]["display"]
+
+    # Search by last name
+    response = client.get(url, {"q": "doe"})
+    data = response.json()
+    assert len(data["students"]) == 1
+    assert data["students"][0]["username"] == "jdoe"
+
+
+@pytest.mark.django_db
+def test_autocomplete_filters_by_semester():
+    """Test that autocomplete filters results by semester."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    fall = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    spring = Semester.objects.create(
+        name="Spring 2026",
+        slug="sp26",
+        start_date=(timezone.now() + timedelta(days=120)).date(),
+        end_date=(timezone.now() + timedelta(days=210)).date(),
+    )
+    user1 = User.objects.create_user(username="alice", password="password")
+    user2 = User.objects.create_user(username="bob", password="password")
+    Student.objects.create(user=user1, semester=fall, house=Student.House.OWL)
+    Student.objects.create(user=user2, semester=spring, house=Student.House.CAT)
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:student_autocomplete")
+
+    # Search without semester filter (need at least 2 chars)
+    response = client.get(url, {"q": "al"})
+    data = response.json()
+    assert len(data["students"]) == 1  # Only alice matches "al"
+    assert data["students"][0]["username"] == "alice"
+
+    # Search with fall semester filter
+    response = client.get(url, {"q": "al", "semester": str(fall.pk)})
+    data = response.json()
+    assert len(data["students"]) == 1
+    assert data["students"][0]["username"] == "alice"
+
+    # Search with spring semester filter should not find alice
+    response = client.get(url, {"q": "al", "semester": str(spring.pk)})
+    data = response.json()
+    assert len(data["students"]) == 0
+
+
+@pytest.mark.django_db
+def test_autocomplete_shows_house():
+    """Test that autocomplete includes house in display."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    user = User.objects.create_user(username="alice", password="password")
+    Student.objects.create(user=user, semester=semester, house=Student.House.RED_PANDA)
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:student_autocomplete")
+    response = client.get(url, {"q": "alice"})
+
+    data = response.json()
+    assert len(data["students"]) == 1
+    assert "Red Panda" in data["students"][0]["display"]
+
+
+@pytest.mark.django_db
+def test_autocomplete_minimum_query_length():
+    """Test that autocomplete requires at least 2 characters."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:student_autocomplete")
+
+    # Single character should return empty
+    response = client.get(url, {"q": "a"})
+    data = response.json()
+    assert len(data["students"]) == 0
+
+    # No query should return empty
+    response = client.get(url, {"q": ""})
+    data = response.json()
+    assert len(data["students"]) == 0
