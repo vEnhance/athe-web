@@ -117,6 +117,9 @@
     </style>
     <script>
     (function() {
+        // All students data from server
+        const allStudents = {{ students_json|safe }};
+
         const searchInput = document.getElementById('student-search');
         const resultsDiv = document.getElementById('autocomplete-results');
         const usernamesTextarea = document.getElementById('id_usernames');
@@ -125,7 +128,7 @@
         let debounceTimer;
 
         searchInput.addEventListener('input', function() {
-            const query = this.value.trim();
+            const query = this.value.trim().toLowerCase();
 
             // Clear previous timer
             clearTimeout(debounceTimer);
@@ -136,29 +139,31 @@
                 return;
             }
 
-            // Debounce the API call
+            // Debounce the filtering
             debounceTimer = setTimeout(() => {
-                fetchStudents(query);
-            }, 300);
+                filterAndDisplayStudents(query);
+            }, 150);
         });
 
-        function fetchStudents(query) {
-            const semesterId = semesterSelect.value;
-            const url = new URL('{% url "housepoints:student_autocomplete" %}', window.location.origin);
-            url.searchParams.append('q', query);
-            if (semesterId) {
-                url.searchParams.append('semester', semesterId);
-            }
+        function filterAndDisplayStudents(query) {
+            const semesterId = semesterSelect.value ? parseInt(semesterSelect.value) : null;
 
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    displayResults(data.students || []);
-                })
-                .catch(error => {
-                    console.error('Error fetching students:', error);
-                    resultsDiv.innerHTML = '<div class="alert alert-danger">Error loading results</div>';
-                });
+            // Filter students client-side
+            const filtered = allStudents.filter(student => {
+                // Filter by semester if selected
+                if (semesterId && student.semester_id !== semesterId) {
+                    return false;
+                }
+
+                // Search in username, first name, last name, email
+                return student.username.toLowerCase().includes(query) ||
+                       student.first_name.includes(query) ||
+                       student.last_name.includes(query) ||
+                       student.email.includes(query) ||
+                       student.display.toLowerCase().includes(query);
+            }).slice(0, 20); // Limit to 20 results
+
+            displayResults(filtered);
         }
 
         function displayResults(students) {
@@ -218,7 +223,7 @@
         // Refresh results when semester changes
         semesterSelect.addEventListener('change', function() {
             if (searchInput.value.trim().length >= 2) {
-                fetchStudents(searchInput.value.trim());
+                filterAndDisplayStudents(searchInput.value.trim().toLowerCase());
             }
         });
     })();

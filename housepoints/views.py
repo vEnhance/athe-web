@@ -3,8 +3,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.db.models import Q, Sum
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.db.models import Sum
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 
@@ -148,8 +148,13 @@ class BulkAwardView(UserPassesTestMixin, View):
         if latest_semester:
             form.fields["semester"].initial = latest_semester
 
+        # Get all students with their user info for autocomplete
+        students_data = self._get_students_data()
+
         return render(
-            request, "housepoints/bulk_award.html", {"form": form, "results": None}
+            request,
+            "housepoints/bulk_award.html",
+            {"form": form, "results": None, "students_json": students_data},
         )
 
     def post(self, request: HttpRequest) -> HttpResponse:
@@ -208,9 +213,51 @@ class BulkAwardView(UserPassesTestMixin, View):
                     request, f"{len(results['errors'])} awards failed to create."
                 )
 
+        # Get students data for re-rendering
+        students_data = self._get_students_data()
+
         return render(
-            request, "housepoints/bulk_award.html", {"form": form, "results": results}
+            request,
+            "housepoints/bulk_award.html",
+            {"form": form, "results": results, "students_json": students_data},
         )
+
+    def _get_students_data(self) -> str:
+        """Get JSON-encoded student data for autocomplete."""
+        import json
+
+        students = (
+            Student.objects.select_related("user", "semester")
+            .order_by("semester__start_date", "user__username")
+            .all()
+        )
+
+        students_list = []
+        for student in students:
+            full_name = student.user.get_full_name()
+            if full_name:
+                display_name = f"{full_name} ({student.user.username})"
+            else:
+                display_name = student.user.username
+
+            if student.house:
+                house_display = student.get_house_display()  # type: ignore[attr-defined]
+                display_name += f" - {house_display}"
+
+            students_list.append(
+                {
+                    "username": student.user.username,
+                    "display": display_name,
+                    "semester_id": student.semester.id,  # type: ignore[attr-defined]
+                    "semester": student.semester.name,
+                    # Add searchable fields
+                    "first_name": student.user.first_name.lower(),
+                    "last_name": student.user.last_name.lower(),
+                    "email": student.user.email.lower(),
+                }
+            )
+
+        return json.dumps(students_list)
 
 
 @login_required
@@ -248,63 +295,3 @@ def my_awards(request: HttpRequest) -> HttpResponse:
             "semester_totals": list(semester_totals.values()),
         },
     )
-
-
-@login_required
-def student_autocomplete(request: HttpRequest) -> JsonResponse:
-    """
-    API endpoint for student autocomplete.
-    Staff only. Returns students matching search query.
-    """
-    assert isinstance(request.user, User)
-    if not request.user.is_staff:
-        return JsonResponse({"error": "Permission denied"}, status=403)
-
-    query = request.GET.get("q", "").strip()
-    semester_id = request.GET.get("semester", "")
-
-    if not query or len(query) < 2:
-        return JsonResponse({"students": []})
-
-    # Build base queryset
-    students_qs = Student.objects.select_related("user", "semester").all()
-
-    # Filter by semester if provided
-    if semester_id:
-        try:
-            students_qs = students_qs.filter(semester_id=int(semester_id))
-        except ValueError:
-            pass
-
-    # Search by username, first name, last name, or email
-    students_qs = students_qs.filter(
-        Q(user__username__icontains=query)
-        | Q(user__first_name__icontains=query)
-        | Q(user__last_name__icontains=query)
-        | Q(user__email__icontains=query)
-    )[:20]  # Limit to 20 results
-
-    # Format results
-    results = []
-    for student in students_qs:
-        # Build display name
-        full_name = student.user.get_full_name()
-        if full_name:
-            display_name = f"{full_name} ({student.user.username})"
-        else:
-            display_name = student.user.username
-
-        # Add house if assigned
-        if student.house:
-            house_display = student.get_house_display()  # type: ignore[attr-defined]
-            display_name += f" - {house_display}"
-
-        results.append(
-            {
-                "username": student.user.username,
-                "display": display_name,
-                "semester": student.semester.name,
-            }
-        )
-
-    return JsonResponse({"students": results})
