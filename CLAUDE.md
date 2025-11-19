@@ -43,6 +43,7 @@ Run `make help` to see all available commands:
 ### Production Dependencies
 
 - **Django 5.2**: Web framework
+- **django-allauth**: Social authentication (Google, GitHub OAuth)
 - **django-bootstrap5**: Bootstrap integration
 - **django-extensions**: Useful Django extensions
 - **ipython**: Enhanced Python shell
@@ -94,8 +95,18 @@ athe-web/
 ├── pyproject.toml    # Project metadata and dependencies
 ├── uv.lock           # Locked dependencies
 ├── Makefile          # Development commands
-└── pytest.ini        # Pytest configuration
+├── pytest.ini        # Pytest configuration
+└── OAUTH_SETUP.md    # OAuth authentication setup guide
 ```
+
+## Authentication
+
+The application supports multiple authentication methods:
+- **Google OAuth** (primary method, emphasized in UI)
+- **GitHub OAuth** (primary method, emphasized in UI)
+- **Username/Password** (fallback method, de-emphasized in UI)
+
+For OAuth setup instructions, see [OAUTH_SETUP.md](OAUTH_SETUP.md).
 
 ## Tips for Development
 
