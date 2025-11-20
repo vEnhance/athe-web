@@ -1,0 +1,23 @@
+{% extends "home/base.html" %}
+{% block title %}
+    Invite Link Expired
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 100px;">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title mb-4 text-danger">Invite Link Expired</h1>
+                        <div class="alert alert-danger">
+                            This invite link expired on {{ invite.expiration_date|date:"F j, Y \a\t g:i A" }}.
+                        </div>
+                        <p>The invite link you're trying to use is no longer valid.</p>
+                        <p>If you need to register as a staff member, please contact an administrator to request a new invite link.</p>
+                        <a href="{% url 'home:index' %}" class="btn btn-primary">Go to Home Page</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

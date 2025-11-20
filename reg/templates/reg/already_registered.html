@@ -1,0 +1,28 @@
+{% extends "home/base.html" %}
+{% block title %}
+    Already Registered
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 100px;">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title mb-4 text-danger">Already Registered</h1>
+                        <div class="alert alert-warning">
+                            <strong>{{ staff_listing.display_name }}</strong> ({{ staff_listing.role }}) is already registered with the username <strong>{{ username }}</strong>.
+                        </div>
+                        <p>
+                            This staff member has already created an account. If you are {{ staff_listing.display_name }}, please <a href="{% url 'login' %}">log in with your existing account</a>.
+                        </p>
+                        <p>
+                            If you believe this is an error or if you've forgotten your password, please contact an administrator for assistance.
+                        </p>
+                        <a href="{% url 'home:index' %}" class="btn btn-primary">Go to Home Page</a>
+                        <a href="{% url 'login' %}" class="btn btn-secondary">Log In</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

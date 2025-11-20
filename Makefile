@@ -49,6 +49,7 @@ prek:
 
 ci:
 	uv sync --all-extras
-	make fmt
+	uv run prek install -t pre-commit
+	uv run prek run --all-files
 	make test
 	make check
