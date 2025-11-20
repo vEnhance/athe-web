@@ -23,9 +23,10 @@ git --git-dir="/home/private/atheweb.git" --work-tree="." checkout -f main
 ```
 
 - Make sure permissions work in `public` and `protected`:
-  - chown so that the group is `web` for the new folder. `chmod g+s` here too.
+  - `chgrp` all relevant folders to `web`
+  - `chmod g+s` everything (`static/`, `/media`, and the repository).
   - Make sure `web` is the group for both `static/` and `media` too
-  - Write a simple `.htaccess` that says `Require all granted`
+  - Write a simple `.htaccess` that says `Require all granted` for `/home/public`
 
 - Create a daemon using `gunicorn.sh`
 - Set up proxies for `static/` and `media/`
