@@ -1,6 +1,16 @@
 from django.contrib import admin
 
-from .models import StaffPhotoListing
+from .models import ApplyPSet, StaffPhotoListing
+
+
+@admin.register(ApplyPSet)
+class ApplyPSetAdmin(admin.ModelAdmin):
+    """Admin interface for ApplyPSet."""
+
+    list_display = ["name", "deadline", "status"]
+    list_filter = ["status"]
+    search_fields = ["name"]
+    date_hierarchy = "deadline"
 
 
 @admin.action(description="Mark selected staff as Past Staff (xstaff)")
