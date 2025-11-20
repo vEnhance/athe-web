@@ -1,0 +1,71 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}
+    Award House Points - Athemath
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 50px;">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Award House Points</h1>
+                <p class="lead">
+                    Award house points for house-wide bonuses or activities.
+                    {% if semester %}
+                        <br>
+                        <strong>Current Semester:</strong> {{ semester.name }}
+                    {% endif %}
+                </p>
+                <div class="mb-3">
+                    <a href="{% url 'housepoints:bulk_award' %}" class="btn btn-outline-primary">
+                        Switch to Bulk Award (Multiple Students)
+                    </a>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">Award Points</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Default Point Values</strong>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li>Introduction Post: 1 pt</li>
+                            <li>Class Attendance: 5 pts</li>
+                            <li>Homework: 5 pts</li>
+                            <li>Event/Club/Seminar: 3 pts</li>
+                            <li>Office Hours: 2 pts</li>
+                            <li>PotD Top 3: 20 pts</li>
+                            <li>PotD 4-10: 10 pts</li>
+                            <li>Staff Bonus: 2 pts</li>
+                            <li>House Activity: 50 pts</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <strong>Tips</strong>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li>Select the house to receive the award</li>
+                            <li>Choose the appropriate award type</li>
+                            <li>Leave points blank to use default value</li>
+                            <li>Add a description to explain the award</li>
+                            <li>Use bulk award for student-specific points</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

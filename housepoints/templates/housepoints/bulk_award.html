@@ -15,6 +15,11 @@
                         <strong>Current Semester:</strong> {{ semester.name }}
                     {% endif %}
                 </p>
+                <div class="mb-3">
+                    <a href="{% url 'housepoints:single_award' %}" class="btn btn-outline-primary">
+                        Switch to Single Award (House-Wide Bonus)
+                    </a>
+                </div>
                 <div class="card">
                     <div class="card-body">
                         <form method="post">
