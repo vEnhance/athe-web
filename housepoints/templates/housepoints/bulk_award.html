@@ -70,7 +70,7 @@
                     </div>
                     <div class="card-body">
                         <ul class="mb-0">
-                            <li>Use autocomplete to search by name or username</li>
+                            <li>Use autocomplete to search by name or email</li>
                             <li>Click a suggestion to add it to the list</li>
                             <li>Students must have a house assigned</li>
                             <li>Leave points blank to use default value</li>
@@ -87,7 +87,7 @@
                             <input type="text"
                                    id="student-search"
                                    class="form-control"
-                                   placeholder="Search by name or username..."
+                                   placeholder="Search by name or email..."
                                    autocomplete="off">
                         </div>
                         <div id="autocomplete-results" class="list-group"></div>
@@ -118,7 +118,7 @@
 
         const searchInput = document.getElementById('student-search');
         const resultsDiv = document.getElementById('autocomplete-results');
-        const usernamesTextarea = document.getElementById('id_usernames');
+        const emailsTextarea = document.getElementById('id_emails');
         const semesterSelect = document.getElementById('id_semester');
 
         let debounceTimer;
@@ -151,11 +151,11 @@
                     return false;
                 }
 
-                // Search in username, first name, last name, email
-                return student.username.toLowerCase().includes(query) ||
+                // Search in email, first name, last name, username
+                return student.email.toLowerCase().includes(query) ||
                        student.first_name.includes(query) ||
                        student.last_name.includes(query) ||
-                       student.email.includes(query) ||
+                       student.username.includes(query) ||
                        student.display.toLowerCase().includes(query);
             }).slice(0, 20); // Limit to 20 results
 
@@ -169,7 +169,7 @@
             }
 
             resultsDiv.innerHTML = students.map(student =>
-                `<button type="button" class="list-group-item list-group-item-action" data-username="${student.username}">
+                `<button type="button" class="list-group-item list-group-item-action" data-email="${student.email}">
                     <div><strong>${student.display}</strong></div>
                     <small class="text-muted">${student.semester}</small>
                 </button>`
@@ -178,33 +178,33 @@
             // Add click handlers
             resultsDiv.querySelectorAll('button').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    addUsername(this.dataset.username);
+                    addEmail(this.dataset.email);
                 });
             });
         }
 
-        function addUsername(username) {
-            const currentValue = usernamesTextarea.value.trim();
-            const usernames = currentValue ? currentValue.split('\n') : [];
+        function addEmail(email) {
+            const currentValue = emailsTextarea.value.trim();
+            const emails = currentValue ? currentValue.split('\n') : [];
 
-            // Check if username already exists
-            if (usernames.includes(username)) {
+            // Check if email already exists
+            if (emails.includes(email)) {
                 alert('This student is already in the list.');
                 return;
             }
 
-            // Add username
-            usernames.push(username);
-            usernamesTextarea.value = usernames.join('\n');
+            // Add email
+            emails.push(email);
+            emailsTextarea.value = emails.join('\n');
 
             // Clear search
             searchInput.value = '';
             resultsDiv.innerHTML = '';
 
             // Show feedback
-            searchInput.placeholder = `Added ${username}. Search for another...`;
+            searchInput.placeholder = `Added ${email}. Search for another...`;
             setTimeout(() => {
-                searchInput.placeholder = 'Search by name or username...';
+                searchInput.placeholder = 'Search by name or email...';
             }, 2000);
         }
 

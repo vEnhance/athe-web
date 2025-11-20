@@ -110,11 +110,11 @@ class BulkAwardForm(forms.Form):
     award_type = forms.ChoiceField(
         choices=Award.AwardType.choices, help_text="Type of award to give"
     )
-    usernames = forms.CharField(
+    emails = forms.CharField(
         widget=forms.Textarea(
-            attrs={"rows": 10, "placeholder": "Enter one username per line"}
+            attrs={"rows": 10, "placeholder": "Enter one email address per line"}
         ),
-        help_text="Enter usernames, one per line",
+        help_text="Enter email addresses, one per line",
     )
     points = forms.IntegerField(
         required=False,
@@ -126,11 +126,11 @@ class BulkAwardForm(forms.Form):
         help_text="Optional description for all awards",
     )
 
-    def clean_usernames(self) -> list[str]:
-        """Parse usernames from textarea."""
-        usernames_text = self.cleaned_data["usernames"]
-        usernames = [u.strip() for u in usernames_text.strip().split("\n") if u.strip()]
-        return usernames
+    def clean_emails(self) -> list[str]:
+        """Parse emails from textarea."""
+        emails_text = self.cleaned_data["emails"]
+        emails = [e.strip() for e in emails_text.strip().split("\n") if e.strip()]
+        return emails
 
 
 class BulkAwardView(UserPassesTestMixin, View):
@@ -165,7 +165,7 @@ class BulkAwardView(UserPassesTestMixin, View):
         if form.is_valid():
             semester = form.cleaned_data["semester"]
             award_type = form.cleaned_data["award_type"]
-            usernames = form.cleaned_data["usernames"]
+            emails = form.cleaned_data["emails"]
             points = form.cleaned_data["points"]
             description = form.cleaned_data["description"]
 
@@ -173,15 +173,31 @@ class BulkAwardView(UserPassesTestMixin, View):
             if points is None:
                 points = Award.DEFAULT_POINTS.get(award_type, 0)
 
-            for username in usernames:
+            for email in emails:
                 try:
                     # Find the student record
-                    student = Student.objects.select_related("user").get(
-                        user__username=username, semester=semester
+                    students = Student.objects.select_related("user").filter(
+                        user__email=email, semester=semester
                     )
 
+                    # Check for duplicate emails (should be impossible but validate)
+                    if students.count() > 1:
+                        results["errors"].append(
+                            f"{email}: Multiple users found with this email address"
+                        )
+                        continue
+
+                    if students.count() == 0:
+                        results["errors"].append(
+                            f"{email}: Not enrolled in {semester.name}"
+                        )
+                        continue
+
+                    student = students.first()
+                    assert student is not None
+
                     if not student.house:
-                        results["errors"].append(f"{username}: No house assigned")
+                        results["errors"].append(f"{email}: No house assigned")
                         continue
 
                     # Create the award
@@ -195,14 +211,10 @@ class BulkAwardView(UserPassesTestMixin, View):
                         awarded_by=request.user,
                     )
                     results["success"].append(
-                        f"{username}: +{points} pts ({student.get_house_display()})"  # type: ignore[attr-defined]
-                    )
-                except Student.DoesNotExist:
-                    results["errors"].append(
-                        f"{username}: Not enrolled in {semester.name}"
+                        f"{email}: +{points} pts ({student.get_house_display()})"  # type: ignore[attr-defined]
                     )
                 except Exception as e:
-                    results["errors"].append(f"{username}: {str(e)}")
+                    results["errors"].append(f"{email}: {str(e)}")
 
             if results["success"]:
                 messages.success(
@@ -228,7 +240,7 @@ class BulkAwardView(UserPassesTestMixin, View):
 
         students = (
             Student.objects.select_related("user", "semester")
-            .order_by("semester__start_date", "user__username")
+            .order_by("semester__start_date", "user__email")
             .all()
         )
 
@@ -236,9 +248,9 @@ class BulkAwardView(UserPassesTestMixin, View):
         for student in students:
             full_name = student.user.get_full_name()
             if full_name:
-                display_name = f"{full_name} ({student.user.username})"
+                display_name = f"{full_name} ({student.user.email})"
             else:
-                display_name = student.user.username
+                display_name = student.user.email
 
             if student.house:
                 house_display = student.get_house_display()  # type: ignore[attr-defined]
@@ -246,14 +258,14 @@ class BulkAwardView(UserPassesTestMixin, View):
 
             students_list.append(
                 {
-                    "username": student.user.username,
+                    "email": student.user.email,
                     "display": display_name,
                     "semester_id": student.semester.id,  # type: ignore[attr-defined]
                     "semester": student.semester.name,
                     # Add searchable fields
                     "first_name": student.user.first_name.lower(),
                     "last_name": student.user.last_name.lower(),
-                    "email": student.user.email.lower(),
+                    "username": student.user.username.lower(),
                 }
             )
 

@@ -515,8 +515,12 @@ def test_bulk_award_creates_awards():
     )
 
     # Create students
-    user1 = User.objects.create_user(username="alice", password="password")
-    user2 = User.objects.create_user(username="bob", password="password")
+    user1 = User.objects.create_user(
+        username="alice", password="password", email="alice@example.com"
+    )
+    user2 = User.objects.create_user(
+        username="bob", password="password", email="bob@example.com"
+    )
     Student.objects.create(user=user1, semester=semester, house=Student.House.OWL)
     Student.objects.create(user=user2, semester=semester, house=Student.House.CAT)
 
@@ -527,7 +531,7 @@ def test_bulk_award_creates_awards():
         {
             "semester": semester.pk,
             "award_type": Award.AwardType.OFFICE_HOURS,
-            "usernames": "alice\nbob",
+            "emails": "alice@example.com\nbob@example.com",
             "points": "",  # Use default
             "description": "Week 1 OH",
         },
@@ -558,7 +562,9 @@ def test_bulk_award_custom_points():
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
 
-    user = User.objects.create_user(username="alice", password="password")
+    user = User.objects.create_user(
+        username="alice", password="password", email="alice@example.com"
+    )
     Student.objects.create(user=user, semester=semester, house=Student.House.BLOB)
 
     client.login(username="staff", password="password")
@@ -568,7 +574,7 @@ def test_bulk_award_custom_points():
         {
             "semester": semester.pk,
             "award_type": Award.AwardType.CLASS_ATTENDANCE,
-            "usernames": "alice",
+            "emails": "alice@example.com",
             "points": "3",  # Custom points (e.g., for subsequent classes)
             "description": "Week 15 attendance",
         },
@@ -591,7 +597,9 @@ def test_bulk_award_handles_missing_student():
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
 
-    user = User.objects.create_user(username="alice", password="password")
+    user = User.objects.create_user(
+        username="alice", password="password", email="alice@example.com"
+    )
     Student.objects.create(user=user, semester=semester, house=Student.House.OWL)
 
     client.login(username="staff", password="password")
@@ -601,7 +609,7 @@ def test_bulk_award_handles_missing_student():
         {
             "semester": semester.pk,
             "award_type": Award.AwardType.HOMEWORK,
-            "usernames": "alice\nnonexistent",
+            "emails": "alice@example.com\nnonexistent@example.com",
             "points": "",
             "description": "",
         },
@@ -610,9 +618,9 @@ def test_bulk_award_handles_missing_student():
     content = response.content.decode()
     assert response.status_code == 200
     # Alice should succeed
-    assert "alice" in content
+    assert "alice@example.com" in content
     # Nonexistent should fail
-    assert "nonexistent" in content
+    assert "nonexistent@example.com" in content
     assert "Not enrolled" in content or "not enrolled" in content.lower()
     # Only one award should be created
     assert Award.objects.count() == 1
@@ -630,7 +638,9 @@ def test_bulk_award_handles_student_without_house():
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
 
-    user = User.objects.create_user(username="alice", password="password")
+    user = User.objects.create_user(
+        username="alice", password="password", email="alice@example.com"
+    )
     Student.objects.create(user=user, semester=semester, house="")  # No house
 
     client.login(username="staff", password="password")
@@ -640,7 +650,7 @@ def test_bulk_award_handles_student_without_house():
         {
             "semester": semester.pk,
             "award_type": Award.AwardType.HOMEWORK,
-            "usernames": "alice",
+            "emails": "alice@example.com",
             "points": "",
             "description": "",
         },
