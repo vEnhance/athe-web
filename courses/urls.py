@@ -12,6 +12,18 @@ urlpatterns = [
     path("past-clubs/", views.past_clubs, name="past_clubs"),
     path("upcoming/", views.upcoming, name="upcoming"),
     path("course/<int:pk>/", views.CourseDetailView.as_view(), name="course_detail"),
+    path("course/<int:pk>/meetings/", views.manage_meetings, name="manage_meetings"),
+    path("course/<int:pk>/meetings/add/", views.add_meeting, name="add_meeting"),
+    path(
+        "course/<int:pk>/meetings/<int:meeting_pk>/edit/",
+        views.edit_meeting,
+        name="edit_meeting",
+    ),
+    path(
+        "course/<int:pk>/meetings/<int:meeting_pk>/delete/",
+        views.delete_meeting,
+        name="delete_meeting",
+    ),
     path("club/<int:pk>/join/", views.join_club, name="join_club"),
     path("club/<int:pk>/drop/", views.drop_club, name="drop_club"),
     path("<slug:slug>/", views.course_list, name="course_list"),

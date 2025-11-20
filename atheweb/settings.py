@@ -31,12 +31,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "django_bootstrap5",
-    "django_extensions",
-    "markdownfield",
-    "atheweb",
-    "courses",
-    "home",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -46,12 +40,22 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     # Django-allauth
     "django.contrib.sites",
+    # Third-party apps
+    "django_bootstrap5",
+    "django_extensions",
+    "hijack",
+    "hijack.contrib.admin",
+    "markdownfield",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.github",
     "allauth.socialaccount.providers.discord",
+    # Local apps
+    "atheweb",
+    "courses",
+    "home",
 ]
 
 MIDDLEWARE = [
@@ -60,6 +64,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "hijack.middleware.HijackUserMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
