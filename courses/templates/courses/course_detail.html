@@ -67,7 +67,13 @@
                 </div>
                 {% include "courses/components/lesson_plan.html" %}
             </div>
-            <h2>Schedule</h2>
+            <h2>
+                Schedule
+                {% if is_leader %}
+                    <a href="{% url 'courses:manage_meetings' pk=course.pk %}"
+                       class="btn btn-sm btn-primary ms-2">Manage Meetings</a>
+                {% endif %}
+            </h2>
             {% if meetings %}
                 <table class="table table-striped">
                     <thead>
