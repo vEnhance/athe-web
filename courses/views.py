@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.db.models import Prefetch
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -63,16 +64,16 @@ def course_list(request: HttpRequest, slug: str) -> HttpResponse:
 @login_required
 def my_courses(request: HttpRequest) -> HttpResponse:
     """Show all courses (non-clubs) the current user is enrolled in or leads."""
-    # Get all student records for this user
+    # Use Prefetch to filter enrolled courses at the database level
     student_records = Student.objects.filter(user=request.user).prefetch_related(
-        "enrolled_courses__semester", "enrolled_courses__instructor"
+        Prefetch(
+            "enrolled_courses",
+            queryset=Course.objects.filter(is_club=False).select_related(
+                "semester", "instructor"
+            ),
+            to_attr="non_club_courses",
+        )
     )
-
-    # Collect all enrolled courses (non-clubs only)
-    enrolled_course_ids = set()
-    for student in student_records:
-        for course in student.enrolled_courses.filter(is_club=False):
-            enrolled_course_ids.add(course.id)  # type: ignore[attr-defined]
 
     # Get all courses where user is a leader (non-clubs only)
     led_courses = Course.objects.filter(
@@ -82,7 +83,7 @@ def my_courses(request: HttpRequest) -> HttpResponse:
     # Combine enrolled and led courses (avoid duplicates)
     all_courses = {}
     for student in student_records:
-        for course in student.enrolled_courses.filter(is_club=False):
+        for course in student.non_club_courses:  # type: ignore[attr-defined]
             all_courses[course.id] = course  # type: ignore[attr-defined]
     for course in led_courses:
         all_courses[course.id] = course  # type: ignore[attr-defined]
@@ -103,11 +104,23 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
     """Show clubs in active semesters, split by enrollment status. Includes led clubs."""
     # Get user's student records for active semesters
     today = date.today()
-    active_student_records = Student.objects.filter(
-        user=request.user,
-        semester__start_date__lte=today,
-        semester__end_date__gte=today,
-    ).prefetch_related("enrolled_courses", "semester")
+    active_student_records = (
+        Student.objects.filter(
+            user=request.user,
+            semester__start_date__lte=today,
+            semester__end_date__gte=today,
+        )
+        .select_related("semester")
+        .prefetch_related(
+            Prefetch(
+                "enrolled_courses",
+                queryset=Course.objects.filter(is_club=True).select_related(
+                    "semester", "instructor"
+                ),
+                to_attr="enrolled_club_list",
+            )
+        )
+    )
 
     # Get all clubs where user is a leader (in active semesters)
     led_clubs = Course.objects.filter(
@@ -117,7 +130,11 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
         semester__end_date__gte=today,
     ).select_related("semester", "instructor")
 
-    if not active_student_records.exists() and not led_clubs.exists():
+    # Convert to list for easier manipulation
+    active_student_records_list = list(active_student_records)
+    led_clubs_list = list(led_clubs)
+
+    if not active_student_records_list and not led_clubs_list:
         return render(
             request,
             "courses/my_clubs.html",
@@ -129,28 +146,36 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
         )
 
     # Get all clubs from active semesters where user has student access
-    active_semesters = [s.semester for s in active_student_records]
+    active_semesters = [s.semester for s in active_student_records_list]
     all_active_clubs = Course.objects.filter(
         semester__in=active_semesters, is_club=True
     ).select_related("semester", "instructor")
 
-    # Split into enrolled and available
+    # Build set of enrolled club IDs
     enrolled_club_ids = set()
-    for student in active_student_records:
-        for course in student.enrolled_courses.filter(is_club=True):
+    for student in active_student_records_list:
+        for course in student.enrolled_club_list:  # type: ignore[attr-defined]
             enrolled_club_ids.add(course.id)  # type: ignore[attr-defined]
 
     # Add led clubs to enrolled list
-    for club in led_clubs:
+    for club in led_clubs_list:
         enrolled_club_ids.add(club.id)  # type: ignore[attr-defined]
 
-    enrolled_clubs = [c for c in all_active_clubs if c.id in enrolled_club_ids]  # type: ignore[attr-defined]
-    # Also include led clubs that might not be in active_semesters
-    for club in led_clubs:
-        if club.id not in [c.id for c in enrolled_clubs]:  # type: ignore[attr-defined]
-            enrolled_clubs.append(club)
+    # Split into enrolled and available
+    enrolled_clubs_dict = {}
+    available_clubs = []
+    for club in all_active_clubs:
+        if club.id in enrolled_club_ids:  # type: ignore[attr-defined]
+            enrolled_clubs_dict[club.id] = club  # type: ignore[attr-defined]
+        else:
+            available_clubs.append(club)
 
-    available_clubs = [c for c in all_active_clubs if c.id not in enrolled_club_ids]  # type: ignore[attr-defined]
+    # Also include led clubs that might not be in active_semesters
+    for club in led_clubs_list:
+        if club.id not in enrolled_clubs_dict:  # type: ignore[attr-defined]
+            enrolled_clubs_dict[club.id] = club  # type: ignore[attr-defined]
+
+    enrolled_clubs = list(enrolled_clubs_dict.values())
 
     return render(
         request,
@@ -170,15 +195,24 @@ def past_clubs(request: HttpRequest) -> HttpResponse:
     today = date.today()
     past_student_records = Student.objects.filter(
         user=request.user, semester__end_date__lt=today
-    ).prefetch_related("enrolled_courses__semester", "enrolled_courses__instructor")
+    ).prefetch_related(
+        Prefetch(
+            "enrolled_courses",
+            queryset=Course.objects.filter(is_club=True).select_related(
+                "semester", "instructor"
+            ),
+            to_attr="enrolled_club_list",
+        )
+    )
 
-    # Collect all past clubs
-    past_clubs = []
+    # Collect all past clubs (avoid duplicates)
+    past_clubs_dict = {}
     for student in past_student_records:
-        for course in student.enrolled_courses.filter(is_club=True):
-            past_clubs.append(course)
+        for course in student.enrolled_club_list:  # type: ignore[attr-defined]
+            past_clubs_dict[course.id] = course  # type: ignore[attr-defined]
 
-    # Sort by semester (most recent first), then by course name
+    # Convert to list and sort by semester (most recent first), then by course name
+    past_clubs = list(past_clubs_dict.values())
     past_clubs.sort(key=lambda c: (-c.semester.start_date.toordinal(), c.name))
 
     return render(request, "courses/past_clubs.html", {"past_clubs": past_clubs})
