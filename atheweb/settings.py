@@ -28,15 +28,14 @@ if ENV_PATH.exists():
 
 # SECURITY WARNING: don't run with debug turned on in production!
 PRODUCTION = bool(int(os.getenv("IS_PRODUCTION") or 0))
+DEBUG = not PRODUCTION
 STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 
-if PRODUCTION:
-    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
-    assert SECRET_KEY is not None
-else:
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+if SECRET_KEY is None:
+    assert not PRODUCTION
     SECRET_KEY = "django-insecure-h4^#6%7b=8p+e9nauqobbf0i$rzsx5!1g9k34bgx_@pikr*#)+"
-
 
 ALLOWED_HOSTS = ["beta.athemath.org", "athemath.org", "www.athemath.org"]
 
@@ -170,17 +169,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "static/"
-if PRODUCTION:
-    STATIC_ROOT = os.getenv("STATIC_ROOT")
-else:
+STATIC_ROOT = os.getenv("STATIC_ROOT")
+if STATIC_ROOT is None:
+    assert not PRODUCTION
     STATIC_ROOT = BASE_DIR / "static/"
 
 # Media files (user uploads)
 MEDIA_URL = "media/"
-if PRODUCTION:
-    MEDIA_ROOT = os.getenv("MEDIA_ROOT")
-else:
-    MEDIA_ROOT = BASE_DIR / "media/"
+MEDIA_ROOT = os.getenv("MEDIA_ROOT")
+if MEDIA_ROOT is None:
+    assert not PRODUCTION
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
