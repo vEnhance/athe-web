@@ -38,6 +38,11 @@ if SECRET_KEY is None:
     SECRET_KEY = "django-insecure-h4^#6%7b=8p+e9nauqobbf0i$rzsx5!1g9k34bgx_@pikr*#)+"
 
 ALLOWED_HOSTS = ["beta.athemath.org", "athemath.org", "www.athemath.org"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://beta.athemath.org",
+    "https://athemath.org",
+    "https://www.athemath.org",
+]
 
 
 # Application definition
