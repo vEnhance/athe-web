@@ -940,3 +940,188 @@ def test_award_str_representation_house_only():
     assert "Bunny" in str(award)
     assert "House Activity Bonus" in str(award)
     assert "50 pts" in str(award)
+
+
+# ============================================================================
+# Introduction Post Award Constraint Tests
+# ============================================================================
+
+
+@pytest.mark.django_db
+def test_intro_post_awarded_only_once_per_student():
+    """Test that Introduction Post can only be awarded once per student per semester."""
+    user = User.objects.create_user(username="testuser", password="password")
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    student = Student.objects.create(
+        user=user, semester=semester, house=Student.House.OWL
+    )
+
+    # First intro post award should succeed
+    Award.objects.create(
+        semester=semester,
+        student=student,
+        award_type=Award.AwardType.INTRO_POST,
+        points=1,
+        description="First intro post",
+    )
+
+    # Second intro post award should fail due to unique constraint
+    with pytest.raises(ValidationError) as exc_info:
+        Award.objects.create(
+            semester=semester,
+            student=student,
+            award_type=Award.AwardType.INTRO_POST,
+            points=1,
+            description="Duplicate intro post",
+        )
+
+    assert "unique_intro_post_per_student" in str(exc_info.value)
+
+
+@pytest.mark.django_db
+def test_intro_post_can_be_awarded_in_different_semesters():
+    """Test that the same student can receive Introduction Post in different semesters."""
+    user = User.objects.create_user(username="testuser", password="password")
+    fall = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    spring = Semester.objects.create(
+        name="Spring 2026",
+        slug="sp26",
+        start_date=(timezone.now() + timedelta(days=120)).date(),
+        end_date=(timezone.now() + timedelta(days=210)).date(),
+    )
+
+    # Create student enrollments in both semesters
+    student_fall = Student.objects.create(
+        user=user, semester=fall, house=Student.House.CAT
+    )
+    student_spring = Student.objects.create(
+        user=user, semester=spring, house=Student.House.CAT
+    )
+
+    # Should be able to award intro post in both semesters
+    award_fall = Award.objects.create(
+        semester=fall,
+        student=student_fall,
+        award_type=Award.AwardType.INTRO_POST,
+        points=1,
+    )
+    award_spring = Award.objects.create(
+        semester=spring,
+        student=student_spring,
+        award_type=Award.AwardType.INTRO_POST,
+        points=1,
+    )
+
+    assert award_fall.id is not None
+    assert award_spring.id is not None
+    assert Award.objects.filter(award_type=Award.AwardType.INTRO_POST).count() == 2
+
+
+@pytest.mark.django_db
+def test_other_award_types_can_be_awarded_multiple_times():
+    """Test that award types other than Introduction Post can be awarded multiple times."""
+    user = User.objects.create_user(username="testuser", password="password")
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    student = Student.objects.create(
+        user=user, semester=semester, house=Student.House.BLOB
+    )
+
+    # Create multiple homework awards - should all succeed
+    Award.objects.create(
+        semester=semester,
+        student=student,
+        award_type=Award.AwardType.HOMEWORK,
+        points=5,
+        description="Homework 1",
+    )
+    Award.objects.create(
+        semester=semester,
+        student=student,
+        award_type=Award.AwardType.HOMEWORK,
+        points=5,
+        description="Homework 2",
+    )
+    Award.objects.create(
+        semester=semester,
+        student=student,
+        award_type=Award.AwardType.HOMEWORK,
+        points=5,
+        description="Homework 3",
+    )
+
+    assert Award.objects.filter(award_type=Award.AwardType.HOMEWORK).count() == 3
+
+
+@pytest.mark.django_db
+def test_class_attendance_can_be_awarded_multiple_times():
+    """Test that class attendance can be awarded multiple times to the same student."""
+    user = User.objects.create_user(username="testuser", password="password")
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    student = Student.objects.create(
+        user=user, semester=semester, house=Student.House.RED_PANDA
+    )
+
+    # Create multiple class attendance awards
+    for i in range(5):
+        Award.objects.create(
+            semester=semester,
+            student=student,
+            award_type=Award.AwardType.CLASS_ATTENDANCE,
+            points=5,
+            description=f"Week {i + 1} attendance",
+        )
+
+    assert (
+        Award.objects.filter(award_type=Award.AwardType.CLASS_ATTENDANCE).count() == 5
+    )
+
+
+@pytest.mark.django_db
+def test_intro_post_constraint_only_applies_to_student_awards():
+    """Test that intro post constraint only applies when student is set (not house-level)."""
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    # House-level intro post awards should not be constrained
+    # (though this is unlikely in practice)
+    Award.objects.create(
+        semester=semester,
+        house=Student.House.OWL,
+        award_type=Award.AwardType.INTRO_POST,
+        points=1,
+        description="House intro post 1",
+    )
+    Award.objects.create(
+        semester=semester,
+        house=Student.House.OWL,
+        award_type=Award.AwardType.INTRO_POST,
+        points=1,
+        description="House intro post 2",
+    )
+
+    # Should have 2 awards (constraint doesn't apply to house-level awards)
+    assert Award.objects.filter(award_type=Award.AwardType.INTRO_POST).count() == 2
