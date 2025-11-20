@@ -22,9 +22,11 @@
                     <strong>Deadline:</strong> {{ pset.deadline|date:"F j, Y, g:i a" }}
                 </p>
                 <div class="instructions">{{ pset.instructions_rendered|safe }}</div>
-                <p>
-                    <a href="{{ pset.file.url }}" class="btn btn-primary" target="_blank">Download Problem Set (PDF)</a>
-                </p>
+                {% if pset.file %}
+                    <p>
+                        <a href="{{ pset.file.url }}" class="btn btn-primary" target="_blank">Download Problem Set (PDF)</a>
+                    </p>
+                {% endif %}
             </div>
             {% if not forloop.last %}<hr>{% endif %}
         {% endfor %}

@@ -9,7 +9,11 @@
             <ul>
                 {% for pset in psets %}
                     <li>
-                        <a href="{{ pset.file.url }}" target="_blank">{{ pset.name }}</a>
+                        {% if pset.file %}
+                            <a href="{{ pset.file.url }}" target="_blank">{{ pset.name }}</a>
+                        {% else %}
+                            {{ pset.name }}
+                        {% endif %}
                     </li>
                 {% endfor %}
             </ul>

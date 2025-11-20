@@ -28,6 +28,8 @@ class ApplyPSet(models.Model):
         help_text="Status of the problem set",
     )
     file = models.FileField(
+        null=True,
+        blank=True,
         upload_to="apply_psets/",
         help_text="PDF file for the problem set",
     )

@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -11,25 +10,17 @@ from .models import ApplyPSet
 class ApplyPSetModelTests(TestCase):
     """Tests for the ApplyPSet model."""
 
-    def setUp(self):
-        """Set up test data."""
-        self.test_file = SimpleUploadedFile(
-            "test.pdf", b"file_content", content_type="application/pdf"
-        )
-
     def test_create_apply_pset(self):
         """Test creating an ApplyPSet."""
         pset = ApplyPSet.objects.create(
             name="Fall 2025 PSet",
             deadline=timezone.now() + timedelta(days=30),
             status="active",
-            file=self.test_file,
             instructions="Apply by filling out the form.",
             closed_message="Applications closed!",
         )
         self.assertEqual(pset.name, "Fall 2025 PSet")
         self.assertEqual(pset.status, "active")
-        self.assertIsNotNone(pset.file)
 
     def test_apply_pset_ordering(self):
         """Test that ApplyPSets are ordered by deadline descending."""
@@ -37,7 +28,6 @@ class ApplyPSetModelTests(TestCase):
             name="PSet 1",
             deadline=timezone.now() + timedelta(days=10),
             status="active",
-            file=SimpleUploadedFile("test1.pdf", b"content"),
             instructions="Test",
             closed_message="Closed",
         )
@@ -45,7 +35,6 @@ class ApplyPSetModelTests(TestCase):
             name="PSet 2",
             deadline=timezone.now() + timedelta(days=20),
             status="active",
-            file=SimpleUploadedFile("test2.pdf", b"content"),
             instructions="Test",
             closed_message="Closed",
         )
@@ -59,7 +48,6 @@ class ApplyPSetModelTests(TestCase):
             name="Test PSet",
             deadline=timezone.now(),
             status="draft",
-            file=self.test_file,
             instructions="Test",
             closed_message="Closed",
         )
@@ -75,7 +63,6 @@ class ApplyViewTests(TestCase):
             name="Active PSet",
             deadline=timezone.now() + timedelta(days=30),
             status="active",
-            file=SimpleUploadedFile("test.pdf", b"content"),
             instructions="These are the instructions.",
             closed_message="Closed",
         )
@@ -90,7 +77,6 @@ class ApplyViewTests(TestCase):
             name="Completed PSet",
             deadline=timezone.now() - timedelta(days=10),
             status="completed",
-            file=SimpleUploadedFile("test.pdf", b"content"),
             instructions="Instructions",
             closed_message="Applications are closed for now.",
         )
@@ -110,7 +96,6 @@ class ApplyViewTests(TestCase):
             name="Draft PSet",
             deadline=timezone.now() + timedelta(days=30),
             status="draft",
-            file=SimpleUploadedFile("test.pdf", b"content"),
             instructions="Draft instructions",
             closed_message="Closed",
         )
@@ -125,7 +110,6 @@ class ApplyViewTests(TestCase):
             name="Active PSet 1",
             deadline=timezone.now() + timedelta(days=20),
             status="active",
-            file=SimpleUploadedFile("test1.pdf", b"content"),
             instructions="Instructions 1",
             closed_message="Closed",
         )
@@ -133,7 +117,6 @@ class ApplyViewTests(TestCase):
             name="Active PSet 2",
             deadline=timezone.now() + timedelta(days=30),
             status="active",
-            file=SimpleUploadedFile("test2.pdf", b"content"),
             instructions="Instructions 2",
             closed_message="Closed",
         )
@@ -148,7 +131,6 @@ class ApplyViewTests(TestCase):
             name="Old PSet",
             deadline=timezone.now() - timedelta(days=60),
             status="completed",
-            file=SimpleUploadedFile("old.pdf", b"content"),
             instructions="Old instructions",
             closed_message="Old closed message",
         )
@@ -156,7 +138,6 @@ class ApplyViewTests(TestCase):
             name="Recent PSet",
             deadline=timezone.now() - timedelta(days=10),
             status="completed",
-            file=SimpleUploadedFile("recent.pdf", b"content"),
             instructions="Recent instructions",
             closed_message="Recent closed message",
         )
@@ -175,7 +156,6 @@ class PastPsetsViewTests(TestCase):
             name="Completed PSet",
             deadline=timezone.now() - timedelta(days=30),
             status="completed",
-            file=SimpleUploadedFile("test.pdf", b"content"),
             instructions="Instructions",
             closed_message="Closed",
         )
@@ -189,7 +169,6 @@ class PastPsetsViewTests(TestCase):
             name="Active PSet",
             deadline=timezone.now() + timedelta(days=30),
             status="active",
-            file=SimpleUploadedFile("test.pdf", b"content"),
             instructions="Instructions",
             closed_message="Closed",
         )
@@ -203,7 +182,6 @@ class PastPsetsViewTests(TestCase):
             name="Draft PSet",
             deadline=timezone.now() + timedelta(days=30),
             status="draft",
-            file=SimpleUploadedFile("test.pdf", b"content"),
             instructions="Instructions",
             closed_message="Closed",
         )
@@ -223,7 +201,6 @@ class PastPsetsViewTests(TestCase):
             name="Old PSet",
             deadline=timezone.now() - timedelta(days=60),
             status="completed",
-            file=SimpleUploadedFile("old.pdf", b"content"),
             instructions="Old",
             closed_message="Closed",
         )
@@ -231,7 +208,6 @@ class PastPsetsViewTests(TestCase):
             name="Recent PSet",
             deadline=timezone.now() - timedelta(days=10),
             status="completed",
-            file=SimpleUploadedFile("recent.pdf", b"content"),
             instructions="Recent",
             closed_message="Closed",
         )
