@@ -53,6 +53,8 @@
                                     <a href="{% url 'courses:course_detail' pk=course.pk %}"
                                        style="font-size: 0.6em;
                                               margin-left: 10px">[View]</a>
+                                {% endif %}
+                                {% if request.user.is_superuser %}
                                     <a href="{% url 'admin:courses_course_change' course.pk %}"
                                        style="font-size: 0.6em;
                                               margin-left: 5px">[Edit]</a>
