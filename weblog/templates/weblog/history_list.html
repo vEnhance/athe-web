@@ -8,14 +8,11 @@
         {% if history_entries %}
             <div class="card mb-4">
                 <div class="card-body">
-                    <h2 class="h5">Table of Contents</h2>
-                    <ul>
-                        {% for entry in history_entries %}
-                            <li>
-                                <a href="#{{ entry.slug }}">{{ entry.title }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
+                    <h2 class="h5">Jump to...</h2>
+                    {% for entry in history_entries %}
+                        <a href="#{{ entry.slug }}">{{ entry.title }}</a>
+                        {% if not forloop.last %}•{% endif %}
+                    {% endfor %}
                 </div>
             </div>
             {% for entry in history_entries %}
