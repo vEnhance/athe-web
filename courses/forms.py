@@ -1,8 +1,11 @@
+from typing import Any
+
 from django import forms
+
 from courses.models import CourseMeeting
 
 
-class CourseMeetingForm(forms.ModelForm):
+class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
     """Form for creating/editing course meetings."""
 
     class Meta:
@@ -16,7 +19,7 @@ class CourseMeetingForm(forms.ModelForm):
             "title": forms.TextInput(attrs={"placeholder": "Meeting topic (optional)"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         # Make the datetime input more user-friendly
         if self.instance and self.instance.pk:

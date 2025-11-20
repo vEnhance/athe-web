@@ -13,9 +13,7 @@ urlpatterns = [
     path("upcoming/", views.upcoming, name="upcoming"),
     path("course/<int:pk>/", views.CourseDetailView.as_view(), name="course_detail"),
     path("course/<int:pk>/meetings/", views.manage_meetings, name="manage_meetings"),
-    path(
-        "course/<int:pk>/meetings/add/", views.add_meeting, name="add_meeting"
-    ),
+    path("course/<int:pk>/meetings/add/", views.add_meeting, name="add_meeting"),
     path(
         "course/<int:pk>/meetings/<int:meeting_pk>/edit/",
         views.edit_meeting,

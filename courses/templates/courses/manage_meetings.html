@@ -48,9 +48,9 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{% url 'courses:edit_meeting' pk=course.pk meeting_pk=meeting.pk %}"
+                                    <a href="{% url 'courses:edit_meeting' course.pk meeting.pk %}"
                                        class="btn btn-sm btn-primary">Edit</a>
-                                    <a href="{% url 'courses:delete_meeting' pk=course.pk meeting_pk=meeting.pk %}"
+                                    <a href="{% url 'courses:delete_meeting' course.pk meeting.pk %}"
                                        class="btn btn-sm btn-danger">Delete</a>
                                 </td>
                             </tr>

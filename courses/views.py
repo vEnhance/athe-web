@@ -306,6 +306,8 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        assert isinstance(self.request.user, User)
+
         context["meetings"] = CourseMeeting.objects.filter(course=self.object).order_by(
             "start_time"
         )
@@ -354,11 +356,12 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
 def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
     """Manage meetings for a course. Only accessible to staff and course leaders."""
     course = get_object_or_404(Course, pk=pk)
+    assert isinstance(request.user, User)
 
     # Check if user is staff or a leader
-    is_leader = request.user.is_staff or course.leaders.filter(
-        pk=request.user.pk
-    ).exists()
+    is_leader = (
+        request.user.is_staff or course.leaders.filter(pk=request.user.pk).exists()
+    )
     if not is_leader:
         messages.error(request, "You don't have permission to manage this course.")
         return redirect("courses:course_detail", pk=course.pk)
@@ -376,11 +379,12 @@ def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
 def add_meeting(request: HttpRequest, pk: int) -> HttpResponse:
     """Add a new meeting to a course. Only accessible to staff and course leaders."""
     course = get_object_or_404(Course, pk=pk)
+    assert isinstance(request.user, User)
 
     # Check if user is staff or a leader
-    is_leader = request.user.is_staff or course.leaders.filter(
-        pk=request.user.pk
-    ).exists()
+    is_leader = (
+        request.user.is_staff or course.leaders.filter(pk=request.user.pk).exists()
+    )
     if not is_leader:
         messages.error(request, "You don't have permission to manage this course.")
         return redirect("courses:course_detail", pk=course.pk)
@@ -406,11 +410,12 @@ def edit_meeting(request: HttpRequest, pk: int, meeting_pk: int) -> HttpResponse
     """Edit a meeting. Only accessible to staff and course leaders."""
     course = get_object_or_404(Course, pk=pk)
     meeting = get_object_or_404(CourseMeeting, pk=meeting_pk, course=course)
+    assert isinstance(request.user, User)
 
     # Check if user is staff or a leader
-    is_leader = request.user.is_staff or course.leaders.filter(
-        pk=request.user.pk
-    ).exists()
+    is_leader = (
+        request.user.is_staff or course.leaders.filter(pk=request.user.pk).exists()
+    )
     if not is_leader:
         messages.error(request, "You don't have permission to manage this course.")
         return redirect("courses:course_detail", pk=course.pk)
@@ -436,11 +441,12 @@ def delete_meeting(request: HttpRequest, pk: int, meeting_pk: int) -> HttpRespon
     """Delete a meeting. Only accessible to staff and course leaders."""
     course = get_object_or_404(Course, pk=pk)
     meeting = get_object_or_404(CourseMeeting, pk=meeting_pk, course=course)
+    assert isinstance(request.user, User)
 
     # Check if user is staff or a leader
-    is_leader = request.user.is_staff or course.leaders.filter(
-        pk=request.user.pk
-    ).exists()
+    is_leader = (
+        request.user.is_staff or course.leaders.filter(pk=request.user.pk).exists()
+    )
     if not is_leader:
         messages.error(request, "You don't have permission to manage this course.")
         return redirect("courses:course_detail", pk=course.pk)
