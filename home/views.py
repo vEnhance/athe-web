@@ -2,9 +2,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
-from django.views.generic import DetailView, TemplateView, UpdateView
+from django.views.generic import DetailView, ListView, TemplateView, UpdateView
 
-from .models import StaffPhotoListing
+from .models import ApplyPSet, StaffPhotoListing
 
 
 def index(request: HttpRequest) -> HttpResponse:
@@ -100,10 +100,46 @@ class ScholarshipsView(TemplateView):
     template_name = "home/scholarships.html"
 
 
-class PastPsetsView(TemplateView):
-    """Past Problem Sets / Application page."""
+class ApplyView(TemplateView):
+    """Apply to be a student page."""
 
+    template_name = "home/apply.html"
+
+    def get_context_data(self, **kwargs):  # type: ignore
+        """Add active psets or closed message."""
+        context = super().get_context_data(**kwargs)
+
+        # Get all active problem sets
+        active_psets = ApplyPSet.objects.filter(status="active")
+
+        if active_psets.exists():
+            # Show all active problem sets
+            context["active_psets"] = active_psets
+            context["show_active"] = True
+        else:
+            # Show closed message from most recent completed pset
+            most_recent = ApplyPSet.objects.filter(status="completed").first()
+            if most_recent:
+                context["closed_message"] = most_recent.closed_message_rendered
+                context["show_active"] = False
+            else:
+                # No psets at all
+                context["show_active"] = False
+                context["closed_message"] = None
+
+        return context
+
+
+class PastPsetsView(ListView):
+    """Past Problem Sets listing page."""
+
+    model = ApplyPSet
     template_name = "home/past_psets.html"
+    context_object_name = "psets"
+
+    def get_queryset(self):  # type: ignore
+        """Return only completed problem sets in reverse chronological order."""
+        return ApplyPSet.objects.filter(status="completed").order_by("-deadline")
 
 
 class LegalView(TemplateView):

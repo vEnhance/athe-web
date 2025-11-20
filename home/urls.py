@@ -18,6 +18,7 @@ urlpatterns = [
         "virtual-program/", views.VirtualProgramView.as_view(), name="virtual_program"
     ),
     path("scholarships/", views.ScholarshipsView.as_view(), name="scholarships"),
+    path("apply/", views.ApplyView.as_view(), name="apply"),
     path("past-psets/", views.PastPsetsView.as_view(), name="past_psets"),
     path("legal/", views.LegalView.as_view(), name="legal"),
 ]

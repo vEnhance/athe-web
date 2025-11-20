@@ -16,6 +16,10 @@ class Semester(models.Model):
         blank=True,
         help_text="If set, leaderboard shows only points awarded up to this date",
     )
+    visible = models.BooleanField(
+        default=True,
+        help_text="If unchecked, this semester will be hidden from non-staff users",
+    )
 
     def __str__(self) -> str:
         return self.name
