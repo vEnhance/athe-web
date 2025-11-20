@@ -67,8 +67,13 @@
                 {% if formset.non_form_errors %}<div class="alert alert-danger">{{ formset.non_form_errors }}</div>{% endif %}
                 {% if formset.forms %}
                     {% for form in formset %}
-                        {% if forloop.first and formset.queryset %}<h3>Existing Meetings</h3>{% endif %}
-                        {% if form.instance.pk or not forloop.counter0|add:"-1"|divisibleby:formset.queryset.count %}
+                        {# Show "Existing Meetings" header before first existing meeting #}
+                        {% if form.instance.pk and forloop.first %}<h3>Existing Meetings</h3>{% endif %}
+                        {# Show "Add New Meetings" header before first empty form #}
+                        {% if not form.instance.pk and forloop.counter0 == formset.queryset.count %}
+                            <div class="empty-form-section">
+                                <h3>Add New Meetings</h3>
+                            {% endif %}
                             <div class="formset-row {% if form.instance.pk %}existing-meeting{% endif %}"
                                  data-form-index="{{ forloop.counter0 }}">
                                 {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
@@ -104,12 +109,8 @@
                                 </div>
                                 {{ form.id }}
                             </div>
-                        {% endif %}
-                        {% if not form.instance.pk and forloop.counter0|add:"-1" == formset.queryset.count %}
-                            <div class="empty-form-section">
-                                <h3>Add New Meetings</h3>
-                            {% endif %}
                         {% endfor %}
+                        {# Close the empty-form-section div if there were any empty forms #}
                         {% if formset.queryset.count < formset.total_form_count %}</div>{% endif %}
                 {% else %}
                     <p class="text-muted">No meetings configured yet. Use the forms below to add new meetings.</p>
