@@ -1,0 +1,134 @@
+[
+  {
+    "model": "home.applypset",
+    "pk": 1,
+    "fields": {
+      "name": "Fall 2021",
+      "deadline": "2021-09-01T00:00:00Z",
+      "status": "completed",
+      "file": "apply_psets/fall21.pdf",
+      "instructions": "",
+      "closed_message": ""
+    }
+  },
+  {
+    "model": "home.applypset",
+    "pk": 2,
+    "fields": {
+      "name": "Fall 2022",
+      "deadline": "2022-09-01T00:00:00Z",
+      "status": "completed",
+      "file": "apply_psets/fall22.pdf",
+      "instructions": "",
+      "closed_message": ""
+    }
+  },
+  {
+    "model": "home.applypset",
+    "pk": 3,
+    "fields": {
+      "name": "Fall 2023",
+      "deadline": "2023-09-01T00:00:00Z",
+      "status": "completed",
+      "file": "apply_psets/fall23.pdf",
+      "instructions": "",
+      "closed_message": ""
+    }
+  },
+  {
+    "model": "home.applypset",
+    "pk": 4,
+    "fields": {
+      "name": "Fall 2024",
+      "deadline": "2024-09-01T00:00:00Z",
+      "status": "completed",
+      "file": "apply_psets/fall24.pdf",
+      "instructions": "",
+      "closed_message": ""
+    }
+  },
+  {
+    "model": "home.applypset",
+    "pk": 5,
+    "fields": {
+      "name": "Fall 2025",
+      "deadline": "2025-09-01T00:00:00Z",
+      "status": "completed",
+      "file": "apply_psets/fall25.pdf",
+      "instructions": "",
+      "closed_message": "Applications to be a new student for the Fall 2025 semester have closed, but applications to be a new student in Spring 2026 will open in December!"
+    }
+  },
+  {
+    "model": "home.applypset",
+    "pk": 6,
+    "fields": {
+      "name": "Spring 2021",
+      "deadline": "2021-01-01T00:00:00Z",
+      "status": "completed",
+      "file": "apply_psets/spr21.pdf",
+      "instructions": "",
+      "closed_message": ""
+    }
+  },
+  {
+    "model": "home.applypset",
+    "pk": 7,
+    "fields": {
+      "name": "Spring 2022",
+      "deadline": "2022-01-01T00:00:00Z",
+      "status": "completed",
+      "file": "apply_psets/spr22.pdf",
+      "instructions": "",
+      "closed_message": ""
+    }
+  },
+  {
+    "model": "home.applypset",
+    "pk": 8,
+    "fields": {
+      "name": "Spring 2023",
+      "deadline": "2023-01-01T00:00:00Z",
+      "status": "completed",
+      "file": "apply_psets/spr23.pdf",
+      "instructions": "",
+      "closed_message": ""
+    }
+  },
+  {
+    "model": "home.applypset",
+    "pk": 9,
+    "fields": {
+      "name": "Spring 2024",
+      "deadline": "2024-01-01T00:00:00Z",
+      "status": "completed",
+      "file": "apply_psets/spr24.pdf",
+      "instructions": "",
+      "closed_message": ""
+    }
+  },
+  {
+    "model": "home.applypset",
+    "pk": 10,
+    "fields": {
+      "name": "Spring 2025",
+      "deadline": "2025-01-01T00:00:00Z",
+      "status": "completed",
+      "file": "apply_psets/spr25.pdf",
+      "instructions": "",
+      "closed_message": ""
+    }
+  },
+  {
+    "model": "home.applypset",
+    "pk": 11,
+    "fields": {
+      "name": "Winter 2021",
+      "deadline": "2021-11-01T00:00:00Z",
+      "status": "completed",
+      "file": "apply_psets/winter21.pdf",
+      "instructions": "",
+      "closed_message": ""
+    }
+  }
+]
