@@ -37,11 +37,22 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.humanize",
+    # Django-allauth
+    "django.contrib.sites",
+    # Third-party apps
     "django_bootstrap5",
     "django_extensions",
     "hijack",
     "hijack.contrib.admin",
     "markdownfield",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.github",
+    "allauth.socialaccount.providers.discord",
+    # Local apps
     "atheweb",
     "courses",
     "home",
@@ -56,6 +67,7 @@ MIDDLEWARE = [
     "hijack.middleware.HijackUserMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "atheweb.urls"
@@ -139,3 +151,58 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Authentication settings
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
+
+# Django-allauth settings
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of allauth
+    "django.contrib.auth.backends.ModelBackend",
+    # allauth specific authentication methods, such as login by email
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+# Allauth configuration
+ACCOUNT_LOGIN_METHODS = {"email", "username"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+        "APP": {
+            "client_id": "",  # Set via environment variable or admin
+            "secret": "",  # Set via environment variable or admin
+        },
+    },
+    "github": {
+        "SCOPE": [
+            "user",
+            "email",
+        ],
+        "APP": {
+            "client_id": "",  # Set via environment variable or admin
+            "secret": "",  # Set via environment variable or admin
+        },
+    },
+    "discord": {
+        "SCOPE": [
+            "identify",
+            "email",
+        ],
+        "APP": {
+            "client_id": "",  # Set via environment variable or admin
+            "secret": "",  # Set via environment variable or admin
+        },
+    },
+}

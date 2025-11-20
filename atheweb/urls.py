@@ -25,6 +25,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("hijack/", include("hijack.urls")),
     path("catalog/", include("courses.urls")),
+    path("accounts/", include("allauth.urls")),
     path(
         "login/",
         auth_views.LoginView.as_view(),
