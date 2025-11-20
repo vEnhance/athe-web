@@ -1,0 +1,66 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% block extra_css %}
+    <link type="text/css"
+          rel="stylesheet"
+          href="{% static "css/courses.css" %}" />
+    <style>
+        .form-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        .form-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            color: #495057;
+        }
+    </style>
+{% endblock extra_css %}
+{% block title %}
+    Edit {{ course.name }} - Athemath
+{% endblock title %}
+{% block content %}
+    <div id="content">
+        <div class="course">
+            <h1>Edit Course Details</h1>
+            <p class="text-muted">
+                <a href="{% url 'courses:course_detail' pk=course.pk %}">{{ course.name }}</a> - {{ course.semester }}
+            </p>
+            <p class="text-info">Update the course information below. Fields can be left blank if not applicable.</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-section">
+                    <h3>Basic Information</h3>
+                    {% bootstrap_field form.description %}
+                    {% bootstrap_field form.difficulty %}
+                    {% bootstrap_field form.regular_meeting_time %}
+                </div>
+                <div class="form-section">
+                    <h3>Lesson Plan</h3>
+                    {% bootstrap_field form.lesson_plan %}
+                </div>
+                <div class="form-section">
+                    <h3>Links & Resources</h3>
+                    {% bootstrap_field form.google_classroom_direct_link %}
+                    {% bootstrap_field form.zoom_meeting_link %}
+                </div>
+                <div class="form-section">
+                    <h3>Discord Integration</h3>
+                    {% bootstrap_field form.discord_webhook %}
+                    {% bootstrap_field form.discord_role_id %}
+                    {% bootstrap_field form.discord_reminders_enabled %}
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="{% url 'courses:course_detail' pk=course.pk %}"
+                       class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}

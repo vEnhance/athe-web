@@ -12,6 +12,9 @@ urlpatterns = [
     path("past-clubs/", views.past_clubs, name="past_clubs"),
     path("upcoming/", views.upcoming, name="upcoming"),
     path("course/<int:pk>/", views.CourseDetailView.as_view(), name="course_detail"),
+    path(
+        "course/<int:pk>/edit/", views.CourseUpdateView.as_view(), name="course_update"
+    ),
     path("course/<int:pk>/meetings/", views.manage_meetings, name="manage_meetings"),
     path("club/<int:pk>/join/", views.join_club, name="join_club"),
     path("club/<int:pk>/drop/", views.drop_club, name="drop_club"),
