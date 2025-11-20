@@ -6,7 +6,9 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
 from django.views import View
+from django.views.generic import CreateView
 
 from courses.models import Semester, Student
 from housepoints.models import Award
@@ -292,6 +294,99 @@ class BulkAwardView(UserPassesTestMixin, View):
             )
 
         return json.dumps(students_list)
+
+
+class SingleAwardForm(forms.ModelForm):
+    """Form for creating a single house-level award."""
+
+    points = forms.IntegerField(
+        required=False,
+        help_text="Override default points (leave blank for default)",
+    )
+
+    class Meta:
+        model = Award
+        fields = ["house", "award_type", "points", "description"]
+        help_texts = {
+            "house": "Which house should receive this award?",
+            "award_type": "Type of award to give",
+            "description": "Optional description for this award",
+        }
+
+    def __init__(self, *args, **kwargs):  # type: ignore[no-untyped-def]
+        super().__init__(*args, **kwargs)
+        # Make house required for single awards
+        self.fields["house"].required = True
+
+
+class SingleAwardView(UserPassesTestMixin, CreateView):
+    """Staff-only view for creating a single house-level award."""
+
+    model = Award
+    form_class = SingleAwardForm
+    template_name = "housepoints/single_award.html"
+    success_url = reverse_lazy("housepoints:single_award")
+
+    def test_func(self) -> bool:
+        """Only staff can access this view."""
+        return self.request.user.is_staff  # type: ignore[attr-defined]
+
+    def _get_current_semester(self) -> Semester:
+        """Get the current active semester based on today's date."""
+        from django.utils import timezone
+
+        today = timezone.now().date()
+        current_semesters = Semester.objects.filter(
+            start_date__lte=today, end_date__gte=today
+        )
+
+        count = current_semesters.count()
+        if count == 0:
+            raise ValueError("No active semester found for the current date.")
+        if count > 1:
+            raise ValueError(
+                "Multiple active semesters found for the current date. "
+                "Please ensure semester dates do not overlap."
+            )
+
+        return current_semesters.first()  # type: ignore[return-value]
+
+    def get_context_data(self, **kwargs):  # type: ignore[no-untyped-def]
+        """Add semester and default points to context."""
+        context = super().get_context_data(**kwargs)
+        try:
+            context["semester"] = self._get_current_semester()
+            context["default_points"] = Award.DEFAULT_POINTS
+        except ValueError as e:
+            messages.error(self.request, str(e))
+            context["semester"] = None
+        return context
+
+    def form_valid(self, form):  # type: ignore[no-untyped-def]
+        """Set semester, awarded_by, and default points if needed."""
+        try:
+            semester = self._get_current_semester()
+        except ValueError as e:
+            messages.error(self.request, str(e))
+            return redirect("home:index")
+
+        # Set the semester and awarded_by
+        form.instance.semester = semester
+        form.instance.awarded_by = self.request.user
+        form.instance.student = None  # House-level award has no student
+
+        # Use default points if not specified
+        if form.cleaned_data["points"] is None:
+            award_type = form.cleaned_data["award_type"]
+            form.instance.points = Award.DEFAULT_POINTS.get(award_type, 0)
+
+        response = super().form_valid(form)
+        messages.success(
+            self.request,
+            f"Successfully awarded {form.instance.points} points to "
+            f"{form.instance.get_house_display()}!",  # type: ignore[attr-defined]
+        )
+        return response
 
 
 @login_required
