@@ -11,21 +11,34 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+from typing import Any
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+ENV_PATH = BASE_DIR / ".env"
+if ENV_PATH.exists():
+    load_dotenv(ENV_PATH)
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-h4^#6%7b=8p+e9nauqobbf0i$rzsx5!1g9k34bgx_@pikr*#)+"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+PRODUCTION = bool(int(os.getenv("IS_PRODUCTION") or 0))
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
 
-ALLOWED_HOSTS = []
+if PRODUCTION:
+    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+    assert SECRET_KEY is not None
+else:
+    SECRET_KEY = "django-insecure-h4^#6%7b=8p+e9nauqobbf0i$rzsx5!1g9k34bgx_@pikr*#)+"
+
+
+ALLOWED_HOSTS = ["beta.athemath.org", "athemath.org", "www.athemath.org"]
 
 
 # Application definition
@@ -97,12 +110,29 @@ WSGI_APPLICATION = "atheweb.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+if os.getenv("DATABASE_NAME"):
+    DATABASES: dict[str, Any] = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.getenv("DATABASE_NAME"),
+            "USER": os.getenv("DATABASE_USER"),
+            "PASSWORD": os.getenv("DATABASE_PASSWORD"),
+            "HOST": os.getenv("DATABASE_HOST"),
+            "PORT": os.getenv("DATABASE_PORT", "3306"),
+            "OPTIONS": {
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+                "charset": "utf8mb4",
+                "use_unicode": True,
+            },
+        },
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # Password validation
@@ -140,14 +170,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "static/"
-STATICFILES_DIRS = [
-    BASE_DIR / "atheweb" / "static",
-]
+STATICFILES_DIRS = [BASE_DIR / "atheweb" / "static"]
+if PRODUCTION:
+    STATIC_ROOT = os.getenv("STATIC_ROOT")
+else:
+    STATIC_ROOT = BASE_DIR / "static/"
 
 # Media files (user uploads)
 MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR / "media/"
+if PRODUCTION:
+    MEDIA_ROOT = os.getenv("MEDIA_ROOT")
+else:
+    MEDIA_ROOT = BASE_DIR / "media/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
