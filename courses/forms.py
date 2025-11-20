@@ -2,7 +2,7 @@ from typing import Any
 
 from django import forms
 
-from courses.models import CourseMeeting
+from courses.models import Course, CourseMeeting
 
 
 class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
@@ -26,3 +26,53 @@ class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
             self.initial["start_time"] = self.instance.start_time.strftime(
                 "%Y-%m-%dT%H:%M"
             )
+
+
+class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
+    """Form for updating course details by leaders."""
+
+    class Meta:
+        model = Course
+        fields = [
+            "description",
+            "difficulty",
+            "lesson_plan",
+            "regular_meeting_time",
+            "google_classroom_direct_link",
+            "zoom_meeting_link",
+            "discord_webhook",
+            "discord_role_id",
+            "discord_reminders_enabled",
+        ]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 4}),
+            "lesson_plan": forms.Textarea(
+                attrs={"rows": 8, "placeholder": "One lesson per line"}
+            ),
+            "regular_meeting_time": forms.TextInput(
+                attrs={"placeholder": "e.g. 5pm-6pm ET on Saturday"}
+            ),
+            "google_classroom_direct_link": forms.URLInput(
+                attrs={"placeholder": "https://classroom.google.com/..."}
+            ),
+            "zoom_meeting_link": forms.URLInput(
+                attrs={"placeholder": "https://zoom.us/..."}
+            ),
+            "discord_webhook": forms.URLInput(
+                attrs={"placeholder": "https://discord.com/api/webhooks/..."}
+            ),
+            "discord_role_id": forms.TextInput(
+                attrs={"placeholder": "Discord role ID for mentions"}
+            ),
+        }
+        help_texts = {
+            "description": "Brief description of the course/club",
+            "difficulty": "Estimate of difficulty level",
+            "lesson_plan": "List of lessons planned for this course (one per line)",
+            "regular_meeting_time": "Regular meeting time, e.g. '5pm-6pm ET on Saturday'",
+            "google_classroom_direct_link": "Direct link to Google Classroom",
+            "zoom_meeting_link": "Zoom meeting link for this course",
+            "discord_webhook": "Discord webhook URL for posting reminders",
+            "discord_role_id": "Discord role ID to mention in reminders",
+            "discord_reminders_enabled": "Whether to send Discord reminders",
+        }

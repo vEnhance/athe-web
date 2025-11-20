@@ -8,10 +8,11 @@ from django.db.models import Prefetch
 from django.forms import modelformset_factory
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
-from django.views.generic import DetailView
+from django.views.generic import DetailView, UpdateView
 
-from courses.forms import CourseMeetingForm
+from courses.forms import CourseMeetingForm, CourseUpdateForm
 from courses.models import Course, CourseMeeting, Semester, Student
 
 
@@ -381,6 +382,40 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
             context["can_join_drop"] = False
 
         return context
+
+
+class CourseUpdateView(UserPassesTestMixin, UpdateView):
+    """
+    Update view for editing course details.
+    Only accessible to staff or course leaders.
+    """
+
+    model = Course
+    form_class = CourseUpdateForm
+    template_name = "courses/course_update.html"
+    context_object_name = "course"
+
+    def test_func(self) -> bool:
+        """Check if user is staff or a leader of this course."""
+        if not self.request.user.is_authenticated:
+            return False
+        assert isinstance(self.request.user, User)
+        if self.request.user.is_staff:
+            return True
+
+        course = self.get_object()
+        return course.leaders.filter(pk=self.request.user.pk).exists()
+
+    def get_success_url(self) -> str:
+        """Redirect back to the course detail page after successful update."""
+        return reverse("courses:course_detail", kwargs={"pk": self.object.pk})
+
+    def form_valid(self, form: CourseUpdateForm):
+        """Add a success message when the form is saved."""
+        messages.success(
+            self.request, f"{self.object.name} has been updated successfully!"
+        )
+        return super().form_valid(form)
 
 
 @login_required

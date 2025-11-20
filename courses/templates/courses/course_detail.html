@@ -16,8 +16,8 @@
                 <p class="text-muted">
                     {% if course.is_club %}<span class="badge bg-dark">Club</span>{% endif %}
                     {{ course.semester }}
-                    {% if user.is_staff %}
-                        | <a href="{% url 'admin:courses_course_change' course.pk %}">Edit</a>
+                    {% if is_leader %}
+                        | <a href="{% url 'courses:course_update' pk=course.pk %}">Edit Course</a>
                     {% endif %}
                 </p>
             </div>
