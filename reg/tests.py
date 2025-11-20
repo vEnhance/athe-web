@@ -52,7 +52,7 @@ class StaffInviteLinkModelTest(TestCase):
             expiration_date=self.future_date,
         )
         url = invite.get_absolute_url()
-        self.assertEqual(url, reverse("reg:invite", kwargs={"invite_id": invite.id}))
+        self.assertEqual(url, reverse("reg:add-staff", kwargs={"invite_id": invite.id}))
 
 
 class StaffInviteViewTest(TestCase):
@@ -116,7 +116,7 @@ class StaffInviteViewTest(TestCase):
 
     def test_get_staff_selection(self):
         """Test GET request shows staff selection form."""
-        url = reverse("reg:invite", kwargs={"invite_id": self.valid_invite.id})
+        url = reverse("reg:add-staff", kwargs={"invite_id": self.valid_invite.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "reg/select_staff.html")
@@ -125,14 +125,14 @@ class StaffInviteViewTest(TestCase):
 
     def test_get_expired_invite(self):
         """Test GET request to expired invite shows error."""
-        url = reverse("reg:invite", kwargs={"invite_id": self.expired_invite.id})
+        url = reverse("reg:add-staff", kwargs={"invite_id": self.expired_invite.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "reg/invite_expired.html")
 
     def test_post_staff_selection(self):
         """Test POST request to select staff listing."""
-        url = reverse("reg:invite", kwargs={"invite_id": self.valid_invite.id})
+        url = reverse("reg:add-staff", kwargs={"invite_id": self.valid_invite.id})
         response = self.client.post(url, {"staff_listing": self.staff1.id})
         self.assertEqual(response.status_code, 302)  # Redirect
         # Check session has staff_listing_id
@@ -141,7 +141,7 @@ class StaffInviteViewTest(TestCase):
 
     def test_post_staff_selection_already_registered(self):
         """Test POST request to select already registered staff shows error."""
-        url = reverse("reg:invite", kwargs={"invite_id": self.valid_invite.id})
+        url = reverse("reg:add-staff", kwargs={"invite_id": self.valid_invite.id})
         response = self.client.post(url, {"staff_listing": self.staff2.id})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "reg/already_registered.html")
@@ -154,7 +154,7 @@ class StaffInviteViewTest(TestCase):
         session["staff_listing_id"] = self.staff1.id
         session.save()
 
-        url = reverse("reg:invite", kwargs={"invite_id": self.valid_invite.id})
+        url = reverse("reg:add-staff", kwargs={"invite_id": self.valid_invite.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "reg/register.html")
@@ -167,7 +167,7 @@ class StaffInviteViewTest(TestCase):
         session["staff_listing_id"] = self.staff1.id
         session.save()
 
-        url = reverse("reg:invite", kwargs={"invite_id": self.valid_invite.id})
+        url = reverse("reg:add-staff", kwargs={"invite_id": self.valid_invite.id})
         response = self.client.post(
             url,
             {
@@ -207,7 +207,7 @@ class StaffInviteViewTest(TestCase):
         session["staff_listing_id"] = self.staff1.id
         session.save()
 
-        url = reverse("reg:invite", kwargs={"invite_id": self.valid_invite.id})
+        url = reverse("reg:add-staff", kwargs={"invite_id": self.valid_invite.id})
         response = self.client.post(
             url,
             {
@@ -233,7 +233,7 @@ class StaffInviteViewTest(TestCase):
         session["staff_listing_id"] = self.staff1.id
         session.save()
 
-        url = reverse("reg:invite", kwargs={"invite_id": self.valid_invite.id})
+        url = reverse("reg:add-staff", kwargs={"invite_id": self.valid_invite.id})
         response = self.client.post(
             url,
             {
@@ -257,7 +257,7 @@ class StaffInviteViewTest(TestCase):
         session["staff_listing_id"] = self.staff2.id
         session.save()
 
-        url = reverse("reg:invite", kwargs={"invite_id": self.valid_invite.id})
+        url = reverse("reg:add-staff", kwargs={"invite_id": self.valid_invite.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "reg/already_registered.html")
@@ -281,7 +281,7 @@ class StaffInviteViewTest(TestCase):
         session["staff_listing_id"] = self.staff1.id
         session.save()
 
-        url = reverse("reg:invite", kwargs={"invite_id": self.valid_invite.id})
+        url = reverse("reg:add-staff", kwargs={"invite_id": self.valid_invite.id})
         response = self.client.post(
             url,
             {

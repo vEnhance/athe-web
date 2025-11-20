@@ -113,7 +113,7 @@ class StaffInviteView(View):
 
             # Store the selected staff listing in the session
             request.session["staff_listing_id"] = staff_listing.id
-            return redirect("reg:invite", invite_id=invite.id)
+            return redirect("reg:add-staff", invite_id=invite.id)
 
         # Form is invalid, show errors
         return render(

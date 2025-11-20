@@ -26,13 +26,10 @@ class StaffInviteLinkAdmin(admin.ModelAdmin):
     ]
 
     def link(self, obj: StaffInviteLink) -> str:
-        """Display the full invite link as a clickable URL."""
+        """Display the invite link URL path."""
         if obj.pk:
             url = obj.get_absolute_url()
-            full_url = f"http://localhost:8000{url}"  # For development
-            return format_html(
-                '<a href="{}" target="_blank">{}</a>', full_url, full_url
-            )
+            return format_html('<a href="{}" target="_blank">{}</a>', url, url)
         return "-"
 
     link.short_description = "Invite Link"  # type: ignore

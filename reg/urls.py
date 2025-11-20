@@ -5,5 +5,5 @@ from .views import StaffInviteView
 app_name = "reg"
 
 urlpatterns = [
-    path("invite/<uuid:invite_id>/", StaffInviteView.as_view(), name="invite"),
+    path("add-staff/<uuid:invite_id>/", StaffInviteView.as_view(), name="add-staff"),
 ]

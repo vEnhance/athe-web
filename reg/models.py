@@ -36,4 +36,4 @@ class StaffInviteLink(models.Model):
 
     def get_absolute_url(self) -> str:
         """Get the URL for this invite link."""
-        return reverse("reg:invite", kwargs={"invite_id": self.id})
+        return reverse("reg:add-staff", kwargs={"invite_id": self.id})
