@@ -1,0 +1,226 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}
+    Bulk Award Points - Athemath
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 50px;">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Bulk Award Points</h1>
+                <p class="lead">Award house points to multiple students at once.</p>
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">Award Points</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% if results %}
+                    <div class="mt-4">
+                        {% if results.success %}
+                            <div class="card border-success mb-3">
+                                <div class="card-header bg-success text-white">Successfully Awarded ({{ results.success|length }})</div>
+                                <div class="card-body">
+                                    <ul class="mb-0">
+                                        {% for msg in results.success %}<li>{{ msg }}</li>{% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if results.errors %}
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">Errors ({{ results.errors|length }})</div>
+                                <div class="card-body">
+                                    <ul class="mb-0">
+                                        {% for msg in results.errors %}<li>{{ msg }}</li>{% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Default Point Values</strong>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li>Introduction Post: 1 pt</li>
+                            <li>Class Attendance: 5 pts</li>
+                            <li>Homework: 5 pts</li>
+                            <li>Event/Club/Seminar: 3 pts</li>
+                            <li>Office Hours: 2 pts</li>
+                            <li>PotD Top 3: 20 pts</li>
+                            <li>PotD 4-10: 10 pts</li>
+                            <li>Staff Bonus: 2 pts</li>
+                            <li>House Activity: 50 pts</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <strong>Tips</strong>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li>Use autocomplete to search by name or username</li>
+                            <li>Click a suggestion to add it to the list</li>
+                            <li>Students must have a house assigned</li>
+                            <li>Leave points blank to use default value</li>
+                            <li>Points are auto-assigned to student's house</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <strong>Student Search</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <input type="text"
+                                   id="student-search"
+                                   class="form-control"
+                                   placeholder="Search by name or username..."
+                                   autocomplete="off">
+                        </div>
+                        <div id="autocomplete-results" class="list-group"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_js %}
+    <style>
+    #autocomplete-results {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    #autocomplete-results .list-group-item {
+        cursor: pointer;
+        padding: 0.5rem 0.75rem;
+    }
+    #autocomplete-results .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+    </style>
+    <script>
+    (function() {
+        // All students data from server
+        const allStudents = {{ students_json|safe }};
+
+        const searchInput = document.getElementById('student-search');
+        const resultsDiv = document.getElementById('autocomplete-results');
+        const usernamesTextarea = document.getElementById('id_usernames');
+        const semesterSelect = document.getElementById('id_semester');
+
+        let debounceTimer;
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase();
+
+            // Clear previous timer
+            clearTimeout(debounceTimer);
+
+            // Clear results if query is too short
+            if (query.length < 2) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+
+            // Debounce the filtering
+            debounceTimer = setTimeout(() => {
+                filterAndDisplayStudents(query);
+            }, 150);
+        });
+
+        function filterAndDisplayStudents(query) {
+            const semesterId = semesterSelect.value ? parseInt(semesterSelect.value) : null;
+
+            // Filter students client-side
+            const filtered = allStudents.filter(student => {
+                // Filter by semester if selected
+                if (semesterId && student.semester_id !== semesterId) {
+                    return false;
+                }
+
+                // Search in username, first name, last name, email
+                return student.username.toLowerCase().includes(query) ||
+                       student.first_name.includes(query) ||
+                       student.last_name.includes(query) ||
+                       student.email.includes(query) ||
+                       student.display.toLowerCase().includes(query);
+            }).slice(0, 20); // Limit to 20 results
+
+            displayResults(filtered);
+        }
+
+        function displayResults(students) {
+            if (students.length === 0) {
+                resultsDiv.innerHTML = '<div class="list-group-item text-muted">No students found</div>';
+                return;
+            }
+
+            resultsDiv.innerHTML = students.map(student =>
+                `<button type="button" class="list-group-item list-group-item-action" data-username="${student.username}">
+                    <div><strong>${student.display}</strong></div>
+                    <small class="text-muted">${student.semester}</small>
+                </button>`
+            ).join('');
+
+            // Add click handlers
+            resultsDiv.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    addUsername(this.dataset.username);
+                });
+            });
+        }
+
+        function addUsername(username) {
+            const currentValue = usernamesTextarea.value.trim();
+            const usernames = currentValue ? currentValue.split('\n') : [];
+
+            // Check if username already exists
+            if (usernames.includes(username)) {
+                alert('This student is already in the list.');
+                return;
+            }
+
+            // Add username
+            usernames.push(username);
+            usernamesTextarea.value = usernames.join('\n');
+
+            // Clear search
+            searchInput.value = '';
+            resultsDiv.innerHTML = '';
+
+            // Show feedback
+            searchInput.placeholder = `Added ${username}. Search for another...`;
+            setTimeout(() => {
+                searchInput.placeholder = 'Search by name or username...';
+            }, 2000);
+        }
+
+        // Clear results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+                resultsDiv.innerHTML = '';
+            }
+        });
+
+        // Refresh results when semester changes
+        semesterSelect.addEventListener('change', function() {
+            if (searchInput.value.trim().length >= 2) {
+                filterAndDisplayStudents(searchInput.value.trim().toLowerCase());
+            }
+        });
+    })();
+    </script>
+{% endblock extra_js %}

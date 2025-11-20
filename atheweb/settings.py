@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "atheweb",
     "courses",
     "home",
+    "housepoints",
 ]
 
 MIDDLEWARE = [

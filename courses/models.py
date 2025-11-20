@@ -11,6 +11,11 @@ class Semester(models.Model):
     slug = models.SlugField(unique=True)
     start_date = models.DateField(help_text="When this semester starts")
     end_date = models.DateField(help_text="When this semester ends")
+    house_points_freeze_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="If set, leaderboard shows only points awarded up to this date",
+    )
 
     def __str__(self) -> str:
         return self.name
@@ -90,11 +95,24 @@ class Course(models.Model):
 
 
 class Student(models.Model):
+    class House(models.TextChoices):
+        BLOB = "blob", "Blob"
+        CAT = "cat", "Cat"
+        OWL = "owl", "Owl"
+        RED_PANDA = "red_panda", "Red Panda"
+        BUNNY = "bunny", "Bunny"
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="students"
     )
     semester = models.ForeignKey(
         Semester, on_delete=models.CASCADE, related_name="students"
+    )
+    house = models.CharField(
+        max_length=20,
+        choices=House.choices,
+        blank=True,
+        help_text="House assignment for this semester",
     )
     enrolled_courses = models.ManyToManyField(
         Course, related_name="enrolled_students", blank=True
