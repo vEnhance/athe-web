@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "courses",
     "home",
     "housepoints",
+    "weblog",
 ]
 
 MIDDLEWARE = [
