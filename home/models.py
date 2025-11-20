@@ -5,6 +5,54 @@ from markdownfield.models import MarkdownField, RenderedMarkdownField
 from markdownfield.validators import VALIDATOR_STANDARD
 
 
+class ApplyPSet(models.Model):
+    """Application Problem Set model."""
+
+    STATUS_CHOICES = [
+        ("draft", "Draft"),
+        ("active", "Active"),
+        ("completed", "Completed"),
+    ]
+
+    name = models.CharField(
+        max_length=200,
+        help_text="Name of the problem set (e.g., 'Fall 2025 PSet')",
+    )
+    deadline = models.DateTimeField(
+        help_text="Application deadline",
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="draft",
+        help_text="Status of the problem set",
+    )
+    file = models.FileField(
+        upload_to="apply_psets/",
+        help_text="PDF file for the problem set",
+    )
+    instructions = MarkdownField(
+        rendered_field="instructions_rendered",
+        validator=VALIDATOR_STANDARD,
+        help_text="Instructions displayed when status is active (Markdown format)",
+    )
+    instructions_rendered = RenderedMarkdownField()
+    closed_message = MarkdownField(
+        rendered_field="closed_message_rendered",
+        validator=VALIDATOR_STANDARD,
+        help_text="Message displayed when applications are closed (Markdown format)",
+    )
+    closed_message_rendered = RenderedMarkdownField()
+
+    class Meta:
+        ordering = ["-deadline"]
+        verbose_name = "Application Problem Set"
+        verbose_name_plural = "Application Problem Sets"
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class StaffPhotoListing(models.Model):
     """Staff member photo listing with biography."""
 

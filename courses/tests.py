@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from courses.management.commands.send_discord_reminders import Command
 from courses.models import Course, CourseMeeting, Semester, Student
+from home.models import StaffPhotoListing
 
 
 @pytest.mark.django_db
@@ -1073,3 +1074,610 @@ def test_my_courses_excludes_clubs():
     # Should only include the course, not the club
     assert "Math 101" in course_names
     assert "Chess Club" not in course_names
+
+
+# ============================================================================
+# Auto-add Course Leader Tests
+# ============================================================================
+
+
+@pytest.mark.django_db
+def test_course_auto_adds_instructor_as_leader():
+    """Test that creating a course with an instructor automatically adds them as a leader."""
+    # Create a user and staff listing
+    user = User.objects.create_user(username="instructor1", password="password")
+    staff = StaffPhotoListing.objects.create(
+        user=user,
+        display_name="Dr. Smith",
+        slug="dr-smith",
+        role="Instructor",
+        category="instructor",
+        biography="Test bio",
+        photo="staff_photos/test.jpg",
+    )
+
+    # Create a semester
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    # Create a course with the instructor
+    course = Course.objects.create(
+        name="Advanced Math",
+        description="Advanced math course",
+        semester=semester,
+        instructor=staff,
+    )
+
+    # Verify the instructor's user was automatically added as a leader
+    assert user in course.leaders.all()
+    assert course.leaders.count() == 1
+
+
+@pytest.mark.django_db
+def test_course_instructor_without_user_no_error():
+    """Test that a course with an instructor that has no user doesn't cause errors."""
+    # Create a staff listing without a user
+    staff = StaffPhotoListing.objects.create(
+        user=None,
+        display_name="Dr. Jones",
+        slug="dr-jones",
+        role="Guest Instructor",
+        category="instructor",
+        biography="Test bio",
+        photo="staff_photos/test.jpg",
+    )
+
+    # Create a semester
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    # Create a course with the instructor (should not raise an error)
+    course = Course.objects.create(
+        name="Guest Lecture",
+        description="Special guest lecture",
+        semester=semester,
+        instructor=staff,
+    )
+
+    # Verify no leaders were added
+    assert course.leaders.count() == 0
+
+
+@pytest.mark.django_db
+def test_course_without_instructor_no_error():
+    """Test that a course without an instructor doesn't cause errors."""
+    # Create a semester
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    # Create a course without an instructor
+    course = Course.objects.create(
+        name="Self-Study Course",
+        description="Self-paced learning",
+        semester=semester,
+        instructor=None,
+    )
+
+    # Verify no leaders were added
+    assert course.leaders.count() == 0
+
+
+@pytest.mark.django_db
+def test_course_update_instructor_adds_leader():
+    """Test that updating a course to add an instructor automatically adds them as a leader."""
+    # Create a user and staff listing
+    user = User.objects.create_user(username="instructor2", password="password")
+    staff = StaffPhotoListing.objects.create(
+        user=user,
+        display_name="Dr. Brown",
+        slug="dr-brown",
+        role="Instructor",
+        category="instructor",
+        biography="Test bio",
+        photo="staff_photos/test.jpg",
+    )
+
+    # Create a semester
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    # Create a course without an instructor
+    course = Course.objects.create(
+        name="Physics 101",
+        description="Basic physics",
+        semester=semester,
+    )
+
+    # Verify no leaders initially
+    assert course.leaders.count() == 0
+
+    # Update the course to add an instructor
+    course.instructor = staff
+    course.save()
+
+    # Verify the instructor's user was automatically added as a leader
+    assert user in course.leaders.all()
+    assert course.leaders.count() == 1
+
+
+@pytest.mark.django_db
+def test_course_instructor_idempotent():
+    """Test that saving a course multiple times doesn't duplicate the leader."""
+    # Create a user and staff listing
+    user = User.objects.create_user(username="instructor3", password="password")
+    staff = StaffPhotoListing.objects.create(
+        user=user,
+        display_name="Dr. Lee",
+        slug="dr-lee",
+        role="Instructor",
+        category="instructor",
+        biography="Test bio",
+        photo="staff_photos/test.jpg",
+    )
+
+    # Create a semester
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    # Create a course with the instructor
+    course = Course.objects.create(
+        name="Chemistry 101",
+        description="Basic chemistry",
+        semester=semester,
+        instructor=staff,
+    )
+
+    # Verify the leader was added
+    assert course.leaders.count() == 1
+    assert user in course.leaders.all()
+
+    # Save the course again
+    course.save()
+
+    # Verify the leader count didn't increase
+    assert course.leaders.count() == 1
+    assert user in course.leaders.all()
+
+
+@pytest.mark.django_db
+def test_course_change_instructor_adds_new_leader():
+    """Test that changing the instructor adds the new instructor as a leader."""
+    # Create two users and staff listings
+    user1 = User.objects.create_user(username="instructor4", password="password")
+    staff1 = StaffPhotoListing.objects.create(
+        user=user1,
+        display_name="Dr. Taylor",
+        slug="dr-taylor",
+        role="Instructor",
+        category="instructor",
+        biography="Test bio",
+        photo="staff_photos/test.jpg",
+    )
+
+    user2 = User.objects.create_user(username="instructor5", password="password")
+    staff2 = StaffPhotoListing.objects.create(
+        user=user2,
+        display_name="Dr. Wilson",
+        slug="dr-wilson",
+        role="Instructor",
+        category="instructor",
+        biography="Test bio",
+        photo="staff_photos/test2.jpg",
+    )
+
+    # Create a semester
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    # Create a course with the first instructor
+    course = Course.objects.create(
+        name="Biology 101",
+        description="Basic biology",
+        semester=semester,
+        instructor=staff1,
+    )
+
+    # Verify the first instructor is a leader
+    assert user1 in course.leaders.all()
+    assert course.leaders.count() == 1
+
+    # Change the instructor
+    course.instructor = staff2
+    course.save()
+
+    # Verify both instructors are now leaders (old one remains, new one is added)
+    assert user1 in course.leaders.all()
+    assert user2 in course.leaders.all()
+    assert course.leaders.count() == 2
+
+
+# ============================================================================
+# Semester Visibility Tests
+# ============================================================================
+
+
+@pytest.mark.django_db
+def test_semester_visible_by_default():
+    """Test that new semesters are visible by default."""
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    assert semester.visible is True
+
+
+@pytest.mark.django_db
+def test_semester_list_hides_invisible_from_non_staff():
+    """Test that non-staff users cannot see invisible semesters in the semester list."""
+    client = Client()
+    User.objects.create_user(username="student", password="password")
+
+    # Create visible and invisible semesters
+    visible_semester = Semester.objects.create(
+        name="Visible Semester",
+        slug="visible",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+        visible=True,
+    )
+    invisible_semester = Semester.objects.create(
+        name="Invisible Semester",
+        slug="invisible",
+        start_date=(timezone.now() + timedelta(days=120)).date(),
+        end_date=(timezone.now() + timedelta(days=210)).date(),
+        visible=False,
+    )
+
+    client.login(username="student", password="password")
+    url = reverse("courses:semester_list")
+    response = client.get(url)
+
+    content = response.content.decode()
+    assert "Visible Semester" in content
+    assert "Invisible Semester" not in content
+
+    # Verify the context
+    semesters = response.context["semesters"]
+    semester_names = [s.name for s in semesters]
+    assert visible_semester.name in semester_names
+    assert invisible_semester.name not in semester_names
+
+
+@pytest.mark.django_db
+def test_semester_list_shows_all_to_staff():
+    """Test that staff users can see all semesters including invisible ones."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    # Create visible and invisible semesters
+    visible_semester = Semester.objects.create(
+        name="Visible Semester",
+        slug="visible",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+        visible=True,
+    )
+    invisible_semester = Semester.objects.create(
+        name="Invisible Semester",
+        slug="invisible",
+        start_date=(timezone.now() + timedelta(days=120)).date(),
+        end_date=(timezone.now() + timedelta(days=210)).date(),
+        visible=False,
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse("courses:semester_list")
+    response = client.get(url)
+
+    content = response.content.decode()
+    assert "Visible Semester" in content
+    assert "Invisible Semester" in content
+
+    # Verify the context
+    semesters = response.context["semesters"]
+    semester_names = [s.name for s in semesters]
+    assert visible_semester.name in semester_names
+    assert invisible_semester.name in semester_names
+
+
+@pytest.mark.django_db
+def test_course_list_invisible_semester_non_staff_404():
+    """Test that non-staff users get 404 when accessing course list for invisible semester."""
+    client = Client()
+    User.objects.create_user(username="student", password="password")
+
+    # Create an invisible semester
+    invisible_semester = Semester.objects.create(
+        name="Invisible Semester",
+        slug="invisible",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+        visible=False,
+    )
+
+    client.login(username="student", password="password")
+    url = reverse("courses:course_list", kwargs={"slug": invisible_semester.slug})
+    response = client.get(url)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_course_list_invisible_semester_staff_access():
+    """Test that staff users can access course list for invisible semesters."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    # Create an invisible semester with a course
+    invisible_semester = Semester.objects.create(
+        name="Invisible Semester",
+        slug="invisible",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+        visible=False,
+    )
+    Course.objects.create(
+        name="Test Course",
+        description="Test",
+        semester=invisible_semester,
+        is_club=False,
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse("courses:course_list", kwargs={"slug": invisible_semester.slug})
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert "Test Course" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_course_detail_invisible_semester_non_staff_denied():
+    """Test that non-staff users cannot access courses in invisible semesters."""
+    client = Client()
+    user = User.objects.create_user(username="student", password="password")
+
+    # Create an invisible semester
+    invisible_semester = Semester.objects.create(
+        name="Invisible Semester",
+        slug="invisible",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+        visible=False,
+    )
+
+    # Create a course and enroll the student
+    course = Course.objects.create(
+        name="Test Course",
+        description="Test",
+        semester=invisible_semester,
+        is_club=False,
+    )
+    student = Student.objects.create(user=user, semester=invisible_semester)
+    course.students.add(student)
+
+    client.login(username="student", password="password")
+    url = reverse("courses:course_detail", kwargs={"pk": course.pk})
+    response = client.get(url)
+
+    # Should get 403 even though student is enrolled
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_course_detail_invisible_semester_staff_access():
+    """Test that staff users can access courses in invisible semesters."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    # Create an invisible semester
+    invisible_semester = Semester.objects.create(
+        name="Invisible Semester",
+        slug="invisible",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+        visible=False,
+    )
+
+    # Create a course
+    course = Course.objects.create(
+        name="Test Course",
+        description="Test",
+        semester=invisible_semester,
+        is_club=False,
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse("courses:course_detail", kwargs={"pk": course.pk})
+    response = client.get(url)
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_catalog_root_skips_invisible_for_non_staff():
+    """Test that catalog root redirects to the most recent visible semester for non-staff."""
+    client = Client()
+    User.objects.create_user(username="student", password="password")
+
+    # Create semesters (most recent is invisible)
+    older_visible = Semester.objects.create(
+        name="Older Visible",
+        slug="older",
+        start_date=(timezone.now() - timedelta(days=120)).date(),
+        end_date=(timezone.now() - timedelta(days=30)).date(),
+        visible=True,
+    )
+    Semester.objects.create(
+        name="Newer Invisible",
+        slug="newer",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+        visible=False,
+    )
+
+    client.login(username="student", password="password")
+    url = reverse("courses:catalog_root")
+    response = client.get(url)
+
+    # Should redirect to the older visible semester
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "courses:course_list", kwargs={"slug": older_visible.slug}
+    )
+
+
+@pytest.mark.django_db
+def test_catalog_root_includes_invisible_for_staff():
+    """Test that catalog root redirects to the most recent semester (even if invisible) for staff."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    # Create semesters (most recent is invisible)
+    Semester.objects.create(
+        name="Older Visible",
+        slug="older",
+        start_date=(timezone.now() - timedelta(days=120)).date(),
+        end_date=(timezone.now() - timedelta(days=30)).date(),
+        visible=True,
+    )
+    newer_invisible = Semester.objects.create(
+        name="Newer Invisible",
+        slug="newer",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+        visible=False,
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse("courses:catalog_root")
+    response = client.get(url)
+
+    # Should redirect to the newer invisible semester
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "courses:course_list", kwargs={"slug": newer_invisible.slug}
+    )
+
+
+@pytest.mark.django_db
+def test_course_list_navigation_skips_invisible_for_non_staff():
+    """Test that previous/next semester navigation skips invisible semesters for non-staff."""
+    client = Client()
+    User.objects.create_user(username="student", password="password")
+
+    # Create three semesters: visible, invisible, visible
+    older_visible = Semester.objects.create(
+        name="Older Visible",
+        slug="older",
+        start_date=(timezone.now() - timedelta(days=200)).date(),
+        end_date=(timezone.now() - timedelta(days=110)).date(),
+        visible=True,
+    )
+    # Create middle invisible semester (not used directly, but necessary for test)
+    Semester.objects.create(
+        name="Middle Invisible",
+        slug="middle",
+        start_date=(timezone.now() - timedelta(days=100)).date(),
+        end_date=(timezone.now() - timedelta(days=10)).date(),
+        visible=False,
+    )
+    newer_visible = Semester.objects.create(
+        name="Newer Visible",
+        slug="newer",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+        visible=True,
+    )
+
+    client.login(username="student", password="password")
+
+    # Access the newer visible semester
+    url = reverse("courses:course_list", kwargs={"slug": newer_visible.slug})
+    response = client.get(url)
+
+    # Previous semester should skip the invisible one and go to older visible
+    assert response.context["prev_semester"] == older_visible
+    assert response.context["next_semester"] is None
+
+    # Access the older visible semester
+    url = reverse("courses:course_list", kwargs={"slug": older_visible.slug})
+    response = client.get(url)
+
+    # Next semester should skip the invisible one and go to newer visible
+    assert response.context["prev_semester"] is None
+    assert response.context["next_semester"] == newer_visible
+
+
+@pytest.mark.django_db
+def test_course_list_navigation_includes_invisible_for_staff():
+    """Test that previous/next semester navigation includes invisible semesters for staff."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    # Create three semesters: visible, invisible, visible
+    older_visible = Semester.objects.create(
+        name="Older Visible",
+        slug="older",
+        start_date=(timezone.now() - timedelta(days=200)).date(),
+        end_date=(timezone.now() - timedelta(days=110)).date(),
+        visible=True,
+    )
+    middle_invisible = Semester.objects.create(
+        name="Middle Invisible",
+        slug="middle",
+        start_date=(timezone.now() - timedelta(days=100)).date(),
+        end_date=(timezone.now() - timedelta(days=10)).date(),
+        visible=False,
+    )
+    newer_visible = Semester.objects.create(
+        name="Newer Visible",
+        slug="newer",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+        visible=True,
+    )
+
+    client.login(username="staff", password="password")
+
+    # Access the newer visible semester
+    url = reverse("courses:course_list", kwargs={"slug": newer_visible.slug})
+    response = client.get(url)
+
+    # Previous semester should include the invisible one
+    assert response.context["prev_semester"] == middle_invisible
+    assert response.context["next_semester"] is None
+
+    # Access the middle invisible semester
+    url = reverse("courses:course_list", kwargs={"slug": middle_invisible.slug})
+    response = client.get(url)
+
+    # Should see both neighbors
+    assert response.context["prev_semester"] == older_visible
+    assert response.context["next_semester"] == newer_visible

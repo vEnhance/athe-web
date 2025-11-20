@@ -8,17 +8,23 @@ from django.db.models import Prefetch
 from django.forms import modelformset_factory
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
-from django.views.generic import DetailView
+from django.views.generic import DetailView, UpdateView
 
-from courses.forms import CourseMeetingForm
+from courses.forms import CourseMeetingForm, CourseUpdateForm
 from courses.models import Course, CourseMeeting, Semester, Student
 
 
 def catalog_root(request: HttpRequest) -> HttpResponse:
     """Show the most recent semester as the main catalog landing page."""
     # Get the most recent semester (by start_date)
-    latest_semester = Semester.objects.order_by("-start_date").first()
+    # Non-staff users can only see visible semesters
+    queryset = Semester.objects.order_by("-start_date")
+    is_staff = getattr(request.user, "is_staff", False)
+    if not is_staff:
+        queryset = queryset.filter(visible=True)
+    latest_semester = queryset.first()
     if latest_semester:
         return redirect("courses:course_list", slug=latest_semester.slug)
     return render(request, "courses/semester_list.html", {"semesters": []})
@@ -27,28 +33,36 @@ def catalog_root(request: HttpRequest) -> HttpResponse:
 def semester_list(request: HttpRequest) -> HttpResponse:
     """Show all semesters in chronological order."""
     semesters = Semester.objects.order_by("-start_date")
+    # Non-staff users can only see visible semesters
+    is_staff = getattr(request.user, "is_staff", False)
+    if not is_staff:
+        semesters = semesters.filter(visible=True)
     return render(request, "courses/semester_list.html", {"semesters": semesters})
 
 
 def course_list(request: HttpRequest, slug: str) -> HttpResponse:
     """Show courses for a specific semester with previous/next navigation."""
-    semester = get_object_or_404(Semester, slug=slug)
+    # Non-staff users can only access visible semesters
+    is_staff = getattr(request.user, "is_staff", False)
+    if is_staff:
+        semester = get_object_or_404(Semester, slug=slug)
+    else:
+        semester = get_object_or_404(Semester, slug=slug, visible=True)
+
     # Filter to only show classes (not clubs)
     courses = Course.objects.filter(semester=semester, is_club=False).select_related(
         "instructor"
     )
 
-    # Get previous and next semesters
-    prev_semester = (
-        Semester.objects.filter(start_date__lt=semester.start_date)
-        .order_by("-start_date")
-        .first()
-    )
-    next_semester = (
-        Semester.objects.filter(start_date__gt=semester.start_date)
-        .order_by("start_date")
-        .first()
-    )
+    # Get previous and next semesters (only visible ones for non-staff)
+    prev_queryset = Semester.objects.filter(start_date__lt=semester.start_date)
+    next_queryset = Semester.objects.filter(start_date__gt=semester.start_date)
+    if not is_staff:
+        prev_queryset = prev_queryset.filter(visible=True)
+        next_queryset = next_queryset.filter(visible=True)
+
+    prev_semester = prev_queryset.order_by("-start_date").first()
+    next_semester = next_queryset.order_by("start_date").first()
 
     return render(
         request,
@@ -319,10 +333,16 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
         if not self.request.user.is_authenticated:
             return False
         assert isinstance(self.request.user, User)
+
+        course = self.get_object()
+
+        # Staff users have access to everything
         if self.request.user.is_staff:
             return True
 
-        course = self.get_object()
+        # Non-staff users cannot access courses in invisible semesters
+        if not course.semester.visible:
+            return False
 
         # Leaders always have access
         if course.leaders.filter(pk=self.request.user.pk).exists():
@@ -381,6 +401,40 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
             context["can_join_drop"] = False
 
         return context
+
+
+class CourseUpdateView(UserPassesTestMixin, UpdateView):
+    """
+    Update view for editing course details.
+    Only accessible to staff or course leaders.
+    """
+
+    model = Course
+    form_class = CourseUpdateForm
+    template_name = "courses/course_update.html"
+    context_object_name = "course"
+
+    def test_func(self) -> bool:
+        """Check if user is staff or a leader of this course."""
+        if not self.request.user.is_authenticated:
+            return False
+        assert isinstance(self.request.user, User)
+        if self.request.user.is_staff:
+            return True
+
+        course = self.get_object()
+        return course.leaders.filter(pk=self.request.user.pk).exists()
+
+    def get_success_url(self) -> str:
+        """Redirect back to the course detail page after successful update."""
+        return reverse("courses:course_detail", kwargs={"pk": self.object.pk})
+
+    def form_valid(self, form: CourseUpdateForm):
+        """Add a success message when the form is saved."""
+        messages.success(
+            self.request, f"{self.object.name} has been updated successfully!"
+        )
+        return super().form_valid(form)
 
 
 @login_required
