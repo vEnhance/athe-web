@@ -53,6 +53,7 @@
 div.breadcrumbs {
   background: var(--athemath-light-bg);
   border-bottom: 1px solid var(--athemath-red);
+  color: var(--athemath-dark);
 }
 
 div.breadcrumbs a {
