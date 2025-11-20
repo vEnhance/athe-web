@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.generic import DetailView
 
+from courses.forms import CourseMeetingForm
 from courses.models import Course, CourseMeeting, Semester, Student
 
 
@@ -61,19 +62,33 @@ def course_list(request: HttpRequest, slug: str) -> HttpResponse:
 
 @login_required
 def my_courses(request: HttpRequest) -> HttpResponse:
-    """Show all courses (non-clubs) the current user is enrolled in."""
+    """Show all courses (non-clubs) the current user is enrolled in or leads."""
     # Get all student records for this user
     student_records = Student.objects.filter(user=request.user).prefetch_related(
         "enrolled_courses__semester", "enrolled_courses__instructor"
     )
 
     # Collect all enrolled courses (non-clubs only)
-    enrolled_courses = []
+    enrolled_course_ids = set()
     for student in student_records:
         for course in student.enrolled_courses.filter(is_club=False):
-            enrolled_courses.append(course)
+            enrolled_course_ids.add(course.id)  # type: ignore[attr-defined]
 
-    # Sort by semester (most recent first), then by course name
+    # Get all courses where user is a leader (non-clubs only)
+    led_courses = Course.objects.filter(
+        leaders=request.user, is_club=False
+    ).select_related("semester", "instructor")
+
+    # Combine enrolled and led courses (avoid duplicates)
+    all_courses = {}
+    for student in student_records:
+        for course in student.enrolled_courses.filter(is_club=False):
+            all_courses[course.id] = course  # type: ignore[attr-defined]
+    for course in led_courses:
+        all_courses[course.id] = course  # type: ignore[attr-defined]
+
+    # Convert to list and sort
+    enrolled_courses = list(all_courses.values())
     enrolled_courses.sort(key=lambda c: (-c.semester.start_date.toordinal(), c.name))
 
     return render(
@@ -85,7 +100,7 @@ def my_courses(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def my_clubs(request: HttpRequest) -> HttpResponse:
-    """Show clubs in active semesters, split by enrollment status."""
+    """Show clubs in active semesters, split by enrollment status. Includes led clubs."""
     # Get user's student records for active semesters
     today = date.today()
     active_student_records = Student.objects.filter(
@@ -94,7 +109,15 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
         semester__end_date__gte=today,
     ).prefetch_related("enrolled_courses", "semester")
 
-    if not active_student_records.exists():
+    # Get all clubs where user is a leader (in active semesters)
+    led_clubs = Course.objects.filter(
+        leaders=request.user,
+        is_club=True,
+        semester__start_date__lte=today,
+        semester__end_date__gte=today,
+    ).select_related("semester", "instructor")
+
+    if not active_student_records.exists() and not led_clubs.exists():
         return render(
             request,
             "courses/my_clubs.html",
@@ -117,7 +140,16 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
         for course in student.enrolled_courses.filter(is_club=True):
             enrolled_club_ids.add(course.id)  # type: ignore[attr-defined]
 
+    # Add led clubs to enrolled list
+    for club in led_clubs:
+        enrolled_club_ids.add(club.id)  # type: ignore[attr-defined]
+
     enrolled_clubs = [c for c in all_active_clubs if c.id in enrolled_club_ids]  # type: ignore[attr-defined]
+    # Also include led clubs that might not be in active_semesters
+    for club in led_clubs:
+        if club.id not in [c.id for c in enrolled_clubs]:  # type: ignore[attr-defined]
+            enrolled_clubs.append(club)
+
     available_clubs = [c for c in all_active_clubs if c.id not in enrolled_club_ids]  # type: ignore[attr-defined]
 
     return render(
@@ -202,7 +234,7 @@ def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
 
 @login_required
 def upcoming(request: HttpRequest) -> HttpResponse:
-    """Show all upcoming meetings for courses and clubs the user is enrolled in."""
+    """Show all upcoming meetings for courses/clubs the user is enrolled in or leads."""
     # Get all student records for this user
     student_records = Student.objects.filter(user=request.user).prefetch_related(
         "enrolled_courses"
@@ -213,6 +245,11 @@ def upcoming(request: HttpRequest) -> HttpResponse:
     for student in student_records:
         for course in student.enrolled_courses.all():
             enrolled_course_ids.add(course.id)  # type: ignore[attr-defined]
+
+    # Get all courses where user is a leader
+    led_courses = Course.objects.filter(leaders=request.user)
+    for course in led_courses:
+        enrolled_course_ids.add(course.id)  # type: ignore[attr-defined]
 
     # Get all future meetings for those courses
     now = timezone.now()
@@ -252,6 +289,10 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
 
         course = self.get_object()
 
+        # Leaders always have access
+        if course.leaders.filter(pk=self.request.user.pk).exists():
+            return True
+
         if course.is_club:
             # For clubs: any student with access to this semester
             return Student.objects.filter(
@@ -283,6 +324,12 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
             .order_by("user__username")
         )
 
+        # Check if user is a leader
+        context["is_leader"] = (
+            self.request.user.is_staff
+            or self.object.leaders.filter(pk=self.request.user.pk).exists()
+        )
+
         # For clubs in active semesters, check if user can join/drop
         if self.object.is_club and self.object.semester.is_active():
             try:
@@ -301,3 +348,110 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
             context["can_join_drop"] = False
 
         return context
+
+
+@login_required
+def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
+    """Manage meetings for a course. Only accessible to staff and course leaders."""
+    course = get_object_or_404(Course, pk=pk)
+
+    # Check if user is staff or a leader
+    is_leader = request.user.is_staff or course.leaders.filter(
+        pk=request.user.pk
+    ).exists()
+    if not is_leader:
+        messages.error(request, "You don't have permission to manage this course.")
+        return redirect("courses:course_detail", pk=course.pk)
+
+    meetings = CourseMeeting.objects.filter(course=course).order_by("start_time")
+
+    return render(
+        request,
+        "courses/manage_meetings.html",
+        {"course": course, "meetings": meetings},
+    )
+
+
+@login_required
+def add_meeting(request: HttpRequest, pk: int) -> HttpResponse:
+    """Add a new meeting to a course. Only accessible to staff and course leaders."""
+    course = get_object_or_404(Course, pk=pk)
+
+    # Check if user is staff or a leader
+    is_leader = request.user.is_staff or course.leaders.filter(
+        pk=request.user.pk
+    ).exists()
+    if not is_leader:
+        messages.error(request, "You don't have permission to manage this course.")
+        return redirect("courses:course_detail", pk=course.pk)
+
+    if request.method == "POST":
+        form = CourseMeetingForm(request.POST)
+        if form.is_valid():
+            meeting = form.save(commit=False)
+            meeting.course = course
+            meeting.save()
+            messages.success(request, "Meeting added successfully!")
+            return redirect("courses:manage_meetings", pk=course.pk)
+    else:
+        form = CourseMeetingForm()
+
+    return render(
+        request, "courses/meeting_form.html", {"form": form, "course": course}
+    )
+
+
+@login_required
+def edit_meeting(request: HttpRequest, pk: int, meeting_pk: int) -> HttpResponse:
+    """Edit a meeting. Only accessible to staff and course leaders."""
+    course = get_object_or_404(Course, pk=pk)
+    meeting = get_object_or_404(CourseMeeting, pk=meeting_pk, course=course)
+
+    # Check if user is staff or a leader
+    is_leader = request.user.is_staff or course.leaders.filter(
+        pk=request.user.pk
+    ).exists()
+    if not is_leader:
+        messages.error(request, "You don't have permission to manage this course.")
+        return redirect("courses:course_detail", pk=course.pk)
+
+    if request.method == "POST":
+        form = CourseMeetingForm(request.POST, instance=meeting)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Meeting updated successfully!")
+            return redirect("courses:manage_meetings", pk=course.pk)
+    else:
+        form = CourseMeetingForm(instance=meeting)
+
+    return render(
+        request,
+        "courses/meeting_form.html",
+        {"form": form, "course": course, "meeting": meeting},
+    )
+
+
+@login_required
+def delete_meeting(request: HttpRequest, pk: int, meeting_pk: int) -> HttpResponse:
+    """Delete a meeting. Only accessible to staff and course leaders."""
+    course = get_object_or_404(Course, pk=pk)
+    meeting = get_object_or_404(CourseMeeting, pk=meeting_pk, course=course)
+
+    # Check if user is staff or a leader
+    is_leader = request.user.is_staff or course.leaders.filter(
+        pk=request.user.pk
+    ).exists()
+    if not is_leader:
+        messages.error(request, "You don't have permission to manage this course.")
+        return redirect("courses:course_detail", pk=course.pk)
+
+    if request.method == "POST":
+        meeting.delete()
+        messages.success(request, "Meeting deleted successfully!")
+        return redirect("courses:manage_meetings", pk=course.pk)
+
+    return render(
+        request,
+        "courses/meeting_confirm_delete.html",
+        {"course": course, "meeting": meeting},
+    )
