@@ -3,6 +3,44 @@ from django.contrib import admin
 from courses.models import Course, CourseMeeting, Semester, Student
 
 
+# Admin actions for changing student houses
+@admin.action(description="Assign selected students to Blob house")
+def assign_to_blob(modeladmin, request, queryset):  # type: ignore
+    """Change the house of selected students to Blob."""
+    updated = queryset.update(house=Student.House.BLOB)
+    modeladmin.message_user(request, f"{updated} student(s) assigned to Blob house.")
+
+
+@admin.action(description="Assign selected students to Cat house")
+def assign_to_cat(modeladmin, request, queryset):  # type: ignore
+    """Change the house of selected students to Cat."""
+    updated = queryset.update(house=Student.House.CAT)
+    modeladmin.message_user(request, f"{updated} student(s) assigned to Cat house.")
+
+
+@admin.action(description="Assign selected students to Owl house")
+def assign_to_owl(modeladmin, request, queryset):  # type: ignore
+    """Change the house of selected students to Owl."""
+    updated = queryset.update(house=Student.House.OWL)
+    modeladmin.message_user(request, f"{updated} student(s) assigned to Owl house.")
+
+
+@admin.action(description="Assign selected students to Red Panda house")
+def assign_to_red_panda(modeladmin, request, queryset):  # type: ignore
+    """Change the house of selected students to Red Panda."""
+    updated = queryset.update(house=Student.House.RED_PANDA)
+    modeladmin.message_user(
+        request, f"{updated} student(s) assigned to Red Panda house."
+    )
+
+
+@admin.action(description="Assign selected students to Bunny house")
+def assign_to_bunny(modeladmin, request, queryset):  # type: ignore
+    """Change the house of selected students to Bunny."""
+    updated = queryset.update(house=Student.House.BUNNY)
+    modeladmin.message_user(request, f"{updated} student(s) assigned to Bunny house.")
+
+
 @admin.register(Semester)
 class SemesterAdmin(admin.ModelAdmin):
     list_display = (
@@ -52,6 +90,13 @@ class StudentAdmin(admin.ModelAdmin):
     list_display = ("user", "semester", "house")
     list_filter = ("semester", "house")
     search_fields = ("user__username", "user__email")
+    actions = [
+        assign_to_blob,
+        assign_to_cat,
+        assign_to_owl,
+        assign_to_red_panda,
+        assign_to_bunny,
+    ]
 
 
 @admin.register(CourseMeeting)
