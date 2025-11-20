@@ -24,9 +24,7 @@
                     <div class="mt-4">
                         {% if results.success %}
                             <div class="card border-success mb-3">
-                                <div class="card-header bg-success text-white">
-                                    Successfully Awarded ({{ results.success|length }})
-                                </div>
+                                <div class="card-header bg-success text-white">Successfully Awarded ({{ results.success|length }})</div>
                                 <div class="card-body">
                                     <ul class="mb-0">
                                         {% for msg in results.success %}<li>{{ msg }}</li>{% endfor %}
@@ -36,9 +34,7 @@
                         {% endif %}
                         {% if results.errors %}
                             <div class="card border-danger">
-                                <div class="card-header bg-danger text-white">
-                                    Errors ({{ results.errors|length }})
-                                </div>
+                                <div class="card-header bg-danger text-white">Errors ({{ results.errors|length }})</div>
                                 <div class="card-body">
                                     <ul class="mb-0">
                                         {% for msg in results.errors %}<li>{{ msg }}</li>{% endfor %}
@@ -173,8 +169,7 @@
             }
 
             resultsDiv.innerHTML = students.map(student =>
-                `<button type="button" class="list-group-item list-group-item-action"
-                         data-username="${student.username}">
+                `<button type="button" class="list-group-item list-group-item-action" data-username="${student.username}">
                     <div><strong>${student.display}</strong></div>
                     <small class="text-muted">${student.semester}</small>
                 </button>`

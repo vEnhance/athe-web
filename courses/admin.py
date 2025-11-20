@@ -5,7 +5,13 @@ from courses.models import Course, CourseMeeting, Semester, Student
 
 @admin.register(Semester)
 class SemesterAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug", "start_date", "end_date", "house_points_freeze_date")
+    list_display = (
+        "name",
+        "slug",
+        "start_date",
+        "end_date",
+        "house_points_freeze_date",
+    )
     prepopulated_fields = {"slug": ("name",)}
 
 
