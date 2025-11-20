@@ -34,12 +34,14 @@ class ApplyPSet(models.Model):
         help_text="PDF file for the problem set",
     )
     instructions = MarkdownField(
+        blank=True,
         rendered_field="instructions_rendered",
         validator=VALIDATOR_WITH_FIGURES,
         help_text="Instructions displayed when status is active (Markdown format)",
     )
     instructions_rendered = RenderedMarkdownField()
     closed_message = MarkdownField(
+        blank=True,
         rendered_field="closed_message_rendered",
         validator=VALIDATOR_WITH_FIGURES,
         help_text="Message displayed when applications are closed (Markdown format)",
