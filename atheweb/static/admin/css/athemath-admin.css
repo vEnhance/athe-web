@@ -189,27 +189,6 @@ tr.selected {
   color: var(--athemath-red);
 }
 
-/* ===== Object Tools ===== */
-.object-tools a:link,
-.object-tools a:visited {
-  background: var(--athemath-red);
-  color: #fff;
-}
-
-.object-tools a:hover,
-.object-tools a:focus {
-  background: var(--athemath-hover);
-}
-
-.object-tools a.addlink {
-  background: var(--athemath-success);
-}
-
-.object-tools a.addlink:hover,
-.object-tools a.addlink:focus {
-  background: #236a5a;
-}
-
 /* ===== Dashboard Modules ===== */
 #content-main .module h2 a {
   color: #fff;
