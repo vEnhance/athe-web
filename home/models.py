@@ -1,8 +1,8 @@
+from atheweb.validators import VALIDATOR_WITH_FIGURES
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from markdownfield.models import MarkdownField, RenderedMarkdownField
-from markdownfield.validators import VALIDATOR_STANDARD
 
 
 class ApplyPSet(models.Model):
@@ -35,13 +35,13 @@ class ApplyPSet(models.Model):
     )
     instructions = MarkdownField(
         rendered_field="instructions_rendered",
-        validator=VALIDATOR_STANDARD,
+        validator=VALIDATOR_WITH_FIGURES,
         help_text="Instructions displayed when status is active (Markdown format)",
     )
     instructions_rendered = RenderedMarkdownField()
     closed_message = MarkdownField(
         rendered_field="closed_message_rendered",
-        validator=VALIDATOR_STANDARD,
+        validator=VALIDATOR_WITH_FIGURES,
         help_text="Message displayed when applications are closed (Markdown format)",
     )
     closed_message_rendered = RenderedMarkdownField()
@@ -85,7 +85,7 @@ class StaffPhotoListing(models.Model):
     )
     biography = MarkdownField(
         rendered_field="biography_rendered",
-        validator=VALIDATOR_STANDARD,
+        validator=VALIDATOR_WITH_FIGURES,
         help_text="Biography in Markdown format",
     )
     biography_rendered = RenderedMarkdownField()
