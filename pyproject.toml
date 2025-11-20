@@ -19,6 +19,7 @@ dependencies = [
     "dotenv>=0.9.9",
     "gunicorn>=23.0.0",
     "ipython",
+    "mysqlclient>=2.2.7",
     "pillow>=10.0.0",
     "requests>=2.32.0",
 ]
