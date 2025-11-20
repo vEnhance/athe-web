@@ -107,6 +107,7 @@ class Command(BaseCommand):
                 student = Student.objects.create(
                     user=user, semester=semester, house=house
                 )
+                created_students += 1
 
                 # Randomly assign courses
                 num_courses = random.randint(
@@ -115,9 +116,9 @@ class Command(BaseCommand):
                 selected_courses = random.sample(
                     courses, min(num_courses, len(courses))
                 )
-                student.enrolled_courses.set(selected_courses)
-
-                created_students += 1
+                # Add student to each selected course
+                for course in selected_courses:
+                    course.students.add(student)
 
                 if (student_num) % 10 == 0:
                     self.stdout.write(f"Created {student_num} students...")
@@ -142,5 +143,5 @@ class Command(BaseCommand):
         # Print summary by course
         self.stdout.write("\nStudents per course:")
         for course in courses:
-            course_count = course.enrolled_students.filter(semester=semester).count()  # type: ignore[attr-defined]
+            course_count = course.students.filter(semester=semester).count()
             self.stdout.write(f"  {course.name}: {course_count} students")

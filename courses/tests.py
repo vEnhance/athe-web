@@ -93,7 +93,8 @@ def test_student_enrollment():
         name="CS 101", description="Intro to CS", semester=fall
     )
     student = Student.objects.create(user=user, semester=fall)
-    student.enrolled_courses.add(course1, course2)
+    course1.students.add(student)
+    course2.students.add(student)
 
     assert student.enrolled_courses.count() == 2
     assert course1 in student.enrolled_courses.all()
@@ -125,16 +126,18 @@ def test_student_enrollment_semester_validation():
 
     # Create student for fall semester
     student = Student.objects.create(user=user, semester=fall)
-    student.enrolled_courses.add(fall_course)
+    fall_course.students.add(student)
 
     # Try to enroll in a spring course - this should fail validation
-    student.enrolled_courses.add(spring_course)
+    spring_course.students.add(student)
 
+    # Now validation is on the course - spring_course should fail because
+    # it has a student from a different semester
     with pytest.raises(ValidationError) as exc_info:
-        student.clean()
+        spring_course.clean()
 
-    assert "Spring Math" in str(exc_info.value)
-    assert str(fall) in str(exc_info.value)
+    assert str(student) in str(exc_info.value)
+    assert str(spring) in str(exc_info.value)
 
 
 @pytest.mark.django_db
@@ -196,7 +199,7 @@ def test_course_detail_view_enrolled_student_access():
         name="Test Course", description="Test", semester=fall
     )
     student = Student.objects.create(user=user, semester=fall)
-    student.enrolled_courses.add(course)
+    course.students.add(student)
 
     client.login(username="student", password="password")
     url = reverse("courses:course_detail", kwargs={"pk": course.pk})
@@ -451,9 +454,11 @@ def test_join_club_inactive_semester():
     assert "not currently active" in str(messages[0])
 
     # Verify student is not enrolled
-    assert not Student.objects.filter(
-        user=user, semester=past_semester, enrolled_courses=club
-    ).exists()
+    assert (
+        not Student.objects.filter(user=user, semester=past_semester)
+        .filter(enrolled_courses=club)
+        .exists()
+    )
 
 
 @pytest.mark.django_db
@@ -489,9 +494,11 @@ def test_join_club_future_semester():
     assert "not currently active" in str(messages[0])
 
     # Verify student is not enrolled
-    assert not Student.objects.filter(
-        user=user, semester=future_semester, enrolled_courses=club
-    ).exists()
+    assert (
+        not Student.objects.filter(user=user, semester=future_semester)
+        .filter(enrolled_courses=club)
+        .exists()
+    )
 
 
 @pytest.mark.django_db
@@ -516,7 +523,7 @@ def test_join_club_already_enrolled():
         is_club=True,
     )
     student = Student.objects.create(user=user, semester=active_semester)
-    student.enrolled_courses.add(club)
+    club.students.add(student)
 
     client.login(username="student", password="password")
     url = reverse("courses:join_club", kwargs={"pk": club.pk})
@@ -586,7 +593,7 @@ def test_drop_club_active_semester():
         is_club=True,
     )
     student = Student.objects.create(user=user, semester=active_semester)
-    student.enrolled_courses.add(club)
+    club.students.add(student)
 
     client.login(username="student", password="password")
     url = reverse("courses:drop_club", kwargs={"pk": club.pk})
@@ -623,7 +630,7 @@ def test_drop_club_inactive_semester():
         is_club=True,
     )
     student = Student.objects.create(user=user, semester=past_semester)
-    student.enrolled_courses.add(club)
+    club.students.add(student)
 
     client.login(username="student", password="password")
     url = reverse("courses:drop_club", kwargs={"pk": club.pk})
@@ -804,9 +811,10 @@ def test_my_courses_query_count():
 
     # Create student records and enroll in multiple courses
     student1 = Student.objects.create(user=user, semester=fall)
-    student1.enrolled_courses.add(course1, course2)
+    course1.students.add(student1)
+    course2.students.add(student1)
     student2 = Student.objects.create(user=user, semester=spring)
-    student2.enrolled_courses.add(course3)
+    course3.students.add(student2)
 
     # User is also a leader of one course
     course4.leaders.add(user)
@@ -864,7 +872,8 @@ def test_my_courses_functionality():
 
     # Enroll in courses and clubs
     student = Student.objects.create(user=user, semester=fall)
-    student.enrolled_courses.add(course1, club1)
+    course1.students.add(student)
+    club1.students.add(student)
 
     # User is a leader of another course
     course2.leaders.add(user)
@@ -913,7 +922,8 @@ def test_my_clubs_query_count():
 
     # Create student record and enroll in some clubs
     student = Student.objects.create(user=user, semester=active_semester)
-    student.enrolled_courses.add(club1, club2)
+    club1.students.add(student)
+    club2.students.add(student)
 
     # User is a leader of one club
     club3.leaders.add(user)
@@ -974,7 +984,7 @@ def test_my_clubs_functionality():
 
     # Create student record and enroll in one club
     student = Student.objects.create(user=user, semester=active_semester)
-    student.enrolled_courses.add(enrolled_club)
+    enrolled_club.students.add(student)
 
     # User is a leader of another club
     led_club.leaders.add(user)
@@ -1051,7 +1061,8 @@ def test_my_courses_excludes_clubs():
 
     # Enroll in both
     student = Student.objects.create(user=user, semester=semester)
-    student.enrolled_courses.add(course, club)
+    course.students.add(student)
+    club.students.add(student)
 
     client.login(username="student", password="password")
     url = reverse("courses:my_courses")

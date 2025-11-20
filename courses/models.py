@@ -53,6 +53,12 @@ class Course(models.Model):
         blank=True,
         help_text="Users who can manage this course and its meetings.",
     )
+    students = models.ManyToManyField(
+        "Student",
+        related_name="enrolled_courses",
+        blank=True,
+        help_text="Students enrolled in this course.",
+    )
     difficulty = models.CharField(
         blank=True,
         max_length=80,
@@ -90,6 +96,20 @@ class Course(models.Model):
     def __str__(self) -> str:
         return self.name
 
+    def clean(self) -> None:
+        """Validate that all students belong to the course's semester."""
+        super().clean()
+        # Only validate if the instance has been saved (has a pk)
+        if self.pk:
+            wrong_semester_students = self.students.exclude(semester=self.semester)
+            if wrong_semester_students.exists():
+                student_names = ", ".join(
+                    str(student) for student in wrong_semester_students
+                )
+                raise ValidationError(
+                    f"The following students are not in {self.semester}: {student_names}"
+                )
+
     class Meta:
         ordering = ("-semester__start_date", "is_club", "name")
 
@@ -114,28 +134,9 @@ class Student(models.Model):
         blank=True,
         help_text="House assignment for this semester",
     )
-    enrolled_courses = models.ManyToManyField(
-        Course, related_name="enrolled_students", blank=True
-    )
 
     def __str__(self) -> str:
         return f"{self.user.username} ({self.semester})"
-
-    def clean(self) -> None:
-        """Validate that all enrolled courses belong to the student's semester."""
-        super().clean()
-        # Only validate if the instance has been saved (has a pk)
-        if self.pk:
-            wrong_semester_courses = self.enrolled_courses.exclude(
-                semester=self.semester
-            )
-            if wrong_semester_courses.exists():
-                course_names = ", ".join(
-                    wrong_semester_courses.values_list("name", flat=True)
-                )
-                raise ValidationError(
-                    f"The following courses are not in {self.semester}: {course_names}"
-                )
 
     class Meta:
         unique_together = ("user", "semester")

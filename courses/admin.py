@@ -21,21 +21,30 @@ class CourseMeetingInline(admin.TabularInline):
     fields = ("start_time", "title", "reminder_sent")
 
 
-class EnrolledStudentsInline(admin.TabularInline):
-    model = Student.enrolled_courses.through
-    extra = 0
-    verbose_name = "Enrolled Student"
-    verbose_name_plural = "Enrolled Students"
-
-
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     list_display = ("name", "is_club", "semester", "instructor")
     list_filter = ("is_club", "semester", "difficulty")
     search_fields = ("name", "description")
     autocomplete_fields = ("instructor",)
-    filter_horizontal = ("leaders",)
-    inlines = [CourseMeetingInline, EnrolledStudentsInline]
+    filter_horizontal = ("leaders", "students")
+    inlines = [CourseMeetingInline]
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):  # type: ignore
+        """Filter students to only show students from the course's semester."""
+        if db_field.name == "students":
+            # Get the course instance being edited
+            course_id = request.resolver_match.kwargs.get("object_id")  # type: ignore[attr-defined]
+            if course_id:
+                try:
+                    course = Course.objects.get(pk=course_id)
+                    # Filter students to only those in the course's semester
+                    kwargs["queryset"] = Student.objects.filter(
+                        semester=course.semester
+                    )
+                except Course.DoesNotExist:
+                    pass
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
 @admin.register(Student)
@@ -43,23 +52,6 @@ class StudentAdmin(admin.ModelAdmin):
     list_display = ("user", "semester", "house")
     list_filter = ("semester", "house")
     search_fields = ("user__username", "user__email")
-    filter_horizontal = ("enrolled_courses",)
-
-    def formfield_for_manytomany(self, db_field, request, **kwargs):  # type: ignore
-        """Filter enrolled_courses to only show courses from the student's semester."""
-        if db_field.name == "enrolled_courses":
-            # Get the student instance being edited
-            student_id = request.resolver_match.kwargs.get("object_id")  # type: ignore[attr-defined]
-            if student_id:
-                try:
-                    student = Student.objects.get(pk=student_id)
-                    # Filter courses to only those in the student's semester
-                    kwargs["queryset"] = Course.objects.filter(
-                        semester=student.semester
-                    )
-                except Student.DoesNotExist:
-                    pass
-        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
 @admin.register(CourseMeeting)
