@@ -171,6 +171,10 @@ a.f-head {
   margin: 0;
 }
 
+#content a.btn {
+  color: #fff;
+}
+
 /* Global hover effect */
 a:hover {
   color: #ff9d00;
