@@ -47,7 +47,7 @@
                                 </thead>
                                 <tbody>
                                     {% for entry in leaderboard_data %}
-                                        <tr {% if forloop.counter == 1 %}class="table-warning"{% endif %}>
+                                        <tr>
                                             <td>
                                                 {% if forloop.counter == 1 %}
                                                     <strong>#{{ forloop.counter }}</strong>

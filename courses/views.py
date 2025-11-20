@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import Prefetch
+from django.forms import modelformset_factory
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -384,7 +385,7 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
 
 @login_required
 def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
-    """Manage meetings for a course. Only accessible to staff and course leaders."""
+    """Manage meetings for a course using inline formsets. Only accessible to staff and course leaders."""
     course = get_object_or_404(Course, pk=pk)
     assert isinstance(request.user, User)
 
@@ -396,98 +397,37 @@ def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
         messages.error(request, "You don't have permission to manage this course.")
         return redirect("courses:course_detail", pk=course.pk)
 
-    meetings = CourseMeeting.objects.filter(course=course).order_by("start_time")
+    # Create a formset for course meetings
+    MeetingFormSet = modelformset_factory(
+        CourseMeeting,
+        form=CourseMeetingForm,
+        extra=3,  # Number of empty forms to display
+        can_delete=True,
+    )
+
+    if request.method == "POST":
+        formset = MeetingFormSet(
+            request.POST,
+            queryset=CourseMeeting.objects.filter(course=course).order_by("start_time"),
+        )
+        if formset.is_valid():
+            instances = formset.save(commit=False)
+            # Set the course for new instances
+            for instance in instances:
+                instance.course = course
+                instance.save()
+            # Handle deletions
+            for obj in formset.deleted_objects:
+                obj.delete()
+            messages.success(request, "Meetings updated successfully!")
+            return redirect("courses:manage_meetings", pk=course.pk)
+    else:
+        formset = MeetingFormSet(
+            queryset=CourseMeeting.objects.filter(course=course).order_by("start_time")
+        )
 
     return render(
         request,
         "courses/manage_meetings.html",
-        {"course": course, "meetings": meetings},
-    )
-
-
-@login_required
-def add_meeting(request: HttpRequest, pk: int) -> HttpResponse:
-    """Add a new meeting to a course. Only accessible to staff and course leaders."""
-    course = get_object_or_404(Course, pk=pk)
-    assert isinstance(request.user, User)
-
-    # Check if user is staff or a leader
-    is_leader = (
-        request.user.is_staff or course.leaders.filter(pk=request.user.pk).exists()
-    )
-    if not is_leader:
-        messages.error(request, "You don't have permission to manage this course.")
-        return redirect("courses:course_detail", pk=course.pk)
-
-    if request.method == "POST":
-        form = CourseMeetingForm(request.POST)
-        if form.is_valid():
-            meeting = form.save(commit=False)
-            meeting.course = course
-            meeting.save()
-            messages.success(request, "Meeting added successfully!")
-            return redirect("courses:manage_meetings", pk=course.pk)
-    else:
-        form = CourseMeetingForm()
-
-    return render(
-        request, "courses/meeting_form.html", {"form": form, "course": course}
-    )
-
-
-@login_required
-def edit_meeting(request: HttpRequest, pk: int, meeting_pk: int) -> HttpResponse:
-    """Edit a meeting. Only accessible to staff and course leaders."""
-    course = get_object_or_404(Course, pk=pk)
-    meeting = get_object_or_404(CourseMeeting, pk=meeting_pk, course=course)
-    assert isinstance(request.user, User)
-
-    # Check if user is staff or a leader
-    is_leader = (
-        request.user.is_staff or course.leaders.filter(pk=request.user.pk).exists()
-    )
-    if not is_leader:
-        messages.error(request, "You don't have permission to manage this course.")
-        return redirect("courses:course_detail", pk=course.pk)
-
-    if request.method == "POST":
-        form = CourseMeetingForm(request.POST, instance=meeting)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Meeting updated successfully!")
-            return redirect("courses:manage_meetings", pk=course.pk)
-    else:
-        form = CourseMeetingForm(instance=meeting)
-
-    return render(
-        request,
-        "courses/meeting_form.html",
-        {"form": form, "course": course, "meeting": meeting},
-    )
-
-
-@login_required
-def delete_meeting(request: HttpRequest, pk: int, meeting_pk: int) -> HttpResponse:
-    """Delete a meeting. Only accessible to staff and course leaders."""
-    course = get_object_or_404(Course, pk=pk)
-    meeting = get_object_or_404(CourseMeeting, pk=meeting_pk, course=course)
-    assert isinstance(request.user, User)
-
-    # Check if user is staff or a leader
-    is_leader = (
-        request.user.is_staff or course.leaders.filter(pk=request.user.pk).exists()
-    )
-    if not is_leader:
-        messages.error(request, "You don't have permission to manage this course.")
-        return redirect("courses:course_detail", pk=course.pk)
-
-    if request.method == "POST":
-        meeting.delete()
-        messages.success(request, "Meeting deleted successfully!")
-        return redirect("courses:manage_meetings", pk=course.pk)
-
-    return render(
-        request,
-        "courses/meeting_confirm_delete.html",
-        {"course": course, "meeting": meeting},
+        {"course": course, "formset": formset},
     )
