@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("courses", "0012_course_leaders"),
         ("courses", "0012_semester_house_points_freeze_date_student_house"),
