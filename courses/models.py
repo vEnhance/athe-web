@@ -75,9 +75,6 @@ class Course(models.Model):
     google_classroom_direct_link = models.URLField(
         blank=True, help_text="Direct link to the Google Classroom for this course."
     )
-    google_classroom_join_link = models.URLField(
-        blank=True, help_text="Join link for students to join the Google Classroom."
-    )
     zoom_meeting_link = models.URLField(
         blank=True, help_text="Zoom meeting link for this course."
     )

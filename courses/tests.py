@@ -46,7 +46,6 @@ def test_course_with_links():
         semester=fall,
         regular_meeting_time="5pm-6pm ET on Saturday",
         google_classroom_direct_link="https://classroom.google.com/c/12345",
-        google_classroom_join_link="https://classroom.google.com/join/12345",
         zoom_meeting_link="https://zoom.us/j/12345",
         discord_webhook="https://discord.com/api/webhooks/12345/abcde",
         discord_role_id="123456789",
