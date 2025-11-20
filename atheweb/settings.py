@@ -28,8 +28,6 @@ if ENV_PATH.exists():
 
 PRODUCTION = bool(int(os.getenv("IS_PRODUCTION") or 0))
 DEBUG = not PRODUCTION
-STATIC_URL = "/static/"
-MEDIA_URL = "/media/"
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 if SECRET_KEY is None:
@@ -186,6 +184,7 @@ MEDIA_URL = "media/"
 MEDIA_ROOT = os.getenv("MEDIA_ROOT")
 if MEDIA_ROOT is None:
     assert not PRODUCTION
+    MEDIA_ROOT = BASE_DIR / "media/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
