@@ -108,5 +108,5 @@ strictParameterNoneValue = false
 strictSetInference = false
 
 [tool.codespell]
-skip = "*/migrations/*.py,uv.lock"
+skip = "*/migrations/*.py,uv.lock,fixtures/staff-snapshot-fa25.json,fixtures/course-snapshot-fa25.json"
 ignore-words-list = "Oly"
