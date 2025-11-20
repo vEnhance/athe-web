@@ -2,7 +2,7 @@
 name = "atheweb"
 version = "0.1.0"
 description = "TBD"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 authors = [
     { name = "Evan Chen", email = "evan@evanchen.cc" },
     { name = "Violet Xu", email = "violet@vbnm.dev"},
