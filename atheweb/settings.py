@@ -26,11 +26,8 @@ if ENV_PATH.exists():
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 
-# SECURITY WARNING: don't run with debug turned on in production!
 PRODUCTION = bool(int(os.getenv("IS_PRODUCTION") or 0))
 DEBUG = not PRODUCTION
-STATIC_URL = "/static/"
-MEDIA_URL = "/media/"
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 if SECRET_KEY is None:
@@ -38,6 +35,9 @@ if SECRET_KEY is None:
     SECRET_KEY = "django-insecure-h4^#6%7b=8p+e9nauqobbf0i$rzsx5!1g9k34bgx_@pikr*#)+"
 
 ALLOWED_HOSTS = ["beta.athemath.org", "athemath.org", "www.athemath.org"]
+if not PRODUCTION:
+    ALLOWED_HOSTS += ["127.0.0.1"]
+
 CSRF_TRUSTED_ORIGINS = [
     "https://beta.athemath.org",
     "https://athemath.org",
@@ -184,6 +184,7 @@ MEDIA_URL = "media/"
 MEDIA_ROOT = os.getenv("MEDIA_ROOT")
 if MEDIA_ROOT is None:
     assert not PRODUCTION
+    MEDIA_ROOT = BASE_DIR / "media/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -252,11 +253,9 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 # Markdownfield settings
-MARKDOWNFIELD = {
-    "MARKDOWN_EXTENSIONS": [
-        "markdown.extensions.fenced_code",
-        "markdown.extensions.tables",
-        "markdown.extensions.nl2br",
-        "weblog.markdown_extensions",
-    ]
-}
+MARKDOWN_EXTENSIONS = [
+    "markdown.extensions.fenced_code",
+    "markdown.extensions.tables",
+    "markdown.extensions.nl2br",
+    "weblog.markdown_extensions",
+]

@@ -1,6 +1,6 @@
+from atheweb.validators import VALIDATOR_WITH_FIGURES
 from django.db import models
 from markdownfield.models import MarkdownField, RenderedMarkdownField
-from markdownfield.validators import VALIDATOR_STANDARD
 
 
 class Photo(models.Model):
@@ -40,7 +40,7 @@ class HistoryEntry(models.Model):
     )
     content = MarkdownField(
         rendered_field="content_rendered",
-        validator=VALIDATOR_STANDARD,
+        validator=VALIDATOR_WITH_FIGURES,
         help_text="History entry content in Markdown format",
     )
     content_rendered = RenderedMarkdownField()

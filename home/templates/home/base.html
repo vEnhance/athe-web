@@ -109,7 +109,7 @@
                                    id="navbarDropdownUser"
                                    role="button"
                                    data-bs-toggle="dropdown"
-                                   aria-expanded="false">{{ user.username }}</a>
+                                   aria-expanded="false">{{ user.first_name|default:user.username }}</a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdownUser">
                                     <li>
                                         <a class="dropdown-item" href="{% url 'courses:upcoming' %}">Upcoming</a>

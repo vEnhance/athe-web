@@ -209,6 +209,10 @@ figure {
   padding: 0;
 }
 
+figure img {
+  max-width: 100%;
+}
+
 figcaption {
   font-family: "Lora", serif;
   font-size: 14px;

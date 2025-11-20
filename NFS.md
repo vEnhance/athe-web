@@ -30,3 +30,10 @@ git --git-dir="/home/private/atheweb.git" --work-tree="." checkout -f main
 
 - Create a daemon using `gunicorn.sh`
 - Set up proxies for `static/` and `media/`
+
+- Apparently you have to install time zones manually,
+  [as described here](https://members.nearlyfreespeech.net/forums/viewtopic.php?t=11631).
+
+  `mysql -h $HOST -u venhance -p mysql <timezones.sql`
+
+  Then `flush tables;` to actually get it live.
