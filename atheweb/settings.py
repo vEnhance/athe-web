@@ -26,7 +26,6 @@ if ENV_PATH.exists():
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 
-# SECURITY WARNING: don't run with debug turned on in production!
 PRODUCTION = bool(int(os.getenv("IS_PRODUCTION") or 0))
 DEBUG = not PRODUCTION
 STATIC_URL = "/static/"
