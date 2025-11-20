@@ -491,6 +491,13 @@ def test_bulk_award_staff_access():
     """Test that staff can access bulk award view."""
     client = Client()
     User.objects.create_user(username="staff", password="password", is_staff=True)
+    # Create an active semester
+    Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
 
     client.login(username="staff", password="password")
     url = reverse("housepoints:bulk_award")
@@ -525,7 +532,6 @@ def test_bulk_award_creates_awards():
     response = client.post(
         url,
         {
-            "semester": semester.pk,
             "award_type": Award.AwardType.OFFICE_HOURS,
             "usernames": "alice\nbob",
             "points": "",  # Use default
@@ -566,7 +572,6 @@ def test_bulk_award_custom_points():
     response = client.post(
         url,
         {
-            "semester": semester.pk,
             "award_type": Award.AwardType.CLASS_ATTENDANCE,
             "usernames": "alice",
             "points": "3",  # Custom points (e.g., for subsequent classes)
@@ -599,7 +604,6 @@ def test_bulk_award_handles_missing_student():
     response = client.post(
         url,
         {
-            "semester": semester.pk,
             "award_type": Award.AwardType.HOMEWORK,
             "usernames": "alice\nnonexistent",
             "points": "",
@@ -638,7 +642,6 @@ def test_bulk_award_handles_student_without_house():
     response = client.post(
         url,
         {
-            "semester": semester.pk,
             "award_type": Award.AwardType.HOMEWORK,
             "usernames": "alice",
             "points": "",
@@ -649,6 +652,56 @@ def test_bulk_award_handles_student_without_house():
     content = response.content.decode()
     assert "No house assigned" in content
     assert Award.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_bulk_award_no_active_semester():
+    """Test that bulk award fails gracefully when no active semester exists."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    # Create a past semester
+    Semester.objects.create(
+        name="Spring 2020",
+        slug="sp20",
+        start_date=(timezone.now() - timedelta(days=200)).date(),
+        end_date=(timezone.now() - timedelta(days=110)).date(),
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:bulk_award")
+    response = client.get(url)
+
+    # Should redirect to home with error message
+    assert response.status_code == 302
+    assert response.url == reverse("home:index")
+
+
+@pytest.mark.django_db
+def test_bulk_award_multiple_active_semesters():
+    """Test that bulk award fails when multiple overlapping semesters exist."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    # Create two overlapping semesters
+    Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=(timezone.now() - timedelta(days=10)).date(),
+        end_date=(timezone.now() + timedelta(days=80)).date(),
+    )
+    Semester.objects.create(
+        name="Winter 2025",
+        slug="wi25",
+        start_date=(timezone.now() - timedelta(days=5)).date(),
+        end_date=(timezone.now() + timedelta(days=85)).date(),
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:bulk_award")
+    response = client.get(url)
+
+    # Should redirect to home with error message
+    assert response.status_code == 302
+    assert response.url == reverse("home:index")
 
 
 # ============================================================================
