@@ -26,6 +26,7 @@ urlpatterns = [
     path("hijack/", include("hijack.urls")),
     path("catalog/", include("courses.urls")),
     path("house-points/", include("housepoints.urls")),
+    path("accounts/", include("allauth.urls")),
     path(
         "login/",
         auth_views.LoginView.as_view(),
