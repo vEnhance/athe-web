@@ -1,0 +1,56 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}
+    Staff Registration - Select Your Profile
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 100px;">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title mb-4">Staff Registration</h1>
+                        <p class="lead">
+                            Welcome! You've been invited to register as a staff member.
+                            Please select which staff member you are from the list below.
+                        </p>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                {% for staff in form.staff_listing.field.queryset %}
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="staff_listing"
+                                               id="staff_{{ staff.id }}"
+                                               value="{{ staff.id }}">
+                                        <label class="form-check-label" for="staff_{{ staff.id }}">
+                                            <strong>{{ staff.display_name }}</strong> - {{ staff.role }}
+                                            {% if staff.category == "instructor" %}
+                                                <span class="badge bg-primary">Instructor</span>
+                                            {% elif staff.category == "ta" %}
+                                                <span class="badge bg-info">TA</span>
+                                            {% elif staff.category == "board" %}
+                                                <span class="badge bg-success">Board</span>
+                                            {% elif staff.category == "xstaff" %}
+                                                <span class="badge bg-secondary">Past Staff</span>
+                                            {% endif %}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.errors %}
+                                <div class="alert alert-danger">
+                                    {% for field, errors in form.errors.items %}
+                                        {% for error in errors %}<p>{{ error }}</p>{% endfor %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary">Continue</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
