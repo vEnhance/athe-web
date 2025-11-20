@@ -150,11 +150,6 @@
         function filterAndDisplayStudents(query) {
             // Filter students client-side
             const filtered = allStudents.filter(student => {
-                // Filter by semester if selected
-                if (semesterId && student.semester_id !== semesterId) {
-                    return false;
-                }
-
                 // Search in email, first name, last name, username
                 return student.email.toLowerCase().includes(query) ||
                        student.first_name.includes(query) ||
@@ -174,8 +169,8 @@
 
             resultsDiv.innerHTML = students.map(student =>
                 `<button type="button" class="list-group-item list-group-item-action" data-email="${student.email}">
-                    <div><strong>${student.display}</strong></div>
-                    <small class="text-muted">${student.semester}</small>
+                    <div>${student.display}</div>
+                    <small class="text-muted">${student.email}</small>
                 </button>`
             ).join('');
 

@@ -279,16 +279,7 @@ class BulkAwardView(UserPassesTestMixin, View):
 
         students_list = []
         for student in students:
-            full_name = student.user.get_full_name()
-            if full_name:
-                display_name = f"{full_name} ({student.user.email})"
-            else:
-                display_name = student.user.email
-
-            if student.house:
-                house_display = student.get_house_display()  # type: ignore[attr-defined]
-                display_name += f" - {house_display}"
-
+            display_name = student.user.get_full_name() or student.user.email
             students_list.append(
                 {
                     "email": student.user.email,
