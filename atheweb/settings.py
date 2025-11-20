@@ -210,6 +210,8 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
+ACCOUNT_ADAPTER = "atheweb.account_adapter.NoNewUsersAccountAdapter"
+
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
