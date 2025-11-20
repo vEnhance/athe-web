@@ -1,4 +1,4 @@
-.PHONY: help install runserver migrate makemigrations createsuperuser check test fmt prek-install prek
+.PHONY: help install runserver migrate makemigrations createsuperuser check test fmt prek-install prek ci
 
 help:
 	@echo "Available commands:"
@@ -12,6 +12,7 @@ help:
 	@echo "  make fmt              - Run code formatter"
 	@echo "  make prek-install     - Install prek hooks"
 	@echo "  make prek             - Run prek on all files"
+	@echo "  make ci               - Shorthand for fmt + test + check"
 
 install:
 	uv sync --all-extras
@@ -45,3 +46,9 @@ prek-install:
 
 prek:
 	uv run prek run --all-files
+
+ci:
+	uv sync --all-extras
+	make fmt
+	make test
+	make check
