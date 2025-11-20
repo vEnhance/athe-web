@@ -31,10 +31,12 @@
         {% if most_recent_pset %}
             <h2>{{ most_recent_pset.name }}</h2>
             <div class="closed-message">{{ most_recent_pset.closed_message_rendered|safe }}</div>
+            <h2>Past problem sets</h2>
+            <p>
+                <a href="{% url 'home:past_psets' %}">See past problem sets</a>.
+            </p>
+        {% else %}
+            <p>Nothing here yet, check back later!</p>
         {% endif %}
-        <h2>Past problem sets</h2>
-        <p>
-            <a href="{% url 'home:past_psets' %}">See past problem sets</a>.
-        </p>
     </div>
 {% endblock content %}

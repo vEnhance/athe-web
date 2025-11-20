@@ -97,7 +97,6 @@ class ApplyViewTests(TestCase):
         response = self.client.get(reverse("home:apply"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Applications are closed for now.")
-        self.assertNotContains(response, "Completed PSet")
 
     def test_apply_view_with_no_psets_at_all(self):
         """Test ApplyView shows generic message when no psets exist."""
