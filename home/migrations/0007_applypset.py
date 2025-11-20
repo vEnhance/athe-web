@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("home", "0006_alter_staffphotolisting_options_and_more"),
     ]

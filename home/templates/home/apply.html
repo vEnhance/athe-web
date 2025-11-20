@@ -9,15 +9,15 @@
             {% for pset in active_psets %}
                 <div class="apply-pset-section">
                     <h2>{{ pset.name }}</h2>
-                    <p><strong>Deadline:</strong> {{ pset.deadline|date:"F j, Y, g:i a" }}</p>
+                    <p>
+                        <strong>Deadline:</strong> {{ pset.deadline|date:"F j, Y, g:i a" }}
+                    </p>
                     <div class="instructions">{{ pset.instructions_rendered|safe }}</div>
                     <p>
                         <a href="{{ pset.file.url }}" class="btn btn-primary" target="_blank">Download Problem Set (PDF)</a>
                     </p>
                 </div>
-                {% if not forloop.last %}
-                    <hr>
-                {% endif %}
+                {% if not forloop.last %}<hr>{% endif %}
             {% endfor %}
         {% elif closed_message %}
             <div class="closed-message">{{ closed_message|safe }}</div>
