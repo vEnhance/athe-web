@@ -5,24 +5,36 @@
 {% block content %}
     <div id="content">
         <h1>Apply to be a Student</h1>
-        {% if show_active %}
-            {% for pset in active_psets %}
-                <div class="apply-pset-section">
-                    <h2>{{ pset.name }}</h2>
-                    <p>
-                        <strong>Deadline:</strong> {{ pset.deadline|date:"F j, Y, g:i a" }}
-                    </p>
-                    <div class="instructions">{{ pset.instructions_rendered|safe }}</div>
-                    <p>
-                        <a href="{{ pset.file.url }}" class="btn btn-primary" target="_blank">Download Problem Set (PDF)</a>
-                    </p>
-                </div>
-                {% if not forloop.last %}<hr>{% endif %}
-            {% endfor %}
-        {% elif closed_message %}
-            <div class="closed-message">{{ closed_message|safe }}</div>
-        {% else %}
-            <p>Nothing here yet, check back later!</p>
+        <p>
+            In order to apply to be a new student, we ask that you try your best
+            at a problem set containing around five questions which range in
+            difficulty from the AMC to the early Olympiad level. This will allow
+            us to ensure that our students will benefit from the math aspect of
+            Athemath, and will help us decide which class they will fit into.
+            Historically, applicants who solved at least 1-2 problems have been
+            admitted, however solving more can allow for placement into a harder
+            class.
+        </p>
+        {% for pset in active_psets %}
+            <div class="apply-pset-section">
+                <h2>{{ pset.name }}</h2>
+                <p>
+                    <strong>Deadline:</strong> {{ pset.deadline|date:"F j, Y, g:i a" }}
+                </p>
+                <div class="instructions">{{ pset.instructions_rendered|safe }}</div>
+                <p>
+                    <a href="{{ pset.file.url }}" class="btn btn-primary" target="_blank">Download Problem Set (PDF)</a>
+                </p>
+            </div>
+            {% if not forloop.last %}<hr>{% endif %}
+        {% endfor %}
+        {% if most_recent_pset %}
+            <h2>{{ most_recent_pset.name }}</h2>
+            <div class="closed-message">{{ most_recent_pset.closed_message_rendered|safe }}</div>
         {% endif %}
+        <h2>Past problem sets</h2>
+        <p>
+            <a href="{% url 'home:past_psets' %}">See past problem sets</a>.
+        </p>
     </div>
 {% endblock content %}

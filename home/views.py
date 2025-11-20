@@ -113,19 +113,11 @@ class ApplyView(TemplateView):
         active_psets = ApplyPSet.objects.filter(status="active")
 
         if active_psets.exists():
-            # Show all active problem sets
             context["active_psets"] = active_psets
-            context["show_active"] = True
         else:
-            # Show closed message from most recent completed pset
-            most_recent = ApplyPSet.objects.filter(status="completed").first()
-            if most_recent:
-                context["closed_message"] = most_recent.closed_message_rendered
-                context["show_active"] = False
-            else:
-                # No psets at all
-                context["show_active"] = False
-                context["closed_message"] = None
+            context["most_recent_pset"] = ApplyPSet.objects.filter(
+                status="completed"
+            ).first()
 
         return context
 
