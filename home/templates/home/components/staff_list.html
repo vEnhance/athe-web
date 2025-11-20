@@ -14,7 +14,12 @@
                     <h5 class="staff-desc">{{ staff.role }}</h5>
                 </div>
             </div>
-            <div class="staff-right-hidden">{{ staff.biography_rendered|safe }}</div>
+            <div class="staff-right-hidden">
+                {{ staff.biography_rendered|safe }}
+                <p>
+                    <a href="{{ staff.get_absolute_url }}">See classes taught</a>
+                </p>
+            </div>
         </div>
     {% endfor %}
 </div>
