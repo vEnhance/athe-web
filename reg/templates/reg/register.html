@@ -1,0 +1,32 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}
+    Staff Registration - Create Account
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 100px;">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title mb-4">Create Your Staff Account</h1>
+                        <div class="alert alert-info mb-4">
+                            <strong>You selected:</strong> {{ staff_listing.display_name }} ({{ staff_listing.role }})
+                        </div>
+                        <p class="lead">
+                            Please create your user account. This will give you access to the staff dashboard and administrative features.
+                        </p>
+                        <form method="post">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <button type="submit" class="btn btn-primary">Create Account</button>
+                            <a href="{% url 'reg:invite' invite.id %}"
+                               class="btn btn-secondary"
+                               onclick="return confirm('Are you sure you want to go back? Your selection will be cleared.');">Go Back</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
