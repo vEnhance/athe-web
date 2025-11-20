@@ -16,7 +16,7 @@ class ApplyPSet(models.Model):
 
     name = models.CharField(
         max_length=200,
-        help_text="Name of the problem set (e.g., 'Fall 2025 PSet')",
+        help_text="Name of the problem set (e.g., 'Fall 2025')",
     )
     deadline = models.DateTimeField(
         help_text="Application deadline",
