@@ -8,7 +8,13 @@
         <div class="row">
             <div class="col-lg-8">
                 <h1>Bulk Award Points</h1>
-                <p class="lead">Award house points to multiple students at once.</p>
+                <p class="lead">
+                    Award house points to multiple students at once.
+                    {% if semester %}
+                        <br>
+                        <strong>Current Semester:</strong> {{ semester.name }}
+                    {% endif %}
+                </p>
                 <div class="card">
                     <div class="card-body">
                         <form method="post">
@@ -113,7 +119,7 @@
     </style>
     <script>
     (function() {
-        // All students data from server
+        // All students data from server (current semester only)
         const allStudents = {{ students_json|safe }};
 
         const searchInput = document.getElementById('student-search');
@@ -142,8 +148,6 @@
         });
 
         function filterAndDisplayStudents(query) {
-            const semesterId = semesterSelect.value ? parseInt(semesterSelect.value) : null;
-
             // Filter students client-side
             const filtered = allStudents.filter(student => {
                 // Filter by semester if selected
@@ -212,13 +216,6 @@
         document.addEventListener('click', function(e) {
             if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
                 resultsDiv.innerHTML = '';
-            }
-        });
-
-        // Refresh results when semester changes
-        semesterSelect.addEventListener('change', function() {
-            if (searchInput.value.trim().length >= 2) {
-                filterAndDisplayStudents(searchInput.value.trim().toLowerCase());
             }
         });
     })();

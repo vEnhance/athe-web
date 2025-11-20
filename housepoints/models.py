@@ -128,3 +128,10 @@ class Award(models.Model):
             models.Index(fields=["semester", "student"]),
             models.Index(fields=["awarded_at"]),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["semester", "student"],
+                condition=models.Q(award_type="intro_post"),
+                name="unique_intro_post_per_student",
+            ),
+        ]

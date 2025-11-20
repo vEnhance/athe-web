@@ -103,10 +103,6 @@ def leaderboard(request: HttpRequest, slug: str | None = None) -> HttpResponse:
 class BulkAwardForm(forms.Form):
     """Form for bulk awarding points to multiple students."""
 
-    semester = forms.ModelChoiceField(
-        queryset=Semester.objects.order_by("-start_date"),
-        help_text="Select the semester for these awards",
-    )
     award_type = forms.ChoiceField(
         choices=Award.AwardType.choices, help_text="Type of award to give"
     )
@@ -140,30 +136,62 @@ class BulkAwardView(UserPassesTestMixin, View):
         """Only staff can access this view."""
         return self.request.user.is_staff  # type: ignore[attr-defined]
 
+    def _get_current_semester(self) -> Semester:
+        """Get the current active semester based on today's date."""
+        from django.utils import timezone
+
+        today = timezone.now().date()
+        current_semesters = Semester.objects.filter(
+            start_date__lte=today, end_date__gte=today
+        )
+
+        count = current_semesters.count()
+        if count == 0:
+            raise ValueError("No active semester found for the current date.")
+        if count > 1:
+            raise ValueError(
+                "Multiple active semesters found for the current date. "
+                "Please ensure semester dates do not overlap."
+            )
+
+        return current_semesters.first()  # type: ignore[return-value]
+
     def get(self, request: HttpRequest) -> HttpResponse:
         """Display the bulk award form."""
-        form = BulkAwardForm()
-        # Pre-select most recent semester
-        latest_semester = Semester.objects.order_by("-start_date").first()
-        if latest_semester:
-            form.fields["semester"].initial = latest_semester
+        try:
+            semester = self._get_current_semester()
+        except ValueError as e:
+            messages.error(request, str(e))
+            return redirect("home:index")
 
-        # Get all students with their user info for autocomplete
-        students_data = self._get_students_data()
+        form = BulkAwardForm()
+
+        # Get students for the current semester only
+        students_data = self._get_students_data(semester)
 
         return render(
             request,
             "housepoints/bulk_award.html",
-            {"form": form, "results": None, "students_json": students_data},
+            {
+                "form": form,
+                "results": None,
+                "students_json": students_data,
+                "semester": semester,
+            },
         )
 
     def post(self, request: HttpRequest) -> HttpResponse:
         """Process bulk award creation."""
+        try:
+            semester = self._get_current_semester()
+        except ValueError as e:
+            messages.error(request, str(e))
+            return redirect("home:index")
+
         form = BulkAwardForm(request.POST)
         results = {"success": [], "errors": []}
 
         if form.is_valid():
-            semester = form.cleaned_data["semester"]
             award_type = form.cleaned_data["award_type"]
             emails = form.cleaned_data["emails"]
             points = form.cleaned_data["points"]
@@ -226,22 +254,27 @@ class BulkAwardView(UserPassesTestMixin, View):
                 )
 
         # Get students data for re-rendering
-        students_data = self._get_students_data()
+        students_data = self._get_students_data(semester)
 
         return render(
             request,
             "housepoints/bulk_award.html",
-            {"form": form, "results": results, "students_json": students_data},
+            {
+                "form": form,
+                "results": results,
+                "students_json": students_data,
+                "semester": semester,
+            },
         )
 
-    def _get_students_data(self) -> str:
+    def _get_students_data(self, semester: Semester) -> str:
         """Get JSON-encoded student data for autocomplete."""
         import json
 
         students = (
-            Student.objects.select_related("user", "semester")
-            .order_by("semester__start_date", "user__email")
-            .all()
+            Student.objects.filter(semester=semester)
+            .select_related("user")
+            .order_by("user__username")
         )
 
         students_list = []
@@ -260,8 +293,6 @@ class BulkAwardView(UserPassesTestMixin, View):
                 {
                     "email": student.user.email,
                     "display": display_name,
-                    "semester_id": student.semester.id,  # type: ignore[attr-defined]
-                    "semester": student.semester.name,
                     # Add searchable fields
                     "first_name": student.user.first_name.lower(),
                     "last_name": student.user.last_name.lower(),

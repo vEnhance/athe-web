@@ -1,0 +1,15 @@
+{% extends "socialaccount/base_entrance.html" %}
+{% load i18n %}
+{% block title %}
+    {% trans "Login Error" %} - Athemath
+{% endblock title %}
+{% block card_content %}
+    <h2 class="card-title text-center mb-4">{% trans "Login Error" %}</h2>
+    <div class="alert alert-danger" role="alert">
+        <strong>{% trans "Third-Party Login Failure" %}</strong>
+        <p class="mb-0 mt-2">{% trans "An error occurred while attempting to login via your third-party account." %}</p>
+    </div>
+    <div class="d-grid gap-2 mt-4">
+        <a href="{% url 'login' %}" class="btn btn-primary">{% trans "Try Again" %}</a>
+    </div>
+{% endblock card_content %}
