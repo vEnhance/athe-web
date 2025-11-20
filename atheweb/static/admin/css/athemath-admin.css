@@ -5,78 +5,78 @@
 
 /* ===== Color Variables ===== */
 :root {
-    --athemath-red: #a02828;
-    --athemath-light-bg: #fff7f7;
-    --athemath-hover: #ff9d00;
-    --athemath-dark: #111111;
-    --athemath-success: #2a7a6a;
-    --athemath-danger: #8a1a1a;
-    --athemath-info: #4a6a8a;
-    --athemath-secondary: #444444;
+  --athemath-red: #a02828;
+  --athemath-light-bg: #fff7f7;
+  --athemath-hover: #ff9d00;
+  --athemath-dark: #111111;
+  --athemath-success: #2a7a6a;
+  --athemath-danger: #8a1a1a;
+  --athemath-info: #4a6a8a;
+  --athemath-secondary: #444444;
 }
 
 /* ===== Header ===== */
 #header {
-    background: var(--athemath-red) !important;
-    color: #fff;
+  background: var(--athemath-red) !important;
+  color: #fff;
 }
 
 #site-name a,
 #site-name a:link,
 #site-name a:visited {
-    color: #fff !important;
+  color: #fff !important;
 }
 
 #site-name a:hover,
 #site-name a:focus {
-    color: var(--athemath-hover) !important;
+  color: var(--athemath-hover) !important;
 }
 
 .athemath-brand {
-    font-weight: 600;
-    color: #fff;
+  font-weight: 600;
+  color: #fff;
 }
 
 /* User tools in header */
 #user-tools a {
-    color: #fff !important;
-    border-bottom-color: rgba(255, 255, 255, 0.3);
+  color: #fff !important;
+  border-bottom-color: rgba(255, 255, 255, 0.3);
 }
 
 #user-tools a:hover,
 #user-tools a:focus {
-    color: var(--athemath-hover) !important;
-    border-bottom-color: var(--athemath-hover);
+  color: var(--athemath-hover) !important;
+  border-bottom-color: var(--athemath-hover);
 }
 
 /* ===== Breadcrumbs ===== */
 div.breadcrumbs {
-    background: var(--athemath-light-bg) !important;
-    border-bottom: 1px solid var(--athemath-red);
+  background: var(--athemath-light-bg) !important;
+  border-bottom: 1px solid var(--athemath-red);
 }
 
 div.breadcrumbs a {
-    color: var(--athemath-red) !important;
+  color: var(--athemath-red) !important;
 }
 
 div.breadcrumbs a:hover,
 div.breadcrumbs a:focus {
-    color: var(--athemath-hover) !important;
+  color: var(--athemath-hover) !important;
 }
 
 /* ===== Links ===== */
 a:link,
 a:visited {
-    color: var(--athemath-red) !important;
+  color: var(--athemath-red) !important;
 }
 
 a:hover,
 a:focus {
-    color: var(--athemath-hover) !important;
+  color: var(--athemath-hover) !important;
 }
 
 a:active {
-    color: var(--athemath-danger) !important;
+  color: var(--athemath-danger) !important;
 }
 
 /* ===== Buttons ===== */
@@ -85,8 +85,8 @@ input[type="submit"],
 input[type="button"],
 .submit-row input,
 button {
-    background: var(--athemath-red) !important;
-    border-color: var(--athemath-red) !important;
+  background: var(--athemath-red) !important;
+  border-color: var(--athemath-red) !important;
 }
 
 .button:hover,
@@ -99,8 +99,8 @@ input[type="submit"]:focus,
 input[type="button"]:focus,
 .submit-row input:focus,
 button:focus {
-    background: var(--athemath-hover) !important;
-    border-color: var(--athemath-hover) !important;
+  background: var(--athemath-hover) !important;
+  border-color: var(--athemath-hover) !important;
 }
 
 .button:active,
@@ -108,259 +108,259 @@ input[type="submit"]:active,
 input[type="button"]:active,
 .submit-row input:active,
 button:active {
-    background: var(--athemath-danger) !important;
-    border-color: var(--athemath-danger) !important;
+  background: var(--athemath-danger) !important;
+  border-color: var(--athemath-danger) !important;
 }
 
 /* Default button (secondary) */
 .button.default,
 input[type="submit"].default {
-    background: var(--athemath-secondary) !important;
-    border-color: var(--athemath-secondary) !important;
+  background: var(--athemath-secondary) !important;
+  border-color: var(--athemath-secondary) !important;
 }
 
 .button.default:hover,
 input[type="submit"].default:hover,
 .button.default:focus,
 input[type="submit"].default:focus {
-    background: #555 !important;
-    border-color: #555 !important;
+  background: #555 !important;
+  border-color: #555 !important;
 }
 
 /* Delete buttons */
 .deletelink,
 .deletelink-box a.deletelink {
-    background: var(--athemath-danger) !important;
+  background: var(--athemath-danger) !important;
 }
 
 .deletelink:hover,
 .deletelink:focus,
 .deletelink-box a.deletelink:hover,
 .deletelink-box a.deletelink:focus {
-    background: #6a0a0a !important;
+  background: #6a0a0a !important;
 }
 
 /* ===== Module Headers ===== */
 .module h2,
 .module caption,
 .inline-group h2 {
-    background: var(--athemath-red) !important;
-    color: #fff;
+  background: var(--athemath-red) !important;
+  color: #fff;
 }
 
 /* ===== Selected Items ===== */
 .selected,
 tr.selected {
-    background-color: var(--athemath-light-bg) !important;
+  background-color: var(--athemath-light-bg) !important;
 }
 
 /* ===== Calendar Widget ===== */
 .calendarbox h2 {
-    background: var(--athemath-red) !important;
+  background: var(--athemath-red) !important;
 }
 
 .calendar td a:hover,
 .calendar td a:focus,
 .calendar td a:active {
-    background: var(--athemath-hover) !important;
-    color: #fff !important;
+  background: var(--athemath-hover) !important;
+  color: #fff !important;
 }
 
 .calendar td.selected a {
-    background: var(--athemath-red) !important;
+  background: var(--athemath-red) !important;
 }
 
 .calendar td.selected a:hover {
-    background: var(--athemath-hover) !important;
+  background: var(--athemath-hover) !important;
 }
 
 /* ===== Selector Widget ===== */
 .selector-chosen h2 {
-    background: var(--athemath-red) !important;
+  background: var(--athemath-red) !important;
 }
 
 .selector-available h2 {
-    background: var(--athemath-secondary) !important;
+  background: var(--athemath-secondary) !important;
 }
 
 .selector .selector-chosen select:focus option:checked,
 .selector .selector-chosen select:focus option:active {
-    background: var(--athemath-light-bg) !important;
-    color: var(--athemath-red) !important;
+  background: var(--athemath-light-bg) !important;
+  color: var(--athemath-red) !important;
 }
 
 /* ===== Object Tools ===== */
 .object-tools a:link,
 .object-tools a:visited {
-    background: var(--athemath-red) !important;
-    color: #fff !important;
+  background: var(--athemath-red) !important;
+  color: #fff !important;
 }
 
 .object-tools a:hover,
 .object-tools a:focus {
-    background: var(--athemath-hover) !important;
+  background: var(--athemath-hover) !important;
 }
 
 .object-tools a.addlink {
-    background: var(--athemath-success) !important;
+  background: var(--athemath-success) !important;
 }
 
 .object-tools a.addlink:hover,
 .object-tools a.addlink:focus {
-    background: #236a5a !important;
+  background: #236a5a !important;
 }
 
 /* ===== Dashboard Modules ===== */
 #content-main .module h2 a {
-    color: #fff !important;
+  color: #fff !important;
 }
 
 #content-main .module h2 a:hover,
 #content-main .module h2 a:focus {
-    color: var(--athemath-hover) !important;
+  color: var(--athemath-hover) !important;
 }
 
 /* Recent actions module */
 .module ul.actionlist li {
-    border-bottom-color: var(--athemath-light-bg);
+  border-bottom-color: var(--athemath-light-bg);
 }
 
 /* ===== Pagination ===== */
 .paginator a:link,
 .paginator a:visited {
-    background: var(--athemath-red) !important;
-    color: #fff !important;
+  background: var(--athemath-red) !important;
+  color: #fff !important;
 }
 
 .paginator a:hover,
 .paginator a:focus {
-    background: var(--athemath-hover) !important;
+  background: var(--athemath-hover) !important;
 }
 
 .paginator .this-page {
-    background: var(--athemath-light-bg) !important;
-    color: var(--athemath-red) !important;
-    border-color: var(--athemath-red);
+  background: var(--athemath-light-bg) !important;
+  color: var(--athemath-red) !important;
+  border-color: var(--athemath-red);
 }
 
 /* ===== Change List ===== */
 #changelist-filter h2 {
-    background: var(--athemath-red) !important;
-    color: #fff;
+  background: var(--athemath-red) !important;
+  color: #fff;
 }
 
 #changelist-filter li.selected a {
-    color: var(--athemath-red) !important;
-    font-weight: bold;
+  color: var(--athemath-red) !important;
+  font-weight: bold;
 }
 
 #changelist-filter a:hover,
 #changelist-filter a:focus {
-    color: var(--athemath-hover) !important;
+  color: var(--athemath-hover) !important;
 }
 
 /* ===== Form Rows ===== */
 .form-row .readonly {
-    background: var(--athemath-light-bg);
+  background: var(--athemath-light-bg);
 }
 
 /* ===== Errors and Messages ===== */
 .errornote {
-    background: var(--athemath-danger) !important;
-    border-color: #6a0a0a;
+  background: var(--athemath-danger) !important;
+  border-color: #6a0a0a;
 }
 
 .errors,
 .errorlist {
-    color: var(--athemath-danger) !important;
+  color: var(--athemath-danger) !important;
 }
 
 ul.messagelist li.success {
-    background: var(--athemath-success) !important;
+  background: var(--athemath-success) !important;
 }
 
 ul.messagelist li.warning {
-    background: #d97a00 !important;
+  background: #d97a00 !important;
 }
 
 ul.messagelist li.error {
-    background: var(--athemath-danger) !important;
+  background: var(--athemath-danger) !important;
 }
 
 /* ===== Inline Forms ===== */
 .inline-related h3 {
-    background: var(--athemath-light-bg) !important;
-    color: var(--athemath-red) !important;
+  background: var(--athemath-light-bg) !important;
+  color: var(--athemath-red) !important;
 }
 
 .inline-related h3 b {
-    color: var(--athemath-red);
+  color: var(--athemath-red);
 }
 
 /* ===== Sticky Elements ===== */
 .sticky {
-    background: var(--athemath-light-bg) !important;
+  background: var(--athemath-light-bg) !important;
 }
 
 /* ===== Help Text ===== */
 .help {
-    color: var(--athemath-secondary);
+  color: var(--athemath-secondary);
 }
 
 /* ===== Dashboard Summary ===== */
 table#change-history tbody th {
-    background: var(--athemath-light-bg);
+  background: var(--athemath-light-bg);
 }
 
 /* ===== Active Elements ===== */
 input:focus,
 select:focus,
 textarea:focus {
-    border-color: var(--athemath-red) !important;
-    box-shadow: 0 0 0 2px rgba(160, 40, 40, 0.15) !important;
+  border-color: var(--athemath-red) !important;
+  box-shadow: 0 0 0 2px rgba(160, 40, 40, 0.15) !important;
 }
 
 /* ===== Toggle Styling ===== */
 .toggle-yes {
-    background: var(--athemath-success) !important;
+  background: var(--athemath-success) !important;
 }
 
 .toggle-no {
-    background: var(--athemath-secondary) !important;
+  background: var(--athemath-secondary) !important;
 }
 
 /* ===== Action Checkboxes ===== */
 .actions input[type="checkbox"]:checked {
-    accent-color: var(--athemath-red);
+  accent-color: var(--athemath-red);
 }
 
 /* ===== Sortable Column Headers ===== */
 #changelist table thead th.sortable:hover,
 #changelist table thead th.sorted {
-    background: var(--athemath-light-bg);
+  background: var(--athemath-light-bg);
 }
 
 #changelist table thead th.sorted a {
-    color: var(--athemath-red) !important;
+  color: var(--athemath-red) !important;
 }
 
 /* ===== Login Page ===== */
 #login #header {
-    background: var(--athemath-red) !important;
+  background: var(--athemath-red) !important;
 }
 
 #login #content-main {
-    background: var(--athemath-light-bg);
+  background: var(--athemath-light-bg);
 }
 
 #login .submit-row {
-    background: transparent;
+  background: transparent;
 }
 
 /* ===== Dark Mode Override (if enabled) ===== */
 @media (prefers-color-scheme: dark) {
-    /* Keep the Athemath theme even in dark mode for consistency */
-    :root {
-        --athemath-light-bg: #2a0a0a;
-    }
+  /* Keep the Athemath theme even in dark mode for consistency */
+  :root {
+    --athemath-light-bg: #2a0a0a;
+  }
 }

@@ -1,19 +1,19 @@
 {% extends "admin/base.html" %}
 {% load static %}
-
-{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
-
+{% block title %}
+    {% if subtitle %}{{ subtitle }} |{% endif %}
+    {{ title }} | {{ site_title|default:_("Django site admin") }}
+{% endblock title %}
 {% block extrastyle %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'admin/css/athemath-admin.css' %}">
-{% endblock %}
-
+{% endblock extrastyle %}
 {% block branding %}
-<div id="site-name">
-    <a href="{% url 'admin:index' %}">
-        <span class="athemath-brand">Athemath</span> Administration
-    </a>
-</div>
-{% endblock %}
-
-{% block nav-global %}{% endblock %}
+    <div id="site-name">
+        <a href="{% url 'admin:index' %}">
+            <span class="athemath-brand">Athemath</span> Administration
+        </a>
+    </div>
+{% endblock branding %}
+{% block nav-global %}
+{% endblock nav-global %}
