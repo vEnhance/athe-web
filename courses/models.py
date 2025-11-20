@@ -47,6 +47,12 @@ class Course(models.Model):
         related_name="courses",
         help_text="Link to the instructor for this course.",
     )
+    leaders = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name="led_courses",
+        blank=True,
+        help_text="Users who can manage this course and its meetings.",
+    )
     difficulty = models.CharField(
         blank=True,
         max_length=80,

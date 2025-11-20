@@ -21,6 +21,7 @@ class CourseAdmin(admin.ModelAdmin):
     list_filter = ("is_club", "semester", "difficulty")
     search_fields = ("name", "description")
     autocomplete_fields = ("instructor",)
+    filter_horizontal = ("leaders",)
     inlines = [CourseMeetingInline]
 
 
