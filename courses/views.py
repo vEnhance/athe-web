@@ -234,10 +234,10 @@ def join_club(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
     # Check if already enrolled
-    if student.enrolled_courses.filter(pk=club.pk).exists():
+    if club.students.filter(pk=student.pk).exists():
         messages.info(request, f"You are already enrolled in {club.name}.")
     else:
-        student.enrolled_courses.add(club)
+        club.students.add(student)
         messages.success(request, f"Successfully joined {club.name}!")
 
     return redirect("courses:my_clubs")
@@ -255,8 +255,8 @@ def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
 
     try:
         student = Student.objects.get(user=request.user, semester=club.semester)
-        if student.enrolled_courses.filter(pk=club.pk).exists():
-            student.enrolled_courses.remove(club)
+        if club.students.filter(pk=student.pk).exists():
+            club.students.remove(student)
             messages.success(request, f"Successfully dropped {club.name}.")
         else:
             messages.info(request, f"You are not enrolled in {club.name}.")
@@ -277,7 +277,7 @@ def upcoming(request: HttpRequest) -> HttpResponse:
     # Collect all enrolled course IDs
     enrolled_course_ids = set()
     for student in student_records:
-        for course in student.enrolled_courses.all():
+        for course in student.enrolled_courses.all():  # type: ignore[attr-defined]
             enrolled_course_ids.add(course.id)  # type: ignore[attr-defined]
 
     # Get all courses where user is a leader
@@ -334,9 +334,7 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
             ).exists()
         else:
             # For classes: only enrolled students
-            return Student.objects.filter(
-                user=self.request.user, enrolled_courses=course
-            ).exists()
+            return course.students.filter(user=self.request.user).exists()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -354,10 +352,8 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
         )
 
         # Add member list
-        context["members"] = (
-            Student.objects.filter(enrolled_courses=self.object)
-            .select_related("user")
-            .order_by("user__username")
+        context["members"] = self.object.students.select_related("user").order_by(
+            "user__username"
         )
 
         # Check if user is a leader
@@ -372,8 +368,8 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
                 student = Student.objects.get(
                     user=self.request.user, semester=self.object.semester
                 )
-                context["is_enrolled"] = student.enrolled_courses.filter(
-                    pk=self.object.pk
+                context["is_enrolled"] = self.object.students.filter(
+                    pk=student.pk
                 ).exists()
                 context["can_join_drop"] = True
             except Student.DoesNotExist:
