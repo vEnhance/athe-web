@@ -93,6 +93,13 @@ class Course(models.Model):
     def __str__(self) -> str:
         return self.name
 
+    def save(self, *args, **kwargs) -> None:  # type: ignore[override]
+        """Override save to auto-add instructor as a leader."""
+        super().save(*args, **kwargs)
+        # Add instructor's user as a leader if instructor is set and has a user
+        if self.instructor and self.instructor.user:
+            self.leaders.add(self.instructor.user)
+
     def clean(self) -> None:
         """Validate that all students belong to the course's semester."""
         super().clean()
