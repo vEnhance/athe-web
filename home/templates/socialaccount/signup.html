@@ -1,0 +1,28 @@
+{% extends "socialaccount/base_entrance.html" %}
+{% load i18n %}
+{% load allauth %}
+{% load django_bootstrap5 %}
+{% block title %}
+    {% trans "Sign Up" %} - Athemath
+{% endblock title %}
+{% block card_content %}
+    <h2 class="card-title text-center mb-4">{% trans "Sign Up" %}</h2>
+    <p class="text-center mb-4">
+        {% blocktrans with provider_name=account.get_provider.name site_name=site.name %}You are about to use your {{provider_name}} account to login to {{site_name}}. As a final step, please complete the following form:{% endblocktrans %}
+    </p>
+    {% url 'socialaccount_signup' as action_url %}
+    {% element form form=form method="post" action=action_url %}
+        {% slot body %}
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            {{ redirect_field }}
+        {% endslot %}
+        {% slot actions %}
+            <div class="d-grid gap-2 mt-3">
+                {% element button type="submit" class="btn btn-primary btn-lg" %}
+                    {% trans "Sign Up" %}
+                {% endelement %}
+            </div>
+        {% endslot %}
+    {% endelement %}
+{% endblock card_content %}

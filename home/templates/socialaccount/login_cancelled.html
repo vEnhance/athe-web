@@ -1,0 +1,16 @@
+{% extends "socialaccount/base_entrance.html" %}
+{% load i18n %}
+{% load allauth %}
+{% block title %}
+    {% trans "Login Cancelled" %} - Athemath
+{% endblock title %}
+{% block card_content %}
+    <h2 class="card-title text-center mb-4">{% trans "Login Cancelled" %}</h2>
+    <div class="alert alert-warning" role="alert">
+        {% url 'account_login' as login_url %}
+        {% blocktrans %}You decided to cancel logging in to our site using one of your existing accounts. If this was a mistake, please proceed to <a href="{{login_url}}" class="alert-link">sign in</a>.{% endblocktrans %}
+    </div>
+    <div class="d-grid gap-2 mt-4">
+        <a href="{% url 'login' %}" class="btn btn-primary">{% trans "Back to Login" %}</a>
+    </div>
+{% endblock card_content %}
