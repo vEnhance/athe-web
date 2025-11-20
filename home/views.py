@@ -27,8 +27,8 @@ class StaffView(TemplateView):
         """Add staff listings grouped by category."""
         context = super().get_context_data(**kwargs)
         context["board"] = StaffPhotoListing.objects.filter(category="board")
-        context["teachers"] = StaffPhotoListing.objects.filter(category="teachers")
-        context["tas"] = StaffPhotoListing.objects.filter(category="tas")
+        context["instructor"] = StaffPhotoListing.objects.filter(category="instructor")
+        context["ta"] = StaffPhotoListing.objects.filter(category="ta")
         return context
 
 
@@ -40,7 +40,7 @@ class PastStaffView(TemplateView):
     def get_context_data(self, **kwargs):  # type: ignore
         """Add staff listings grouped by category."""
         context = super().get_context_data(**kwargs)
-        context["past"] = StaffPhotoListing.objects.filter(category="past")
+        context["xstaff"] = StaffPhotoListing.objects.filter(category="xstaff")
         return context
 
 

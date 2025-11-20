@@ -12,9 +12,9 @@
         <h2>Board</h2>
         {% include "home/components/staff_list.html" with objects=board %}
         <h2>Teachers</h2>
-        {% include "home/components/staff_list.html" with objects=teachers %}
+        {% include "home/components/staff_list.html" with objects=instructor %}
         <h2>TAs</h2>
-        {% include "home/components/staff_list.html" with objects=tas %}
+        {% include "home/components/staff_list.html" with objects=ta %}
         <h2>Past Staff</h2>
         <p>
             See <a href="{% url "home:past_staff" %}">past staff</a>.

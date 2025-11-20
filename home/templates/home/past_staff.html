@@ -12,7 +12,7 @@
         <p>
             See also <a href="{% url "home:staff" %}">current staff</a>.
         </p>
-        {% include "home/components/staff_list.html" with objects=past %}
+        {% include "home/components/staff_list.html" with objects=xstaff %}
     </div>
 {% endblock content %}
 {% block extra_js %}
