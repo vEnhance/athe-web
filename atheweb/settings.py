@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.github",
+    "allauth.socialaccount.providers.discord",
 ]
 
 MIDDLEWARE = [
@@ -181,6 +182,16 @@ SOCIALACCOUNT_PROVIDERS = {
     "github": {
         "SCOPE": [
             "user",
+            "email",
+        ],
+        "APP": {
+            "client_id": "",  # Set via environment variable or admin
+            "secret": "",  # Set via environment variable or admin
+        },
+    },
+    "discord": {
+        "SCOPE": [
+            "identify",
             "email",
         ],
         "APP": {

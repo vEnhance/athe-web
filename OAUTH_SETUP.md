@@ -1,17 +1,18 @@
 # OAuth Authentication Setup
 
-This document explains how to configure Google and GitHub OAuth authentication for the athe-web application.
+This document explains how to configure Google, GitHub, and Discord OAuth authentication for the athe-web application.
 
 ## Overview
 
 The application uses `django-allauth` to support authentication via:
 - **Google OAuth** (primary, emphasized)
 - **GitHub OAuth** (primary, emphasized)
+- **Discord OAuth** (primary, emphasized)
 - **Username/Password** (fallback, de-emphasized)
 
 ## Initial Setup
 
-After installing dependencies and running migrations, you need to configure OAuth applications for Google and GitHub.
+After installing dependencies and running migrations, you need to configure OAuth applications for Google, GitHub, and Discord.
 
 ### 1. Configure Django Sites Framework
 
@@ -84,6 +85,29 @@ For production, use your actual domain (e.g., `athemath.org`).
    - Sites: Select your site
    - Save
 
+### 4. Set Up Discord OAuth
+
+1. **Create a Discord OAuth App:**
+   - Go to [Discord Developer Portal](https://discord.com/developers/applications)
+   - Click "New Application"
+   - Give it a name (e.g., "Athemath")
+   - Navigate to the "OAuth2" section in the left sidebar
+   - Add Redirects:
+     - Development: `http://localhost:8000/accounts/discord/login/callback/`
+     - Production: `https://your-domain.com/accounts/discord/login/callback/`
+   - Copy your Client ID and Client Secret
+
+2. **Add Credentials to Django Admin:**
+   - Go to `http://localhost:8000/admin/`
+   - Navigate to "Social applications" under "Social Accounts"
+   - Click "Add social application"
+   - Provider: Discord
+   - Name: Discord OAuth
+   - Client id: (paste from Discord Developer Portal)
+   - Secret key: (paste from Discord Developer Portal)
+   - Sites: Select your site
+   - Save
+
 ## Testing
 
 1. Start the development server:
@@ -96,6 +120,7 @@ For production, use your actual domain (e.g., `athemath.org`).
 3. You should see:
    - Prominent "Continue with Google" button (red/danger style)
    - Prominent "Continue with GitHub" button (dark style)
+   - Prominent "Continue with Discord" button (blue/primary style)
    - A divider with "or use username/password"
    - A de-emphasized traditional login form
 
