@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("courses", "0015_remove_course_google_classroom_join_link"),
     ]
