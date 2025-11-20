@@ -10,7 +10,11 @@
                 <div class="card-body">
                     <h2 class="h5">Table of Contents</h2>
                     <ul>
-                        {% for entry in history_entries %}<li><a href="#{{ entry.slug }}">{{ entry.title }}</a></li>{% endfor %}
+                        {% for entry in history_entries %}
+                            <li>
+                                <a href="#{{ entry.slug }}">{{ entry.title }}</a>
+                            </li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>

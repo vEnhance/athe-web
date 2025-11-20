@@ -211,3 +211,13 @@ SOCIALACCOUNT_PROVIDERS = {
         },
     },
 }
+
+# Markdownfield settings
+MARKDOWNFIELD = {
+    "MARKDOWN_EXTENSIONS": [
+        "markdown.extensions.fenced_code",
+        "markdown.extensions.tables",
+        "markdown.extensions.nl2br",
+        "weblog.markdown_extensions",
+    ]
+}

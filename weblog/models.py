@@ -3,6 +3,31 @@ from markdownfield.models import MarkdownField, RenderedMarkdownField
 from markdownfield.validators import VALIDATOR_STANDARD
 
 
+class Photo(models.Model):
+    """Photo model for uploading images to reference in markdown."""
+
+    name = models.CharField(
+        max_length=200, help_text="Name or caption for the photo (for identification)"
+    )
+    image = models.ImageField(upload_to="photos/", help_text="Photo file to upload")
+    uploaded_at = models.DateTimeField(
+        auto_now_add=True, help_text="Date and time when the photo was uploaded"
+    )
+
+    class Meta:
+        ordering = ["-uploaded_at"]
+        verbose_name = "Photo"
+        verbose_name_plural = "Photos"
+
+    def __str__(self) -> str:
+        return self.name
+
+    @property
+    def markdown_url(self) -> str:
+        """Return the URL path for use in markdown."""
+        return f"/media/{self.image.name}"
+
+
 class HistoryEntry(models.Model):
     """A history entry for the athemath program."""
 
