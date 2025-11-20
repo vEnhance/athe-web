@@ -36,11 +36,26 @@ class StaffRegistrationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ["username", "email", "first_name", "last_name", "password1", "password2"]
+        fields = [
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "password1",
+            "password2",
+        ]
 
     def __init__(self, *args, **kwargs):  # type: ignore
         super().__init__(*args, **kwargs)
         # Add Bootstrap classes and help text
-        self.fields["username"].help_text = "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
-        self.fields["password1"].help_text = "Your password must contain at least 8 characters and can't be entirely numeric."
-        self.fields["password2"].help_text = "Enter the same password as before, for verification."
+        self.fields[
+            "username"
+        ].help_text = (
+            "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+        )
+        self.fields[
+            "password1"
+        ].help_text = "Your password must contain at least 8 characters and can't be entirely numeric."
+        self.fields[
+            "password2"
+        ].help_text = "Enter the same password as before, for verification."

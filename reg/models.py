@@ -26,7 +26,9 @@ class StaffInviteLink(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:
-        return f"{self.name} (expires {self.expiration_date.strftime('%Y-%m-%d %H:%M')})"
+        return (
+            f"{self.name} (expires {self.expiration_date.strftime('%Y-%m-%d %H:%M')})"
+        )
 
     def is_expired(self) -> bool:
         """Check if this invite link has expired."""
