@@ -12,17 +12,17 @@
     </p>
     {% url 'socialaccount_signup' as action_url %}
     {% element form form=form method="post" action=action_url %}
-        {% slot body %}
-            {% csrf_token %}
-            {% bootstrap_form form %}
-            {{ redirect_field }}
-        {% endslot %}
-        {% slot actions %}
-            <div class="d-grid gap-2 mt-3">
-                {% element button type="submit" class="btn btn-primary btn-lg" %}
-                    {% trans "Sign Up" %}
-                {% endelement %}
-            </div>
-        {% endslot %}
-    {% endelement %}
+    {% slot body %}
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    {{ redirect_field }}
+{% endslot %}
+{% slot actions %}
+<div class="d-grid gap-2 mt-3">
+    {% element button type="submit" class="btn btn-primary btn-lg" %}
+    {% trans "Sign Up" %}
+{% endelement %}
+</div>
+{% endslot %}
+{% endelement %}
 {% endblock card_content %}

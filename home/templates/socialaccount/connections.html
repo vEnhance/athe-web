@@ -7,50 +7,47 @@
 {% endblock title %}
 {% block card_content %}
     <h2 class="card-title mb-4">{% trans "Account Connections" %}</h2>
-
     {% if form.accounts %}
         <p class="mb-3">
             {% blocktrans %}You can sign in to your account using any of the following third-party accounts:{% endblocktrans %}
         </p>
         {% url 'socialaccount_connections' as action_url %}
         {% element form form=form method="post" action=action_url %}
-            {% slot body %}
-                {% csrf_token %}
-                <div class="mb-3">
-                    {% for acc in form.fields.account.choices %}
-                        {% with account=acc.0.instance.get_provider_account %}
-                            {% setvar radio_id %}id_account_{{ account.account.pk }}{% endsetvar %}
-                            <div class="form-check mb-2">
-                                {% element field id=radio_id type="radio" name="account" value=account.account.pk class="form-check-input" %}
-                                    {% slot label %}
-                                        <label class="form-check-label" for="{{ radio_id }}">
-                                            {{ account }}
-                                            <span class="badge bg-secondary ms-2">{{ account.get_brand.name }}</span>
-                                        </label>
-                                    {% endslot %}
-                                {% endelement %}
-                            </div>
-                        {% endwith %}
-                    {% endfor %}
-                </div>
-            {% endslot %}
-            {% slot actions %}
-                <div class="d-grid gap-2">
-                    {% element button type="submit" class="btn btn-danger" %}
-                        {% trans 'Remove' %}
-                    {% endelement %}
-                </div>
-            {% endslot %}
-        {% endelement %}
-    {% else %}
-        <div class="alert alert-info">
-            {% trans 'You currently have no third-party accounts connected to this account.' %}
+        {% slot body %}
+        {% csrf_token %}
+        <div class="mb-3">
+            {% for acc in form.fields.account.choices %}
+                {% with account=acc.0.instance.get_provider_account %}
+                    {% setvar radio_id %}
+                    id_account_{{ account.account.pk }}
+                {% endsetvar %}
+                <div class="form-check mb-2">
+                    {% element field id=radio_id type="radio" name="account" value=account.account.pk class="form-check-input" %}
+                    {% slot label %}
+                    <label class="form-check-label" for="{{ radio_id }}">
+                        {{ account }}
+                        <span class="badge bg-secondary ms-2">{{ account.get_brand.name }}</span>
+                    </label>
+                {% endslot %}
+            {% endelement %}
         </div>
-    {% endif %}
-
-    <hr class="my-4">
-
-    <h3 class="mb-3">{% trans 'Add a Third-Party Account' %}</h3>
-    {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
-    {% include "socialaccount/snippets/login_extra.html" %}
+    {% endwith %}
+{% endfor %}
+</div>
+{% endslot %}
+{% slot actions %}
+<div class="d-grid gap-2">
+    {% element button type="submit" class="btn btn-danger" %}
+    {% trans "Remove" %}
+{% endelement %}
+</div>
+{% endslot %}
+{% endelement %}
+{% else %}
+<div class="alert alert-info">{% trans "You currently have no third-party accounts connected to this account." %}</div>
+{% endif %}
+<hr class="my-4">
+<h3 class="mb-3">{% trans "Add a Third-Party Account" %}</h3>
+{% include "socialaccount/snippets/provider_list.html" with process="connect" %}
+{% include "socialaccount/snippets/login_extra.html" %}
 {% endblock card_content %}
