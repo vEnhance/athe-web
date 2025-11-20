@@ -21,6 +21,13 @@ class CourseMeetingInline(admin.TabularInline):
     fields = ("start_time", "title", "reminder_sent")
 
 
+class EnrolledStudentsInline(admin.TabularInline):
+    model = Student.enrolled_courses.through
+    extra = 0
+    verbose_name = "Enrolled Student"
+    verbose_name_plural = "Enrolled Students"
+
+
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     list_display = ("name", "is_club", "semester", "instructor")
@@ -28,7 +35,7 @@ class CourseAdmin(admin.ModelAdmin):
     search_fields = ("name", "description")
     autocomplete_fields = ("instructor",)
     filter_horizontal = ("leaders",)
-    inlines = [CourseMeetingInline]
+    inlines = [CourseMeetingInline, EnrolledStudentsInline]
 
 
 @admin.register(Student)
