@@ -1,0 +1,32 @@
+{% extends "home/base.html" %}
+{% block title %}
+    History - Athemath
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 80px;">
+        <h1>History</h1>
+        {% if history_entries %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h5">Table of Contents</h2>
+                    <ul>
+                        {% for entry in history_entries %}
+                            <li>
+                                <a href="#{{ entry.slug }}">{{ entry.title }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% for entry in history_entries %}
+                <div class="mb-5" id="{{ entry.slug }}">
+                    <h2>{{ entry.title }}</h2>
+                    <div class="text-muted small mb-3">{{ entry.created_at|date:"F j, Y" }}</div>
+                    <div>{{ entry.content_rendered|safe }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No history entries available yet.</p>
+        {% endif %}
+    </div>
+{% endblock content %}

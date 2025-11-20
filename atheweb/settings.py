@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "home",
     "housepoints",
     "reg",
+    "weblog",
 ]
 
 MIDDLEWARE = [
@@ -210,4 +211,14 @@ SOCIALACCOUNT_PROVIDERS = {
             "secret": "",  # Set via environment variable or admin
         },
     },
+}
+
+# Markdownfield settings
+MARKDOWNFIELD = {
+    "MARKDOWN_EXTENSIONS": [
+        "markdown.extensions.fenced_code",
+        "markdown.extensions.tables",
+        "markdown.extensions.nl2br",
+        "weblog.markdown_extensions",
+    ]
 }

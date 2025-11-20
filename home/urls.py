@@ -1,6 +1,7 @@
 from django.urls import path
 
 from home import views
+from weblog.views import HistoryListView
 
 app_name = "home"
 
@@ -12,7 +13,7 @@ urlpatterns = [
     path("staff/edit/", views.StaffPhotoUpdateView.as_view(), name="staff_edit"),
     path("staff/<slug:slug>/", views.StaffDetailView.as_view(), name="staff_detail"),
     path("donors/", views.DonorsView.as_view(), name="donors"),
-    path("history/", views.HistoryView.as_view(), name="history"),
+    path("history/", HistoryListView.as_view(), name="history"),
     path(
         "virtual-program/", views.VirtualProgramView.as_view(), name="virtual_program"
     ),
