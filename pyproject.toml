@@ -106,3 +106,7 @@ strictDictionaryInference = false
 strictListInference = false
 strictParameterNoneValue = false
 strictSetInference = false
+
+[tool.codespell]
+skip = "*/migrations/*.py,uv.lock"
+ignore-words-list = "Oly"
