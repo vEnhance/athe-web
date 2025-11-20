@@ -76,7 +76,7 @@ ROOT_URLCONF = "atheweb.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "atheweb" / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -139,6 +139,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "static/"
+STATICFILES_DIRS = [
+    BASE_DIR / "atheweb" / "static",
+]
 
 # Media files (user uploads)
 MEDIA_URL = "media/"
