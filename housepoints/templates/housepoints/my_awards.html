@@ -42,7 +42,7 @@
                                         <td>{{ award.awarded_at|date:"M j, Y" }}</td>
                                         <td>{{ award.get_award_type_display }}</td>
                                         <td>
-                                            <span class="badge bg-success">+{{ award.points }}</span>
+                                            <span class="badge">+{{ award.points }}</span>
                                         </td>
                                         <td>{{ award.student.semester.name }}</td>
                                         <td>{{ award.description|default:"-" }}</td>
