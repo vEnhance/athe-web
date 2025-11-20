@@ -21,7 +21,6 @@
             {% for entry in history_entries %}
                 <div class="mb-5" id="{{ entry.slug }}">
                     <h2>{{ entry.title }}</h2>
-                    <div class="text-muted small mb-3">{{ entry.created_at|date:"F j, Y" }}</div>
                     <div>{{ entry.content_rendered|safe }}</div>
                 </div>
             {% endfor %}
