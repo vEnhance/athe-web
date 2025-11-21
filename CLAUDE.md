@@ -150,6 +150,7 @@ uv run pre-commit install --install-hooks
 ```
 
 Hooks run at different stages:
+
 - **pre-commit**: JSON/YAML/TOML validation, trailing whitespace, ruff format/lint, djlint, prettier, codespell
 - **commit-msg**: Conventional commit message format enforcement
 - **pre-push**: Django migration checks, `make fmt`, `make check`, `make test`
