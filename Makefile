@@ -48,7 +48,7 @@ prek:
 	uv run prek run --all-files
 
 ci:
-	uv sync --all-extras
+	uv sync
 	uv run prek install -t pre-commit
 	uv run prek run --all-files
 	make test
