@@ -4,5 +4,5 @@ set -euo pipefail
 umask 002
 
 uv sync --all-extras --no-dev
-uv run python3 manage.py migrate
-uv run gunicorn atheweb.wsgi
+uv run --no-dev python3 manage.py migrate
+uv run --no-dev gunicorn atheweb.wsgi
