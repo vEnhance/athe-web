@@ -283,15 +283,25 @@ class BulkAwardView(UserPassesTestMixin, View):
 
         students_list = []
         for student in students:
-            display_name = student.user.get_full_name() or student.user.username
+            if student.user is not None:
+                first_name = student.user.first_name.lower()
+                last_name = student.user.last_name.lower()
+                username = student.user.username.lower()
+                display_name = student.user.get_full_name()
+            else:
+                first_name = ""
+                last_name = ""
+                username = ""
+                display_name = student.airtable_name
+
             students_list.append(
                 {
                     "airtable_name": student.airtable_name,
                     "display": display_name,
                     # Add searchable fields
-                    "first_name": student.user.first_name.lower(),
-                    "last_name": student.user.last_name.lower(),
-                    "username": student.user.username.lower(),
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "username": username,
                 }
             )
 
