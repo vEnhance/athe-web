@@ -18,5 +18,6 @@ urlpatterns = [
     path("course/<int:pk>/meetings/", views.manage_meetings, name="manage_meetings"),
     path("club/<int:pk>/join/", views.join_club, name="join_club"),
     path("club/<int:pk>/drop/", views.drop_club, name="drop_club"),
+    path("sorting-hat/", views.SortingHatView.as_view(), name="sorting_hat"),
     path("<slug:slug>/", views.course_list, name="course_list"),
 ]

@@ -1,0 +1,79 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}
+    Sorting Hat - Athemath
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 50px;">
+        <div class="row">
+            <div class="col-lg-9">
+                <h1>🎩 Sorting Hat</h1>
+                <p class="lead">Assign students to houses in bulk by copying from a spreadsheet.</p>
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">Assign Houses</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% if results %}
+                    <div class="mt-4">
+                        {% if results.assigned %}
+                            <div class="card border-success mb-3">
+                                <div class="card-header bg-success text-white">Successfully Assigned ({{ results.assigned|length }})</div>
+                                <div class="card-body">
+                                    <ul class="mb-0">
+                                        {% for msg in results.assigned %}<li>{{ msg }}</li>{% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if results.not_found %}
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">Students Not Found ({{ results.not_found|length }})</div>
+                                <div class="card-body">
+                                    <ul class="mb-0">
+                                        {% for msg in results.not_found %}<li>{{ msg }}</li>{% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-3">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Instructions</strong>
+                    </div>
+                    <div class="card-body">
+                        <ol class="mb-0">
+                            <li>Select the semester</li>
+                            <li>Paste airtable_name values (one per line) into each house field</li>
+                            <li>Click "Assign Houses"</li>
+                            <li>Review the results below</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <strong>Houses</strong>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li>🟦 Blob</li>
+                            <li>🐱 Cat</li>
+                            <li>🦉 Owl</li>
+                            <li>🐼 Red Panda</li>
+                            <li>🐰 Bunny</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

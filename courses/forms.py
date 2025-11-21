@@ -3,7 +3,7 @@ from typing import Any
 from django import forms
 from django.utils import timezone
 
-from courses.models import Course, CourseMeeting
+from courses.models import Course, CourseMeeting, Semester
 
 
 class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
@@ -86,3 +86,57 @@ class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
             "discord_role_id": "Discord role ID to mention in reminders",
             "discord_reminders_enabled": "Whether to send Discord reminders",
         }
+
+
+class SortingHatForm(forms.Form):
+    """Form for bulk house assignment to students."""
+
+    semester = forms.ModelChoiceField(
+        queryset=Semester.objects.all(),
+        help_text="Select the semester for house assignment",
+    )
+
+    blob = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
+        ),
+        label="Blob",
+        help_text="Students to assign to Blob house",
+    )
+
+    cat = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
+        ),
+        label="Cat",
+        help_text="Students to assign to Cat house",
+    )
+
+    owl = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
+        ),
+        label="Owl",
+        help_text="Students to assign to Owl house",
+    )
+
+    red_panda = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
+        ),
+        label="Red Panda",
+        help_text="Students to assign to Red Panda house",
+    )
+
+    bunny = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
+        ),
+        label="Bunny",
+        help_text="Students to assign to Bunny house",
+    )
