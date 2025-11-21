@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.db.models import UniqueConstraint, Q
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -131,8 +132,19 @@ class Student(models.Model):
         BUNNY = "bunny", "Bunny"
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="students"
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="students",
     )
+    airtable_name = models.CharField(
+        max_length=80,
+        help_text="A unique name for the student, as listed in Airtable. "
+        "This is used to disambiguate students during the registration process "
+        "and when awarding house points, but generally doesn't appear to students.",
+    )
+
     semester = models.ForeignKey(
         Semester, on_delete=models.CASCADE, related_name="students"
     )
@@ -147,8 +159,18 @@ class Student(models.Model):
         return f"{self.user.username} ({self.semester})"
 
     class Meta:
-        unique_together = ("user", "semester")
-        ordering = ("-semester__start_date", "user__username")
+        constraints = (
+            UniqueConstraint(
+                fields=["user", "semester"],
+                condition=Q(user__isnull=False),
+                name="unique_user_per_semester",
+            ),
+            UniqueConstraint(
+                fields=["airtable_name", "semester"],
+                name="unique_airtable_name_per_semester",
+            ),
+        )
+        ordering = ("-semester__start_date", "airtable_name")
 
 
 class CourseMeeting(models.Model):

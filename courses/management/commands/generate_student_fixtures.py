@@ -11,14 +11,14 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = "Generate 100 sample students for Fall Session 2025"
+    help = "Generate 20 sample students for Fall Session 2025"
 
     def add_arguments(self, parser):  # type: ignore[no-untyped-def]
         parser.add_argument(
             "--count",
             type=int,
-            default=100,
-            help="Number of students to generate (default: 100)",
+            default=20,
+            help="Number of students to generate (default: 20)",
         )
         parser.add_argument(
             "--semester-slug",
@@ -105,7 +105,10 @@ class Command(BaseCommand):
 
                 # Create student
                 student = Student.objects.create(
-                    user=user, semester=semester, house=house
+                    user=user,
+                    semester=semester,
+                    house=house,
+                    airtable_name=first_name + " " + last_name,
                 )
                 created_students += 1
 

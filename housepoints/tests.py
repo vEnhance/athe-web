@@ -356,10 +356,16 @@ def test_leaderboard_calculates_totals():
     user1 = User.objects.create_user(username="user1", password="password")
     user2 = User.objects.create_user(username="user2", password="password")
     student1 = Student.objects.create(
-        user=user1, semester=semester, house=Student.House.OWL
+        user=user1,
+        semester=semester,
+        house=Student.House.OWL,
+        airtable_name="Student 1",
     )
     student2 = Student.objects.create(
-        user=user2, semester=semester, house=Student.House.CAT
+        user=user2,
+        semester=semester,
+        house=Student.House.CAT,
+        airtable_name="Student 2",
     )
 
     # Create awards
@@ -411,7 +417,10 @@ def test_leaderboard_respects_freeze_date():
 
     user = User.objects.create_user(username="user1", password="password")
     student = Student.objects.create(
-        user=user, semester=semester, house=Student.House.BLOB
+        user=user,
+        semester=semester,
+        house=Student.House.BLOB,
+        airtable_name="Student 1",
     )
 
     # Create award before freeze date (should count)
@@ -528,8 +537,18 @@ def test_bulk_award_creates_awards():
     user2 = User.objects.create_user(
         username="bob", password="password", email="bob@example.com"
     )
-    Student.objects.create(user=user1, semester=semester, house=Student.House.OWL)
-    Student.objects.create(user=user2, semester=semester, house=Student.House.CAT)
+    Student.objects.create(
+        user=user1,
+        semester=semester,
+        house=Student.House.OWL,
+        airtable_name="Student 1",
+    )
+    Student.objects.create(
+        user=user2,
+        semester=semester,
+        house=Student.House.CAT,
+        airtable_name="Student 2",
+    )
 
     client.login(username="staff", password="password")
     url = reverse("housepoints:bulk_award")
@@ -571,7 +590,9 @@ def test_bulk_award_custom_points():
     user = User.objects.create_user(
         username="alice", password="password", email="alice@example.com"
     )
-    Student.objects.create(user=user, semester=semester, house=Student.House.BLOB)
+    Student.objects.create(
+        user=user, semester=semester, house=Student.House.BLOB, airtable_name="Alice"
+    )
 
     client.login(username="staff", password="password")
     url = reverse("housepoints:bulk_award")
@@ -605,7 +626,9 @@ def test_bulk_award_handles_missing_student():
     user = User.objects.create_user(
         username="alice", password="password", email="alice@example.com"
     )
-    Student.objects.create(user=user, semester=semester, house=Student.House.OWL)
+    Student.objects.create(
+        user=user, semester=semester, house=Student.House.OWL, airtable_name="Alice"
+    )
 
     client.login(username="staff", password="password")
     url = reverse("housepoints:bulk_award")
@@ -645,7 +668,9 @@ def test_bulk_award_handles_student_without_house():
     user = User.objects.create_user(
         username="alice", password="password", email="alice@example.com"
     )
-    Student.objects.create(user=user, semester=semester, house="")  # No house
+    Student.objects.create(
+        user=user, semester=semester, house="", airtable_name="Alice"
+    )  # No house
 
     client.login(username="staff", password="password")
     url = reverse("housepoints:bulk_award")
@@ -742,7 +767,7 @@ def test_my_awards_shows_user_awards():
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
-        user=user, semester=semester, house=Student.House.BUNNY
+        user=user, semester=semester, house=Student.House.BUNNY, airtable_name="Student"
     )
 
     Award.objects.create(
@@ -776,7 +801,7 @@ def test_my_awards_shows_semester_totals():
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
-        user=user, semester=semester, house=Student.House.CAT
+        user=user, semester=semester, house=Student.House.CAT, airtable_name="Student"
     )
 
     Award.objects.create(
@@ -814,10 +839,10 @@ def test_my_awards_only_shows_own_awards():
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student1 = Student.objects.create(
-        user=user1, semester=semester, house=Student.House.OWL
+        user=user1, semester=semester, house=Student.House.OWL, airtable_name="Alice"
     )
     student2 = Student.objects.create(
-        user=user2, semester=semester, house=Student.House.CAT
+        user=user2, semester=semester, house=Student.House.CAT, airtable_name="Bob"
     )
 
     Award.objects.create(
@@ -917,7 +942,7 @@ def test_award_str_representation_with_student():
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
-        user=user, semester=semester, house=Student.House.OWL
+        user=user, semester=semester, house=Student.House.OWL, airtable_name="Tester"
     )
     award = Award.objects.create(
         semester=semester,
@@ -968,7 +993,7 @@ def test_intro_post_awarded_only_once_per_student():
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
-        user=user, semester=semester, house=Student.House.OWL
+        user=user, semester=semester, house=Student.House.OWL, airtable_name="Tester"
     )
 
     # First intro post award should succeed
@@ -1012,10 +1037,10 @@ def test_intro_post_can_be_awarded_in_different_semesters():
 
     # Create student enrollments in both semesters
     student_fall = Student.objects.create(
-        user=user, semester=fall, house=Student.House.CAT
+        user=user, semester=fall, house=Student.House.CAT, airtable_name="Tester"
     )
     student_spring = Student.objects.create(
-        user=user, semester=spring, house=Student.House.CAT
+        user=user, semester=spring, house=Student.House.CAT, airtable_name="Tester"
     )
 
     # Should be able to award intro post in both semesters
@@ -1048,7 +1073,7 @@ def test_other_award_types_can_be_awarded_multiple_times():
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
-        user=user, semester=semester, house=Student.House.BLOB
+        user=user, semester=semester, house=Student.House.BLOB, airtable_name="Tester"
     )
 
     # Create multiple homework awards - should all succeed
@@ -1088,7 +1113,10 @@ def test_class_attendance_can_be_awarded_multiple_times():
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
-        user=user, semester=semester, house=Student.House.RED_PANDA
+        user=user,
+        semester=semester,
+        house=Student.House.RED_PANDA,
+        airtable_name="Tester",
     )
 
     # Create multiple class attendance awards
