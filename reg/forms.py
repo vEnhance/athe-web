@@ -66,14 +66,14 @@ class LoginChoiceForm(forms.Form):
     """Form for choosing whether to login or create a new account."""
 
     HAS_ACCOUNT_CHOICES = [
-        ("yes", "Yes, I have an account and will log in"),
-        ("no", "No, I need to create a new account"),
+        ("yes", "Yes, I have an account from a previous year and will log in"),
+        ("no", "No, I am joining Athemath for the first time"),
     ]
 
     has_account = forms.ChoiceField(
         choices=HAS_ACCOUNT_CHOICES,
         widget=forms.RadioSelect,
-        label="Do you already have an account?",
+        label="Do you already have an account from a previous Athemath?",
         help_text="Select whether you have an existing account or need to create a new one.",
     )
 
@@ -83,7 +83,14 @@ class StudentRegistrationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ["username", "password1", "password2"]
+        fields = [
+            "username",
+            "password1",
+            "password2",
+            "email",
+            "first_name",
+            "last_name",
+        ]
 
     def __init__(self, *args, **kwargs):  # type: ignore
         super().__init__(*args, **kwargs)

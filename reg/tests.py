@@ -583,7 +583,10 @@ def test_get_login_choice(student_invite_view_setup):
     )
     response = client.get(url)
     assert response.status_code == 200
-    assert "Do you already have an account?" in response.content.decode()
+    assert (
+        "Do you already have an account from a previous Athemath?"
+        in response.content.decode()
+    )
 
 
 @pytest.mark.django_db
