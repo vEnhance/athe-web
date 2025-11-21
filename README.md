@@ -2,7 +2,7 @@
 
 1. Install Python, Git, and [uv](https://docs.astral.sh/uv/)
 2. Clone this repository and cd to it.
-3. `make install` (or `uv sync --all-extras`)
+3. `make install` (or `uv sync`)
 4. `make migrate` (or `uv run python manage.py migrate`)
 5. Use `uv run python manage.py createsuperuser` and create an admin username and password
 6. Maybe try `uv run python manage.py loaddata fixtures/example.json`
