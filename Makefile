@@ -1,4 +1,4 @@
-.PHONY: help install runserver migrate migrations check test fmt
+.PHONY: help install runserver migrate migrations fmt check test ci
 
 help:
 	@echo "Available commands:"
@@ -6,9 +6,10 @@ help:
 	@echo "  make runserver        - Run Django development server"
 	@echo "  make migrate          - Apply database migrations"
 	@echo "  make migrations       - Create new migrations"
+	@echo "  make fmt              - Run code formatter"
 	@echo "  make check            - Run Django checks and type checking"
 	@echo "  make test             - Run tests"
-	@echo "  make fmt              - Run code formatter"
+	@echo "  make ci               - Short for fmt + check + test"
 
 install:
 	uv sync
@@ -26,13 +27,19 @@ migrations:
 		uv run prek run --files $$files; \
 	fi
 
+fmt:
+	uv run prek run --all-files
+
 check:
 	uv run python manage.py check
 	uv run python manage.py validate_templates
+	uv run python manage.py makemigrations --check --dry-run
 	uv run pyright .
 
 test:
 	uv run pytest -n auto
 
-fmt:
-	uv run prek run --all-files
+ci:
+	make fmt
+	make check
+	make test
