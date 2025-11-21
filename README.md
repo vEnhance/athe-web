@@ -4,7 +4,7 @@
 2. Clone this repository and cd to it.
 3. `make install` (or `uv sync --all-extras`)
 4. `make migrate` (or `uv run python manage.py migrate`)
-5. `make createsuperuser` (or `uv run python manage.py createsuperuser`) and create an admin username and password
+5. Use `uv run python manage.py createsuperuser` and create an admin username and password
 6. Maybe try `uv run python manage.py loaddata fixtures/example.json`
    - This command will probably break later once we add more fields
 7. `make runserver` (or `uv run python manage.py runserver_plus`)
