@@ -80,7 +80,7 @@
                     </div>
                     <div class="card-body">
                         <ul class="mb-0">
-                            <li>Use autocomplete to search by name or email</li>
+                            <li>Use autocomplete to search by name</li>
                             <li>Click a suggestion to add it to the list</li>
                             <li>Students must have a house assigned</li>
                             <li>Leave points blank to use default value</li>
@@ -97,7 +97,7 @@
                             <input type="text"
                                    id="student-search"
                                    class="form-control"
-                                   placeholder="Search by name or email..."
+                                   placeholder="Search by name..."
                                    autocomplete="off">
                         </div>
                         <div id="autocomplete-results" class="list-group"></div>
@@ -128,7 +128,7 @@
 
         const searchInput = document.getElementById('student-search');
         const resultsDiv = document.getElementById('autocomplete-results');
-        const emailsTextarea = document.getElementById('id_emails');
+        const airtableNamesTextarea = document.getElementById('id_airtable_names');
         const semesterSelect = document.getElementById('id_semester');
 
         let debounceTimer;
@@ -154,8 +154,8 @@
         function filterAndDisplayStudents(query) {
             // Filter students client-side
             const filtered = allStudents.filter(student => {
-                // Search in email, first name, last name, username
-                return student.email.toLowerCase().includes(query) ||
+                // Search in airtable_name, first name, last name, username, display
+                return student.airtable_name.toLowerCase().includes(query) ||
                        student.first_name.includes(query) ||
                        student.last_name.includes(query) ||
                        student.username.includes(query) ||
@@ -172,42 +172,42 @@
             }
 
             resultsDiv.innerHTML = students.map(student =>
-                `<button type="button" class="list-group-item list-group-item-action" data-email="${student.email}">
+                `<button type="button" class="list-group-item list-group-item-action" data-airtable-name="${student.airtable_name}">
                     <div>${student.display}</div>
-                    <small class="text-muted">${student.email}</small>
+                    <small class="text-muted">${student.airtable_name}</small>
                 </button>`
             ).join('');
 
             // Add click handlers
             resultsDiv.querySelectorAll('button').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    addEmail(this.dataset.email);
+                    addAirtableName(this.dataset.airtableName);
                 });
             });
         }
 
-        function addEmail(email) {
-            const currentValue = emailsTextarea.value.trim();
-            const emails = currentValue ? currentValue.split('\n') : [];
+        function addAirtableName(airtableName) {
+            const currentValue = airtableNamesTextarea.value.trim();
+            const airtableNames = currentValue ? currentValue.split('\n') : [];
 
-            // Check if email already exists
-            if (emails.includes(email)) {
+            // Check if airtable_name already exists
+            if (airtableNames.includes(airtableName)) {
                 alert('This student is already in the list.');
                 return;
             }
 
-            // Add email
-            emails.push(email);
-            emailsTextarea.value = emails.join('\n');
+            // Add airtable_name
+            airtableNames.push(airtableName);
+            airtableNamesTextarea.value = airtableNames.join('\n');
 
             // Clear search
             searchInput.value = '';
             resultsDiv.innerHTML = '';
 
             // Show feedback
-            searchInput.placeholder = `Added ${email}. Search for another...`;
+            searchInput.placeholder = `Added ${airtableName}. Search for another...`;
             setTimeout(() => {
-                searchInput.placeholder = 'Search by name or email...';
+                searchInput.placeholder = 'Search by name...';
             }, 2000);
         }
 
