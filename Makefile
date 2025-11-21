@@ -36,7 +36,7 @@ check:
 	uv run pyright .
 
 test:
-	uv run pytest
+	uv run pytest -n auto
 
 fmt:
 	uv run prek run --all-files
