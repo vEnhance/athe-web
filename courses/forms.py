@@ -32,7 +32,9 @@ class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
         start_time = self.cleaned_data["start_time"]
         if start_time and timezone.is_naive(start_time):
             # datetime-local provides naive datetime; interpret it in website's timezone
-            start_time = timezone.make_aware(start_time, timezone.get_current_timezone())
+            start_time = timezone.make_aware(
+                start_time, timezone.get_current_timezone()
+            )
         return start_time
 
 
