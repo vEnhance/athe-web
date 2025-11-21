@@ -88,6 +88,27 @@ class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
         }
 
 
+class BulkStudentCreationForm(forms.Form):
+    """Form for bulk creation of students with course enrollments."""
+
+    semester = forms.ModelChoiceField(
+        queryset=Semester.objects.all(),
+        help_text="Select the semester for these students",
+    )
+    student_data = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                "rows": 15,
+                "placeholder": "Each line: airtable_name<TAB>course1,course2,course3\n"
+                "Example:\n"
+                "Alice Anderson\tAlgebra,Geometry\n"
+                "Bob Brown\tCalculus",
+            }
+        ),
+        help_text="Each line should contain: airtable_name (tab) comma-separated course names",
+    )
+
+
 class SortingHatForm(forms.Form):
     """Form for bulk house assignment to students."""
 

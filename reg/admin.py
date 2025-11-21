@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import StaffInviteLink
+from .models import StaffInviteLink, StudentInviteLink
 
 
 @admin.register(StaffInviteLink)
@@ -26,6 +26,45 @@ class StaffInviteLinkAdmin(admin.ModelAdmin):
     ]
 
     def link(self, obj: StaffInviteLink) -> str:
+        """Display the invite link URL path."""
+        if obj.pk:
+            url = obj.get_absolute_url()
+            return format_html('<a href="{}" target="_blank">{}</a>', url, url)
+        return "-"
+
+    link.short_description = "Invite Link"  # type: ignore
+
+
+@admin.register(StudentInviteLink)
+class StudentInviteLinkAdmin(admin.ModelAdmin):
+    list_display = [
+        "name",
+        "semester",
+        "expiration_date",
+        "created_at",
+        "is_expired",
+        "is_semester_ended",
+        "link",
+    ]
+    list_filter = ["semester", "expiration_date", "created_at"]
+    search_fields = ["name"]
+    readonly_fields = ["id", "created_at", "link"]
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": ["name", "semester", "expiration_date"],
+            },
+        ),
+        (
+            "Link Information",
+            {
+                "fields": ["id", "created_at", "link"],
+            },
+        ),
+    ]
+
+    def link(self, obj: StudentInviteLink) -> str:
         """Display the invite link URL path."""
         if obj.pk:
             url = obj.get_absolute_url()

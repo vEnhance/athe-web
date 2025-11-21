@@ -144,6 +144,9 @@
                                         </li>
                                         {% if user.is_superuser %}
                                             <li>
+                                                <a class="dropdown-item" href="{% url 'courses:bulk_create_students' %}">Bulk Create Students</a>
+                                            </li>
+                                            <li>
                                                 <a class="dropdown-item" href="{% url 'courses:sorting_hat' %}">Sorting Hat</a>
                                             </li>
                                         {% endif %}
