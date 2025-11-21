@@ -4,6 +4,7 @@ from django.db.models import UniqueConstraint, Q
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.urls import reverse
 from home.models import StaffPhotoListing
 
 
@@ -24,6 +25,9 @@ class Semester(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def get_absolute_url(self) -> str:
+        return reverse("courses:course_list", kwargs={"slug": self.slug})
 
     def is_active(self) -> bool:
         """Check if the semester is currently active."""
@@ -97,6 +101,9 @@ class Course(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def get_absolute_url(self) -> str:
+        return reverse("courses:course_detail", kwargs={"pk": self.pk})
 
     def save(self, *args, **kwargs) -> None:  # type: ignore[override]
         """Override save to auto-add instructor as a leader."""
