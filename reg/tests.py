@@ -126,11 +126,14 @@ def staff_invite_setup():
         "course": course,
     }
 
+
 @pytest.mark.django_db
 def test_get_staff_selection(staff_invite_setup):
     """Test GET request shows staff selection form."""
     client = Client()
-    url = reverse("reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id}
+    )
     response = client.get(url)
     assert response.status_code == 200
     assert "John Doe" in response.content.decode()
@@ -141,7 +144,9 @@ def test_get_staff_selection(staff_invite_setup):
 def test_get_expired_invite(staff_invite_setup):
     """Test GET request to expired invite shows error."""
     client = Client()
-    url = reverse("reg:add-staff", kwargs={"invite_id": staff_invite_setup["expired_invite"].id})
+    url = reverse(
+        "reg:add-staff", kwargs={"invite_id": staff_invite_setup["expired_invite"].id}
+    )
     response = client.get(url)
     assert response.status_code == 200
 
@@ -150,7 +155,9 @@ def test_get_expired_invite(staff_invite_setup):
 def test_post_staff_selection(staff_invite_setup):
     """Test POST request to select staff listing."""
     client = Client()
-    url = reverse("reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id}
+    )
     response = client.post(url, {"staff_listing": staff_invite_setup["staff1"].id})
     assert response.status_code == 302  # Redirect
     # Check session has staff_listing_id
@@ -162,7 +169,9 @@ def test_post_staff_selection(staff_invite_setup):
 def test_post_staff_selection_already_registered(staff_invite_setup):
     """Test POST request to select already registered staff shows error."""
     client = Client()
-    url = reverse("reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id}
+    )
     response = client.post(url, {"staff_listing": staff_invite_setup["staff2"].id})
     assert response.status_code == 200
     assert "janesmith" in response.content.decode()
@@ -177,10 +186,13 @@ def test_get_registration_form(staff_invite_setup):
     session["staff_listing_id"] = staff_invite_setup["staff1"].id
     session.save()
 
-    url = reverse("reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id}
+    )
     response = client.get(url)
     assert response.status_code == 200
     assert "John Doe" in response.content.decode()
+
 
 @pytest.mark.django_db
 def test_post_registration_creates_user(staff_invite_setup):
@@ -191,7 +203,9 @@ def test_post_registration_creates_user(staff_invite_setup):
     session["staff_listing_id"] = staff_invite_setup["staff1"].id
     session.save()
 
-    url = reverse("reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id}
+    )
     response = client.post(
         url,
         {
@@ -234,7 +248,9 @@ def test_post_registration_adds_user_to_course_leaders(staff_invite_setup):
     session["staff_listing_id"] = staff_invite_setup["staff1"].id
     session.save()
 
-    url = reverse("reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id}
+    )
     response = client.post(
         url,
         {
@@ -263,7 +279,9 @@ def test_post_registration_invalid_form(staff_invite_setup):
     session["staff_listing_id"] = staff_invite_setup["staff1"].id
     session.save()
 
-    url = reverse("reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id}
+    )
     response = client.post(
         url,
         {
@@ -289,7 +307,9 @@ def test_session_cleared_when_accessing_already_registered_staff(staff_invite_se
     session["staff_listing_id"] = staff_invite_setup["staff2"].id
     session.save()
 
-    url = reverse("reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id}
+    )
     response = client.get(url)
     assert response.status_code == 200
 
@@ -315,7 +335,9 @@ def test_multiple_courses_with_same_instructor(staff_invite_setup):
     session["staff_listing_id"] = staff_invite_setup["staff1"].id
     session.save()
 
-    url = reverse("reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-staff", kwargs={"invite_id": staff_invite_setup["valid_invite"].id}
+    )
     response = client.post(
         url,
         {
@@ -547,13 +569,18 @@ def student_invite_view_setup():
         "ended_semester_invite": ended_semester_invite,
     }
 
+
 # Remaining converted tests for student invite views
+
 
 @pytest.mark.django_db
 def test_get_login_choice(student_invite_view_setup):
     """Test GET request shows login choice form when not logged in."""
     client = Client()
-    url = reverse("reg:add-student", kwargs={"invite_id": student_invite_view_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["valid_invite"].id},
+    )
     response = client.get(url)
     assert response.status_code == 200
     assert "Do you already have an account?" in response.content.decode()
@@ -563,7 +590,10 @@ def test_get_login_choice(student_invite_view_setup):
 def test_get_expired_invite_student(student_invite_view_setup):
     """Test GET request to expired invite shows error."""
     client = Client()
-    url = reverse("reg:add-student", kwargs={"invite_id": student_invite_view_setup["expired_invite"].id})
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["expired_invite"].id},
+    )
     response = client.get(url)
     assert response.status_code == 200
     assert "expired" in response.content.decode()
@@ -573,7 +603,10 @@ def test_get_expired_invite_student(student_invite_view_setup):
 def test_get_ended_semester_invite(student_invite_view_setup):
     """Test GET request to ended semester invite shows error."""
     client = Client()
-    url = reverse("reg:add-student", kwargs={"invite_id": student_invite_view_setup["ended_semester_invite"].id})
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["ended_semester_invite"].id},
+    )
     response = client.get(url)
     assert response.status_code == 200
     assert "semester has ended" in response.content.decode()
@@ -583,7 +616,10 @@ def test_get_ended_semester_invite(student_invite_view_setup):
 def test_post_login_choice_yes(student_invite_view_setup):
     """Test POST request to choose 'yes' redirects to login."""
     client = Client()
-    url = reverse("reg:add-student", kwargs={"invite_id": student_invite_view_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["valid_invite"].id},
+    )
     response = client.post(url, {"has_account": "yes"})
     assert response.status_code == 302
     # Should redirect to login with next parameter
@@ -595,7 +631,10 @@ def test_post_login_choice_yes(student_invite_view_setup):
 def test_post_login_choice_no(student_invite_view_setup):
     """Test POST request to choose 'no' shows registration form."""
     client = Client()
-    url = reverse("reg:add-student", kwargs={"invite_id": student_invite_view_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["valid_invite"].id},
+    )
     response = client.post(url, {"has_account": "no"})
     assert response.status_code == 302  # Redirect
     # Check session has creating_new_account flag
@@ -612,7 +651,10 @@ def test_get_registration_form_student(student_invite_view_setup):
     session["creating_new_account"] = True
     session.save()
 
-    url = reverse("reg:add-student", kwargs={"invite_id": student_invite_view_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["valid_invite"].id},
+    )
     response = client.get(url)
     assert response.status_code == 200
 
@@ -626,7 +668,10 @@ def test_post_registration_creates_user_student(student_invite_view_setup):
     session["creating_new_account"] = True
     session.save()
 
-    url = reverse("reg:add-student", kwargs={"invite_id": student_invite_view_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["valid_invite"].id},
+    )
     response = client.post(
         url,
         {
@@ -658,7 +703,10 @@ def test_get_student_selection_as_logged_in_user(student_invite_view_setup):
     User.objects.create_user(username="newuser", password="testpass123")
     client.login(username="newuser", password="testpass123")
 
-    url = reverse("reg:add-student", kwargs={"invite_id": student_invite_view_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["valid_invite"].id},
+    )
     response = client.get(url)
     assert response.status_code == 200
     assert "Alice Johnson" in response.content.decode()
@@ -673,7 +721,10 @@ def test_post_student_selection(student_invite_view_setup):
     user = User.objects.create_user(username="newuser", password="testpass123")
     client.login(username="newuser", password="testpass123")
 
-    url = reverse("reg:add-student", kwargs={"invite_id": student_invite_view_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["valid_invite"].id},
+    )
     response = client.post(url, {"student": student_invite_view_setup["student1"].id})
     assert response.status_code == 302  # Redirect to home
 
@@ -690,7 +741,10 @@ def test_post_student_selection_already_taken(student_invite_view_setup):
     User.objects.create_user(username="newuser", password="testpass123")
     client.login(username="newuser", password="testpass123")
 
-    url = reverse("reg:add-student", kwargs={"invite_id": student_invite_view_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["valid_invite"].id},
+    )
     response = client.post(url, {"student": student_invite_view_setup["student2"].id})
     assert response.status_code == 200
     assert "Bob Smith" in response.content.decode()
@@ -703,7 +757,10 @@ def test_get_already_registered_student(student_invite_view_setup):
     # Login with existing user who already has a student
     client.login(username="bobsmith", password="testpass123")
 
-    url = reverse("reg:add-student", kwargs={"invite_id": student_invite_view_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["valid_invite"].id},
+    )
     response = client.get(url)
     assert response.status_code == 200
     assert "Bob Smith" in response.content.decode()
@@ -718,7 +775,10 @@ def test_post_registration_invalid_form_student(student_invite_view_setup):
     session["creating_new_account"] = True
     session.save()
 
-    url = reverse("reg:add-student", kwargs={"invite_id": student_invite_view_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["valid_invite"].id},
+    )
     response = client.post(
         url,
         {
@@ -740,7 +800,10 @@ def test_existing_user_login_flow(student_invite_view_setup):
     user = User.objects.create_user(username="existinguser", password="testpass123")
 
     # Get the invite URL
-    url = reverse("reg:add-student", kwargs={"invite_id": student_invite_view_setup["valid_invite"].id})
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["valid_invite"].id},
+    )
 
     # First, choose "yes" (has account)
     response = client.post(url, {"has_account": "yes"})
