@@ -14,7 +14,7 @@ help:
 	@echo "  make prek             - Run prek on all files"
 
 install:
-	uv sync --all-extras
+	uv sync
 	uv run prek install
 
 runserver:
@@ -51,6 +51,6 @@ prek:
 ci:
 	uv sync
 	uv run prek install -t pre-commit
-	uv run prek run --all-files
+	make fmt
 	make test
 	make check
