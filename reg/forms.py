@@ -113,7 +113,7 @@ class StudentSelectionForm(forms.Form):
 
     def __init__(self, semester, *args, **kwargs):  # type: ignore
         super().__init__(*args, **kwargs)
-        # Only show students from this semester who don't have a user yet
+        # Only show students from this semester
         self.fields["student"].queryset = Student.objects.filter(  # type: ignore
-            semester=semester, user__isnull=True
+            semester=semester
         )

@@ -356,7 +356,7 @@ class StudentInviteView(View):
 
             if has_account == "yes":
                 # Redirect to login page with next parameter
-                login_url = reverse("account_login")
+                login_url = reverse("login")
                 next_url = invite.get_absolute_url()
                 return redirect(f"{login_url}?next={next_url}")
             else:
