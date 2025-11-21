@@ -10,9 +10,14 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from django.views.generic import DetailView, UpdateView
+from django.views.generic import DetailView, UpdateView, View
 
-from courses.forms import BulkStudentCreationForm, CourseMeetingForm, CourseUpdateForm
+from courses.forms import (
+    BulkStudentCreationForm,
+    CourseMeetingForm,
+    CourseUpdateForm,
+    SortingHatForm,
+)
 from courses.models import Course, CourseMeeting, Semester, Student
 
 
@@ -610,3 +615,87 @@ def bulk_create_students(request: HttpRequest) -> HttpResponse:
         form = BulkStudentCreationForm()
 
     return render(request, "courses/bulk_create_students.html", {"form": form})
+
+
+class SortingHatView(UserPassesTestMixin, View):
+    """Superuser-only view for bulk house assignment."""
+
+    def test_func(self) -> bool:
+        """Only superusers can access this view."""
+        return self.request.user.is_superuser  # type: ignore[attr-defined]
+
+    def get(self, request: HttpRequest) -> HttpResponse:
+        """Display the sorting hat form."""
+        form = SortingHatForm()
+        return render(request, "courses/sorting_hat.html", {"form": form})
+
+    def post(self, request: HttpRequest) -> HttpResponse:
+        """Process bulk house assignment."""
+        form = SortingHatForm(request.POST)
+        if not form.is_valid():
+            return render(request, "courses/sorting_hat.html", {"form": form})
+
+        semester = form.cleaned_data["semester"]
+        results = {
+            "assigned": [],
+            "not_found": [],
+        }
+
+        # Define house fields mapping
+        house_fields = {
+            "blob": Student.House.BLOB,
+            "cat": Student.House.CAT,
+            "owl": Student.House.OWL,
+            "red_panda": Student.House.RED_PANDA,
+            "bunny": Student.House.BUNNY,
+        }
+
+        # Parse all airtable names and their target houses
+        # Map: airtable_name -> house_value
+        assignments = {}
+        for field_name, house_value in house_fields.items():
+            airtable_names_text = form.cleaned_data.get(field_name, "")
+            if not airtable_names_text:
+                continue
+
+            # Split by lines and strip whitespace
+            airtable_names = [
+                name.strip()
+                for name in airtable_names_text.strip().split("\n")
+                if name.strip()
+            ]
+
+            for airtable_name in airtable_names:
+                assignments[airtable_name] = house_value
+
+        # Fetch all students in one query (O(1) queries)
+        all_airtable_names = list(assignments.keys())
+        students = Student.objects.filter(
+            airtable_name__in=all_airtable_names, semester=semester
+        )
+
+        # Create a mapping of airtable_name -> student
+        student_map = {student.airtable_name: student for student in students}
+
+        # Update students in memory and track results
+        students_to_update = []
+        for airtable_name, house_value in assignments.items():
+            if airtable_name in student_map:
+                student = student_map[airtable_name]
+                student.house = house_value
+                students_to_update.append(student)
+                results["assigned"].append(f"{airtable_name} → {house_value.label}")
+            else:
+                results["not_found"].append(
+                    f"{airtable_name} (not found in {semester})"
+                )
+
+        # Bulk update all students in one query (O(1) queries)
+        if students_to_update:
+            Student.objects.bulk_update(students_to_update, ["house"])
+
+        return render(
+            request,
+            "courses/sorting_hat.html",
+            {"form": form, "results": results},
+        )

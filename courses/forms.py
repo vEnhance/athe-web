@@ -107,3 +107,57 @@ class BulkStudentCreationForm(forms.Form):
         ),
         help_text="Each line should contain: airtable_name (tab) comma-separated course names",
     )
+
+
+class SortingHatForm(forms.Form):
+    """Form for bulk house assignment to students."""
+
+    semester = forms.ModelChoiceField(
+        queryset=Semester.objects.all(),
+        help_text="Select the semester for house assignment",
+    )
+
+    blob = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
+        ),
+        label="Blob",
+        help_text="Students to assign to Blob house",
+    )
+
+    cat = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
+        ),
+        label="Cat",
+        help_text="Students to assign to Cat house",
+    )
+
+    owl = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
+        ),
+        label="Owl",
+        help_text="Students to assign to Owl house",
+    )
+
+    red_panda = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
+        ),
+        label="Red Panda",
+        help_text="Students to assign to Red Panda house",
+    )
+
+    bunny = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
+        ),
+        label="Bunny",
+        help_text="Students to assign to Bunny house",
+    )
