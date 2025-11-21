@@ -18,7 +18,7 @@ TARGET=/home/protected/atheweb/
 mkdir -p "$TARGET"
 chown atheweb:web "$TARGET"
 chmod g+s "$TARGET"
-cd "$TARGET" || exit
+cd "$TARGET" || exit 1
 git --git-dir="/home/private/atheweb.git" --work-tree="." checkout -f main
 ```
 
