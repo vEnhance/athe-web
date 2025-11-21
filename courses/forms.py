@@ -1,6 +1,7 @@
 from typing import Any
 
 from django import forms
+from django.utils import timezone
 
 from courses.models import Course, CourseMeeting
 
@@ -21,11 +22,18 @@ class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        # Make the datetime input more user-friendly
+        # Display existing datetime in the website's timezone (America/New_York)
         if self.instance and self.instance.pk:
-            self.initial["start_time"] = self.instance.start_time.strftime(
-                "%Y-%m-%dT%H:%M"
-            )
+            local_time = timezone.localtime(self.instance.start_time)
+            self.initial["start_time"] = local_time.strftime("%Y-%m-%dT%H:%M")
+
+    def clean_start_time(self) -> Any:
+        """Convert naive datetime from datetime-local input to aware datetime in website's timezone."""
+        start_time = self.cleaned_data["start_time"]
+        if start_time and timezone.is_naive(start_time):
+            # datetime-local provides naive datetime; interpret it in website's timezone
+            start_time = timezone.make_aware(start_time, timezone.get_current_timezone())
+        return start_time
 
 
 class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
