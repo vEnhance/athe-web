@@ -28,11 +28,11 @@ jobs:
     - name: 📥 Install dependencies
       run: uv sync
 
+    - name: 🧼 Check formatting
+      run: make fmt
+
     - name: 🔍 Run checks
       run: make check
 
     - name: 🧪 Run tests
       run: make test
-
-    - name: 🧼 Check formatting
-      run: make fmt
