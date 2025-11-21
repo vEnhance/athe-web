@@ -34,9 +34,8 @@ Run `make help` to see all available commands:
 - `make check` - Run Django checks and type checking
 - `make test` - Run tests
 - `make fmt` - Run code formatter
-  You can also use `uv run python manage.py
-<command>
-` directly for any Django command.
+
+You can also use `uv run python manage.py <command>` directly for any Django command.
 
 ## Dependencies
 
@@ -46,21 +45,30 @@ Run `make help` to see all available commands:
 - **django-allauth**: Social authentication (Google, GitHub, Discord OAuth)
 - **django-bootstrap5**: Bootstrap integration
 - **django-extensions**: Useful Django extensions
+- **django-hijack**: User impersonation for admins
+- **django-markdownfield**: Markdown support for model fields
+- **pillow**: Image processing
+- **requests**: HTTP library
+- **dotenv**: Environment variable management
 - **ipython**: Enhanced Python shell
+- **gunicorn**: Production WSGI server (prod extra)
+- **mysqlclient**: MySQL database adapter (prod extra)
 
 ### Development Dependencies
 
 - **ruff**: Fast Python linter and formatter
 - **djlint**: Django template linter
-- **pytest** + **pytest-django**: Testing framework
+- **pytest** + **pytest-django** + **pytest-xdist**: Testing framework with parallel support
 - **pyright**: Static type checker
 - **django-stubs**: Type stubs for Django
+- **werkzeug**: WSGI utilities (for runserver_plus)
+- **prek**: Pre-commit helper utilities
 
 ## Code Quality
 
 ### Type Checking
 
-We use pyright with strict settings configured in `pyproject.toml`. Migrations, tests, and `apps.py` are excluded.
+We use pyright with basic type checking configured in `pyproject.toml`. Migrations, tests, and `apps.py` are excluded.
 
 ### Linting and Formatting
 
@@ -89,6 +97,10 @@ GitHub Actions workflow (`.github/workflows/ci.yml`) runs on push/PR to main:
 athe-web/
 ├── atheweb/          # Main Django project
 ├── courses/          # Courses app
+├── home/             # Home page app
+├── housepoints/      # House points tracking app
+├── reg/              # Registration app
+├── weblog/           # Blog/weblog app
 ├── fixtures/         # Database fixtures
 ├── .github/          # GitHub Actions CI
 ├── manage.py         # Django management script
@@ -96,7 +108,12 @@ athe-web/
 ├── uv.lock           # Locked dependencies
 ├── Makefile          # Development commands
 ├── pytest.ini        # Pytest configuration
-└── OAUTH_SETUP.md    # OAuth authentication setup guide
+├── .pre-commit-config.yaml  # Pre-commit hook configuration
+├── gunicorn.sh       # Production server startup script
+├── run-discord.sh    # Discord reminders script
+├── sync-static.sh    # Static files sync script
+├── OAUTH_SETUP.md    # OAuth authentication setup guide
+└── NFS.md            # NearlyFreeSpeech deployment notes
 ```
 
 ## Authentication
@@ -124,8 +141,32 @@ For OAuth setup instructions, see [OAUTH_SETUP.md](OAUTH_SETUP.md).
 4. **Before committing**: Run `make fmt` to format, and `make check` and `make test` to verify everything works.
 5. **Django shell**: Use `uv run python manage.py shell_plus` (from django-extensions) for an enhanced shell with models auto-imported.
 
+## Pre-commit Hooks
+
+Pre-commit hooks are configured in `.pre-commit-config.yaml`. Install with:
+
+```bash
+uv run pre-commit install --install-hooks
+```
+
+Hooks run at different stages:
+
+- **pre-commit**: JSON/YAML/TOML validation, trailing whitespace, ruff format/lint, djlint, prettier, codespell
+- **commit-msg**: Conventional commit message format enforcement
+- **pre-push**: Django migration checks, `make fmt`, `make check`, `make test`
+
+## Deployment
+
+The application is deployed to NearlyFreeSpeech. See [NFS.md](NFS.md) for deployment details.
+
+### Deployment Scripts
+
+- `gunicorn.sh` - Starts the production server (syncs deps, runs migrations, starts gunicorn)
+- `run-discord.sh` - Runs the Discord reminder management command
+- `sync-static.sh` - Collects static files and syncs them to the production server
+
 ## Notes
 
-- Python 3.13+ required (specified in `pyproject.toml`)
-- Database: SQLite (default for Django development)
+- Python 3.11+ required (specified in `pyproject.toml`)
+- Database: SQLite (development), MySQL (production)
 - No `[build-system]` in pyproject.toml - this is intentional as we're not building a package
