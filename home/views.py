@@ -1,10 +1,90 @@
+from django import forms
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView, UpdateView
 
 from .models import ApplyPSet, StaffPhotoListing
+
+
+class UserProfileForm(forms.ModelForm):
+    """Form for updating user profile information."""
+
+    first_name = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    last_name = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={"class": "form-control"}),
+    )
+
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email"]
+
+
+class ProfileSettingsView(LoginRequiredMixin, View):
+    """View for users to update their profile settings."""
+
+    template_name = "home/profile_settings.html"
+
+    def get(self, request: HttpRequest) -> HttpResponse:
+        """Display the profile settings forms."""
+        profile_form = UserProfileForm(instance=request.user)
+        password_form = PasswordChangeForm(request.user)
+        return render(
+            request,
+            self.template_name,
+            {
+                "profile_form": profile_form,
+                "password_form": password_form,
+            },
+        )
+
+    def post(self, request: HttpRequest) -> HttpResponse:
+        """Handle form submissions for profile or password updates."""
+        if "update_profile" in request.POST:
+            profile_form = UserProfileForm(request.POST, instance=request.user)
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, "Your profile has been updated successfully.")
+                return redirect("home:profile_settings")
+            password_form = PasswordChangeForm(request.user)
+        elif "change_password" in request.POST:
+            password_form = PasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(
+                    request, "Your password has been changed successfully."
+                )
+                return redirect("home:profile_settings")
+            profile_form = UserProfileForm(instance=request.user)
+        else:
+            profile_form = UserProfileForm(instance=request.user)
+            password_form = PasswordChangeForm(request.user)
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "profile_form": profile_form,
+                "password_form": password_form,
+            },
+        )
 
 
 def index(request: HttpRequest) -> HttpResponse:
