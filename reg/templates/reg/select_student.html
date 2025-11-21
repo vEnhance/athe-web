@@ -1,0 +1,47 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}
+    Student Registration - Select Your Name
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 100px;">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title mb-4">Student Registration</h1>
+                        <p class="lead">
+                            Welcome! Please select your name from the roster below for <strong>{{ invite.semester }}</strong>.
+                        </p>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                {% for student in form.student.field.queryset %}
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="student"
+                                               id="student_{{ student.id }}"
+                                               value="{{ student.id }}">
+                                        <label class="form-check-label" for="student_{{ student.id }}">
+                                            <strong>{{ student.airtable_name }}</strong>
+                                            {% if student.house %}<span class="badge bg-info">{{ student.get_house_display }}</span>{% endif %}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.errors %}
+                                <div class="alert alert-danger">
+                                    {% for field, errors in form.errors.items %}
+                                        {% for error in errors %}<p>{{ error }}</p>{% endfor %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

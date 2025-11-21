@@ -1,0 +1,30 @@
+{% extends "home/base.html" %}
+{% block title %}
+    Already Registered
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 100px;">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title mb-4">Already Registered</h1>
+                        <div class="alert alert-info">
+                            <p class="lead mb-0">
+                                You are already registered as a student for <strong>{{ semester }}</strong>.
+                            </p>
+                        </div>
+                        <p class="mt-4">
+                            Your student record: <strong>{{ student.airtable_name }}</strong>
+                            {% if student.house %}<span class="badge bg-info">{{ student.get_house_display }}</span>{% endif %}
+                        </p>
+                        <p>
+                            You don't need to register again. If you believe this is an error, please contact your instructor or administrator.
+                        </p>
+                        <a href="{% url 'home:index' %}" class="btn btn-primary">Return to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,27 @@
+{% extends "home/base.html" %}
+{% block title %}
+    No Students Available
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 100px;">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title mb-4">No Students Available</h1>
+                        <p class="lead">
+                            There are no available student records to register for <strong>{{ semester }}</strong>.
+                        </p>
+                        <p class="mt-4">This could mean:</p>
+                        <ul>
+                            <li>All student records for this semester have already been claimed</li>
+                            <li>You may need to contact your instructor or administrator to add you to the roster</li>
+                        </ul>
+                        <p class="mt-4">Please contact your instructor or administrator for assistance.</p>
+                        <a href="{% url 'home:index' %}" class="btn btn-primary">Return to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
