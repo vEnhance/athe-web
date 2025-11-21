@@ -32,9 +32,7 @@ dependencies = [
     { name = "django-hijack" },
     { name = "django-markdownfield" },
     { name = "dotenv" },
-    { name = "gunicorn" },
     { name = "ipython" },
-    { name = "mysqlclient" },
     { name = "pillow" },
     { name = "requests" },
 ]
@@ -51,6 +49,10 @@ dev = [
     { name = "ruff" },
     { name = "werkzeug" },
 ]
+prod = [
+    { name = "gunicorn" },
+    { name = "mysqlclient" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -64,9 +66,9 @@ requires-dist = [
     { name = "django-stubs-ext", marker = "extra == 'dev'" },
     { name = "djlint", marker = "extra == 'dev'" },
     { name = "dotenv", specifier = ">=0.9.9" },
-    { name = "gunicorn", specifier = ">=23.0.0" },
+    { name = "gunicorn", marker = "extra == 'prod'", specifier = ">=23.0.0" },
     { name = "ipython" },
-    { name = "mysqlclient", specifier = ">=2.2.7" },
+    { name = "mysqlclient", marker = "extra == 'prod'", specifier = ">=2.2.7" },
     { name = "pillow", specifier = ">=10.0.0" },
     { name = "prek", marker = "extra == 'dev'" },
     { name = "pyright", marker = "extra == 'dev'" },
@@ -76,7 +78,7 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'" },
     { name = "werkzeug", marker = "extra == 'dev'", specifier = ">=3.1.3" },
 ]
-provides-extras = ["dev"]
+provides-extras = ["dev", "prod"]
 
 [[package]]
 name = "bleach"
