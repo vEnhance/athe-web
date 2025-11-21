@@ -61,7 +61,13 @@ class CourseMeetingInline(admin.TabularInline):
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ("name", "is_club", "semester", "instructor")
+    list_display = (
+        "name",
+        "is_club",
+        "semester",
+        "instructor",
+        "discord_reminders_enabled",
+    )
     list_filter = ("is_club", "semester", "difficulty")
     search_fields = ("name", "description")
     autocomplete_fields = ("instructor",)
