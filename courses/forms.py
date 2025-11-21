@@ -99,7 +99,7 @@ class BulkStudentCreationForm(forms.Form):
         widget=forms.Textarea(
             attrs={
                 "rows": 15,
-                "placeholder": "Each line: airtable_name<TAB>course1,course2,course3\n"
+                "placeholder": "Each line: airtable_name[TAB]course1,course2,course3\n"
                 "Example:\n"
                 "Alice Anderson\tAlgebra,Geometry\n"
                 "Bob Brown\tCalculus",

@@ -534,6 +534,8 @@ def bulk_create_students(request: HttpRequest) -> HttpResponse:
             parsed_data = []
             errors = []
             for i, line in enumerate(lines, start=1):
+                if "\t" not in line:
+                    line = line.replace(": ", "\t")
                 parts = line.split("\t")
                 if len(parts) != 2:
                     errors.append(
