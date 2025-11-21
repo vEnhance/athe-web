@@ -57,14 +57,14 @@ class Command(BaseCommand):
             kind = "club" if course.is_club else "class"
             message_parts = [
                 f"{role_mention} Reminder: the {kind} **{course.name}** is meeting soon!",
-                f"Time: <t:{unix_timestamp}:F> --- <t:{unix_timestamp}:R>",
+                f"Time: <t:{unix_timestamp}:F> in your time zone --- <t:{unix_timestamp}:R>",
             ]
             if meeting.title:
                 message_parts.append(f"Topic: {meeting.title}")
             if course.zoom_meeting_link:
                 message_parts.append(f"Zoom link: {course.zoom_meeting_link}")
             message_parts.append(
-                f"Full schedule: https://beta.athemath.org{course.get_absolute_url}"
+                f"Full schedule: https://beta.athemath.org{course.get_absolute_url()}"
             )
 
             message_content = "\n".join(message_parts)
