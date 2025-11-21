@@ -50,7 +50,7 @@ repos:
     rev: v3.6.2
     hooks:
       - id: prettier
-        types_or: [css, javascript]
+        types_or: [css, javascript, markdown, json, toml, yaml]
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
