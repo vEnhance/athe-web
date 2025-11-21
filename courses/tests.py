@@ -286,6 +286,7 @@ def test_discord_reminder_command(mock_post):
         semester=fall,
         discord_webhook="https://discord.com/api/webhooks/test",
         discord_role_id="123456",
+        discord_reminders_enabled=True,
         zoom_meeting_link="https://zoom.us/j/test",
     )
     # Create a meeting within 24 hours
