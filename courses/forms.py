@@ -3,7 +3,7 @@ from typing import Any
 from django import forms
 from django.utils import timezone
 
-from courses.models import Course, CourseMeeting
+from courses.models import Course, CourseMeeting, Semester
 
 
 class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
@@ -86,3 +86,24 @@ class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
             "discord_role_id": "Discord role ID to mention in reminders",
             "discord_reminders_enabled": "Whether to send Discord reminders",
         }
+
+
+class BulkStudentCreationForm(forms.Form):
+    """Form for bulk creation of students with course enrollments."""
+
+    semester = forms.ModelChoiceField(
+        queryset=Semester.objects.all(),
+        help_text="Select the semester for these students",
+    )
+    student_data = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                "rows": 15,
+                "placeholder": "Each line: airtable_name<TAB>course1,course2,course3\n"
+                "Example:\n"
+                "Alice Anderson\tAlgebra,Geometry\n"
+                "Bob Brown\tCalculus",
+            }
+        ),
+        help_text="Each line should contain: airtable_name (tab) comma-separated course names",
+    )
