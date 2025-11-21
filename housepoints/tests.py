@@ -541,13 +541,13 @@ def test_bulk_award_creates_awards():
         user=user1,
         semester=semester,
         house=Student.House.OWL,
-        airtable_name="Student 1",
+        airtable_name="Alice Smith",
     )
     Student.objects.create(
         user=user2,
         semester=semester,
         house=Student.House.CAT,
-        airtable_name="Student 2",
+        airtable_name="Bob Jones",
     )
 
     client.login(username="staff", password="password")
@@ -556,7 +556,7 @@ def test_bulk_award_creates_awards():
         url,
         {
             "award_type": Award.AwardType.OFFICE_HOURS,
-            "emails": "alice@example.com\nbob@example.com",
+            "airtable_names": "Alice Smith\nBob Jones",
             "points": "",  # Use default
             "description": "Week 1 OH",
         },
@@ -600,7 +600,7 @@ def test_bulk_award_custom_points():
         url,
         {
             "award_type": Award.AwardType.CLASS_ATTENDANCE,
-            "emails": "alice@example.com",
+            "airtable_names": "Alice",
             "points": "3",  # Custom points (e.g., for subsequent classes)
             "description": "Week 15 attendance",
         },
@@ -636,7 +636,7 @@ def test_bulk_award_handles_missing_student():
         url,
         {
             "award_type": Award.AwardType.HOMEWORK,
-            "emails": "alice@example.com\nnonexistent@example.com",
+            "airtable_names": "Alice\nNonexistent Student",
             "points": "",
             "description": "",
         },
@@ -645,9 +645,9 @@ def test_bulk_award_handles_missing_student():
     content = response.content.decode()
     assert response.status_code == 200
     # Alice should succeed
-    assert "alice@example.com" in content
+    assert "Alice" in content
     # Nonexistent should fail
-    assert "nonexistent@example.com" in content
+    assert "Nonexistent Student" in content
     assert "Not enrolled" in content or "not enrolled" in content.lower()
     # Only one award should be created
     assert Award.objects.count() == 1
@@ -678,7 +678,7 @@ def test_bulk_award_handles_student_without_house():
         url,
         {
             "award_type": Award.AwardType.HOMEWORK,
-            "emails": "alice@example.com",
+            "airtable_names": "Alice",
             "points": "",
             "description": "",
         },

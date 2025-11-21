@@ -108,11 +108,11 @@ class BulkAwardForm(forms.Form):
     award_type = forms.ChoiceField(
         choices=Award.AwardType.choices, help_text="Type of award to give"
     )
-    emails = forms.CharField(
+    airtable_names = forms.CharField(
         widget=forms.Textarea(
-            attrs={"rows": 10, "placeholder": "Enter one email address per line"}
+            attrs={"rows": 10, "placeholder": "Enter one airtable name per line"}
         ),
-        help_text="Enter email addresses, one per line",
+        help_text="Enter airtable names, one per line",
     )
     points = forms.IntegerField(
         required=False,
@@ -124,11 +124,13 @@ class BulkAwardForm(forms.Form):
         help_text="Optional description for all awards",
     )
 
-    def clean_emails(self) -> list[str]:
-        """Parse emails from textarea."""
-        emails_text = self.cleaned_data["emails"]
-        emails = [e.strip() for e in emails_text.strip().split("\n") if e.strip()]
-        return emails
+    def clean_airtable_names(self) -> list[str]:
+        """Parse airtable names from textarea."""
+        airtable_names_text = self.cleaned_data["airtable_names"]
+        airtable_names = [
+            n.strip() for n in airtable_names_text.strip().split("\n") if n.strip()
+        ]
+        return airtable_names
 
 
 class BulkAwardView(UserPassesTestMixin, View):
@@ -195,7 +197,7 @@ class BulkAwardView(UserPassesTestMixin, View):
 
         if form.is_valid():
             award_type = form.cleaned_data["award_type"]
-            emails = form.cleaned_data["emails"]
+            airtable_names = form.cleaned_data["airtable_names"]
             points = form.cleaned_data["points"]
             description = form.cleaned_data["description"]
 
@@ -203,23 +205,23 @@ class BulkAwardView(UserPassesTestMixin, View):
             if points is None:
                 points = Award.DEFAULT_POINTS.get(award_type, 0)
 
-            for email in emails:
+            for airtable_name in airtable_names:
                 try:
                     # Find the student record
                     students = Student.objects.select_related("user").filter(
-                        user__email=email, semester=semester
+                        airtable_name=airtable_name, semester=semester
                     )
 
-                    # Check for duplicate emails (should be impossible but validate)
+                    # Check for duplicate airtable_names (should be impossible but validate)
                     if students.count() > 1:
                         results["errors"].append(
-                            f"{email}: Multiple users found with this email address"
+                            f"{airtable_name}: Multiple students found with this airtable name"
                         )
                         continue
 
                     if students.count() == 0:
                         results["errors"].append(
-                            f"{email}: Not enrolled in {semester.name}"
+                            f"{airtable_name}: Not enrolled in {semester.name}"
                         )
                         continue
 
@@ -227,7 +229,7 @@ class BulkAwardView(UserPassesTestMixin, View):
                     assert student is not None
 
                     if not student.house:
-                        results["errors"].append(f"{email}: No house assigned")
+                        results["errors"].append(f"{airtable_name}: No house assigned")
                         continue
 
                     # Create the award
@@ -241,10 +243,10 @@ class BulkAwardView(UserPassesTestMixin, View):
                         awarded_by=request.user,
                     )
                     results["success"].append(
-                        f"{email}: +{points} pts ({student.get_house_display()})"  # type: ignore[attr-defined]
+                        f"{airtable_name}: +{points} pts ({student.get_house_display()})"  # type: ignore[attr-defined]
                     )
                 except Exception as e:
-                    results["errors"].append(f"{email}: {str(e)}")
+                    results["errors"].append(f"{airtable_name}: {str(e)}")
 
             if results["success"]:
                 messages.success(
@@ -276,15 +278,15 @@ class BulkAwardView(UserPassesTestMixin, View):
         students = (
             Student.objects.filter(semester=semester)
             .select_related("user")
-            .order_by("user__username")
+            .order_by("airtable_name")
         )
 
         students_list = []
         for student in students:
-            display_name = student.user.get_full_name() or student.user.email
+            display_name = student.user.get_full_name() or student.user.username
             students_list.append(
                 {
-                    "email": student.user.email,
+                    "airtable_name": student.airtable_name,
                     "display": display_name,
                     # Add searchable fields
                     "first_name": student.user.first_name.lower(),
