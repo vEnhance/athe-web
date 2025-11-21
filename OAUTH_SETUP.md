@@ -5,6 +5,7 @@ This document explains how to configure Google, GitHub, and Discord OAuth authen
 ## Overview
 
 The application uses `django-allauth` to support authentication via:
+
 - **Google OAuth** (primary, emphasized)
 - **GitHub OAuth** (primary, emphasized)
 - **Discord OAuth** (primary, emphasized)
@@ -111,6 +112,7 @@ For production, use your actual domain (e.g., `athemath.org`).
 ## Testing
 
 1. Start the development server:
+
    ```bash
    make runserver
    ```
@@ -157,6 +159,7 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 ## Production Considerations
 
 1. **Environment Variables:** For production, consider using environment variables for OAuth secrets:
+
    ```python
    import os
    SOCIALACCOUNT_PROVIDERS = {
@@ -177,15 +180,18 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 ## Troubleshooting
 
 ### "Social application not found" error
+
 - Ensure you've added the social application in Django admin
 - Verify the provider name matches exactly (case-sensitive)
 - Check that your site is selected in the social application
 
 ### Redirect URI mismatch
+
 - Verify the callback URL in your OAuth provider settings matches exactly
 - Include the trailing slash: `/accounts/google/login/callback/`
 
 ### Email conflicts
+
 - If auto-connection fails, users may need to verify their email
 - Check `ACCOUNT_EMAIL_VERIFICATION` setting
 

@@ -119,6 +119,7 @@ athe-web/
 ## Authentication
 
 The application supports multiple authentication methods:
+
 - **Google OAuth** (primary method, emphasized in UI)
 - **GitHub OAuth** (primary method, emphasized in UI)
 - **Discord OAuth** (primary method, emphasized in UI)
