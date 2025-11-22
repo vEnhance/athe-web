@@ -6,7 +6,10 @@
 {% block content %}
     <div id="content">
         <h1>{{ semester }} Yearbook</h1>
-        <p class="text-muted">Meet your fellow students from {{ semester }}!</p>
+        <p>
+            Meet your fellow students from {{ semester }}!
+            See <a href={% url "yearbook:semester_list" %}>all semesters</a>.
+        </p>
         {% if user_student and can_edit %}
             <div class="mb-4">
                 {% if has_entry %}
@@ -73,17 +76,6 @@
             {% endfor %}
         {% else %}
             <p class="text-muted">No yearbook entries yet. Be the first to add one!</p>
-        {% endif %}
-        {% if other_semesters %}
-            <hr class="my-4">
-            <h3>Other Semesters</h3>
-            <ul class="list-unstyled">
-                {% for sem in other_semesters %}
-                    <li>
-                        <a href="{% url 'yearbook:entry_list' slug=sem.slug %}">{{ sem }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
         {% endif %}
     </div>
 {% endblock content %}

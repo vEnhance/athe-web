@@ -3,6 +3,7 @@ from typing import Any
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.db.models import Exists, OuterRef
 from django.http import HttpRequest, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
@@ -144,27 +145,19 @@ class YearbookEntryListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context = super().get_context_data(**kwargs)
         semester = self.get_semester()
         context["semester"] = semester
+        user_student = Student.objects.filter(
+            user=self.request.user, semester=semester
+        ).first()
+        context["user_student"] = user_student
 
-        # Get other semesters for navigation
-        context["other_semesters"] = Semester.objects.exclude(pk=semester.pk).order_by(
-            "-end_date"
-        )
-
-        # Get the current user's student for this semester (if any)
-        if self.request.user.is_authenticated:  # type: ignore[union-attr]
-            user_student = Student.objects.filter(
-                user=self.request.user, semester=semester
-            ).first()
-            context["user_student"] = user_student
-
-            # Check if user can create/edit their entry
-            if user_student:
-                context["can_edit"] = date.today() <= semester.end_date
-                try:
-                    context["user_entry"] = user_student.yearbook_entry  # type: ignore[attr-defined]
-                    context["has_entry"] = True
-                except YearbookEntry.DoesNotExist:
-                    context["has_entry"] = False
+        # Check if user can create/edit their entry
+        if user_student:
+            context["can_edit"] = date.today() <= semester.end_date
+            try:
+                context["user_entry"] = user_student.yearbook_entry  # type: ignore[attr-defined]
+                context["has_entry"] = True
+            except YearbookEntry.DoesNotExist:
+                context["has_entry"] = False
 
         return context
 
@@ -177,7 +170,21 @@ class SemesterListView(LoginRequiredMixin, ListView):
     context_object_name = "semesters"
 
     def get_queryset(self):
-        return Semester.objects.order_by("-end_date")
+        assert isinstance(self.request.user, User)
+
+        # Get other semesters for navigation
+        if self.request.user.is_staff:
+            semesters = Semester.objects.all()
+        else:
+            # Students should only see semesters they could access
+            semesters = Semester.objects.filter(
+                Exists(
+                    Student.objects.filter(
+                        semester=OuterRef("pk"), user=self.request.user
+                    )
+                )
+            )
+        return semesters.order_by("-end_date")
 
 
 class YearbookIndexView(LoginRequiredMixin, ListView):
