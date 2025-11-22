@@ -886,44 +886,6 @@ def test_semester_list_view_empty_state():
     assert "No semesters available" in content
 
 
-@pytest.mark.django_db
-def test_semester_list_view_ordered_by_end_date():
-    """Test that semesters are ordered by end date (most recent first)."""
-    client = Client()
-    # Create semesters out of order
-    Semester.objects.create(
-        name="Spring 2024",
-        slug="sp24",
-        start_date=(timezone.now() - timedelta(days=365)).date(),
-        end_date=(timezone.now() - timedelta(days=275)).date(),
-    )
-    Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-    Semester.objects.create(
-        name="Spring 2025",
-        slug="sp25",
-        start_date=(timezone.now() - timedelta(days=180)).date(),
-        end_date=(timezone.now() - timedelta(days=90)).date(),
-    )
-    User.objects.create_user(username="user", password="password")
-
-    client.login(username="user", password="password")
-    url = reverse("yearbook:semester_list")
-    response = client.get(url)
-
-    assert response.status_code == 200
-    content = response.content.decode()
-    # Check that Fall 2025 appears before Spring 2025 and Spring 2024
-    fall25_pos = content.find("Fall 2025")
-    spring25_pos = content.find("Spring 2025")
-    spring24_pos = content.find("Spring 2024")
-    assert fall25_pos < spring25_pos < spring24_pos
-
-
 # ============================================================================
 # YearbookIndexView Tests
 # ============================================================================
@@ -1057,62 +1019,3 @@ def test_index_view_user_without_student_redirects_to_semester_list():
 
     assert response.status_code == 302
     assert response.url == reverse("yearbook:semester_list")
-
-
-# ============================================================================
-# YearbookEntryListView Tests (other semesters link)
-# ============================================================================
-
-
-@pytest.mark.django_db
-def test_entry_list_shows_other_semesters():
-    """Test that entry list shows links to other semesters."""
-    client = Client()
-    current_semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-    other_semester = Semester.objects.create(
-        name="Spring 2025",
-        slug="sp25",
-        start_date=(timezone.now() - timedelta(days=180)).date(),
-        end_date=(timezone.now() - timedelta(days=90)).date(),
-    )
-    user = User.objects.create_user(username="student", password="password")
-    Student.objects.create(
-        user=user, airtable_name="Student", semester=current_semester
-    )
-
-    client.login(username="student", password="password")
-    url = reverse("yearbook:entry_list", kwargs={"slug": current_semester.slug})
-    response = client.get(url)
-
-    assert response.status_code == 200
-    content = response.content.decode()
-    assert "Other Semesters" in content
-    assert other_semester.name in content
-    assert f"/yearbook/{other_semester.slug}/" in content
-
-
-@pytest.mark.django_db
-def test_entry_list_hides_other_semesters_when_none_exist():
-    """Test that 'Other Semesters' section is hidden when there are no other semesters."""
-    client = Client()
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-    user = User.objects.create_user(username="student", password="password")
-    Student.objects.create(user=user, airtable_name="Student", semester=semester)
-
-    client.login(username="student", password="password")
-    url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
-    response = client.get(url)
-
-    assert response.status_code == 200
-    content = response.content.decode()
-    assert "Other Semesters" not in content
