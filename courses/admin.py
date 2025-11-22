@@ -93,9 +93,15 @@ class CourseAdmin(admin.ModelAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ("user", "semester", "house")
+    list_display = ("user", "airtable_name", "semester", "house")
     list_filter = ("semester", "house")
-    search_fields = ("user__username", "user__email")
+    search_fields = (
+        "user__username",
+        "user__email",
+        "airtable_name",
+        "user__first_name",
+        "user__last_name",
+    )
     actions = [
         assign_to_blob,
         assign_to_cat,
