@@ -2605,9 +2605,9 @@ def test_house_detail_staff_shows_student_table():
     # Check student names appear
     assert "Alice Smith" in content
     assert "Bob Jones" in content
-    # Check category headers appear
-    assert "Class Attendance" in content
-    assert "Homework" in content
+    # Check category headers appear (using short names)
+    assert "Attend" in content
+    assert "Hwk" in content
 
 
 @pytest.mark.django_db

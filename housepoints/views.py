@@ -586,8 +586,8 @@ def house_detail_staff(request: HttpRequest, slug: str, house: str) -> HttpRespo
         key=lambda x: award_type_order.index(x) if x in award_type_order else 999
     )
 
-    # Build header row with award type display names
-    headers = [dict(Award.AwardType.choices).get(at, at) for at in used_award_types]
+    # Build header row with short names for compact display
+    headers = [Award.SHORT_NAMES.get(at, at) for at in used_award_types]
 
     # Build student rows
     student_rows = []

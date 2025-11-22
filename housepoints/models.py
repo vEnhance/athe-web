@@ -33,6 +33,19 @@ class Award(models.Model):
         "other": 0,
     }
 
+    # Short names for table column headers
+    SHORT_NAMES = {
+        "intro_post": "Intro",
+        "class_attendance": "Attend",
+        "homework": "Hwk",
+        "event": "Event",
+        "office_hours": "OH",
+        "potd": "POTD",
+        "staff_bonus": "Extra",
+        "house_activity": "House Act",
+        "other": "Other",
+    }
+
     semester = models.ForeignKey(
         Semester, on_delete=models.CASCADE, related_name="awards"
     )
