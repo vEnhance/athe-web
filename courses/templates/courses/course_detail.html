@@ -67,6 +67,9 @@
                 </div>
                 {% include "courses/components/lesson_plan.html" %}
             </div>
+            <h2>Description</h2>
+            <div>{{ course.description|linebreaks }}</div>
+            <hr />
             <h2>
                 Schedule
                 {% if is_leader %}
@@ -102,8 +105,6 @@
             {% else %}
                 <p class="text-muted">No meetings scheduled.</p>
             {% endif %}
-            <h2>Description</h2>
-            <div>{{ course.description|linebreaks }}</div>
             <h2 class="mt-4">Members</h2>
             {% if members %}
                 <ul>
