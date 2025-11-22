@@ -7,7 +7,11 @@ from .models import YearbookEntry
 class YearbookEntryAdmin(admin.ModelAdmin):
     list_display = ("display_name", "student", "get_semester", "get_house")
     list_filter = ("student__semester", "student__house")
-    search_fields = ("display_name", "student__airtable_name", "student__user__username")
+    search_fields = (
+        "display_name",
+        "student__airtable_name",
+        "student__user__username",
+    )
     autocomplete_fields = ("student",)
     readonly_fields = ("created_at", "updated_at")
 

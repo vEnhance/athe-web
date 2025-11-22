@@ -15,29 +15,29 @@ class YearbookEntry(models.Model):
         help_text="How you want your name displayed to other students.",
     )
     bio = models.TextField(
-        validators=[MaxLengthValidator(1000)],
-        help_text="Tell us about yourself! (Max 1000 characters)",
+        validators=[MaxLengthValidator(256)],
+        help_text="Tell us about yourself!",
     )
 
     # Optional social media / website fields
     discord_username = models.CharField(
         max_length=100,
         blank=True,
-        help_text="Your Discord username (e.g., username#1234 or just username).",
+        help_text="Optional. Your Discord username (e.g., username#1234 or just username).",
     )
     instagram_username = models.CharField(
         max_length=100,
         blank=True,
-        help_text="Your Instagram username (without the @).",
+        help_text="Optional. Your Instagram username (without the @).",
     )
     github_username = models.CharField(
         max_length=100,
         blank=True,
-        help_text="Your GitHub username.",
+        help_text="Optional. Your GitHub username.",
     )
     website_url = models.URLField(
         blank=True,
-        help_text="Your personal website URL.",
+        help_text="Optional. Your personal website URL.",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)

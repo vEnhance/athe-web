@@ -128,7 +128,9 @@ class SemesterYearbookListView(LoginRequiredMixin, UserPassesTestMixin, ListView
             return True
 
         # Users with a student in this semester can view
-        return Student.objects.filter(user=self.request.user, semester=semester).exists()
+        return Student.objects.filter(
+            user=self.request.user, semester=semester
+        ).exists()
 
     def get_queryset(self):
         semester = self.get_semester()

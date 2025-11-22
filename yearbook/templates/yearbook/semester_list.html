@@ -18,9 +18,7 @@
                 {% endif %}
             </div>
         {% elif user_student and not can_edit %}
-            <div class="alert alert-info">
-                The semester has ended, so yearbook entries can no longer be created or edited.
-            </div>
+            <div class="alert alert-info">The semester has ended, so yearbook entries can no longer be created or edited.</div>
         {% endif %}
         {% if entries %}
             {% regroup entries by student.get_house_display as house_list %}
@@ -31,7 +29,7 @@
                         <div class="col-md-6 col-lg-4 mb-4">
                             <div class="card h-100">
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ entry.display_name }}</h5>
+                                    <h4 class="card-title">{{ entry.display_name }}</h4>
                                     <p class="card-text">{{ entry.bio|linebreaks }}</p>
                                     {% if entry.discord_username or entry.instagram_username or entry.github_username or entry.website_url %}
                                         <hr>

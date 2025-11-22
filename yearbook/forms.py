@@ -30,7 +30,5 @@ class YearbookEntryForm(forms.ModelForm):
             ),
             "instagram_username": forms.TextInput(attrs={"placeholder": "username"}),
             "github_username": forms.TextInput(attrs={"placeholder": "username"}),
-            "website_url": forms.URLInput(
-                attrs={"placeholder": "https://example.com"}
-            ),
+            "website_url": forms.URLInput(attrs={"placeholder": "https://example.com"}),
         }
