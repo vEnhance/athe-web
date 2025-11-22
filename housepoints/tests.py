@@ -1458,6 +1458,7 @@ def test_attendance_bulk_creates_awards():
         {
             "course": course.pk,
             "points": "5",
+            "description": "Attendance on 2025-01-15 for Math Class",
             "students": [student1.pk, student2.pk],
         },
     )

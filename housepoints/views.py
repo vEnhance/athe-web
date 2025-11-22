@@ -452,6 +452,11 @@ class AttendanceBulkForm(forms.Form):
         initial="5",
         help_text="Points to award for attendance",
     )
+    description = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+        help_text="Description for the attendance awards",
+    )
 
     def __init__(self, *args, user=None, **kwargs):  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
@@ -515,11 +520,21 @@ class AttendanceBulkView(UserPassesTestMixin, View):
                 .order_by("airtable_name")
             )
 
+            # Pre-populate description with date and course name
+            today_str = date.today().strftime("%Y-%m-%d")
+            default_description = f"Attendance on {today_str} for {course.name}"
+
+            # Create a new form with the description pre-filled
+            form_data = request.POST.copy()
+            if not form_data.get("description"):
+                form_data["description"] = default_description
+            updated_form = AttendanceBulkForm(form_data, user=request.user)  # type: ignore[arg-type]
+
             return render(
                 request,
                 "housepoints/attendance_bulk.html",
                 {
-                    "form": form,
+                    "form": updated_form,
                     "results": None,
                     "students": students,
                     "selected_course": course,
@@ -546,6 +561,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
         if form.is_valid():
             course = form.cleaned_data["course"]
             points = int(form.cleaned_data["points"])
+            description = form.cleaned_data.get("description") or ""
 
             # Get selected student IDs from the checkboxes
             selected_student_ids = request.POST.getlist("students")
@@ -573,7 +589,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
                             house=student.house,
                             award_type=Award.AwardType.CLASS_ATTENDANCE,
                             points=points,
-                            description=f"Attendance for {course.name}",
+                            description=description,
                             awarded_by=request.user,
                         )
                         results["success"].append(

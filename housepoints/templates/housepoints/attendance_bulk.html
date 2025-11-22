@@ -18,7 +18,7 @@
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <form method="post">
+                        <form method="post" id="attendance-form">
                             {% csrf_token %}
                             {% bootstrap_field form.course %}
                             {% bootstrap_field form.points %}
@@ -27,6 +27,7 @@
                                     <button type="submit" name="load_students" class="btn btn-secondary btn-lg">Load Students</button>
                                 </div>
                             {% else %}
+                                {% bootstrap_field form.description %}
                                 <hr>
                                 <h5>Students in {{ selected_course.name }}</h5>
                                 <p class="text-muted">All students are checked by default. Uncheck any absent students.</p>
@@ -46,7 +47,7 @@
                                                    name="students"
                                                    value="{{ student.pk }}"
                                                    id="student_{{ student.pk }}"
-                                                   checked>
+                                                   checked="checked">
                                             <label class="form-check-label" for="student_{{ student.pk }}">
                                                 {{ student.airtable_name }}
                                                 <small class="text-muted">({{ student.get_house_display }})</small>
@@ -93,10 +94,10 @@
                     </div>
                     <div class="card-body">
                         <ol class="mb-0">
-                            <li>Select a class from the dropdown</li>
-                            <li>Click "Load Students" to see enrolled students</li>
+                            <li>Select a class from the dropdown (students load automatically)</li>
                             <li>All students are checked by default</li>
                             <li>Uncheck any students who were absent</li>
+                            <li>Edit description if needed</li>
                             <li>Choose 5 points (default) or 3 points</li>
                             <li>Click "Award Attendance Points"</li>
                         </ol>
@@ -124,6 +125,21 @@
     (function() {
         const selectAllBtn = document.getElementById('select-all');
         const deselectAllBtn = document.getElementById('deselect-all');
+        const courseSelect = document.getElementById('id_course');
+        const form = document.getElementById('attendance-form');
+
+        // Auto-reload students when course changes
+        if (courseSelect && form) {
+            courseSelect.addEventListener('change', function() {
+                // Create a hidden input for load_students
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'load_students';
+                hiddenInput.value = '1';
+                form.appendChild(hiddenInput);
+                form.submit();
+            });
+        }
 
         if (selectAllBtn) {
             selectAllBtn.addEventListener('click', function() {
