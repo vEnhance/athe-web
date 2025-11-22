@@ -81,6 +81,21 @@ class LoginChoiceForm(forms.Form):
 class StudentRegistrationForm(UserCreationForm):
     """Form for creating a new student user account."""
 
+    email = forms.EmailField(
+        required=True,
+        help_text="Required. Enter your email address.",
+    )
+    first_name = forms.CharField(
+        required=True,
+        max_length=150,
+        help_text="Required. Enter your first name.",
+    )
+    last_name = forms.CharField(
+        required=True,
+        max_length=150,
+        help_text="Required. Enter your last name.",
+    )
+
     class Meta:
         model = User
         fields = [

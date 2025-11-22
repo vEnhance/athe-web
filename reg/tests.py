@@ -681,6 +681,9 @@ def test_post_registration_creates_user_student(student_invite_view_setup):
             "username": "alicejohnson",
             "password1": "testpass123!@#",
             "password2": "testpass123!@#",
+            "email": "alice@example.com",
+            "first_name": "Alice",
+            "last_name": "Johnson",
         },
     )
     assert response.status_code == 302  # Redirect
