@@ -274,6 +274,12 @@ LOGGING = {
             "level": "DEBUG",
         },
     },
+    "loggers": {
+        # Silence 404 warnings (they're logged at WARNING level)
+        "django.request": {
+            "level": "ERROR",
+        },
+    },
     "root": {
         "handlers": ["console"],
         "level": "INFO",
