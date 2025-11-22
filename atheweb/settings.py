@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     "reg",
     "ta_attendance",
     "weblog",
+    "yearbook",
 ]
 
 MIDDLEWARE = [
