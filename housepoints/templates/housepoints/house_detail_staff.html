@@ -3,7 +3,9 @@
     {{ house_display }} House Details (Staff) - Athemath
 {% endblock title %}
 {% block content %}
-    <div class="container-fluid" style="margin-top: 100px; margin-bottom: 50px;">
+    <div class="container-fluid"
+         style="margin-top: 100px;
+                margin-bottom: 50px">
         <div class="row">
             <div class="col-12">
                 <nav aria-label="breadcrumb">
@@ -48,7 +50,11 @@
                                         </td>
                                         {% for pts in row.points %}
                                             <td class="text-end">
-                                                {% if pts %}{{ pts }}{% else %}-{% endif %}
+                                                {% if pts %}
+                                                    {{ pts }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
                                             </td>
                                         {% endfor %}
                                         <td class="text-end table-primary">

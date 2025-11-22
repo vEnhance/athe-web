@@ -578,9 +578,7 @@ def house_detail_staff(request: HttpRequest, slug: str, house: str) -> HttpRespo
     )
 
     # Get all award types that have been used
-    used_award_types = list(
-        awards_query.values_list("award_type", flat=True).distinct()
-    )
+    used_award_types = list(set(awards_query.values_list("award_type", flat=True)))
 
     # Order award types by the choices order
     award_type_order = [code for code, _ in Award.AwardType.choices]

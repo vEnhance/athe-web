@@ -2672,7 +2672,7 @@ def test_house_detail_staff_shows_column_totals():
         user=user2, semester=semester, house=Student.House.OWL, airtable_name="Bob"
     )
 
-    # Create awards for multiple categories
+    # Create awards - same category for both students to test column totals
     Award.objects.create(
         semester=semester,
         student=student1,
@@ -2684,7 +2684,7 @@ def test_house_detail_staff_shows_column_totals():
         semester=semester,
         student=student2,
         house=student2.house,
-        award_type=Award.AwardType.HOMEWORK,
+        award_type=Award.AwardType.CLASS_ATTENDANCE,
         points=5,
     )
 
@@ -2694,16 +2694,23 @@ def test_house_detail_staff_shows_column_totals():
     )
     response = client.get(url)
 
-    content = response.content.decode()
     assert response.status_code == 200
-    # Both students should appear
-    assert "Alice" in content
-    assert "Bob" in content
-    # Both categories should appear as headers
-    assert "Class Attendance" in content
-    assert "Homework" in content
-    # Footer with totals should exist
-    assert "<tfoot" in content
+
+    # Check context variables directly
+    ctx = response.context
+    assert ctx["house"] == "owl"
+    assert len(ctx["student_rows"]) == 2  # Alice and Bob
+
+    # Check column totals (sum of all students for each category)
+    # Both students have CLASS_ATTENDANCE: 10 + 5 = 15
+    assert ctx["column_totals"] == [15]
+    assert ctx["grand_total"] == 15
+
+    # Check row totals
+    alice_row = next(r for r in ctx["student_rows"] if r["name"] == "Alice")
+    bob_row = next(r for r in ctx["student_rows"] if r["name"] == "Bob")
+    assert alice_row["total"] == 10
+    assert bob_row["total"] == 5
 
 
 @pytest.mark.django_db
