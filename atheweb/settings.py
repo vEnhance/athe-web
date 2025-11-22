@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     "housepoints",
     "reg",
     "weblog",
+    "yearbook",
 ]
 
 MIDDLEWARE = [

@@ -28,6 +28,7 @@ urlpatterns = [
     path("house-points/", include("housepoints.urls")),
     path("accounts/", include("allauth.urls")),
     path("reg/", include("reg.urls")),
+    path("yearbook/", include("yearbook.urls")),
     path(
         "login/",
         auth_views.LoginView.as_view(),

@@ -1,0 +1,25 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}
+    {% if is_create %}Create{% else %}Edit{% endif %} Yearbook Entry - Athemath
+{% endblock title %}
+{% block content %}
+    <div id="content">
+        <h1>{% if is_create %}Create{% else %}Edit{% endif %} Your Yearbook Entry</h1>
+        <p>
+            <strong>Student:</strong> {{ student }}
+            ({{ student.semester }})
+        </p>
+        <p class="text-muted">
+            Share a bit about yourself with other students in {{ student.semester }}.
+            This information will be visible to all students and staff in your semester.
+        </p>
+        <form method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            {% bootstrap_button button_type="submit" content="Save Entry" button_class="btn-dark" %}
+            <a href="{% url 'yearbook:semester_list' slug=student.semester.slug %}"
+               class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+{% endblock content %}
