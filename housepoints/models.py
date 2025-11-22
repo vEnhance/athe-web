@@ -77,7 +77,8 @@ class Award(models.Model):
     def __str__(self) -> str:
         if self.student:
             return (
-                f"{self.student.user.username} - {self.get_award_type_display()} "  # type: ignore[attr-defined]
+                f"{self.student.airtable_name} - "
+                f"{self.get_award_type_display()} "  # type: ignore[attr-defined]
                 f"({self.points} pts)"
             )
         else:

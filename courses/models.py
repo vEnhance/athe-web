@@ -163,7 +163,10 @@ class Student(models.Model):
     )
 
     def __str__(self) -> str:
-        return f"{self.user.username} ({self.semester})"
+        if self.user is not None and (full_name := self.user.get_full_name()):
+            return full_name
+        else:
+            return self.airtable_name
 
     class Meta:
         constraints = (

@@ -378,9 +378,7 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
         )
 
         # Add member list
-        context["members"] = self.object.students.select_related("user").order_by(
-            "user__username"
-        )
+        context["members"] = self.object.students.select_related("user")
 
         # Check if user is a leader
         context["is_leader"] = (

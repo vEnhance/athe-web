@@ -107,7 +107,7 @@
             <h2 class="mt-4">Members</h2>
             {% if members %}
                 <ul>
-                    {% for student in members %}<li>{{ student.user.get_full_name|default:student.user.username }}</li>{% endfor %}
+                    {% for student in members %}<li>{{ student }}</li>{% endfor %}
                 </ul>
             {% else %}
                 <p class="text-muted">No members enrolled yet.</p>

@@ -951,7 +951,7 @@ def test_award_str_representation_with_student():
         points=5,
     )
 
-    assert "testuser" in str(award)
+    assert "Tester" in str(award)
     assert "Homework Submission" in str(award)
     assert "5 pts" in str(award)
 

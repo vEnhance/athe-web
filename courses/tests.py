@@ -62,7 +62,9 @@ def test_course_with_links():
 @pytest.mark.django_db
 def test_student_creation():
     """Test student model with unique constraint."""
-    user = User.objects.create_user(username="testuser", password="password")
+    user = User.objects.create_user(
+        first_name="Test", last_name="User", username="testuser", password="password"
+    )
     fall = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
@@ -73,7 +75,7 @@ def test_student_creation():
 
     assert student.user == user
     assert student.semester == fall
-    assert str(student) == f"testuser ({fall})"
+    assert str(student) == "Test User"
 
 
 @pytest.mark.django_db
