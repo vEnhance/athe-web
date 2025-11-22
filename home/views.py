@@ -142,7 +142,16 @@ class StaffPhotoUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """View for staff members to update their own listing."""
 
     model = StaffPhotoListing
-    fields = ["display_name", "biography", "photo"]
+    fields = [
+        "display_name",
+        "biography",
+        "photo",
+        "website",
+        "email",
+        "instagram_username",
+        "discord_username",
+        "github_username",
+    ]
     template_name = "home/staff_edit.html"
     success_url = reverse_lazy("home:staff")
 

@@ -100,6 +100,29 @@ class StaffPhotoListing(models.Model):
         default=0,
         help_text="Ordering priority (higher numbers come first)",
     )
+    website = models.URLField(
+        blank=True,
+        help_text="Personal website URL",
+    )
+    email = models.EmailField(
+        blank=True,
+        help_text="Contact email address",
+    )
+    instagram_username = models.CharField(
+        max_length=30,
+        blank=True,
+        help_text="Instagram username (without @)",
+    )
+    discord_username = models.CharField(
+        max_length=32,
+        blank=True,
+        help_text="Discord username",
+    )
+    github_username = models.CharField(
+        max_length=39,
+        blank=True,
+        help_text="GitHub username",
+    )
 
     class Meta:
         ordering = ["category", "-ordering", "display_name"]
