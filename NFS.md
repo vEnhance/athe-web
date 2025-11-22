@@ -1,5 +1,7 @@
 # Notes for NearlyFreeSpeech setup
 
+## Setup
+
 The part where you plug in all the wires and pray.
 
 - Create a site
@@ -35,3 +37,12 @@ nfsn signal-daemon django hup
   `mysql -h $HOST -u venhance -p mysql <timezones.sql`
 
   Then `flush tables;` to actually get it live.
+
+## Gotchas: permission issues
+
+- When running commands, be careful to use `uv run --no-sync`
+  to avoid writing to the virtualenv.
+- The daemon runs as a user `web` and not the main user `atheweb`.
+  So if the main writes to the virtual environment,
+  permission errors will arise later on.
+- If that does happen, `chgrp -R web`.
