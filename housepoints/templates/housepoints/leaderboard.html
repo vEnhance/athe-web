@@ -48,29 +48,12 @@
                                 <tbody>
                                     {% for entry in leaderboard_data %}
                                         <tr>
+                                            <td>#{{ forloop.counter }}</td>
                                             <td>
-                                                {% if forloop.counter == 1 %}
-                                                    <strong>#{{ forloop.counter }}</strong>
-                                                {% else %}
-                                                    #{{ forloop.counter }}
-                                                {% endif %}
+                                                <a href="{% url 'housepoints:house_detail' slug=semester.slug house=entry.house %}">{{ entry.house_display }}</a>
+                                                {% if student.house == entry.house %}(your house){% endif %}
                                             </td>
-                                            <td>
-                                                {% if forloop.counter == 1 %}
-                                                    <strong>
-                                                        <a href="{% url 'housepoints:house_detail' slug=semester.slug house=entry.house %}">{{ entry.house_display }}</a>
-                                                    </strong>
-                                                {% else %}
-                                                    <a href="{% url 'housepoints:house_detail' slug=semester.slug house=entry.house %}">{{ entry.house_display }}</a>
-                                                {% endif %}
-                                            </td>
-                                            <td class="text-end">
-                                                {% if forloop.counter == 1 %}
-                                                    <strong>{{ entry.total_points }}</strong>
-                                                {% else %}
-                                                    {{ entry.total_points }}
-                                                {% endif %}
-                                            </td>
+                                            <td class="text-end">{{ entry.total_points }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>

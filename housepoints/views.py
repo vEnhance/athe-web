@@ -33,11 +33,12 @@ def leaderboard(request: HttpRequest, slug: str | None = None) -> HttpResponse:
 
     # Check if user has access (staff or enrolled student)
     assert isinstance(request.user, User)
-    if not request.user.is_staff:
-        has_access = Student.objects.filter(
-            user=request.user, semester=semester
-        ).exists()
-        if not has_access:
+    if request.user.is_staff:
+        student = None
+    else:
+        try:
+            student = Student.objects.get(user=request.user, semester=semester)
+        except Student.DoesNotExist:
             messages.error(
                 request, "You don't have access to this semester's leaderboard."
             )
@@ -89,13 +90,17 @@ def leaderboard(request: HttpRequest, slug: str | None = None) -> HttpResponse:
     leaderboard_data.sort(key=lambda x: -x["total_points"])
 
     # Get all semesters for navigation
-    semesters = Semester.objects.order_by("-start_date")
+    if request.user.is_staff:
+        semesters = Semester.objects.all()
+    else:
+        semesters = Semester.get_enrolled_semesters(request.user)
 
     return render(
         request,
         "housepoints/leaderboard.html",
         {
             "semester": semester,
+            "student": student,
             "leaderboard_data": leaderboard_data,
             "semesters": semesters,
             "is_frozen": semester.house_points_freeze_date is not None,

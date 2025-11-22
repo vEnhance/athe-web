@@ -3,7 +3,6 @@ from typing import Any
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.db.models import Exists, OuterRef
 from django.http import HttpRequest, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
@@ -159,6 +158,16 @@ class YearbookEntryListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             except YearbookEntry.DoesNotExist:
                 context["has_entry"] = False
 
+        assert isinstance(self.request.user, User)
+
+        # Get other semesters for navigation
+        if self.request.user.is_staff:
+            semesters = Semester.objects.all()
+        else:
+            # Students should only see semesters they could access
+            semesters = Semester.get_enrolled_semesters(self.request.user)
+        context["other_semesters"] = semesters
+
         return context
 
 
@@ -177,13 +186,7 @@ class SemesterListView(LoginRequiredMixin, ListView):
             semesters = Semester.objects.all()
         else:
             # Students should only see semesters they could access
-            semesters = Semester.objects.filter(
-                Exists(
-                    Student.objects.filter(
-                        semester=OuterRef("pk"), user=self.request.user
-                    )
-                )
-            )
+            semesters = Semester.get_enrolled_semesters(self.request.user)
         return semesters.order_by("-end_date")
 
 

@@ -1,6 +1,8 @@
 from datetime import date
 
-from django.db.models import UniqueConstraint, Q
+from django.contrib.auth.models import User
+from django.db.models import Exists, OuterRef
+from django.db.models import UniqueConstraint, Q, QuerySet
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -37,6 +39,12 @@ class Semester(models.Model):
         """Check if the semester is currently active."""
         today = date.today()
         return self.start_date <= today <= self.end_date
+
+    @classmethod
+    def get_enrolled_semesters(cls, user: User) -> QuerySet["Semester"]:
+        return Semester.objects.filter(
+            Exists(Student.objects.filter(semester=OuterRef("pk"), user=user))
+        )
 
     class Meta:
         ordering = ("-start_date",)
