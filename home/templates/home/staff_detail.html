@@ -18,6 +18,32 @@
             <div class="staff-detail-info">
                 <h1>{{ staff_member.display_name }}</h1>
                 <div class="staff-detail-role">{{ staff_member.get_category_display }} | {{ staff_member.role }}</div>
+                {% if staff_member.website or staff_member.email or staff_member.instagram_username or staff_member.discord_username or staff_member.github_username %}
+                    <div class="staff-social-links">
+                        {% if staff_member.website %}
+                            <a href="{{ staff_member.website }}"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="social-link">Website</a>
+                        {% endif %}
+                        {% if staff_member.email %}<a href="mailto:{{ staff_member.email }}" class="social-link">Email</a>{% endif %}
+                        {% if staff_member.instagram_username %}
+                            <a href="https://instagram.com/{{ staff_member.instagram_username }}"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="social-link">Instagram</a>
+                        {% endif %}
+                        {% if staff_member.discord_username %}
+                            <span class="social-link discord-username">Discord: {{ staff_member.discord_username }}</span>
+                        {% endif %}
+                        {% if staff_member.github_username %}
+                            <a href="https://github.com/{{ staff_member.github_username }}"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="social-link">GitHub</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
             </div>
         </div>
         <div class="staff-detail-biography">{{ staff_member.biography_rendered|safe }}</div>

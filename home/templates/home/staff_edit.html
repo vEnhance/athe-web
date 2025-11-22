@@ -12,7 +12,17 @@
         </p>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {% bootstrap_form form %}
+            <h3>Basic Information</h3>
+            {% bootstrap_field form.display_name %}
+            {% bootstrap_field form.biography %}
+            {% bootstrap_field form.photo %}
+            <h3>Social Links</h3>
+            <p class="text-muted">These are optional and will be displayed on your staff profile page.</p>
+            {% bootstrap_field form.website %}
+            {% bootstrap_field form.email %}
+            {% bootstrap_field form.instagram_username %}
+            {% bootstrap_field form.discord_username %}
+            {% bootstrap_field form.github_username %}
             {% bootstrap_button button_type="submit" content="Save Changes" button_class="btn-dark" %}
             <a href="{% url 'home:staff' %}" class="btn btn-secondary">Cancel</a>
         </form>
