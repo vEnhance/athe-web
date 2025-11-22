@@ -56,10 +56,11 @@ exclude = ["**/migrations/*.py", "manage.py"]
 [tool.ruff.lint.extend-per-file-ignores]
 "atheweb/settings.py" = ["S105"]
 "**/tests.py" = ["S101"]
+"**/test_*.py" = ["S101"]
 
 [tool.pyright]
 enableTypeIgnoreComments = true
-exclude = ["**/node_modules", "**/typings", "**/__pycache__", ".git", "venv", ".venv", "**/migrations", "**/tests.py", "**/apps.py"]
+exclude = ["**/node_modules", "**/typings", "**/__pycache__", ".git", "venv", ".venv", "**/migrations", "**/test_*.py", "**/tests.py", "**/apps.py"]
 pythonPlatform = "Linux"
 pythonVersion = "3.13"
 typeCheckingMode = "basic"
