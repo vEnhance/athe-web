@@ -18,6 +18,10 @@ class Semester(models.Model):
         blank=True,
         help_text="If set, leaderboard shows only points awarded up to this date",
     )
+    house_points_class_threshold = models.PositiveIntegerField(
+        default=14,
+        help_text="Number of class attendances worth 5 points; subsequent are worth 3",
+    )
     visible = models.BooleanField(
         default=True,
         help_text="If unchecked, this semester will be hidden from non-staff users",
