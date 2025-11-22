@@ -1,0 +1,160 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}
+    Class Attendance - Athemath
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 50px;">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Class Attendance</h1>
+                <p class="lead">
+                    Award attendance points to students in a class.
+                    Uncheck absent students and submit.
+                </p>
+                <div class="mb-3">
+                    <a href="{% url 'housepoints:bulk_award' %}"
+                       class="btn btn-outline-primary">Switch to General Bulk Award</a>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {% bootstrap_field form.course %}
+                            {% bootstrap_field form.points %}
+
+                            {% if not students %}
+                                <div class="d-grid gap-2">
+                                    <button type="submit" name="load_students" class="btn btn-secondary btn-lg">
+                                        Load Students
+                                    </button>
+                                </div>
+                            {% else %}
+                                <hr>
+                                <h5>Students in {{ selected_course.name }}</h5>
+                                <p class="text-muted">
+                                    All students are checked by default. Uncheck any absent students.
+                                </p>
+
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="select-all">
+                                        Select All
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all">
+                                        Deselect All
+                                    </button>
+                                </div>
+
+                                <div class="student-checkboxes mb-4">
+                                    {% for student in students %}
+                                        <div class="form-check">
+                                            <input class="form-check-input student-checkbox"
+                                                   type="checkbox"
+                                                   name="students"
+                                                   value="{{ student.pk }}"
+                                                   id="student_{{ student.pk }}"
+                                                   checked>
+                                            <label class="form-check-label" for="student_{{ student.pk }}">
+                                                {{ student.airtable_name }}
+                                                <small class="text-muted">({{ student.get_house_display }})</small>
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        Award Attendance Points
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+
+                {% if results %}
+                    <div class="mt-4">
+                        {% if results.success %}
+                            <div class="card border-success mb-3">
+                                <div class="card-header bg-success text-white">
+                                    Successfully Awarded ({{ results.success|length }})
+                                </div>
+                                <div class="card-body">
+                                    <ul class="mb-0">
+                                        {% for msg in results.success %}<li>{{ msg }}</li>{% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if results.errors %}
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    Errors ({{ results.errors|length }})
+                                </div>
+                                <div class="card-body">
+                                    <ul class="mb-0">
+                                        {% for msg in results.errors %}<li>{{ msg }}</li>{% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>How to Use</strong>
+                    </div>
+                    <div class="card-body">
+                        <ol class="mb-0">
+                            <li>Select a class from the dropdown</li>
+                            <li>Click "Load Students" to see enrolled students</li>
+                            <li>All students are checked by default</li>
+                            <li>Uncheck any students who were absent</li>
+                            <li>Choose 5 points (default) or 3 points</li>
+                            <li>Click "Award Attendance Points"</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <strong>Notes</strong>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li>Only shows classes from active semesters</li>
+                            <li>Students must have a house assigned</li>
+                            <li>Points are auto-assigned to student's house</li>
+                            <li>Award type is automatically "Class Attendance"</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_js %}
+    <script>
+    (function() {
+        const selectAllBtn = document.getElementById('select-all');
+        const deselectAllBtn = document.getElementById('deselect-all');
+
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', function() {
+                document.querySelectorAll('.student-checkbox').forEach(cb => {
+                    cb.checked = true;
+                });
+            });
+        }
+
+        if (deselectAllBtn) {
+            deselectAllBtn.addEventListener('click', function() {
+                document.querySelectorAll('.student-checkbox').forEach(cb => {
+                    cb.checked = false;
+                });
+            });
+        }
+    })();
+    </script>
+{% endblock extra_js %}

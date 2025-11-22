@@ -1,3 +1,5 @@
+from datetime import date
+
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -10,7 +12,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView
 
-from courses.models import Semester, Student
+from courses.models import Course, Semester, Student
 from housepoints.models import Award
 
 
@@ -436,3 +438,169 @@ def my_awards(request: HttpRequest) -> HttpResponse:
             "semester_totals": list(semester_totals.values()),
         },
     )
+
+
+class AttendanceBulkForm(forms.Form):
+    """Form for bulk awarding attendance points to students in a class."""
+
+    course = forms.ModelChoiceField(
+        queryset=Course.objects.none(),
+        help_text="Select the class to award attendance for",
+    )
+    points = forms.ChoiceField(
+        choices=[("5", "5 points"), ("3", "3 points")],
+        initial="5",
+        help_text="Points to award for attendance",
+    )
+
+    def __init__(self, *args, user=None, **kwargs):  # type: ignore[no-untyped-def]
+        super().__init__(*args, **kwargs)
+        today = date.today()
+        # Filter courses to those in semesters that haven't ended
+        self.fields["course"].queryset = Course.objects.filter(  # type: ignore[attr-defined]
+            semester__end_date__gte=today, is_club=False
+        ).select_related("semester")
+
+        # Set default to a course the user leads, if any
+        if user is not None:
+            led_courses = Course.objects.filter(
+                leaders=user, semester__end_date__gte=today, is_club=False
+            )
+            if led_courses.exists():
+                self.fields["course"].initial = led_courses.first()
+
+
+class AttendanceBulkView(UserPassesTestMixin, View):
+    """Staff-only view for bulk creating attendance awards for a class."""
+
+    def test_func(self) -> bool:
+        """Only staff can access this view."""
+        return self.request.user.is_staff  # type: ignore[attr-defined]
+
+    def get(self, request: HttpRequest) -> HttpResponse:
+        """Display the attendance bulk award form."""
+        form = AttendanceBulkForm(user=request.user)  # type: ignore[arg-type]
+
+        return render(
+            request,
+            "housepoints/attendance_bulk.html",
+            {
+                "form": form,
+                "results": None,
+                "students": [],
+                "selected_course": None,
+            },
+        )
+
+    def post(self, request: HttpRequest) -> HttpResponse:
+        """Process attendance bulk award creation."""
+        form = AttendanceBulkForm(request.POST, user=request.user)  # type: ignore[arg-type]
+
+        # Check if this is a "load students" action or the final submission
+        if "load_students" in request.POST:
+            return self._handle_load_students(request, form)
+
+        return self._handle_award_submission(request, form)
+
+    def _handle_load_students(
+        self, request: HttpRequest, form: AttendanceBulkForm
+    ) -> HttpResponse:
+        """Handle loading students for a selected course."""
+        if form.is_valid():
+            course = form.cleaned_data["course"]
+            students = list(
+                course.students.select_related("user")
+                .filter(house__isnull=False)
+                .exclude(house="")
+                .order_by("airtable_name")
+            )
+
+            return render(
+                request,
+                "housepoints/attendance_bulk.html",
+                {
+                    "form": form,
+                    "results": None,
+                    "students": students,
+                    "selected_course": course,
+                },
+            )
+
+        return render(
+            request,
+            "housepoints/attendance_bulk.html",
+            {
+                "form": form,
+                "results": None,
+                "students": [],
+                "selected_course": None,
+            },
+        )
+
+    def _handle_award_submission(
+        self, request: HttpRequest, form: AttendanceBulkForm
+    ) -> HttpResponse:
+        """Handle the final award submission."""
+        results = {"success": [], "errors": []}
+
+        if form.is_valid():
+            course = form.cleaned_data["course"]
+            points = int(form.cleaned_data["points"])
+
+            # Get selected student IDs from the checkboxes
+            selected_student_ids = request.POST.getlist("students")
+
+            if not selected_student_ids:
+                results["errors"].append("No students selected for attendance.")
+            else:
+                # Get the students who were checked
+                students = Student.objects.filter(
+                    pk__in=selected_student_ids, enrolled_courses=course
+                ).select_related("user")
+
+                for student in students:
+                    try:
+                        if not student.house:
+                            results["errors"].append(
+                                f"{student.airtable_name}: No house assigned"
+                            )
+                            continue
+
+                        # Create the attendance award
+                        Award.objects.create(
+                            semester=course.semester,
+                            student=student,
+                            house=student.house,
+                            award_type=Award.AwardType.CLASS_ATTENDANCE,
+                            points=points,
+                            description=f"Attendance for {course.name}",
+                            awarded_by=request.user,
+                        )
+                        results["success"].append(
+                            f"{student.airtable_name}: +{points} pts "
+                            f"({student.get_house_display()})"  # type: ignore[attr-defined]
+                        )
+                    except Exception as e:
+                        results["errors"].append(f"{student.airtable_name}: {str(e)}")
+
+            if results["success"]:
+                messages.success(
+                    request, f"Successfully created {len(results['success'])} awards."
+                )
+            if results["errors"]:
+                messages.warning(
+                    request, f"{len(results['errors'])} awards failed to create."
+                )
+
+        # Re-render with results but without students list
+        # (they should select class again for next batch)
+        return render(
+            request,
+            "housepoints/attendance_bulk.html",
+            {
+                "form": AttendanceBulkForm(user=request.user),  # type: ignore[arg-type]
+                "results": results,
+                "students": [],
+                "selected_course": None,
+            },
+        )
