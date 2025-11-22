@@ -20,6 +20,7 @@ dependencies = [
     "ipython",
     "pillow>=10.0.0",
     "requests>=2.32.0",
+    "django-discordo>=0.1.0",
 ]
 
 [project.optional-dependencies]
