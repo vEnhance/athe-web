@@ -28,69 +28,6 @@ def test_leaderboard_requires_login():
 
 
 @pytest.mark.django_db
-def test_leaderboard_staff_access():
-    """Test that staff can access the leaderboard."""
-    client = Client()
-    User.objects.create_user(username="staff", password="password", is_staff=True)
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-
-    client.login(username="staff", password="password")
-    url = reverse("housepoints:leaderboard_semester", kwargs={"slug": semester.slug})
-    response = client.get(url)
-
-    assert response.status_code == 200
-    assert "Fall 2025" in response.content.decode()
-
-
-@pytest.mark.django_db
-def test_leaderboard_enrolled_student_access():
-    """Test that enrolled students can access the leaderboard."""
-    client = Client()
-    user = User.objects.create_user(username="student", password="password")
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-    Student.objects.create(user=user, semester=semester, house=Student.House.OWL)
-
-    client.login(username="student", password="password")
-    url = reverse("housepoints:leaderboard_semester", kwargs={"slug": semester.slug})
-    response = client.get(url)
-
-    assert response.status_code == 200
-
-
-@pytest.mark.django_db
-def test_leaderboard_unenrolled_student_denied():
-    """Test that non-enrolled students cannot access the leaderboard."""
-    client = Client()
-    User.objects.create_user(username="student", password="password")
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-
-    client.login(username="student", password="password")
-    url = reverse("housepoints:leaderboard_semester", kwargs={"slug": semester.slug})
-    response = client.get(url, follow=True)
-
-    # Should redirect to home with error message
-    assert response.status_code == 200
-    messages = list(response.context["messages"])
-    assert len(messages) == 1
-    assert "don't have access" in str(messages[0])
-
-
-@pytest.mark.django_db
 def test_leaderboard_calculates_totals():
     """Test that leaderboard correctly calculates house totals."""
     client = Client()

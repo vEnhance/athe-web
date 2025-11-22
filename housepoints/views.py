@@ -5,7 +5,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.db.models import Sum
+from django.db.models import Exists, OuterRef, Sum
+
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
@@ -31,18 +32,10 @@ def leaderboard(request: HttpRequest, slug: str | None = None) -> HttpResponse:
                 {"semester": None, "leaderboard_data": []},
             )
 
-    # Check if user has access (staff or enrolled student)
-    assert isinstance(request.user, User)
-    if request.user.is_staff:
+    try:
+        student = Student.objects.get(user=request.user, semester=semester)
+    except Student.DoesNotExist:
         student = None
-    else:
-        try:
-            student = Student.objects.get(user=request.user, semester=semester)
-        except Student.DoesNotExist:
-            messages.error(
-                request, "You don't have access to this semester's leaderboard."
-            )
-            return redirect("home:index")
 
     # Calculate total points per house, respecting freeze date
     awards_query = Award.objects.filter(semester=semester)
@@ -89,11 +82,10 @@ def leaderboard(request: HttpRequest, slug: str | None = None) -> HttpResponse:
     # Sort by points descending
     leaderboard_data.sort(key=lambda x: -x["total_points"])
 
-    # Get all semesters for navigation
-    if request.user.is_staff:
-        semesters = Semester.objects.all()
-    else:
-        semesters = Semester.get_enrolled_semesters(request.user)
+    # Get all semesters with any scores for navigation
+    semesters = Semester.objects.filter(
+        Exists(Award.objects.filter(semester=OuterRef("pk")))
+    )
 
     return render(
         request,
