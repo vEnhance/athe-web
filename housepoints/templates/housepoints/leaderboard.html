@@ -20,7 +20,7 @@
                                 <ul class="dropdown-menu" aria-labelledby="semesterDropdown">
                                     {% for sem in semesters %}
                                         <li>
-                                            <a class="dropdown-item {% if sem.slug == semester.slug %}active{% endif %}"
+                                            <a class="dropdown-item"
                                                href="{% url 'housepoints:leaderboard_semester' slug=sem.slug %}">{{ sem.name }}</a>
                                         </li>
                                     {% endfor %}
