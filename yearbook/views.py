@@ -166,7 +166,7 @@ class YearbookEntryListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         else:
             # Students should only see semesters they could access
             semesters = Semester.get_enrolled_semesters(self.request.user)
-        context["other_semesters"] = semesters
+        context["other_semesters"] = semesters.exclude(pk=semester.pk)
 
         return context
 
