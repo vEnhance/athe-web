@@ -22,29 +22,22 @@
                             {% csrf_token %}
                             {% bootstrap_field form.course %}
                             {% bootstrap_field form.points %}
-
                             {% if not students %}
                                 <div class="d-grid gap-2">
-                                    <button type="submit" name="load_students" class="btn btn-secondary btn-lg">
-                                        Load Students
-                                    </button>
+                                    <button type="submit" name="load_students" class="btn btn-secondary btn-lg">Load Students</button>
                                 </div>
                             {% else %}
                                 <hr>
                                 <h5>Students in {{ selected_course.name }}</h5>
-                                <p class="text-muted">
-                                    All students are checked by default. Uncheck any absent students.
-                                </p>
-
+                                <p class="text-muted">All students are checked by default. Uncheck any absent students.</p>
                                 <div class="mb-3">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="select-all">
-                                        Select All
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all">
-                                        Deselect All
-                                    </button>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-secondary"
+                                            id="select-all">Select All</button>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-secondary"
+                                            id="deselect-all">Deselect All</button>
                                 </div>
-
                                 <div class="student-checkboxes mb-4">
                                     {% for student in students %}
                                         <div class="form-check">
@@ -61,24 +54,18 @@
                                         </div>
                                     {% endfor %}
                                 </div>
-
                                 <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary btn-lg">
-                                        Award Attendance Points
-                                    </button>
+                                    <button type="submit" class="btn btn-primary btn-lg">Award Attendance Points</button>
                                 </div>
                             {% endif %}
                         </form>
                     </div>
                 </div>
-
                 {% if results %}
                     <div class="mt-4">
                         {% if results.success %}
                             <div class="card border-success mb-3">
-                                <div class="card-header bg-success text-white">
-                                    Successfully Awarded ({{ results.success|length }})
-                                </div>
+                                <div class="card-header bg-success text-white">Successfully Awarded ({{ results.success|length }})</div>
                                 <div class="card-body">
                                     <ul class="mb-0">
                                         {% for msg in results.success %}<li>{{ msg }}</li>{% endfor %}
@@ -88,9 +75,7 @@
                         {% endif %}
                         {% if results.errors %}
                             <div class="card border-danger">
-                                <div class="card-header bg-danger text-white">
-                                    Errors ({{ results.errors|length }})
-                                </div>
+                                <div class="card-header bg-danger text-white">Errors ({{ results.errors|length }})</div>
                                 <div class="card-body">
                                     <ul class="mb-0">
                                         {% for msg in results.errors %}<li>{{ msg }}</li>{% endfor %}
