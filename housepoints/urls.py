@@ -15,4 +15,10 @@ urlpatterns = [
     path("awards/single/", views.SingleAwardView.as_view(), name="single_award"),
     path("awards/my/", views.my_awards, name="my_awards"),
     path("<slug:slug>/", views.leaderboard, name="leaderboard_semester"),
+    path("<slug:slug>/<str:house>/", views.house_detail, name="house_detail"),
+    path(
+        "<slug:slug>/<str:house>/staff/",
+        views.house_detail_staff,
+        name="house_detail_staff",
+    ),
 ]
