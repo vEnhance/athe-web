@@ -259,3 +259,31 @@ MARKDOWN_EXTENSIONS = [
     "markdown.extensions.nl2br",
     "weblog.markdown_extensions",
 ]
+
+# Discord webhook logging (django-discordo)
+# Set this in your .env file or environment variables
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
+
+# Logging configuration
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
+
+# Add Discord webhook handler if configured
+if DISCORD_WEBHOOK_URL:
+    LOGGING["handlers"]["discord"] = {
+        "class": "django_discordo.DiscordWebhookHandler",
+        "level": "WARNING",
+    }
+    LOGGING["root"]["handlers"].append("discord")  # type: ignore[union-attr]
