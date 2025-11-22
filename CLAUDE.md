@@ -13,11 +13,8 @@ This is a Django web application (not a library/package), managed with **uv** fo
 ```bash
 # Install dependencies
 make install
-# or: uv sync --all-extras
 # Run migrations
 make migrate
-# Create superuser
-make createsuperuser
 # Start development server
 make runserver
 ```
@@ -26,14 +23,14 @@ make runserver
 
 Run `make help` to see all available commands:
 
-- `make install` - Install dependencies with uv
-- `make runserver` - Run Django development server
+- `make install` - Install dependencies with uv and set up pre-commit hooks
+- `make runserver` - Run Django development server (runserver_plus)
 - `make migrate` - Apply database migrations
-- `make makemigrations` - Create new migrations
-- `make createsuperuser` - Create a Django superuser
-- `make check` - Run Django checks and type checking
-- `make test` - Run tests
-- `make fmt` - Run code formatter
+- `make migrations` - Create new migrations
+- `make fmt` - Run code formatters and linters (via prek)
+- `make check` - Run Django checks, template validation, migration check, and type checking
+- `make test` - Run tests with pytest (parallel execution)
+- `make ci` - Run fmt + check + test
 
 You can also use `uv run python manage.py <command>` directly for any Django command.
 
@@ -86,10 +83,9 @@ Run `make test` or `uv run pytest`. Tests use pytest-django and are configured v
 
 GitHub Actions workflow (`.github/workflows/ci.yml`) runs on push/PR to main:
 
-1. Format check (`ruff format --check`)
-2. Linting (`ruff check`)
-3. Django checks + type checking (pyright)
-4. Test suite (pytest)
+1. `make fmt` - Formatting and linting
+2. `make check` - Django checks, template validation, migration check, type checking
+3. `make test` - Test suite (pytest)
 
 ## Project Structure
 
@@ -135,25 +131,21 @@ For OAuth setup instructions, see [OAUTH_SETUP.md](OAUTH_SETUP.md).
 - Add to `dependencies` in `pyproject.toml` for production deps
 - Add to `dev` in `[project.optional-dependencies]` for dev deps
 - Run `uv lock` to update the lockfile
-- Run `uv sync --all-extras` to install
+- Run `make install` to install
 
 3. **Type hints**: Add type hints to new code. Run `make check` to verify types.
-4. **Before committing**: Run `make fmt` to format, and `make check` and `make test` to verify everything works.
+4. **Before committing**: Run `make ci` (or `make fmt`, `make check`, and `make test` individually) to verify everything works.
 5. **Django shell**: Use `uv run python manage.py shell_plus` (from django-extensions) for an enhanced shell with models auto-imported.
 
 ## Pre-commit Hooks
 
-Pre-commit hooks are configured in `.pre-commit-config.yaml`. Install with:
-
-```bash
-uv run pre-commit install --install-hooks
-```
+Pre-commit hooks are configured in `.pre-commit-config.yaml`. They are installed automatically by `make install`.
 
 Hooks run at different stages:
 
-- **pre-commit**: JSON/YAML/TOML validation, trailing whitespace, ruff format/lint, djlint, prettier, codespell
+- **pre-commit**: JSON/YAML/TOML validation, merge conflict check, trailing whitespace, end-of-file fixer, ruff format/lint, djlint, prettier, codespell
 - **commit-msg**: Conventional commit message format enforcement
-- **pre-push**: Django migration checks, `make fmt`, `make check`, `make test`
+- **pre-push**: `make fmt`, `make check`, `make test`
 
 ## Deployment
 
