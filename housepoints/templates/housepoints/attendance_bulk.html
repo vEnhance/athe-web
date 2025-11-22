@@ -31,7 +31,7 @@
                                 <h5>Students in {{ selected_course.name }}</h5>
                                 <p class="text-muted">
                                     All students are checked by default. Uncheck any absent students.
-                                    Points are calculated automatically: 5 pts for first {{ threshold }} attendances, 3 pts thereafter.
+                                    Points are calculated automatically: 5 pts until {{ points_threshold }} total pts, 3 pts thereafter.
                                 </p>
                                 <div class="mb-3">
                                     <button type="button"
@@ -54,7 +54,7 @@
                                                 {{ item.student.airtable_name }}
                                                 <small class="text-muted">({{ item.student.get_house_display }})</small>
                                                 <span class="badge {% if item.points == 5 %}bg-success{% else %}bg-secondary{% endif %}">+{{ item.points }} pts</span>
-                                                <small class="text-muted">({{ item.attendance_count }} prior)</small>
+                                                <small class="text-muted">({{ item.total_points }} pts prior)</small>
                                             </label>
                                         </div>
                                     {% endfor %}
@@ -116,7 +116,7 @@
                             <li>Students must have a house assigned</li>
                             <li>Points are auto-assigned to student's house</li>
                             <li>Award type is automatically "Class Attendance"</li>
-                            <li>Points are calculated dynamically per student based on prior attendance count</li>
+                            <li>Points are calculated dynamically per student based on prior total points</li>
                         </ul>
                     </div>
                 </div>

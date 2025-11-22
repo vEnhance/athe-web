@@ -374,7 +374,7 @@ def test_attendance_bulk_partial_selection():
 
 @pytest.mark.django_db
 def test_attendance_bulk_dynamic_points_based_on_threshold():
-    """Test that points are dynamically calculated based on threshold."""
+    """Test that points are dynamically calculated based on total points threshold."""
     client = Client()
     User.objects.create_user(username="staff", password="password", is_staff=True)
 
@@ -383,7 +383,7 @@ def test_attendance_bulk_dynamic_points_based_on_threshold():
         slug="fa25",
         start_date=timezone.now().date(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
-        house_points_class_threshold=1,  # Low threshold: first attendance = 5, rest = 3
+        house_points_class_threshold=1,  # points_threshold = 5: first attendance = 5, rest = 3
     )
     course = Course.objects.create(
         name="Test Course",
@@ -403,12 +403,12 @@ def test_attendance_bulk_dynamic_points_based_on_threshold():
     client.login(username="staff", password="password")
     url = reverse("housepoints:attendance_bulk")
 
-    # First attendance should be 5 points (0 prior < threshold of 1)
+    # First attendance should be 5 points (0 prior pts < points_threshold of 5)
     client.post(url, {"course": course.pk, "students": [student.pk]})
     first_award = Award.objects.first()
     assert first_award.points == 5
 
-    # Second attendance should be 3 points (1 prior >= threshold of 1)
+    # Second attendance should be 3 points (5 prior pts >= points_threshold of 5)
     client.post(url, {"course": course.pk, "students": [student.pk]})
     second_award = Award.objects.order_by("-id").first()
     assert second_award.points == 3
@@ -567,7 +567,7 @@ def test_semester_custom_house_points_class_threshold():
 
 @pytest.mark.django_db
 def test_attendance_bulk_awards_5_points_below_threshold():
-    """Test that students below threshold get 5 points."""
+    """Test that students below points threshold get 5 points."""
     client = Client()
     User.objects.create_user(username="staff", password="password", is_staff=True)
 
@@ -576,7 +576,7 @@ def test_attendance_bulk_awards_5_points_below_threshold():
         slug="fa25",
         start_date=timezone.now().date(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
-        house_points_class_threshold=3,  # Low threshold for testing
+        house_points_class_threshold=3,  # points_threshold = 15
     )
     course = Course.objects.create(
         name="Math Class",
@@ -593,7 +593,7 @@ def test_attendance_bulk_awards_5_points_below_threshold():
     )
     course.students.add(student)
 
-    # Student has 0 prior attendance, should get 5 points
+    # Student has 0 prior points, should get 5 points (0 < 15)
     client.login(username="staff", password="password")
     url = reverse("housepoints:attendance_bulk")
     response = client.post(
@@ -613,7 +613,7 @@ def test_attendance_bulk_awards_5_points_below_threshold():
 
 @pytest.mark.django_db
 def test_attendance_bulk_awards_3_points_at_threshold():
-    """Test that students at or above threshold get 3 points."""
+    """Test that students at or above points threshold get 3 points."""
     client = Client()
     User.objects.create_user(username="staff", password="password", is_staff=True)
 
@@ -622,7 +622,7 @@ def test_attendance_bulk_awards_3_points_at_threshold():
         slug="fa25",
         start_date=timezone.now().date(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
-        house_points_class_threshold=2,  # Low threshold for testing
+        house_points_class_threshold=2,  # points_threshold = 10
     )
     course = Course.objects.create(
         name="Math Class",
@@ -639,7 +639,7 @@ def test_attendance_bulk_awards_3_points_at_threshold():
     )
     course.students.add(student)
 
-    # Create 2 prior attendance awards (at threshold)
+    # Create 2 prior attendance awards with 5 pts each = 10 pts total (at points_threshold)
     for i in range(2):
         Award.objects.create(
             semester=semester,
@@ -649,7 +649,7 @@ def test_attendance_bulk_awards_3_points_at_threshold():
             description=f"Week {i + 1}",
         )
 
-    # Student has 2 prior attendance (at threshold), should get 3 points
+    # Student has 10 prior pts (at points_threshold of 10), should get 3 points
     client.login(username="staff", password="password")
     url = reverse("housepoints:attendance_bulk")
     response = client.post(
@@ -670,7 +670,7 @@ def test_attendance_bulk_awards_3_points_at_threshold():
 
 @pytest.mark.django_db
 def test_attendance_bulk_mixed_threshold_students():
-    """Test awarding points to students with different attendance counts."""
+    """Test awarding points to students with different prior total points."""
     client = Client()
     User.objects.create_user(username="staff", password="password", is_staff=True)
 
@@ -679,7 +679,7 @@ def test_attendance_bulk_mixed_threshold_students():
         slug="fa25",
         start_date=timezone.now().date(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
-        house_points_class_threshold=2,
+        house_points_class_threshold=2,  # points_threshold = 10
     )
     course = Course.objects.create(
         name="Math Class",
@@ -690,7 +690,7 @@ def test_attendance_bulk_mixed_threshold_students():
     user1 = User.objects.create_user(username="alice", password="password")
     user2 = User.objects.create_user(username="bob", password="password")
 
-    # Student 1: no prior attendance (should get 5 pts)
+    # Student 1: no prior points (should get 5 pts)
     student1 = Student.objects.create(
         user=user1,
         semester=semester,
@@ -698,7 +698,7 @@ def test_attendance_bulk_mixed_threshold_students():
         airtable_name="Alice (New)",
     )
 
-    # Student 2: 2 prior attendances (at threshold, should get 3 pts)
+    # Student 2: 10 prior pts (at points_threshold of 10, should get 3 pts)
     student2 = Student.objects.create(
         user=user2,
         semester=semester,
@@ -745,8 +745,8 @@ def test_attendance_bulk_mixed_threshold_students():
 
 
 @pytest.mark.django_db
-def test_attendance_bulk_shows_attendance_count_and_points():
-    """Test that load students shows attendance count and calculated points."""
+def test_attendance_bulk_shows_total_points_and_calculated_points():
+    """Test that load students shows total prior points and calculated points."""
     client = Client()
     User.objects.create_user(username="staff", password="password", is_staff=True)
 
@@ -755,7 +755,7 @@ def test_attendance_bulk_shows_attendance_count_and_points():
         slug="fa25",
         start_date=timezone.now().date(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
-        house_points_class_threshold=2,
+        house_points_class_threshold=2,  # points_threshold = 10
     )
     course = Course.objects.create(
         name="Test Course",
@@ -770,7 +770,7 @@ def test_attendance_bulk_shows_attendance_count_and_points():
         house=Student.House.OWL,
         airtable_name="Alice Smith",
     )
-    # Create 1 prior attendance (below threshold)
+    # Create 1 prior attendance with 5 pts (below points_threshold of 10)
     Award.objects.create(
         semester=semester,
         student=student,
@@ -793,15 +793,15 @@ def test_attendance_bulk_shows_attendance_count_and_points():
     content = response.content.decode()
     assert response.status_code == 200
     assert "Alice Smith" in content
-    # Should show +5 pts (since 1 prior < threshold of 2)
+    # Should show +5 pts (since 5 prior pts < points_threshold of 10)
     assert "+5 pts" in content
-    # Should show prior attendance count
-    assert "1 prior" in content
+    # Should show prior total points
+    assert "5 pts prior" in content
 
 
 @pytest.mark.django_db
 def test_attendance_bulk_threshold_boundary():
-    """Test boundary behavior: exactly at threshold-1 gets 5pts, at threshold gets 3pts."""
+    """Test boundary behavior: below points_threshold gets 5pts, at/above gets 3pts."""
     client = Client()
     User.objects.create_user(username="staff", password="password", is_staff=True)
 
@@ -810,7 +810,7 @@ def test_attendance_bulk_threshold_boundary():
         slug="fa25",
         start_date=timezone.now().date(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
-        house_points_class_threshold=3,
+        house_points_class_threshold=3,  # points_threshold = 15
     )
     course = Course.objects.create(
         name="Math Class",
@@ -827,7 +827,7 @@ def test_attendance_bulk_threshold_boundary():
     )
     course.students.add(student)
 
-    # Create 2 prior attendance awards (threshold-1)
+    # Create 2 prior attendance awards with 5 pts each = 10 pts total
     for i in range(2):
         Award.objects.create(
             semester=semester,
@@ -837,7 +837,7 @@ def test_attendance_bulk_threshold_boundary():
             description=f"Week {i + 1}",
         )
 
-    # At threshold-1 (2 prior), should still get 5 points
+    # At 10 pts (below points_threshold of 15), should still get 5 points
     client.login(username="staff", password="password")
     url = reverse("housepoints:attendance_bulk")
     client.post(
@@ -849,7 +849,7 @@ def test_attendance_bulk_threshold_boundary():
         },
     )
 
-    # Now at 3 awards, next one should get 3 points
+    # Now at 15 pts (at points_threshold), next one should get 3 points
     client.post(
         url,
         {
@@ -861,9 +861,70 @@ def test_attendance_bulk_threshold_boundary():
 
     awards = list(Award.objects.filter(student=student).order_by("id"))
     assert len(awards) == 4
-    # First 3 should be 5 points
+    # First 3 should be 5 points (total accumulates: 0->5->10->15)
     assert awards[0].points == 5
     assert awards[1].points == 5
     assert awards[2].points == 5
-    # 4th should be 3 points (at threshold)
+    # 4th should be 3 points (15 pts prior >= points_threshold of 15)
     assert awards[3].points == 3
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_legacy_import_bundled_points():
+    """Test that legacy imports with bundled points are handled correctly.
+
+    Legacy imports may bundle multiple attendances into a single award with
+    higher points (e.g., one award with 25 pts instead of five awards with 5 pts each).
+    The logic should use total points, not attendance count.
+    """
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+        house_points_class_threshold=3,  # points_threshold = 15
+    )
+    course = Course.objects.create(
+        name="Math Class",
+        description="Test",
+        semester=semester,
+    )
+
+    user1 = User.objects.create_user(username="alice", password="password")
+    student = Student.objects.create(
+        user=user1,
+        semester=semester,
+        house=Student.House.OWL,
+        airtable_name="Alice Smith",
+    )
+    course.students.add(student)
+
+    # Create a single legacy award with 20 pts (simulating bundled import)
+    # This is above points_threshold of 15, so new attendance should get 3 pts
+    Award.objects.create(
+        semester=semester,
+        student=student,
+        award_type=Award.AwardType.CLASS_ATTENDANCE,
+        points=20,
+        description="Legacy import - bundled attendances",
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    response = client.post(
+        url,
+        {
+            "course": course.pk,
+            "description": "New attendance",
+            "students": [student.pk],
+        },
+    )
+
+    assert response.status_code == 200
+    assert Award.objects.count() == 2
+    # Despite only 1 prior award, the new one should get 3 pts (20 prior pts >= 15)
+    new_award = Award.objects.order_by("-id").first()
+    assert new_award.points == 3
