@@ -1,10 +1,10 @@
 {% extends "home/base.html" %}
 {% block title %}
-    Past Clubs - Athemath
+    Past Clubs and Events - Athemath
 {% endblock title %}
 {% block content %}
     <div id="content">
-        <h1>Past Clubs</h1>
+        <h1>Past Clubs and Events</h1>
         {% if past_clubs %}
             <div class="mt-4">
                 <div class="list-group">
@@ -26,7 +26,7 @@
                 </div>
             </div>
         {% else %}
-            <p>You haven't been enrolled in any clubs from past semesters.</p>
+            <p>You haven't been enrolled in any clubs or events from past semesters.</p>
         {% endif %}
     </div>
 {% endblock content %}

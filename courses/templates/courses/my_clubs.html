@@ -1,16 +1,16 @@
 {% extends "home/base.html" %}
 {% block title %}
-    My Clubs - Athemath
+    My Clubs and Events - Athemath
 {% endblock title %}
 {% block content %}
     <div id="content">
-        <h1>My Clubs</h1>
+        <h1>My Clubs and Events</h1>
         {% if not has_active_semester %}
             <p class="text-muted">You don't have access to any active semesters.</p>
         {% else %}
             {% if enrolled_clubs %}
                 <div class="mb-4">
-                    <h2>Enrolled Clubs</h2>
+                    <h2>Enrolled Clubs and Events</h2>
                     <div class="list-group">
                         {% for club in enrolled_clubs %}
                             <div class="list-group-item">
@@ -34,7 +34,7 @@
             {% endif %}
             {% if available_clubs %}
                 <div class="mb-4">
-                    <h2>Available Clubs</h2>
+                    <h2>Available Clubs and Events</h2>
                     <div class="list-group">
                         {% for club in available_clubs %}
                             <div class="list-group-item">
@@ -55,9 +55,11 @@
                     </div>
                 </div>
             {% endif %}
-            {% if not enrolled_clubs and not available_clubs %}<p>No clubs are available in active semesters.</p>{% endif %}
+            {% if not enrolled_clubs and not available_clubs %}
+                <p>No clubs or events are available in active semesters.</p>
+            {% endif %}
         {% endif %}
-        <h2>Past Clubs</h2>
-        <a class="dropdown-item" href="{% url 'courses:past_clubs' %}">Past clubs are listed separately.</a>
+        <h2>Past Clubs and Events</h2>
+        <a class="dropdown-item" href="{% url 'courses:past_clubs' %}">Past clubs and events are listed separately.</a>
     </div>
 {% endblock content %}
