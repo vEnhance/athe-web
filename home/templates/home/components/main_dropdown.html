@@ -15,6 +15,9 @@
     <li>
         <a class="dropdown-item" href="{% url 'housepoints:my_awards' %}">My Awards</a>
     </li>
+    <li>
+        <a class="dropdown-item" href="{% url 'yearbook:index' %}">Yearbook</a>
+    </li>
     {% if user.is_staff %}
         <li>
             <hr class="dropdown-divider">
