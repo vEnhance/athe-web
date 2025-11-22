@@ -21,7 +21,6 @@
                         <form method="post" id="attendance-form">
                             {% csrf_token %}
                             {% bootstrap_field form.course %}
-                            {% bootstrap_field form.points %}
                             {% if not students %}
                                 <div class="d-grid gap-2">
                                     <button type="submit" name="load_students" class="btn btn-secondary btn-lg">Load Students</button>
@@ -30,7 +29,10 @@
                                 {% bootstrap_field form.description %}
                                 <hr>
                                 <h5>Students in {{ selected_course.name }}</h5>
-                                <p class="text-muted">All students are checked by default. Uncheck any absent students.</p>
+                                <p class="text-muted">
+                                    All students are checked by default. Uncheck any absent students.
+                                    Points are calculated automatically: 5 pts for first {{ threshold }} attendances, 3 pts thereafter.
+                                </p>
                                 <div class="mb-3">
                                     <button type="button"
                                             class="btn btn-sm btn-outline-secondary"
@@ -40,17 +42,19 @@
                                             id="deselect-all">Deselect All</button>
                                 </div>
                                 <div class="student-checkboxes mb-4">
-                                    {% for student in students %}
+                                    {% for item in students %}
                                         <div class="form-check">
                                             <input class="form-check-input student-checkbox"
                                                    type="checkbox"
                                                    name="students"
-                                                   value="{{ student.pk }}"
-                                                   id="student_{{ student.pk }}"
+                                                   value="{{ item.student.pk }}"
+                                                   id="student_{{ item.student.pk }}"
                                                    checked="checked">
-                                            <label class="form-check-label" for="student_{{ student.pk }}">
-                                                {{ student.airtable_name }}
-                                                <small class="text-muted">({{ student.get_house_display }})</small>
+                                            <label class="form-check-label" for="student_{{ item.student.pk }}">
+                                                {{ item.student.airtable_name }}
+                                                <small class="text-muted">({{ item.student.get_house_display }})</small>
+                                                <span class="badge {% if item.points == 5 %}bg-success{% else %}bg-secondary{% endif %}">+{{ item.points }} pts</span>
+                                                <small class="text-muted">({{ item.attendance_count }} prior)</small>
                                             </label>
                                         </div>
                                     {% endfor %}
@@ -98,7 +102,6 @@
                             <li>All students are checked by default</li>
                             <li>Uncheck any students who were absent</li>
                             <li>Edit description if needed</li>
-                            <li>Choose 5 points (default) or 3 points</li>
                             <li>Click "Award Attendance Points"</li>
                         </ol>
                     </div>
@@ -113,6 +116,7 @@
                             <li>Students must have a house assigned</li>
                             <li>Points are auto-assigned to student's house</li>
                             <li>Award type is automatically "Class Attendance"</li>
+                            <li>Points are calculated dynamically per student based on prior attendance count</li>
                         </ul>
                     </div>
                 </div>
