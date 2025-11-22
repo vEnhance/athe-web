@@ -74,6 +74,7 @@ repos:
             refactor,
             revert,
             style,
+            temp,
             tests,
           ]
 
