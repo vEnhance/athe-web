@@ -86,6 +86,7 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-push]
+        fail_fast: true
 
       - id: make-check
         name: Run Django checks and type checking
@@ -93,6 +94,7 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-push]
+        fail_fast: true
 
       - id: make-test
         name: Run tests
@@ -100,3 +102,4 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-push]
+        fail_fast: true
