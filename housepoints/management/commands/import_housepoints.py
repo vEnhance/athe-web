@@ -2,18 +2,21 @@
 Management command to bulk import house points from a TSV file.
 
 The TSV format should have:
-- First column: student name (airtable_name)
+- First column: student name (airtable_name) - header name is ignored
 - Subsequent columns: award counts for different categories
 
-Categories are mapped as follows:
-- "class attendance" -> class_attendance
-- "homework" -> homework
-- "event attendance" -> event
-- "OH" -> office_hours
-- "Extra points!" -> other
-- "nightly debrief" -> ignored
+Categories are matched by prefix (case-insensitive):
+- starts with "class" -> class_attendance
+- starts with "homework" -> homework
+- starts with "event" -> event
+- starts with "oh" -> office_hours
+- starts with "intro" -> intro_post (TRUE/FALSE values supported)
+- starts with "potd" -> potd
+- starts with "extra" -> other
+- starts with "nightly" -> ignored
 
 For non-empty cells, we create a single Award object with points = count * default_points.
+For intro columns, TRUE/FALSE are converted to 1/0.
 """
 
 import csv
@@ -27,17 +30,34 @@ from courses.models import Semester, Student
 from housepoints.models import Award
 
 
-# Map column headers (lowercased) to award types
-CATEGORY_MAP = {
-    "class attendance": Award.AwardType.CLASS_ATTENDANCE,
-    "homework": Award.AwardType.HOMEWORK,
-    "event attendance": Award.AwardType.EVENT,
-    "oh": Award.AwardType.OFFICE_HOURS,
-    "extra points!": Award.AwardType.OTHER,
-}
+# Prefix mappings for column headers (checked in order)
+PREFIX_MAP: list[tuple[str, str | None]] = [
+    ("class", Award.AwardType.CLASS_ATTENDANCE),
+    ("homework", Award.AwardType.HOMEWORK),
+    ("event", Award.AwardType.EVENT),
+    ("oh", Award.AwardType.OFFICE_HOURS),
+    ("intro", Award.AwardType.INTRO_POST),
+    ("potd", Award.AwardType.POTD),
+    ("extra", Award.AwardType.OTHER),
+    ("nightly", None),  # Ignored
+]
 
-# Categories to ignore
-IGNORED_CATEGORIES = {"nightly debrief"}
+
+def get_award_type_for_header(header: str) -> str | None:
+    """
+    Determine the award type for a column header using prefix matching.
+
+    Returns the award type string, or None if the column should be ignored.
+    """
+    header_lower = header.strip().lower()
+    if not header_lower:
+        return None
+
+    for prefix, award_type in PREFIX_MAP:
+        if header_lower.startswith(prefix):
+            return award_type
+
+    return None
 
 
 def parse_header(header_row: list[str]) -> list[tuple[int, str] | None]:
@@ -48,49 +68,52 @@ def parse_header(header_row: list[str]) -> list[tuple[int, str] | None]:
     - A tuple (col_index, award_type) for valid category columns
     - None for columns to skip (name column, ignored categories, unknown)
 
-    Column headers are repeated for each house, so we only use the first occurrence.
+    Column headers may be repeated for each house; we only use the first occurrence.
+    The first column is always treated as the name column regardless of header.
     """
-    seen_categories: set[str] = set()
+    seen_award_types: set[str] = set()
     column_mapping: list[tuple[int, str] | None] = []
 
     for i, header in enumerate(header_row):
         if i == 0:
-            # First column is the name
+            # First column is always the name (header is ignored)
             column_mapping.append(None)
             continue
 
-        header_lower = header.strip().lower()
+        award_type = get_award_type_for_header(header)
 
-        # Skip empty headers
-        if not header_lower:
+        if award_type is None:
             column_mapping.append(None)
             continue
 
-        # Skip ignored categories
-        if header_lower in IGNORED_CATEGORIES:
-            column_mapping.append(None)
-            continue
-
-        # Check if this is a known category
-        if header_lower in CATEGORY_MAP:
-            award_type = CATEGORY_MAP[header_lower]
-            # Only use first occurrence (headers repeat for each house)
-            if header_lower not in seen_categories:
-                seen_categories.add(header_lower)
-                column_mapping.append((i, award_type))
-            else:
-                column_mapping.append(None)
+        # Only use first occurrence of each award type
+        if award_type not in seen_award_types:
+            seen_award_types.add(award_type)
+            column_mapping.append((i, award_type))
         else:
             column_mapping.append(None)
 
     return column_mapping
 
 
-def parse_count(value: str) -> int | None:
-    """Parse a cell value as an integer count. Returns None for empty/non-numeric."""
-    value = value.strip()
+def parse_cell_value(value: str, is_intro: bool = False) -> int | None:
+    """
+    Parse a cell value as an integer count.
+
+    For intro columns, TRUE/FALSE are converted to 1/0.
+    Returns None for empty/non-numeric values or zero.
+    """
+    value = value.strip().upper()
     if not value:
         return None
+
+    # Handle TRUE/FALSE for intro columns
+    if is_intro:
+        if value == "TRUE":
+            return 1
+        elif value == "FALSE":
+            return None  # FALSE means no intro post
+
     try:
         count = int(value)
         return count if count > 0 else None
@@ -142,7 +165,9 @@ class Command(BaseCommand):
 
         self.stdout.write(f"Importing house points for semester: {semester}")
         if dry_run:
-            self.stdout.write(self.style.WARNING("DRY RUN - no records will be created"))
+            self.stdout.write(
+                self.style.WARNING("DRY RUN - no records will be created")
+            )
 
         # Read and parse the TSV file
         try:
@@ -215,12 +240,12 @@ class Command(BaseCommand):
 
             # Process each valid column
             for col_idx, (_, award_type) in valid_columns:
-
                 # Get cell value
                 if col_idx >= len(row):
                     continue
 
-                count = parse_count(row[col_idx])
+                is_intro = award_type == Award.AwardType.INTRO_POST.value
+                count = parse_cell_value(row[col_idx], is_intro=is_intro)
                 if count is None:
                     continue
 
@@ -262,9 +287,7 @@ class Command(BaseCommand):
             type_counts: dict[str, int] = {}
             type_points: dict[str, int] = {}
             for award in awards_to_create:
-                type_counts[award.award_type] = (
-                    type_counts.get(award.award_type, 0) + 1
-                )
+                type_counts[award.award_type] = type_counts.get(award.award_type, 0) + 1
                 type_points[award.award_type] = (
                     type_points.get(award.award_type, 0) + award.points
                 )

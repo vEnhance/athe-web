@@ -15,8 +15,7 @@ class Award(models.Model):
         HOMEWORK = "homework", "Homework Submission"
         EVENT = "event", "Club/Seminar/Event Attendance"
         OFFICE_HOURS = "office_hours", "Office Hours"
-        POTD_TOP3 = "potd_top3", "PotD Top 3"
-        POTD_4_10 = "potd_4_10", "PotD Place 4-10"
+        POTD = "potd", "Problem of the Day"
         STAFF_BONUS = "staff_bonus", "Staff Bonus"
         HOUSE_ACTIVITY = "house_activity", "House Activity Bonus"
         OTHER = "other", "Other"
@@ -28,8 +27,7 @@ class Award(models.Model):
         "homework": 5,
         "event": 3,
         "office_hours": 2,
-        "potd_top3": 20,
-        "potd_4_10": 10,
+        "potd": 10,
         "staff_bonus": 2,
         "house_activity": 50,
         "other": 0,

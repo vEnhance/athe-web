@@ -255,8 +255,7 @@ def test_award_default_points():
     assert Award.DEFAULT_POINTS["homework"] == 5
     assert Award.DEFAULT_POINTS["event"] == 3
     assert Award.DEFAULT_POINTS["office_hours"] == 2
-    assert Award.DEFAULT_POINTS["potd_top3"] == 20
-    assert Award.DEFAULT_POINTS["potd_4_10"] == 10
+    assert Award.DEFAULT_POINTS["potd"] == 10
     assert Award.DEFAULT_POINTS["staff_bonus"] == 2
     assert Award.DEFAULT_POINTS["house_activity"] == 50
 
@@ -848,7 +847,7 @@ def test_my_awards_only_shows_own_awards():
     Award.objects.create(
         semester=semester,
         student=student1,
-        award_type=Award.AwardType.POTD_TOP3,
+        award_type=Award.AwardType.POTD,
         points=20,
         description="Alice PotD",
     )
@@ -924,8 +923,7 @@ def test_all_award_types():
     assert "homework" in types
     assert "event" in types
     assert "office_hours" in types
-    assert "potd_top3" in types
-    assert "potd_4_10" in types
+    assert "potd" in types
     assert "staff_bonus" in types
     assert "house_activity" in types
     assert "other" in types
@@ -1184,7 +1182,7 @@ def tsv_file(tmp_path):
 
 @pytest.mark.django_db
 def test_import_housepoints_basic(tsv_file):
-    """Test basic import of house points from a TSV file."""
+    """Test basic import of house points from a TSV file with prefix matching."""
     from io import StringIO
 
     from django.core.management import call_command
@@ -1203,10 +1201,8 @@ def test_import_housepoints_basic(tsv_file):
         airtable_name="Bob Jones", semester=semester, house=Student.House.CAT
     )
 
-    # Create TSV content
-    tsv_content = (
-        "Name\tClass Attendance\tHomework\tEvent Attendance\tOH\tExtra Points!\n"
-    )
+    # Create TSV content with varied column names (prefix matching)
+    tsv_content = "red panda\tClasses Attended\tHomework Submitted\tevent attended\tOH attended\tExtra points!\n"
     tsv_content += "Alice Smith\t3\t2\t1\t\t\n"
     tsv_content += "Bob Jones\t\t1\t\t2\t5\n"
 
@@ -1385,7 +1381,7 @@ def test_import_housepoints_ignores_nightly_debrief(tsv_file):
 
 @pytest.mark.django_db
 def test_import_housepoints_ignores_repeated_headers(tsv_file):
-    """Test that repeated column headers are ignored."""
+    """Test that repeated column headers (same prefix) are ignored."""
     from io import StringIO
 
     from django.core.management import call_command
@@ -1402,8 +1398,8 @@ def test_import_housepoints_ignores_repeated_headers(tsv_file):
     )
 
     # Create TSV content with repeated headers (like different house columns)
-    # Only the first occurrence should be used
-    tsv_content = "Name\tClass Attendance\tClass Attendance\n"
+    # Only the first occurrence should be used (both start with "class")
+    tsv_content = "Name\tClasses Attended\tClass Attendance\n"
     tsv_content += "Alice Smith\t3\t5\n"
 
     tsv_path = tsv_file(tsv_content)
@@ -1649,3 +1645,118 @@ def test_import_housepoints_auto_fills_house(tsv_file):
 
     assert alice_award.house == Student.House.OWL
     assert bob_award.house == Student.House.BUNNY
+
+
+@pytest.mark.django_db
+def test_import_housepoints_intro_true_false(tsv_file):
+    """Test that intro column handles TRUE/FALSE values."""
+    from io import StringIO
+
+    from django.core.management import call_command
+
+    # Create semester and students
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    Student.objects.create(
+        airtable_name="Alice Smith", semester=semester, house=Student.House.OWL
+    )
+    Student.objects.create(
+        airtable_name="Bob Jones", semester=semester, house=Student.House.CAT
+    )
+
+    # Create TSV content with intro? column using TRUE/FALSE
+    tsv_content = "Name\tintro?\n"
+    tsv_content += "Alice Smith\tTRUE\n"
+    tsv_content += "Bob Jones\tFALSE\n"
+
+    tsv_path = tsv_file(tsv_content)
+
+    # Run the command
+    out = StringIO()
+    call_command("import_housepoints", tsv_path, "--semester=fa25", stdout=out)
+
+    # Only Alice should have an intro post award (TRUE)
+    assert Award.objects.count() == 1
+    award = Award.objects.first()
+    assert award.award_type == Award.AwardType.INTRO_POST
+    assert award.student.airtable_name == "Alice Smith"
+    assert award.points == 1  # 1 * 1 (intro default is 1)
+
+
+@pytest.mark.django_db
+def test_import_housepoints_potd_column(tsv_file):
+    """Test that POTD column is correctly imported."""
+    from io import StringIO
+
+    from django.core.management import call_command
+
+    # Create semester and student
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    Student.objects.create(
+        airtable_name="Alice Smith", semester=semester, house=Student.House.OWL
+    )
+
+    # Create TSV content with PoTD Points column
+    tsv_content = "Name\tPoTD Points\n"
+    tsv_content += "Alice Smith\t3\n"
+
+    tsv_path = tsv_file(tsv_content)
+
+    # Run the command
+    out = StringIO()
+    call_command("import_housepoints", tsv_path, "--semester=fa25", stdout=out)
+
+    # Check POTD award was created
+    assert Award.objects.count() == 1
+    award = Award.objects.first()
+    assert award.award_type == Award.AwardType.POTD
+    assert award.points == 30  # 3 * 10 (potd default is 10)
+
+
+@pytest.mark.django_db
+def test_import_housepoints_prefix_matching_variants(tsv_file):
+    """Test that various column name formats are matched correctly."""
+    from io import StringIO
+
+    from django.core.management import call_command
+
+    # Create semester and student
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    Student.objects.create(
+        airtable_name="Alice Smith", semester=semester, house=Student.House.OWL
+    )
+
+    # Create TSV content with varied column names
+    tsv_content = "red panda\tClasses Attended\tHomework Submitted\tevent attended\tOH attended\tPotD Points\tExtra points!\n"
+    tsv_content += "Alice Smith\t1\t1\t1\t1\t1\t1\n"
+
+    tsv_path = tsv_file(tsv_content)
+
+    # Run the command
+    out = StringIO()
+    call_command("import_housepoints", tsv_path, "--semester=fa25", stdout=out)
+
+    # Should have 5 awards (extra points! has 0 default, so no award)
+    assert Award.objects.count() == 5
+
+    # Verify award types
+    award_types = set(Award.objects.values_list("award_type", flat=True))
+    assert Award.AwardType.CLASS_ATTENDANCE in award_types
+    assert Award.AwardType.HOMEWORK in award_types
+    assert Award.AwardType.EVENT in award_types
+    assert Award.AwardType.OFFICE_HOURS in award_types
+    assert Award.AwardType.POTD in award_types
