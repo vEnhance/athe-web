@@ -131,6 +131,9 @@
                                     </li>
                                     {% if user.is_staff %}
                                         <li>
+                                            <a class="dropdown-item" href="{% url 'housepoints:attendance_bulk' %}">Class Attendance</a>
+                                        </li>
+                                        <li>
                                             <a class="dropdown-item" href="{% url 'housepoints:bulk_award' %}">Award Points</a>
                                         </li>
                                         <li>

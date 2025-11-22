@@ -8,7 +8,7 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
-from courses.models import Semester, Student
+from courses.models import Course, Semester, Student
 from housepoints.models import Award
 
 
@@ -1163,3 +1163,533 @@ def test_intro_post_constraint_only_applies_to_student_awards():
 
     # Should have 2 awards (constraint doesn't apply to house-level awards)
     assert Award.objects.filter(award_type=Award.AwardType.INTRO_POST).count() == 2
+
+
+# ============================================================================
+# Attendance Bulk View Tests
+# ============================================================================
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_requires_staff():
+    """Test that attendance bulk view requires staff access."""
+    client = Client()
+    User.objects.create_user(username="student", password="password")
+
+    client.login(username="student", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    response = client.get(url)
+
+    # Should be forbidden (403)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_staff_access():
+    """Test that staff can access attendance bulk view."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert "Class Attendance" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_shows_active_semester_courses():
+    """Test that only courses from active semesters are shown."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    # Create active semester with course
+    active_semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    active_course = Course.objects.create(
+        name="Active Course",
+        description="Test course",
+        semester=active_semester,
+    )
+
+    # Create ended semester with course
+    ended_semester = Semester.objects.create(
+        name="Spring 2020",
+        slug="sp20",
+        start_date=(timezone.now() - timedelta(days=200)).date(),
+        end_date=(timezone.now() - timedelta(days=110)).date(),
+    )
+    Course.objects.create(
+        name="Ended Course",
+        description="Old course",
+        semester=ended_semester,
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    response = client.get(url)
+
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert active_course.name in content
+    assert "Ended Course" not in content
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_excludes_clubs():
+    """Test that clubs are not shown in the course list."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    Course.objects.create(
+        name="Regular Class",
+        description="Test class",
+        semester=semester,
+        is_club=False,
+    )
+    Course.objects.create(
+        name="Test Club",
+        description="A club",
+        semester=semester,
+        is_club=True,
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    response = client.get(url)
+
+    content = response.content.decode()
+    assert "Regular Class" in content
+    assert "Test Club" not in content
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_default_course_for_leader():
+    """Test that the default course is one the staff member leads."""
+    client = Client()
+    staff = User.objects.create_user(
+        username="staff", password="password", is_staff=True
+    )
+
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    other_course = Course.objects.create(
+        name="Other Course",
+        description="Not led by staff",
+        semester=semester,
+    )
+    led_course = Course.objects.create(
+        name="Led Course",
+        description="Led by staff",
+        semester=semester,
+    )
+    led_course.leaders.add(staff)
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    response = client.get(url)
+
+    content = response.content.decode()
+    # The led course should be selected (has 'selected' attribute)
+    assert f'value="{led_course.pk}" selected' in content
+    assert f'value="{other_course.pk}" selected' not in content
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_load_students():
+    """Test that loading students shows enrolled students with checkboxes."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    course = Course.objects.create(
+        name="Test Course",
+        description="Test",
+        semester=semester,
+    )
+
+    # Create enrolled students
+    user1 = User.objects.create_user(username="alice", password="password")
+    user2 = User.objects.create_user(username="bob", password="password")
+    student1 = Student.objects.create(
+        user=user1,
+        semester=semester,
+        house=Student.House.OWL,
+        airtable_name="Alice Smith",
+    )
+    student2 = Student.objects.create(
+        user=user2,
+        semester=semester,
+        house=Student.House.CAT,
+        airtable_name="Bob Jones",
+    )
+    course.students.add(student1, student2)
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    response = client.post(
+        url,
+        {
+            "course": course.pk,
+            "points": "5",
+            "load_students": "1",
+        },
+    )
+
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert "Alice Smith" in content
+    assert "Bob Jones" in content
+    # Checkboxes should be present
+    assert 'type="checkbox"' in content
+    assert "checked" in content
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_excludes_students_without_house():
+    """Test that students without house assignment are not shown."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    course = Course.objects.create(
+        name="Test Course",
+        description="Test",
+        semester=semester,
+    )
+
+    user1 = User.objects.create_user(username="alice", password="password")
+    user2 = User.objects.create_user(username="bob", password="password")
+    student_with_house = Student.objects.create(
+        user=user1,
+        semester=semester,
+        house=Student.House.OWL,
+        airtable_name="Alice Smith",
+    )
+    student_without_house = Student.objects.create(
+        user=user2,
+        semester=semester,
+        house="",
+        airtable_name="Bob NoHouse",
+    )
+    course.students.add(student_with_house, student_without_house)
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    response = client.post(
+        url,
+        {
+            "course": course.pk,
+            "points": "5",
+            "load_students": "1",
+        },
+    )
+
+    content = response.content.decode()
+    assert "Alice Smith" in content
+    assert "Bob NoHouse" not in content
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_creates_awards():
+    """Test that submitting creates attendance awards for selected students."""
+    client = Client()
+    staff = User.objects.create_user(
+        username="staff", password="password", is_staff=True
+    )
+
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    course = Course.objects.create(
+        name="Math Class",
+        description="Test",
+        semester=semester,
+    )
+
+    user1 = User.objects.create_user(username="alice", password="password")
+    user2 = User.objects.create_user(username="bob", password="password")
+    student1 = Student.objects.create(
+        user=user1,
+        semester=semester,
+        house=Student.House.OWL,
+        airtable_name="Alice Smith",
+    )
+    student2 = Student.objects.create(
+        user=user2,
+        semester=semester,
+        house=Student.House.CAT,
+        airtable_name="Bob Jones",
+    )
+    course.students.add(student1, student2)
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    response = client.post(
+        url,
+        {
+            "course": course.pk,
+            "points": "5",
+            "description": "Attendance on 2025-01-15 for Math Class",
+            "students": [student1.pk, student2.pk],
+        },
+    )
+
+    assert response.status_code == 200
+    assert Award.objects.count() == 2
+
+    alice_award = Award.objects.get(student=student1)
+    assert alice_award.points == 5
+    assert alice_award.house == "owl"
+    assert alice_award.award_type == "class_attendance"
+    assert alice_award.awarded_by == staff
+    assert "Math Class" in alice_award.description
+
+    bob_award = Award.objects.get(student=student2)
+    assert bob_award.points == 5
+    assert bob_award.house == "cat"
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_partial_selection():
+    """Test that only selected students receive awards (absent students excluded)."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    course = Course.objects.create(
+        name="Test Course",
+        description="Test",
+        semester=semester,
+    )
+
+    user1 = User.objects.create_user(username="alice", password="password")
+    user2 = User.objects.create_user(username="bob", password="password")
+    present_student = Student.objects.create(
+        user=user1,
+        semester=semester,
+        house=Student.House.OWL,
+        airtable_name="Present Alice",
+    )
+    absent_student = Student.objects.create(
+        user=user2,
+        semester=semester,
+        house=Student.House.CAT,
+        airtable_name="Absent Bob",
+    )
+    course.students.add(present_student, absent_student)
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    # Only select the present student
+    response = client.post(
+        url,
+        {
+            "course": course.pk,
+            "points": "5",
+            "students": [present_student.pk],  # Bob is not selected (absent)
+        },
+    )
+
+    assert response.status_code == 200
+    assert Award.objects.count() == 1
+    assert Award.objects.filter(student=present_student).exists()
+    assert not Award.objects.filter(student=absent_student).exists()
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_custom_points():
+    """Test that 3 points can be awarded instead of default 5."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    course = Course.objects.create(
+        name="Test Course",
+        description="Test",
+        semester=semester,
+    )
+
+    user = User.objects.create_user(username="alice", password="password")
+    student = Student.objects.create(
+        user=user,
+        semester=semester,
+        house=Student.House.BLOB,
+        airtable_name="Alice",
+    )
+    course.students.add(student)
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    response = client.post(
+        url,
+        {
+            "course": course.pk,
+            "points": "3",  # 3 points instead of 5
+            "students": [student.pk],
+        },
+    )
+
+    assert response.status_code == 200
+    award = Award.objects.get(student=student)
+    assert award.points == 3
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_no_students_selected():
+    """Test that error is shown when no students are selected."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    course = Course.objects.create(
+        name="Test Course",
+        description="Test",
+        semester=semester,
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    response = client.post(
+        url,
+        {
+            "course": course.pk,
+            "points": "5",
+            # No students selected
+        },
+    )
+
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert "No students selected" in content
+    assert Award.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_shows_success_results():
+    """Test that success results are displayed after awarding."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    course = Course.objects.create(
+        name="Test Course",
+        description="Test",
+        semester=semester,
+    )
+
+    user = User.objects.create_user(username="alice", password="password")
+    student = Student.objects.create(
+        user=user,
+        semester=semester,
+        house=Student.House.OWL,
+        airtable_name="Alice Smith",
+    )
+    course.students.add(student)
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    response = client.post(
+        url,
+        {
+            "course": course.pk,
+            "points": "5",
+            "students": [student.pk],
+        },
+    )
+
+    content = response.content.decode()
+    assert "Successfully Awarded" in content
+    assert "Alice Smith" in content
+    assert "+5 pts" in content
+    assert "Owl" in content
+
+
+@pytest.mark.django_db
+def test_attendance_bulk_validates_student_enrollment():
+    """Test that students not enrolled in the course are rejected."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    course = Course.objects.create(
+        name="Test Course",
+        description="Test",
+        semester=semester,
+    )
+
+    user = User.objects.create_user(username="alice", password="password")
+    # Student NOT enrolled in course
+    unenrolled_student = Student.objects.create(
+        user=user,
+        semester=semester,
+        house=Student.House.OWL,
+        airtable_name="Alice Smith",
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse("housepoints:attendance_bulk")
+    client.post(
+        url,
+        {
+            "course": course.pk,
+            "points": "5",
+            "students": [unenrolled_student.pk],
+        },
+    )
+
+    # No awards should be created for unenrolled students
+    assert Award.objects.count() == 0
