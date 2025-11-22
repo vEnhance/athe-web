@@ -513,7 +513,7 @@ def test_navigation_link_visible_to_staff():
     response = client.get(reverse("home:index"))
 
     content = response.content.decode()
-    assert "TA Attendance" in content
+    assert "TA Sign-in Sheet" in content
     assert reverse("ta_attendance:my_attendance") in content
 
 

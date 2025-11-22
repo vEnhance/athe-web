@@ -1,0 +1,61 @@
+<ul class="dropdown-menu" aria-labelledby="navbarDropdownUser">
+    {# Student views #}
+    <li>
+        <a class="dropdown-item" href="{% url 'courses:upcoming' %}">Upcoming</a>
+    </li>
+    <li>
+        <a class="dropdown-item" href="{% url 'courses:my_courses' %}">Classes</a>
+    </li>
+    <li>
+        <a class="dropdown-item" href="{% url 'courses:my_clubs' %}">Clubs and Events</a>
+    </li>
+    <li>
+        <a class="dropdown-item" href="{% url 'housepoints:leaderboard' %}">House Standings</a>
+    </li>
+    <li>
+        <a class="dropdown-item" href="{% url 'housepoints:my_awards' %}">My Awards</a>
+    </li>
+    {% if user.is_staff %}
+        <li>
+            <hr class="dropdown-divider">
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'housepoints:attendance_bulk' %}">Class Attendance</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'ta_attendance:my_attendance' %}">TA Sign-in Sheet</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'housepoints:bulk_award' %}">Award Points</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'home:staff_edit' %}">Update Bio</a>
+        </li>
+    {% endif %}
+    {% if user.is_superuser %}
+        <li>
+            <hr class="dropdown-divider">
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'admin:index' %}">Admin Panel</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'courses:bulk_create_students' %}">Bulk Create Students</a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="{% url 'courses:sorting_hat' %}">Sorting Hat</a>
+        </li>
+    {% endif %}
+    <li>
+        <hr class="dropdown-divider">
+    </li>
+    <li>
+        <a class="dropdown-item" href="{% url 'home:profile_settings' %}">Profile Settings</a>
+    </li>
+    <li>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="dropdown-item btn-link">Logout</button>
+        </form>
+    </li>
+</ul>

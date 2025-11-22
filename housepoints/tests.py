@@ -885,7 +885,7 @@ def test_navigation_links_for_authenticated_user():
     response = client.get(url)
 
     content = response.content.decode()
-    assert "House Points" in content
+    assert "House Standings" in content
     assert "My Awards" in content
 
 
