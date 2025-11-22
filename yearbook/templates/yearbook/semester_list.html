@@ -1,78 +1,22 @@
 {% extends "home/base.html" %}
 {% load django_bootstrap5 %}
 {% block title %}
-    {{ semester }} Yearbook - Athemath
+    Yearbook - Athemath
 {% endblock title %}
 {% block content %}
     <div id="content">
-        <h1>{{ semester }} Yearbook</h1>
-        <p class="text-muted">Meet your fellow students from {{ semester }}!</p>
-        {% if user_student and can_edit %}
-            <div class="mb-4">
-                {% if has_entry %}
-                    <a href="{% url 'yearbook:edit' pk=user_entry.pk %}"
-                       class="btn btn-dark">Edit Your Entry</a>
-                {% else %}
-                    <a href="{% url 'yearbook:create' student_pk=user_student.pk %}"
-                       class="btn btn-dark">Create Your Entry</a>
-                {% endif %}
-            </div>
-        {% elif user_student and not can_edit %}
-            <div class="alert alert-info">The semester has ended, so yearbook entries can no longer be created or edited.</div>
-        {% endif %}
-        {% if entries %}
-            {% regroup entries by student.get_house_display as house_list %}
-            {% for house in house_list %}
-                <h2 class="mt-4">{{ house.grouper }}</h2>
-                <div class="row">
-                    {% for entry in house.list %}
-                        <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <h4 class="card-title">{{ entry.display_name }}</h4>
-                                    <p class="card-text">{{ entry.bio|linebreaks }}</p>
-                                    {% if entry.discord_username or entry.instagram_username or entry.github_username or entry.website_url %}
-                                        <hr>
-                                        <div class="small">
-                                            {% if entry.discord_username %}
-                                                <p class="mb-1">
-                                                    <strong>Discord:</strong> {{ entry.discord_username }}
-                                                </p>
-                                            {% endif %}
-                                            {% if entry.instagram_username %}
-                                                <p class="mb-1">
-                                                    <strong>Instagram:</strong>
-                                                    <a href="https://instagram.com/{{ entry.instagram_username }}"
-                                                       target="_blank"
-                                                       rel="noopener noreferrer">@{{ entry.instagram_username }}</a>
-                                                </p>
-                                            {% endif %}
-                                            {% if entry.github_username %}
-                                                <p class="mb-1">
-                                                    <strong>GitHub:</strong>
-                                                    <a href="https://github.com/{{ entry.github_username }}"
-                                                       target="_blank"
-                                                       rel="noopener noreferrer">{{ entry.github_username }}</a>
-                                                </p>
-                                            {% endif %}
-                                            {% if entry.website_url %}
-                                                <p class="mb-1">
-                                                    <strong>Website:</strong>
-                                                    <a href="{{ entry.website_url }}"
-                                                       target="_blank"
-                                                       rel="noopener noreferrer">{{ entry.website_url }}</a>
-                                                </p>
-                                            {% endif %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endfor %}
+        <h1>Yearbook</h1>
+        <p class="text-muted">Browse yearbook entries from past semesters.</p>
+        {% if semesters %}
+            <ul class="list-group">
+                {% for semester in semesters %}
+                    <li class="list-group-item">
+                        <a href="{% url 'yearbook:entry_list' slug=semester.slug %}">{{ semester }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
         {% else %}
-            <p class="text-muted">No yearbook entries yet. Be the first to add one!</p>
+            <p class="text-muted">No semesters available yet.</p>
         {% endif %}
     </div>
 {% endblock content %}

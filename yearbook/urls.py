@@ -6,9 +6,19 @@ app_name = "yearbook"
 
 urlpatterns = [
     path(
-        "<slug:slug>/",
-        views.SemesterYearbookListView.as_view(),
+        "",
+        views.YearbookIndexView.as_view(),
+        name="index",
+    ),
+    path(
+        "semesters/",
+        views.SemesterListView.as_view(),
         name="semester_list",
+    ),
+    path(
+        "<slug:slug>/",
+        views.YearbookEntryListView.as_view(),
+        name="entry_list",
     ),
     path(
         "create/<int:student_pk>/",
