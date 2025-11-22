@@ -67,7 +67,7 @@ class YearbookEntryCreateView(StudentOwnerMixin, CreateView):
 
     def get_success_url(self) -> str:
         return reverse(
-            "yearbook:semester_list",
+            "yearbook:entry_list",
             kwargs={"slug": self.get_student().semester.slug},
         )
 
@@ -94,7 +94,7 @@ class YearbookEntryUpdateView(StudentOwnerMixin, UpdateView):
 
     def get_success_url(self) -> str:
         return reverse(
-            "yearbook:semester_list",
+            "yearbook:entry_list",
             kwargs={"slug": self.get_object().student.semester.slug},
         )
 
@@ -105,11 +105,11 @@ class YearbookEntryUpdateView(StudentOwnerMixin, UpdateView):
         return context
 
 
-class SemesterYearbookListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+class YearbookEntryListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     """List all yearbook entries for a semester."""
 
     model = YearbookEntry
-    template_name = "yearbook/semester_list.html"
+    template_name = "yearbook/yearbook_entry_list.html"
     context_object_name = "entries"
 
     def get_semester(self) -> Semester:
@@ -145,6 +145,11 @@ class SemesterYearbookListView(LoginRequiredMixin, UserPassesTestMixin, ListView
         semester = self.get_semester()
         context["semester"] = semester
 
+        # Get other semesters for navigation
+        context["other_semesters"] = Semester.objects.exclude(pk=semester.pk).order_by(
+            "-end_date"
+        )
+
         # Get the current user's student for this semester (if any)
         if self.request.user.is_authenticated:  # type: ignore[union-attr]
             user_student = Student.objects.filter(
@@ -162,3 +167,38 @@ class SemesterYearbookListView(LoginRequiredMixin, UserPassesTestMixin, ListView
                     context["has_entry"] = False
 
         return context
+
+
+class SemesterListView(LoginRequiredMixin, ListView):
+    """List all semesters with links to their yearbook entries."""
+
+    model = Semester
+    template_name = "yearbook/semester_list.html"
+    context_object_name = "semesters"
+
+    def get_queryset(self):
+        return Semester.objects.order_by("-end_date")
+
+
+class YearbookIndexView(LoginRequiredMixin, ListView):
+    """Redirect to the most recent accessible semester or semester list."""
+
+    model = Semester
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
+        user = request.user
+        assert isinstance(user, User)
+
+        # Get the most recent semester
+        most_recent = Semester.objects.order_by("-end_date").first()
+
+        if most_recent:
+            # Check if user has access to the most recent semester
+            if (
+                user.is_staff
+                or Student.objects.filter(user=user, semester=most_recent).exists()
+            ):
+                return redirect("yearbook:entry_list", slug=most_recent.slug)
+
+        # Otherwise, redirect to semester list
+        return redirect("yearbook:semester_list")

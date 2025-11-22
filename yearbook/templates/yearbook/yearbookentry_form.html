@@ -30,7 +30,7 @@
             {% csrf_token %}
             {% bootstrap_form form %}
             {% bootstrap_button button_type="submit" content="Save Entry" button_class="btn-dark" %}
-            <a href="{% url 'yearbook:semester_list' slug=student.semester.slug %}"
+            <a href="{% url 'yearbook:entry_list' slug=student.semester.slug %}"
                class="btn btn-secondary">Cancel</a>
         </form>
     </div>

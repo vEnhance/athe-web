@@ -239,7 +239,7 @@ def test_create_view_successful_submission():
 
     assert response.status_code == 302
     assert response.url == reverse(
-        "yearbook:semester_list", kwargs={"slug": semester.slug}
+        "yearbook:entry_list", kwargs={"slug": semester.slug}
     )
 
     # Verify entry was created
@@ -409,7 +409,7 @@ def test_update_view_successful_submission():
 
     assert response.status_code == 302
     assert response.url == reverse(
-        "yearbook:semester_list", kwargs={"slug": semester.slug}
+        "yearbook:entry_list", kwargs={"slug": semester.slug}
     )
 
     # Verify entry was updated
@@ -436,7 +436,7 @@ def test_semester_list_requires_login():
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
 
-    url = reverse("yearbook:semester_list", kwargs={"slug": semester.slug})
+    url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
     response = client.get(url)
 
     assert response.status_code == 302
@@ -456,7 +456,7 @@ def test_semester_list_staff_can_access_any_semester():
     User.objects.create_user(username="staff", password="password", is_staff=True)
 
     client.login(username="staff", password="password")
-    url = reverse("yearbook:semester_list", kwargs={"slug": semester.slug})
+    url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
     response = client.get(url)
 
     assert response.status_code == 200
@@ -480,7 +480,7 @@ def test_semester_list_student_in_semester_can_access():
     )
 
     client.login(username="student", password="password")
-    url = reverse("yearbook:semester_list", kwargs={"slug": semester.slug})
+    url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
     response = client.get(url)
 
     assert response.status_code == 200
@@ -511,7 +511,7 @@ def test_semester_list_student_not_in_semester_denied():
     )
 
     client.login(username="student", password="password")
-    url = reverse("yearbook:semester_list", kwargs={"slug": semester.slug})
+    url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
     response = client.get(url)
 
     assert response.status_code == 403
@@ -530,7 +530,7 @@ def test_semester_list_user_without_student_denied():
     User.objects.create_user(username="regular", password="password")
 
     client.login(username="regular", password="password")
-    url = reverse("yearbook:semester_list", kwargs={"slug": semester.slug})
+    url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
     response = client.get(url)
 
     assert response.status_code == 403
@@ -554,7 +554,7 @@ def test_semester_list_student_can_view_without_having_entry():
     )
 
     client.login(username="student", password="password")
-    url = reverse("yearbook:semester_list", kwargs={"slug": semester.slug})
+    url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
     response = client.get(url)
 
     assert response.status_code == 200
@@ -604,7 +604,7 @@ def test_semester_list_shows_entries_sorted_by_house():
     )
 
     client.login(username="viewer", password="password")
-    url = reverse("yearbook:semester_list", kwargs={"slug": semester.slug})
+    url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
     response = client.get(url)
 
     assert response.status_code == 200
@@ -630,7 +630,7 @@ def test_semester_list_shows_create_button_before_semester_ends():
     Student.objects.create(user=user, airtable_name="Student", semester=semester)
 
     client.login(username="student", password="password")
-    url = reverse("yearbook:semester_list", kwargs={"slug": semester.slug})
+    url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
     response = client.get(url)
 
     assert response.status_code == 200
@@ -658,7 +658,7 @@ def test_semester_list_shows_edit_button_for_existing_entry():
     )
 
     client.login(username="student", password="password")
-    url = reverse("yearbook:semester_list", kwargs={"slug": semester.slug})
+    url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
     response = client.get(url)
 
     assert response.status_code == 200
@@ -681,7 +681,7 @@ def test_semester_list_no_edit_button_after_semester_ends():
     Student.objects.create(user=user, airtable_name="Student", semester=semester)
 
     client.login(username="student", password="password")
-    url = reverse("yearbook:semester_list", kwargs={"slug": semester.slug})
+    url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
     response = client.get(url)
 
     assert response.status_code == 200
@@ -721,7 +721,7 @@ def test_semester_list_shows_social_links():
     )
 
     client.login(username="viewer", password="password")
-    url = reverse("yearbook:semester_list", kwargs={"slug": semester.slug})
+    url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
     response = client.get(url)
 
     content = response.content.decode()
@@ -815,3 +815,294 @@ def test_bio_at_max_length_succeeds():
     # Entry should be created
     entry = YearbookEntry.objects.get(student=student)
     assert len(entry.bio) == 1000
+
+
+# ============================================================================
+# SemesterListView Tests
+# ============================================================================
+
+
+@pytest.mark.django_db
+def test_semester_list_view_requires_login():
+    """Test that viewing the semester list requires login."""
+    client = Client()
+    url = reverse("yearbook:semester_list")
+    response = client.get(url)
+
+    assert response.status_code == 302
+    assert "/login/" in response.url
+
+
+@pytest.mark.django_db
+def test_semester_list_view_shows_all_semesters():
+    """Test that the semester list shows all semesters."""
+    client = Client()
+    Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    Semester.objects.create(
+        name="Spring 2025",
+        slug="sp25",
+        start_date=(timezone.now() - timedelta(days=180)).date(),
+        end_date=(timezone.now() - timedelta(days=90)).date(),
+    )
+    User.objects.create_user(username="user", password="password")
+
+    client.login(username="user", password="password")
+    url = reverse("yearbook:semester_list")
+    response = client.get(url)
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "Fall 2025" in content
+    assert "Spring 2025" in content
+
+
+@pytest.mark.django_db
+def test_semester_list_view_empty_state():
+    """Test that the semester list shows a message when no semesters exist."""
+    client = Client()
+    User.objects.create_user(username="user", password="password")
+
+    client.login(username="user", password="password")
+    url = reverse("yearbook:semester_list")
+    response = client.get(url)
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "No semesters available" in content
+
+
+@pytest.mark.django_db
+def test_semester_list_view_ordered_by_end_date():
+    """Test that semesters are ordered by end date (most recent first)."""
+    client = Client()
+    # Create semesters out of order
+    Semester.objects.create(
+        name="Spring 2024",
+        slug="sp24",
+        start_date=(timezone.now() - timedelta(days=365)).date(),
+        end_date=(timezone.now() - timedelta(days=275)).date(),
+    )
+    Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    Semester.objects.create(
+        name="Spring 2025",
+        slug="sp25",
+        start_date=(timezone.now() - timedelta(days=180)).date(),
+        end_date=(timezone.now() - timedelta(days=90)).date(),
+    )
+    User.objects.create_user(username="user", password="password")
+
+    client.login(username="user", password="password")
+    url = reverse("yearbook:semester_list")
+    response = client.get(url)
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    # Check that Fall 2025 appears before Spring 2025 and Spring 2024
+    fall25_pos = content.find("Fall 2025")
+    spring25_pos = content.find("Spring 2025")
+    spring24_pos = content.find("Spring 2024")
+    assert fall25_pos < spring25_pos < spring24_pos
+
+
+# ============================================================================
+# YearbookIndexView Tests
+# ============================================================================
+
+
+@pytest.mark.django_db
+def test_index_view_requires_login():
+    """Test that the index view requires login."""
+    client = Client()
+    url = reverse("yearbook:index")
+    response = client.get(url)
+
+    assert response.status_code == 302
+    assert "/login/" in response.url
+
+
+@pytest.mark.django_db
+def test_index_view_redirects_staff_to_most_recent_semester():
+    """Test that staff are redirected to the most recent semester."""
+    client = Client()
+    Semester.objects.create(
+        name="Spring 2024",
+        slug="sp24",
+        start_date=(timezone.now() - timedelta(days=365)).date(),
+        end_date=(timezone.now() - timedelta(days=275)).date(),
+    )
+    most_recent = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    client.login(username="staff", password="password")
+    url = reverse("yearbook:index")
+    response = client.get(url)
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "yearbook:entry_list", kwargs={"slug": most_recent.slug}
+    )
+
+
+@pytest.mark.django_db
+def test_index_view_redirects_student_to_their_semester():
+    """Test that students in the most recent semester are redirected to it."""
+    client = Client()
+    Semester.objects.create(
+        name="Spring 2024",
+        slug="sp24",
+        start_date=(timezone.now() - timedelta(days=365)).date(),
+        end_date=(timezone.now() - timedelta(days=275)).date(),
+    )
+    most_recent = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    user = User.objects.create_user(username="student", password="password")
+    Student.objects.create(user=user, airtable_name="Student", semester=most_recent)
+
+    client.login(username="student", password="password")
+    url = reverse("yearbook:index")
+    response = client.get(url)
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "yearbook:entry_list", kwargs={"slug": most_recent.slug}
+    )
+
+
+@pytest.mark.django_db
+def test_index_view_redirects_to_semester_list_if_no_access():
+    """Test that users without access to the most recent semester go to semester list."""
+    client = Client()
+    # User is in an older semester
+    old_semester = Semester.objects.create(
+        name="Spring 2024",
+        slug="sp24",
+        start_date=(timezone.now() - timedelta(days=365)).date(),
+        end_date=(timezone.now() - timedelta(days=275)).date(),
+    )
+    Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    user = User.objects.create_user(username="student", password="password")
+    Student.objects.create(user=user, airtable_name="Student", semester=old_semester)
+
+    client.login(username="student", password="password")
+    url = reverse("yearbook:index")
+    response = client.get(url)
+
+    assert response.status_code == 302
+    assert response.url == reverse("yearbook:semester_list")
+
+
+@pytest.mark.django_db
+def test_index_view_redirects_to_semester_list_if_no_semesters():
+    """Test that users are redirected to semester list if no semesters exist."""
+    client = Client()
+    User.objects.create_user(username="user", password="password")
+
+    client.login(username="user", password="password")
+    url = reverse("yearbook:index")
+    response = client.get(url)
+
+    assert response.status_code == 302
+    assert response.url == reverse("yearbook:semester_list")
+
+
+@pytest.mark.django_db
+def test_index_view_user_without_student_redirects_to_semester_list():
+    """Test that users without a student record go to semester list."""
+    client = Client()
+    Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    User.objects.create_user(username="user", password="password")
+
+    client.login(username="user", password="password")
+    url = reverse("yearbook:index")
+    response = client.get(url)
+
+    assert response.status_code == 302
+    assert response.url == reverse("yearbook:semester_list")
+
+
+# ============================================================================
+# YearbookEntryListView Tests (other semesters link)
+# ============================================================================
+
+
+@pytest.mark.django_db
+def test_entry_list_shows_other_semesters():
+    """Test that entry list shows links to other semesters."""
+    client = Client()
+    current_semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    other_semester = Semester.objects.create(
+        name="Spring 2025",
+        slug="sp25",
+        start_date=(timezone.now() - timedelta(days=180)).date(),
+        end_date=(timezone.now() - timedelta(days=90)).date(),
+    )
+    user = User.objects.create_user(username="student", password="password")
+    Student.objects.create(
+        user=user, airtable_name="Student", semester=current_semester
+    )
+
+    client.login(username="student", password="password")
+    url = reverse("yearbook:entry_list", kwargs={"slug": current_semester.slug})
+    response = client.get(url)
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "Other Semesters" in content
+    assert other_semester.name in content
+    assert f"/yearbook/{other_semester.slug}/" in content
+
+
+@pytest.mark.django_db
+def test_entry_list_hides_other_semesters_when_none_exist():
+    """Test that 'Other Semesters' section is hidden when there are no other semesters."""
+    client = Client()
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    user = User.objects.create_user(username="student", password="password")
+    Student.objects.create(user=user, airtable_name="Student", semester=semester)
+
+    client.login(username="student", password="password")
+    url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
+    response = client.get(url)
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "Other Semesters" not in content
