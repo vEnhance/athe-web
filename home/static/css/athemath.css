@@ -173,6 +173,7 @@ a.f-head {
 
 #content a.btn {
   color: #fff;
+  text-decoration: none;
 }
 
 /* Global hover effect */
