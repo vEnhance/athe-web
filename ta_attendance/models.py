@@ -20,6 +20,10 @@ class Attendance(models.Model):
         limit_choices_to={"is_club": True},
     )
 
+    timestamp = models.DateTimeField(
+        auto_now_add=True, help_text="Timestamp for when the record was submitted."
+    )
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
