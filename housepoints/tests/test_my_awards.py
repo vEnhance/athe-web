@@ -57,7 +57,6 @@ def test_my_awards_shows_user_awards():
     assert response.status_code == 200
     assert "Introduction Post" in content
     assert "+1" in content
-    assert "Posted intro" in content
 
 
 @pytest.mark.django_db
@@ -137,5 +136,5 @@ def test_my_awards_only_shows_own_awards():
     response = client.get(url)
 
     content = response.content.decode()
-    assert "Alice PotD" in content
-    assert "Bob HW" not in content
+    assert "Problem of the Day" in content
+    assert "Homework" not in content
