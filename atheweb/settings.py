@@ -302,6 +302,6 @@ LOGGING = {
 if DISCORD_WEBHOOK_URL:
     LOGGING["handlers"]["discord"] = {
         "class": "django_discordo.DiscordWebhookHandler",
-        "level": "WARNING",
+        "level": "SUCCESS",
     }
     LOGGING["root"]["handlers"].append("discord")  # type: ignore[union-attr]
