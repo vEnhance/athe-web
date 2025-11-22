@@ -38,7 +38,7 @@ PREFIX_MAP: list[tuple[str, str | None]] = [
     ("oh", Award.AwardType.OFFICE_HOURS),
     ("intro", Award.AwardType.INTRO_POST),
     ("potd", Award.AwardType.POTD),
-    ("extra", Award.AwardType.OTHER),
+    ("extra", Award.AwardType.STAFF_BONUS),
     ("nightly", None),  # Ignored
 ]
 

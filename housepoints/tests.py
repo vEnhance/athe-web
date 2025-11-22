@@ -1744,8 +1744,8 @@ def test_import_housepoints_basic(tsv_file):
 
     # Check awards were created
     # Alice: 3 class attendance (3*5=15), 2 homework (2*5=10), 1 event (1*3=3) = 3 awards
-    # Bob: 1 homework (1*5=5), 2 OH (2*2=4), 5 extra points (5*0=0, so 0 pts) = 2 awards
-    assert Award.objects.count() == 5
+    # Bob: 1 homework (1*5=5), 2 OH (2*2=4), 5 extra points (5*2=10) = 3 awards
+    assert Award.objects.count() == 6
 
     # Verify Alice's awards
     alice = Student.objects.get(airtable_name="Alice Smith")
@@ -1761,11 +1761,14 @@ def test_import_housepoints_basic(tsv_file):
     # Verify Bob's awards
     bob = Student.objects.get(airtable_name="Bob Jones")
     bob_awards = Award.objects.filter(student=bob)
-    assert bob_awards.count() == 2  # Other has 0 default points, so not created
+    assert bob_awards.count() == 3  # Includes staff_bonus from extra points
     assert bob_awards.filter(award_type=Award.AwardType.HOMEWORK).first().points == 5
     assert (
         bob_awards.filter(award_type=Award.AwardType.OFFICE_HOURS).first().points == 4
     )
+    assert (
+        bob_awards.filter(award_type=Award.AwardType.STAFF_BONUS).first().points == 10
+    )  # 5 * 2
 
 
 @pytest.mark.django_db
@@ -2280,8 +2283,8 @@ def test_import_housepoints_prefix_matching_variants(tsv_file):
     out = StringIO()
     call_command("import_housepoints", tsv_path, "--semester=fa25", stdout=out)
 
-    # Should have 5 awards (extra points! has 0 default, so no award)
-    assert Award.objects.count() == 5
+    # Should have 6 awards (extra maps to staff_bonus with 2pt default)
+    assert Award.objects.count() == 6
 
     # Verify award types
     award_types = set(Award.objects.values_list("award_type", flat=True))
@@ -2290,3 +2293,4 @@ def test_import_housepoints_prefix_matching_variants(tsv_file):
     assert Award.AwardType.EVENT in award_types
     assert Award.AwardType.OFFICE_HOURS in award_types
     assert Award.AwardType.POTD in award_types
+    assert Award.AwardType.STAFF_BONUS in award_types
