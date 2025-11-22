@@ -10,6 +10,9 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView, UpdateView
 
+from allauth.socialaccount.forms import DisconnectForm
+from allauth.socialaccount.models import SocialAccount
+
 from .models import ApplyPSet, StaffPhotoListing
 
 
@@ -41,18 +44,25 @@ class ProfileSettingsView(LoginRequiredMixin, View):
 
     template_name = "home/profile_settings.html"
 
+    def get_social_accounts_context(self, request: HttpRequest) -> dict[str, object]:
+        """Get context data for social account connections."""
+        social_accounts = SocialAccount.objects.filter(user=request.user)
+        disconnect_form = DisconnectForm(request=request)
+        return {
+            "social_accounts": social_accounts,
+            "disconnect_form": disconnect_form,
+        }
+
     def get(self, request: HttpRequest) -> HttpResponse:
         """Display the profile settings forms."""
         profile_form = UserProfileForm(instance=request.user)
         password_form = PasswordChangeForm(request.user)
-        return render(
-            request,
-            self.template_name,
-            {
-                "profile_form": profile_form,
-                "password_form": password_form,
-            },
-        )
+        context = {
+            "profile_form": profile_form,
+            "password_form": password_form,
+        }
+        context.update(self.get_social_accounts_context(request))
+        return render(request, self.template_name, context)
 
     def post(self, request: HttpRequest) -> HttpResponse:
         """Handle form submissions for profile or password updates."""
@@ -73,18 +83,31 @@ class ProfileSettingsView(LoginRequiredMixin, View):
                 )
                 return redirect("home:profile_settings")
             profile_form = UserProfileForm(instance=request.user)
+        elif "disconnect_social" in request.POST:
+            disconnect_form = DisconnectForm(request.POST, request=request)
+            if disconnect_form.is_valid():
+                disconnect_form.save()
+                messages.success(request, "Account disconnected successfully.")
+                return redirect("home:profile_settings")
+            profile_form = UserProfileForm(instance=request.user)
+            password_form = PasswordChangeForm(request.user)
+            context = {
+                "profile_form": profile_form,
+                "password_form": password_form,
+                "social_accounts": SocialAccount.objects.filter(user=request.user),
+                "disconnect_form": disconnect_form,
+            }
+            return render(request, self.template_name, context)
         else:
             profile_form = UserProfileForm(instance=request.user)
             password_form = PasswordChangeForm(request.user)
 
-        return render(
-            request,
-            self.template_name,
-            {
-                "profile_form": profile_form,
-                "password_form": password_form,
-            },
-        )
+        context = {
+            "profile_form": profile_form,
+            "password_form": password_form,
+        }
+        context.update(self.get_social_accounts_context(request))
+        return render(request, self.template_name, context)
 
 
 def index(request: HttpRequest) -> HttpResponse:
