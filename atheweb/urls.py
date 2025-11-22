@@ -26,6 +26,7 @@ urlpatterns = [
     path("hijack/", include("hijack.urls")),
     path("catalog/", include("courses.urls")),
     path("house-points/", include("housepoints.urls")),
+    path("ta-attendance/", include("ta_attendance.urls")),
     path("accounts/", include("allauth.urls")),
     path("reg/", include("reg.urls")),
     path(

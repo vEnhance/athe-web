@@ -1,0 +1,55 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}
+    My Attendance - Athemath
+{% endblock title %}
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 50px;">
+        <h1>My Attendance</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Log Attendance</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h2>My Attendance Records</h2>
+        {% if records %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Club</th>
+                        <th>Semester</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                        <tr>
+                            <td>{{ record.date }}</td>
+                            <td>{{ record.club.name }}</td>
+                            <td>{{ record.club.semester.name }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted">No attendance records yet.</p>
+        {% endif %}
+        {% if user.is_superuser %}
+            <p class="mt-4">
+                <a href="{% url 'ta_attendance:all_attendance' %}"
+                   class="btn btn-secondary">View All Attendance Records</a>
+            </p>
+        {% endif %}
+    </div>
+{% endblock content %}
