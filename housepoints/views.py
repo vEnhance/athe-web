@@ -725,20 +725,25 @@ class AttendanceBulkView(UserPassesTestMixin, View):
                 form_data["description"] = default_description
             updated_form = AttendanceBulkForm(form_data, user=request.user)  # type: ignore[arg-type]
 
-            # Calculate attendance counts for each student
+            # Calculate attendance points for each student
+            # Use total points instead of count to handle legacy imports
             threshold = course.semester.house_points_class_threshold
+            points_threshold = 5 * threshold
             students_with_counts = []
             for student in students:
-                attendance_count = Award.objects.filter(
-                    semester=course.semester,
-                    student=student,
-                    award_type=Award.AwardType.CLASS_ATTENDANCE,
-                ).count()
-                points = 5 if attendance_count < threshold else 3
+                total_points = (
+                    Award.objects.filter(
+                        semester=course.semester,
+                        student=student,
+                        award_type=Award.AwardType.CLASS_ATTENDANCE,
+                    ).aggregate(total=Sum("points"))["total"]
+                    or 0
+                )
+                points = 5 if total_points < points_threshold else 3
                 students_with_counts.append(
                     {
                         "student": student,
-                        "attendance_count": attendance_count,
+                        "total_points": total_points,
                         "points": points,
                     }
                 )
@@ -751,7 +756,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
                     "results": None,
                     "students": students_with_counts,
                     "selected_course": course,
-                    "threshold": threshold,
+                    "points_threshold": points_threshold,
                 },
             )
 
@@ -776,6 +781,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
             course = form.cleaned_data["course"]
             description = form.cleaned_data.get("description") or ""
             threshold = course.semester.house_points_class_threshold
+            points_threshold = 5 * threshold
 
             # Get selected student IDs from the checkboxes
             selected_student_ids = request.POST.getlist("students")
@@ -796,13 +802,17 @@ class AttendanceBulkView(UserPassesTestMixin, View):
                             )
                             continue
 
-                        # Calculate points based on attendance count
-                        attendance_count = Award.objects.filter(
-                            semester=course.semester,
-                            student=student,
-                            award_type=Award.AwardType.CLASS_ATTENDANCE,
-                        ).count()
-                        points = 5 if attendance_count < threshold else 3
+                        # Calculate points based on total attendance points
+                        # Use total points instead of count to handle legacy imports
+                        total_points = (
+                            Award.objects.filter(
+                                semester=course.semester,
+                                student=student,
+                                award_type=Award.AwardType.CLASS_ATTENDANCE,
+                            ).aggregate(total=Sum("points"))["total"]
+                            or 0
+                        )
+                        points = 5 if total_points < points_threshold else 3
 
                         # Create the attendance award
                         Award.objects.create(
