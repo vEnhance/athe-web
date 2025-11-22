@@ -1,0 +1,81 @@
+{% extends "home/base.html" %}
+{% block title %}
+    {{ house_display }} House Details (Staff) - Athemath
+{% endblock title %}
+{% block content %}
+    <div class="container-fluid" style="margin-top: 100px; margin-bottom: 50px;">
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'housepoints:leaderboard_semester' slug=semester.slug %}">Leaderboard</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'housepoints:house_detail' slug=semester.slug house=house %}">{{ house_display }}</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Staff View</li>
+                    </ol>
+                </nav>
+                <h1>{{ house_display }} House - Staff View</h1>
+                <h3 class="text-muted mb-4">{{ semester.name }}</h3>
+                {% if is_frozen %}
+                    <div class="alert alert-info">
+                        <strong>Leaderboard frozen as of {{ freeze_date|date:"F j, Y g:i A" }}</strong>
+                        <br>
+                        Points awarded after this date are not shown.
+                    </div>
+                {% endif %}
+                {% if student_rows %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">Student</th>
+                                    {% for header in headers %}<th scope="col" class="text-end">{{ header }}</th>{% endfor %}
+                                    <th scope="col" class="text-end table-primary">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in student_rows %}
+                                    <tr>
+                                        <td>
+                                            {% if row.student %}
+                                                {{ row.name }}
+                                            {% else %}
+                                                <em>{{ row.name }}</em>
+                                            {% endif %}
+                                        </td>
+                                        {% for pts in row.points %}
+                                            <td class="text-end">
+                                                {% if pts %}{{ pts }}{% else %}-{% endif %}
+                                            </td>
+                                        {% endfor %}
+                                        <td class="text-end table-primary">
+                                            <strong>{{ row.total }}</strong>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-dark">
+                                <tr>
+                                    <th scope="row">Total</th>
+                                    {% for total in column_totals %}<th class="text-end">{{ total }}</th>{% endfor %}
+                                    <th class="text-end">{{ grand_total }}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No points have been awarded to this house yet.</p>
+                {% endif %}
+                <div class="mt-4">
+                    <a href="{% url 'housepoints:house_detail' slug=semester.slug house=house %}"
+                       class="btn btn-outline-secondary">&larr; Back to House View</a>
+                    <a href="{% url 'housepoints:leaderboard_semester' slug=semester.slug %}"
+                       class="btn btn-outline-secondary">&larr; Back to Leaderboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -475,6 +475,208 @@ class AttendanceBulkForm(forms.Form):
                 self.fields["course"].initial = led_courses.first()
 
 
+@login_required
+def house_detail(request: HttpRequest, slug: str, house: str) -> HttpResponse:
+    """Show detailed breakdown of points by category for a house (student view)."""
+    semester = get_object_or_404(Semester, slug=slug)
+
+    # Validate house code
+    valid_houses = [code for code, _ in Student.House.choices]
+    if house not in valid_houses:
+        messages.error(request, "Invalid house specified.")
+        return redirect("housepoints:leaderboard_semester", slug=slug)
+
+    # Check if user has access (staff or student in this specific house)
+    assert isinstance(request.user, User)
+    if not request.user.is_staff:
+        student = Student.objects.filter(
+            user=request.user, semester=semester, house=house
+        ).first()
+        if not student:
+            messages.error(
+                request, "You can only view detailed stats for your own house."
+            )
+            return redirect("housepoints:leaderboard_semester", slug=slug)
+
+    # Get awards for this house, respecting freeze date
+    awards_query = Award.objects.filter(semester=semester, house=house)
+    if semester.house_points_freeze_date:
+        awards_query = awards_query.filter(
+            awarded_at__lte=semester.house_points_freeze_date
+        )
+
+    # Aggregate points by category
+    category_totals = (
+        awards_query.values("award_type")
+        .annotate(total_points=Sum("points"))
+        .order_by("-total_points")
+    )
+
+    # Build category data with display names
+    category_data = []
+    for entry in category_totals:
+        award_type = entry["award_type"]
+        display_name = dict(Award.AwardType.choices).get(award_type, award_type)
+        category_data.append(
+            {
+                "award_type": award_type,
+                "display_name": display_name,
+                "total_points": entry["total_points"] or 0,
+            }
+        )
+
+    # Calculate grand total
+    grand_total = sum(c["total_points"] for c in category_data)
+
+    # Get house display name
+    house_display = dict(Student.House.choices).get(house, house)
+
+    return render(
+        request,
+        "housepoints/house_detail.html",
+        {
+            "semester": semester,
+            "house": house,
+            "house_display": house_display,
+            "category_data": category_data,
+            "grand_total": grand_total,
+            "is_frozen": semester.house_points_freeze_date is not None,
+            "freeze_date": semester.house_points_freeze_date,
+        },
+    )
+
+
+@login_required
+def house_detail_staff(request: HttpRequest, slug: str, house: str) -> HttpResponse:
+    """Show detailed student x category breakdown for a house (staff view)."""
+    # Staff only
+    assert isinstance(request.user, User)
+    if not request.user.is_staff:
+        messages.error(request, "This view is only available to staff members.")
+        return redirect("housepoints:leaderboard_semester", slug=slug)
+
+    semester = get_object_or_404(Semester, slug=slug)
+
+    # Validate house code
+    valid_houses = [code for code, _ in Student.House.choices]
+    if house not in valid_houses:
+        messages.error(request, "Invalid house specified.")
+        return redirect("housepoints:leaderboard_semester", slug=slug)
+
+    # Get awards for this house, respecting freeze date
+    awards_query = Award.objects.filter(semester=semester, house=house)
+    if semester.house_points_freeze_date:
+        awards_query = awards_query.filter(
+            awarded_at__lte=semester.house_points_freeze_date
+        )
+
+    # Get all students in this house for the semester
+    students = (
+        Student.objects.filter(semester=semester, house=house)
+        .select_related("user")
+        .order_by("airtable_name")
+    )
+
+    # Get all award types that have been used
+    used_award_types = list(
+        awards_query.values_list("award_type", flat=True).distinct()
+    )
+
+    # Order award types by the choices order
+    award_type_order = [code for code, _ in Award.AwardType.choices]
+    used_award_types.sort(
+        key=lambda x: award_type_order.index(x) if x in award_type_order else 999
+    )
+
+    # Build header row with award type display names
+    headers = [dict(Award.AwardType.choices).get(at, at) for at in used_award_types]
+
+    # Build student rows
+    student_rows = []
+    column_totals = {at: 0 for at in used_award_types}
+
+    for student in students:
+        # Get points per category for this student
+        student_awards = awards_query.filter(student=student)
+        if semester.house_points_freeze_date:
+            student_awards = student_awards.filter(
+                awarded_at__lte=semester.house_points_freeze_date
+            )
+
+        category_points = dict(
+            student_awards.values("award_type")
+            .annotate(total=Sum("points"))
+            .values_list("award_type", "total")
+        )
+
+        row_data = []
+        row_total = 0
+        for award_type in used_award_types:
+            points = category_points.get(award_type, 0) or 0
+            row_data.append(points)
+            row_total += points
+            column_totals[award_type] += points
+
+        student_rows.append(
+            {
+                "student": student,
+                "name": student.airtable_name,
+                "points": row_data,
+                "total": row_total,
+            }
+        )
+
+    # Also include house-level awards (no student)
+    house_awards = awards_query.filter(student__isnull=True)
+    if house_awards.exists():
+        house_category_points = dict(
+            house_awards.values("award_type")
+            .annotate(total=Sum("points"))
+            .values_list("award_type", "total")
+        )
+
+        row_data = []
+        row_total = 0
+        for award_type in used_award_types:
+            points = house_category_points.get(award_type, 0) or 0
+            row_data.append(points)
+            row_total += points
+            column_totals[award_type] += points
+
+        student_rows.append(
+            {
+                "student": None,
+                "name": "(House-level awards)",
+                "points": row_data,
+                "total": row_total,
+            }
+        )
+
+    # Build column totals row
+    column_totals_list = [column_totals[at] for at in used_award_types]
+    grand_total = sum(column_totals_list)
+
+    # Get house display name
+    house_display = dict(Student.House.choices).get(house, house)
+
+    return render(
+        request,
+        "housepoints/house_detail_staff.html",
+        {
+            "semester": semester,
+            "house": house,
+            "house_display": house_display,
+            "headers": headers,
+            "award_types": used_award_types,
+            "student_rows": student_rows,
+            "column_totals": column_totals_list,
+            "grand_total": grand_total,
+            "is_frozen": semester.house_points_freeze_date is not None,
+            "freeze_date": semester.house_points_freeze_date,
+        },
+    )
+
+
 class AttendanceBulkView(UserPassesTestMixin, View):
     """Staff-only view for bulk creating attendance awards for a class."""
 

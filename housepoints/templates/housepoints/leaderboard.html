@@ -57,9 +57,11 @@
                                             </td>
                                             <td>
                                                 {% if forloop.counter == 1 %}
-                                                    <strong>{{ entry.house_display }}</strong>
+                                                    <strong>
+                                                        <a href="{% url 'housepoints:house_detail' slug=semester.slug house=entry.house %}">{{ entry.house_display }}</a>
+                                                    </strong>
                                                 {% else %}
-                                                    {{ entry.house_display }}
+                                                    <a href="{% url 'housepoints:house_detail' slug=semester.slug house=entry.house %}">{{ entry.house_display }}</a>
                                                 {% endif %}
                                             </td>
                                             <td class="text-end">

@@ -32,7 +32,7 @@ def test_student_house_assignment():
     )
 
     assert student.house == "owl"
-    assert student.get_house_display() == "Owl"
+    assert student.get_house_display() == "Owls"
 
 
 @pytest.mark.django_db
@@ -393,10 +393,10 @@ def test_leaderboard_calculates_totals():
 
     content = response.content.decode()
     assert response.status_code == 200
-    # Owl should have 10 points (5+5), Cat should have 5
-    assert "10" in content  # Owl total
-    assert "Owl" in content
-    assert "Cat" in content
+    # Owls should have 10 points (5+5), Cats should have 5
+    assert "10" in content  # Owls total
+    assert "Owls" in content
+    assert "Cats" in content
 
 
 @pytest.mark.django_db
@@ -468,11 +468,11 @@ def test_leaderboard_shows_all_houses():
 
     content = response.content.decode()
     # All houses should appear
-    assert "Blob" in content
-    assert "Cat" in content
-    assert "Owl" in content
+    assert "Blobs" in content
+    assert "Cats" in content
+    assert "Owls" in content
     assert "Red Panda" in content
-    assert "Bunny" in content
+    assert "Bunnies" in content
 
 
 # ============================================================================
@@ -822,7 +822,7 @@ def test_my_awards_shows_semester_totals():
 
     content = response.content.decode()
     assert "10" in content  # Total points
-    assert "Cat" in content  # House name
+    assert "Cats" in content  # House name
 
 
 @pytest.mark.django_db
@@ -970,7 +970,7 @@ def test_award_str_representation_house_only():
         points=50,
     )
 
-    assert "Bunny" in str(award)
+    assert "Bunnies" in str(award)
     assert "House Activity Bonus" in str(award)
     assert "50 pts" in str(award)
 
@@ -1648,7 +1648,7 @@ def test_attendance_bulk_shows_success_results():
     assert "Successfully Awarded" in content
     assert "Alice Smith" in content
     assert "+5 pts" in content
-    assert "Owl" in content
+    assert "Owls" in content
 
 
 @pytest.mark.django_db
@@ -2294,3 +2294,593 @@ def test_import_housepoints_prefix_matching_variants(tsv_file):
     assert Award.AwardType.OFFICE_HOURS in award_types
     assert Award.AwardType.POTD in award_types
     assert Award.AwardType.STAFF_BONUS in award_types
+
+
+# ============================================================================
+# House Detail View Tests (Student View)
+# ============================================================================
+
+
+@pytest.mark.django_db
+def test_house_detail_requires_login():
+    """Test that house detail view requires authentication."""
+    client = Client()
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    url = reverse(
+        "housepoints:house_detail", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url)
+
+    assert response.status_code == 302
+    assert "/login/" in response.url
+
+
+@pytest.mark.django_db
+def test_house_detail_staff_can_access_any_house():
+    """Test that staff can access any house's detail view."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse(
+        "housepoints:house_detail", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert "Owls" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_house_detail_student_can_access_own_house():
+    """Test that students can access their own house's detail view."""
+    client = Client()
+    user = User.objects.create_user(username="student", password="password")
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    Student.objects.create(user=user, semester=semester, house=Student.House.OWL)
+
+    client.login(username="student", password="password")
+    url = reverse(
+        "housepoints:house_detail", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert "Owls" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_house_detail_student_cannot_access_other_house():
+    """Test that students cannot access other houses' detail view."""
+    client = Client()
+    user = User.objects.create_user(username="student", password="password")
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    Student.objects.create(user=user, semester=semester, house=Student.House.CAT)
+
+    client.login(username="student", password="password")
+    # Try to access OWL house while enrolled in CAT
+    url = reverse(
+        "housepoints:house_detail", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url, follow=True)
+
+    # Should redirect to leaderboard with error message
+    assert response.status_code == 200
+    messages = list(response.context["messages"])
+    assert len(messages) == 1
+    assert "only view detailed stats for your own house" in str(messages[0])
+
+
+@pytest.mark.django_db
+def test_house_detail_shows_category_totals():
+    """Test that house detail view shows points by category."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    # Create students and awards
+    user1 = User.objects.create_user(username="alice", password="password")
+    user2 = User.objects.create_user(username="bob", password="password")
+    student1 = Student.objects.create(
+        user=user1, semester=semester, house=Student.House.OWL, airtable_name="Alice"
+    )
+    student2 = Student.objects.create(
+        user=user2, semester=semester, house=Student.House.OWL, airtable_name="Bob"
+    )
+
+    Award.objects.create(
+        semester=semester,
+        student=student1,
+        award_type=Award.AwardType.CLASS_ATTENDANCE,
+        points=5,
+    )
+    Award.objects.create(
+        semester=semester,
+        student=student2,
+        award_type=Award.AwardType.CLASS_ATTENDANCE,
+        points=5,
+    )
+    Award.objects.create(
+        semester=semester,
+        student=student1,
+        award_type=Award.AwardType.HOMEWORK,
+        points=5,
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse(
+        "housepoints:house_detail", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url)
+
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert "Class Attendance" in content
+    assert "Homework" in content
+    assert "15" in content  # Grand total: 10 + 5
+
+
+@pytest.mark.django_db
+def test_house_detail_invalid_house():
+    """Test that invalid house code redirects with error."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse(
+        "housepoints:house_detail", kwargs={"slug": semester.slug, "house": "invalid"}
+    )
+    response = client.get(url, follow=True)
+
+    messages = list(response.context["messages"])
+    assert len(messages) == 1
+    assert "Invalid house" in str(messages[0])
+
+
+@pytest.mark.django_db
+def test_house_detail_respects_freeze_date():
+    """Test that house detail view respects the freeze date."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    freeze_time = timezone.now() - timedelta(days=1)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=(timezone.now() - timedelta(days=30)).date(),
+        end_date=(timezone.now() + timedelta(days=60)).date(),
+        house_points_freeze_date=freeze_time,
+    )
+
+    user = User.objects.create_user(username="alice", password="password")
+    student = Student.objects.create(
+        user=user, semester=semester, house=Student.House.OWL, airtable_name="Alice"
+    )
+
+    # Award before freeze (should count)
+    Award.objects.create(
+        semester=semester,
+        student=student,
+        award_type=Award.AwardType.HOMEWORK,
+        points=5,
+        awarded_at=freeze_time - timedelta(hours=1),
+    )
+    # Award after freeze (should not count)
+    Award.objects.create(
+        semester=semester,
+        student=student,
+        award_type=Award.AwardType.HOMEWORK,
+        points=10,
+        awarded_at=freeze_time + timedelta(hours=1),
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse(
+        "housepoints:house_detail", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url)
+
+    content = response.content.decode()
+    # Should show 5 points (not 15)
+    assert "5" in content
+    assert "frozen" in content.lower()
+
+
+# ============================================================================
+# House Detail Staff View Tests
+# ============================================================================
+
+
+@pytest.mark.django_db
+def test_house_detail_staff_requires_staff():
+    """Test that staff house detail view requires staff access."""
+    client = Client()
+    user = User.objects.create_user(username="student", password="password")
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    Student.objects.create(user=user, semester=semester, house=Student.House.OWL)
+
+    client.login(username="student", password="password")
+    url = reverse(
+        "housepoints:house_detail_staff", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url, follow=True)
+
+    # Should redirect with error
+    messages = list(response.context["messages"])
+    assert len(messages) == 1
+    assert "only available to staff" in str(messages[0])
+
+
+@pytest.mark.django_db
+def test_house_detail_staff_shows_student_table():
+    """Test that staff view shows student x category table."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    user1 = User.objects.create_user(username="alice", password="password")
+    user2 = User.objects.create_user(username="bob", password="password")
+    student1 = Student.objects.create(
+        user=user1,
+        semester=semester,
+        house=Student.House.OWL,
+        airtable_name="Alice Smith",
+    )
+    student2 = Student.objects.create(
+        user=user2,
+        semester=semester,
+        house=Student.House.OWL,
+        airtable_name="Bob Jones",
+    )
+
+    Award.objects.create(
+        semester=semester,
+        student=student1,
+        award_type=Award.AwardType.CLASS_ATTENDANCE,
+        points=10,
+    )
+    Award.objects.create(
+        semester=semester,
+        student=student1,
+        award_type=Award.AwardType.HOMEWORK,
+        points=5,
+    )
+    Award.objects.create(
+        semester=semester,
+        student=student2,
+        award_type=Award.AwardType.CLASS_ATTENDANCE,
+        points=5,
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse(
+        "housepoints:house_detail_staff", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url)
+
+    content = response.content.decode()
+    assert response.status_code == 200
+    # Check student names appear
+    assert "Alice Smith" in content
+    assert "Bob Jones" in content
+    # Check category headers appear
+    assert "Class Attendance" in content
+    assert "Homework" in content
+
+
+@pytest.mark.django_db
+def test_house_detail_staff_shows_row_totals():
+    """Test that staff view shows row totals (per student)."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    user = User.objects.create_user(username="alice", password="password")
+    student = Student.objects.create(
+        user=user, semester=semester, house=Student.House.OWL, airtable_name="Alice"
+    )
+
+    Award.objects.create(
+        semester=semester,
+        student=student,
+        award_type=Award.AwardType.CLASS_ATTENDANCE,
+        points=10,
+    )
+    Award.objects.create(
+        semester=semester,
+        student=student,
+        award_type=Award.AwardType.HOMEWORK,
+        points=5,
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse(
+        "housepoints:house_detail_staff", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url)
+
+    content = response.content.decode()
+    # Row total for Alice should be 15
+    assert "15" in content
+
+
+@pytest.mark.django_db
+def test_house_detail_staff_shows_column_totals():
+    """Test that staff view shows column totals (per category)."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    user1 = User.objects.create_user(username="alice", password="password")
+    user2 = User.objects.create_user(username="bob", password="password")
+    student1 = Student.objects.create(
+        user=user1, semester=semester, house=Student.House.OWL, airtable_name="Alice"
+    )
+    student2 = Student.objects.create(
+        user=user2, semester=semester, house=Student.House.OWL, airtable_name="Bob"
+    )
+
+    # Create awards for multiple categories
+    Award.objects.create(
+        semester=semester,
+        student=student1,
+        house=student1.house,
+        award_type=Award.AwardType.CLASS_ATTENDANCE,
+        points=10,
+    )
+    Award.objects.create(
+        semester=semester,
+        student=student2,
+        house=student2.house,
+        award_type=Award.AwardType.HOMEWORK,
+        points=5,
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse(
+        "housepoints:house_detail_staff", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url)
+
+    content = response.content.decode()
+    assert response.status_code == 200
+    # Both students should appear
+    assert "Alice" in content
+    assert "Bob" in content
+    # Both categories should appear as headers
+    assert "Class Attendance" in content
+    assert "Homework" in content
+    # Footer with totals should exist
+    assert "<tfoot" in content
+
+
+@pytest.mark.django_db
+def test_house_detail_staff_shows_grand_total():
+    """Test that staff view shows grand total."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    user1 = User.objects.create_user(username="alice", password="password")
+    user2 = User.objects.create_user(username="bob", password="password")
+    student1 = Student.objects.create(
+        user=user1, semester=semester, house=Student.House.OWL, airtable_name="Alice"
+    )
+    student2 = Student.objects.create(
+        user=user2, semester=semester, house=Student.House.OWL, airtable_name="Bob"
+    )
+
+    Award.objects.create(
+        semester=semester,
+        student=student1,
+        award_type=Award.AwardType.CLASS_ATTENDANCE,
+        points=10,
+    )
+    Award.objects.create(
+        semester=semester,
+        student=student1,
+        award_type=Award.AwardType.HOMEWORK,
+        points=5,
+    )
+    Award.objects.create(
+        semester=semester,
+        student=student2,
+        award_type=Award.AwardType.CLASS_ATTENDANCE,
+        points=5,
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse(
+        "housepoints:house_detail_staff", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url)
+
+    content = response.content.decode()
+    # Grand total should be 20
+    assert "20" in content
+
+
+@pytest.mark.django_db
+def test_house_detail_staff_includes_house_level_awards():
+    """Test that staff view includes house-level awards."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    # Create a house-level award (no student)
+    Award.objects.create(
+        semester=semester,
+        house=Student.House.OWL,
+        award_type=Award.AwardType.HOUSE_ACTIVITY,
+        points=50,
+        description="House activity bonus",
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse(
+        "housepoints:house_detail_staff", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url)
+
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert "House-level awards" in content
+    assert "50" in content
+
+
+@pytest.mark.django_db
+def test_house_detail_staff_invalid_house():
+    """Test that invalid house code redirects with error."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse(
+        "housepoints:house_detail_staff",
+        kwargs={"slug": semester.slug, "house": "invalid"},
+    )
+    response = client.get(url, follow=True)
+
+    messages = list(response.context["messages"])
+    assert len(messages) == 1
+    assert "Invalid house" in str(messages[0])
+
+
+@pytest.mark.django_db
+def test_house_detail_staff_respects_freeze_date():
+    """Test that staff house detail view respects the freeze date."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+
+    freeze_time = timezone.now() - timedelta(days=1)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=(timezone.now() - timedelta(days=30)).date(),
+        end_date=(timezone.now() + timedelta(days=60)).date(),
+        house_points_freeze_date=freeze_time,
+    )
+
+    user = User.objects.create_user(username="alice", password="password")
+    student = Student.objects.create(
+        user=user, semester=semester, house=Student.House.OWL, airtable_name="Alice"
+    )
+
+    # Award before freeze (should count)
+    Award.objects.create(
+        semester=semester,
+        student=student,
+        award_type=Award.AwardType.HOMEWORK,
+        points=5,
+        awarded_at=freeze_time - timedelta(hours=1),
+    )
+    # Award after freeze (should not count)
+    Award.objects.create(
+        semester=semester,
+        student=student,
+        award_type=Award.AwardType.HOMEWORK,
+        points=10,
+        awarded_at=freeze_time + timedelta(hours=1),
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse(
+        "housepoints:house_detail_staff", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url)
+
+    content = response.content.decode()
+    # Grand total should be 5 (not 15)
+    assert "5" in content
+    assert "frozen" in content.lower()
+
+
+@pytest.mark.django_db
+def test_house_detail_staff_empty_house():
+    """Test that staff view handles house with no awards."""
+    client = Client()
+    User.objects.create_user(username="staff", password="password", is_staff=True)
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+
+    client.login(username="staff", password="password")
+    url = reverse(
+        "housepoints:house_detail_staff", kwargs={"slug": semester.slug, "house": "owl"}
+    )
+    response = client.get(url)
+
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert "No points have been awarded" in content
