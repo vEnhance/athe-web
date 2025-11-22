@@ -50,8 +50,12 @@
                                         <tr>
                                             <td>#{{ forloop.counter }}</td>
                                             <td>
-                                                <a href="{% url 'housepoints:house_detail' slug=semester.slug house=entry.house %}">{{ entry.house_display }}</a>
-                                                {% if student.house == entry.house %}(your house){% endif %}
+                                                {% if student.house == entry.house and student.semester %}
+                                                    <a href="{% url 'housepoints:house_detail' slug=semester.slug house=entry.house %}">{{ entry.house_display }}</a>
+                                                    (your house)
+                                                {% else %}
+                                                    {{ entry.house_display }}
+                                                {% endif %}
                                             </td>
                                             <td class="text-end">{{ entry.total_points }}</td>
                                         </tr>
