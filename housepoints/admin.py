@@ -49,7 +49,7 @@ class AwardAdmin(admin.ModelAdmin):
     def get_recipient(self, obj: Award) -> str:
         """Display recipient as either student username or house name."""
         if obj.student:
-            return obj.student.user.username
+            return str(obj.student)
         return f"{obj.get_house_display()} (House)"  # type: ignore[attr-defined]
 
     get_recipient.short_description = "Recipient"  # type: ignore[attr-defined]
