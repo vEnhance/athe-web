@@ -33,7 +33,6 @@
                                     <th>Type</th>
                                     <th>Points</th>
                                     <th>Semester</th>
-                                    <th>Description</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -45,7 +44,6 @@
                                             <span class="badge">+{{ award.points }}</span>
                                         </td>
                                         <td>{{ award.student.semester.name }}</td>
-                                        <td>{{ award.description|default:"-" }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
