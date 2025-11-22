@@ -77,16 +77,5 @@
         {% else %}
             <p class="text-muted">No yearbook entries yet. Be the first to add one!</p>
         {% endif %}
-        {% if other_semesters %}
-            <hr class="my-4">
-            <h3>Other Semesters</h3>
-            <ul class="list-unstyled">
-                {% for sem in other_semesters %}
-                    <li>
-                        <a href="{% url 'yearbook:entry_list' slug=sem.slug %}">{{ sem }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
     </div>
 {% endblock content %}

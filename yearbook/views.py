@@ -109,7 +109,7 @@ class YearbookEntryListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     """List all yearbook entries for a semester."""
 
     model = YearbookEntry
-    template_name = "yearbook/yearbook_entry_list.html"
+    template_name = "yearbook/yearbookentry_list.html"
     context_object_name = "entries"
 
     def get_semester(self) -> Semester:
@@ -159,15 +159,6 @@ class YearbookEntryListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 context["has_entry"] = False
 
         assert isinstance(self.request.user, User)
-
-        # Get other semesters for navigation
-        if self.request.user.is_staff:
-            semesters = Semester.objects.all()
-        else:
-            # Students should only see semesters they could access
-            semesters = Semester.get_enrolled_semesters(self.request.user)
-        context["other_semesters"] = semesters.exclude(pk=semester.pk)
-
         return context
 
 
