@@ -197,9 +197,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 
-# Django-allauth settings
-SITE_ID = 1
-
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of allauth
     "django.contrib.auth.backends.ModelBackend",
@@ -208,9 +205,10 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # Allauth configuration
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https" if PRODUCTION else "http"
+ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_LOGIN_METHODS = {"email", "username"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
-ACCOUNT_EMAIL_VERIFICATION = "optional"
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
@@ -220,37 +218,14 @@ ACCOUNT_ADAPTER = "atheweb.account_adapter.NoNewUsersAccountAdapter"
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
-        "SCOPE": [
-            "profile",
-            "email",
-        ],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-        "APP": {
-            "client_id": "",  # Set via environment variable or admin
-            "secret": "",  # Set via environment variable or admin
-        },
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
     },
     "github": {
-        "SCOPE": [
-            "user",
-            "email",
-        ],
-        "APP": {
-            "client_id": "",  # Set via environment variable or admin
-            "secret": "",  # Set via environment variable or admin
-        },
+        "SCOPE": ["user", "email"],
     },
     "discord": {
-        "SCOPE": [
-            "identify",
-            "email",
-        ],
-        "APP": {
-            "client_id": "",  # Set via environment variable or admin
-            "secret": "",  # Set via environment variable or admin
-        },
+        "SCOPE": ["identify", "email"],
     },
 }
 
