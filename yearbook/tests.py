@@ -292,7 +292,7 @@ def test_update_view_only_owner_can_access():
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     owner = User.objects.create_user(username="owner", password="password")
-    other_user = User.objects.create_user(username="other", password="password")
+    User.objects.create_user(username="other", password="password")
     student = Student.objects.create(
         user=owner,
         airtable_name="Owner's Student",
@@ -627,9 +627,7 @@ def test_semester_list_shows_create_button_before_semester_ends():
         end_date=(timezone.now() + timedelta(days=60)).date(),
     )
     user = User.objects.create_user(username="student", password="password")
-    student = Student.objects.create(
-        user=user, airtable_name="Student", semester=semester
-    )
+    Student.objects.create(user=user, airtable_name="Student", semester=semester)
 
     client.login(username="student", password="password")
     url = reverse("yearbook:semester_list", kwargs={"slug": semester.slug})

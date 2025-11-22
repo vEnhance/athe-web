@@ -1,11 +1,23 @@
 {% extends "home/base.html" %}
 {% load django_bootstrap5 %}
 {% block title %}
-    {% if is_create %}Create{% else %}Edit{% endif %} Yearbook Entry - Athemath
+    {% if is_create %}
+        Create
+    {% else %}
+        Edit
+    {% endif %}
+    Yearbook Entry - Athemath
 {% endblock title %}
 {% block content %}
     <div id="content">
-        <h1>{% if is_create %}Create{% else %}Edit{% endif %} Your Yearbook Entry</h1>
+        <h1>
+            {% if is_create %}
+                Create
+            {% else %}
+                Edit
+            {% endif %}
+            Your Yearbook Entry
+        </h1>
         <p>
             <strong>Student:</strong> {{ student }}
             ({{ student.semester }})
