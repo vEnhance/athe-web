@@ -259,3 +259,49 @@ MARKDOWN_EXTENSIONS = [
     "markdown.extensions.nl2br",
     "weblog.markdown_extensions",
 ]
+
+# Discord webhook logging (django-discordo)
+# Set this in your .env file or environment variables
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
+
+
+# Custom filter to suppress only 404 errors
+class Suppress404Filter:
+    def __call__(self, record):  # type: ignore[no-untyped-def]
+        # Django adds status_code to the log record for request errors
+        return getattr(record, "status_code", None) != 404
+
+
+# Logging configuration
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "filters": {
+        "suppress_404": {
+            "()": "atheweb.settings.Suppress404Filter",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+        },
+    },
+    "loggers": {
+        "django.request": {
+            "filters": ["suppress_404"],
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
+
+# Add Discord webhook handler if configured
+if DISCORD_WEBHOOK_URL:
+    LOGGING["handlers"]["discord"] = {
+        "class": "django_discordo.DiscordWebhookHandler",
+        "level": "SUCCESS",
+    }
+    LOGGING["root"]["handlers"].append("discord")  # type: ignore[union-attr]

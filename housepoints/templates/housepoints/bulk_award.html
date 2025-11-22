@@ -16,8 +16,15 @@
                     {% endif %}
                 </p>
                 <div class="mb-3">
+                    <a href="{% url 'housepoints:attendance_bulk' %}"
+                       class="btn btn-outline-primary">Switch to Class Attendance</a>
                     <a href="{% url 'housepoints:single_award' %}"
                        class="btn btn-outline-primary">Switch to Single Award (House-Wide Bonus)</a>
+                </div>
+                <div class="alert alert-info">
+                    <strong>Tip:</strong> If you're awarding attendance for a class, use the
+                    <a href="{% url 'housepoints:attendance_bulk' %}">Class Attendance</a> view instead.
+                    It lets you select a class and check off present students.
                 </div>
                 <div class="card">
                     <div class="card-body">

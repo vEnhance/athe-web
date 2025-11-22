@@ -14,7 +14,7 @@
             <div class="course-title-wrap">
                 <h1 class="course-title">{{ course.name }}</h1>
                 <p class="text-muted">
-                    {% if course.is_club %}<span class="badge bg-dark">Club</span>{% endif %}
+                    {% if course.is_club %}<span class="badge bg-dark">Club/Event</span>{% endif %}
                     {{ course.semester }}
                     {% if is_leader %}
                         | <a href="{% url 'courses:course_update' pk=course.pk %}">Edit Course</a>
@@ -28,7 +28,7 @@
                             <p>
                                 <strong>
                                     {% if course.is_club %}
-                                        Club Leader:
+                                        Club/Event Leader:
                                     {% else %}
                                         Instructor:
                                     {% endif %}
@@ -46,9 +46,9 @@
                                 <strong>
                                     {% if is_enrolled %}
                                         <a href="{% url 'courses:drop_club' pk=course.pk %}"
-                                           onclick="return confirm('Are you sure you want to drop this club?');">Drop Club</a>
+                                           onclick="return confirm('Are you sure you want to drop this club/event?');">Drop</a>
                                     {% else %}
-                                        <a href="{% url 'courses:join_club' pk=course.pk %}">Join Club</a>
+                                        <a href="{% url 'courses:join_club' pk=course.pk %}">Join</a>
                                     {% endif %}
                                 </strong>
                             </div>

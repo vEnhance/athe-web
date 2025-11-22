@@ -70,6 +70,7 @@ class StaffPhotoListing(models.Model):
     user = models.OneToOneField(
         User,
         null=True,
+        blank=True,
         on_delete=models.CASCADE,
         help_text="Django user account for this staff member",
     )
