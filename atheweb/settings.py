@@ -215,6 +215,7 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 SITE_ID = 1
 
 ACCOUNT_ADAPTER = "atheweb.account_adapter.NoNewUsersAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "atheweb.account_adapter.PreservePasswordSocialAccountAdapter"
 
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
