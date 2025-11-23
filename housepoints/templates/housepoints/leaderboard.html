@@ -53,6 +53,8 @@
                                                 {% if student.house == entry.house and student.semester %}
                                                     <a href="{% url 'housepoints:house_detail' slug=semester.slug house=entry.house %}">{{ entry.house_display }}</a>
                                                     (your house)
+                                                {% elif user.is_staff %}
+                                                    <a href="{% url 'housepoints:house_detail' slug=semester.slug house=entry.house %}">{{ entry.house_display }}</a>
                                                 {% else %}
                                                     {{ entry.house_display }}
                                                 {% endif %}

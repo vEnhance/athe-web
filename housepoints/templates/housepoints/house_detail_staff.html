@@ -35,7 +35,7 @@
                                 <tr>
                                     <th scope="col">Student</th>
                                     {% for header in headers %}<th scope="col" class="text-end">{{ header }}</th>{% endfor %}
-                                    <th scope="col" class="text-end table-primary">Total</th>
+                                    <th scope="col" class="text-end table-dark">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -50,14 +50,10 @@
                                         </td>
                                         {% for pts in row.points %}
                                             <td class="text-end">
-                                                {% if pts %}
-                                                    {{ pts }}
-                                                {% else %}
-                                                    -
-                                                {% endif %}
+                                                {% if pts %}{{ pts }}{% endif %}
                                             </td>
                                         {% endfor %}
-                                        <td class="text-end table-primary">
+                                        <td class="text-end table-dark">
                                             <strong>{{ row.total }}</strong>
                                         </td>
                                     </tr>
