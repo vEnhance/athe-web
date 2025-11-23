@@ -47,6 +47,10 @@ dev = [
 profile = "django"
 ignore = "H006,H021,H023,H030,H031"
 
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "atheweb.settings"
+python_files = ["test_*.py", "tests.py"]
+
 [tool.ruff]
 line-length = 88
 
