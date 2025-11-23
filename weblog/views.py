@@ -36,6 +36,7 @@ class BlogPostListView(ListView):
     model = BlogPost
     template_name = "weblog/blogpost_list.html"
     context_object_name = "posts"
+    paginate_by = 20
 
     def get_queryset(self) -> QuerySet[BlogPost]:
         """Return only published posts in reverse chronological order."""
