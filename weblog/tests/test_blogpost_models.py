@@ -157,7 +157,7 @@ def test_blogpost_get_absolute_url(user):
         creator=user,
         content="Content.",
     )
-    assert post.get_absolute_url() == "/weblog/blog/url-test-post/"
+    assert post.get_absolute_url() == "/blog/url-test-post/"
 
 
 @pytest.mark.django_db

@@ -67,7 +67,7 @@ def unpublished_post(user):
 def test_blog_list_view_empty():
     """Test BlogPostListView with no posts."""
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/")
+    request = factory.get("/blog/")
     request.user = AnonymousUser()
     response = BlogPostListView.as_view()(request)
 
@@ -78,7 +78,7 @@ def test_blog_list_view_empty():
 def test_blog_list_view_shows_published(published_post):
     """Test BlogPostListView shows published posts."""
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/")
+    request = factory.get("/blog/")
     request.user = AnonymousUser()
     response = BlogPostListView.as_view()(request)
 
@@ -91,7 +91,7 @@ def test_blog_list_view_shows_published(published_post):
 def test_blog_list_view_excludes_unpublished(unpublished_post):
     """Test BlogPostListView excludes unpublished posts."""
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/")
+    request = factory.get("/blog/")
     request.user = AnonymousUser()
     response = BlogPostListView.as_view()(request)
 
@@ -103,7 +103,7 @@ def test_blog_list_view_excludes_unpublished(unpublished_post):
 def test_blog_list_view_mixed(published_post, unpublished_post):
     """Test BlogPostListView with mixed published/unpublished."""
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/")
+    request = factory.get("/blog/")
     request.user = AnonymousUser()
     response = BlogPostListView.as_view()(request)
 
@@ -118,7 +118,7 @@ def test_blog_list_view_mixed(published_post, unpublished_post):
 def test_blog_list_view_no_auth_required():
     """Test BlogPostListView is accessible without auth."""
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/")
+    request = factory.get("/blog/")
     request.user = AnonymousUser()
     response = BlogPostListView.as_view()(request)
 
@@ -134,7 +134,7 @@ def test_blog_list_view_no_auth_required():
 def test_blog_detail_view_published_anonymous(published_post):
     """Test anonymous user can view published post."""
     factory = RequestFactory()
-    request = factory.get(f"/weblog/blog/{published_post.slug}/")
+    request = factory.get(f"/blog/{published_post.slug}/")
     request.user = AnonymousUser()
     response = BlogPostDetailView.as_view()(request, slug=published_post.slug)
 
@@ -146,7 +146,7 @@ def test_blog_detail_view_published_anonymous(published_post):
 def test_blog_detail_view_unpublished_anonymous(unpublished_post):
     """Test anonymous user cannot view unpublished post."""
     factory = RequestFactory()
-    request = factory.get(f"/weblog/blog/{unpublished_post.slug}/")
+    request = factory.get(f"/blog/{unpublished_post.slug}/")
     request.user = AnonymousUser()
 
     with pytest.raises(Exception):  # Should raise Http404
@@ -157,7 +157,7 @@ def test_blog_detail_view_unpublished_anonymous(unpublished_post):
 def test_blog_detail_view_unpublished_creator(user, unpublished_post):
     """Test creator can view their own unpublished post."""
     factory = RequestFactory()
-    request = factory.get(f"/weblog/blog/{unpublished_post.slug}/")
+    request = factory.get(f"/blog/{unpublished_post.slug}/")
     request.user = user
     response = BlogPostDetailView.as_view()(request, slug=unpublished_post.slug)
 
@@ -169,7 +169,7 @@ def test_blog_detail_view_unpublished_creator(user, unpublished_post):
 def test_blog_detail_view_unpublished_other_user(other_user, unpublished_post):
     """Test other user cannot view someone else's unpublished post."""
     factory = RequestFactory()
-    request = factory.get(f"/weblog/blog/{unpublished_post.slug}/")
+    request = factory.get(f"/blog/{unpublished_post.slug}/")
     request.user = other_user
 
     with pytest.raises(Exception):  # Should raise Http404
@@ -180,7 +180,7 @@ def test_blog_detail_view_unpublished_other_user(other_user, unpublished_post):
 def test_blog_detail_view_unpublished_staff(staff_user, unpublished_post):
     """Test staff can view any unpublished post."""
     factory = RequestFactory()
-    request = factory.get(f"/weblog/blog/{unpublished_post.slug}/")
+    request = factory.get(f"/blog/{unpublished_post.slug}/")
     request.user = staff_user
     response = BlogPostDetailView.as_view()(request, slug=unpublished_post.slug)
 
@@ -197,7 +197,7 @@ def test_blog_detail_view_unpublished_staff(staff_user, unpublished_post):
 def test_blog_landing_view_requires_login():
     """Test BlogPostLandingView requires authentication."""
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/my/")
+    request = factory.get("/blog/my/")
     request.user = AnonymousUser()
     response = BlogPostLandingView.as_view()(request)
 
@@ -209,7 +209,7 @@ def test_blog_landing_view_requires_login():
 def test_blog_landing_view_authenticated(user):
     """Test BlogPostLandingView works for authenticated user."""
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/my/")
+    request = factory.get("/blog/my/")
     request.user = user
     response = BlogPostLandingView.as_view()(request)
 
@@ -220,7 +220,7 @@ def test_blog_landing_view_authenticated(user):
 def test_blog_landing_view_shows_pending_posts(user, unpublished_post):
     """Test landing view shows user's pending posts."""
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/my/")
+    request = factory.get("/blog/my/")
     request.user = user
     response = BlogPostLandingView.as_view()(request)
 
@@ -232,7 +232,7 @@ def test_blog_landing_view_shows_pending_posts(user, unpublished_post):
 def test_blog_landing_view_shows_published_posts(user, published_post):
     """Test landing view shows user's published posts."""
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/my/")
+    request = factory.get("/blog/my/")
     request.user = user
     response = BlogPostLandingView.as_view()(request)
 
@@ -244,7 +244,7 @@ def test_blog_landing_view_shows_published_posts(user, published_post):
 def test_blog_landing_view_can_create(user):
     """Test landing view allows creation when under limit."""
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/my/")
+    request = factory.get("/blog/my/")
     request.user = user
     response = BlogPostLandingView.as_view()(request)
 
@@ -267,7 +267,7 @@ def test_blog_landing_view_cannot_create_at_limit(user):
         )
 
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/my/")
+    request = factory.get("/blog/my/")
     request.user = user
     response = BlogPostLandingView.as_view()(request)
 
@@ -295,7 +295,7 @@ def test_blog_landing_view_only_shows_own_posts(user, other_user):
     )
 
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/my/")
+    request = factory.get("/blog/my/")
     request.user = user
     response = BlogPostLandingView.as_view()(request)
 
@@ -312,7 +312,7 @@ def test_blog_landing_view_only_shows_own_posts(user, other_user):
 def test_blog_create_view_requires_login():
     """Test BlogPostCreateView requires authentication."""
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/create/")
+    request = factory.get("/blog/create/")
     request.user = AnonymousUser()
     response = BlogPostCreateView.as_view()(request)
 
@@ -323,7 +323,7 @@ def test_blog_create_view_requires_login():
 def test_blog_create_view_get(user):
     """Test BlogPostCreateView GET shows form."""
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/create/")
+    request = factory.get("/blog/create/")
     request.user = user
     response = BlogPostCreateView.as_view()(request)
 
@@ -345,7 +345,7 @@ def test_blog_create_view_blocked_at_limit(user, client):
         )
 
     client.force_login(user)
-    response = client.get("/weblog/blog/create/")
+    response = client.get("/blog/create/")
 
     assert response.status_code == 302  # Redirected away
 
@@ -365,7 +365,7 @@ def test_blog_create_view_allowed_with_published(user):
         )
 
     factory = RequestFactory()
-    request = factory.get("/weblog/blog/create/")
+    request = factory.get("/blog/create/")
     request.user = user
     response = BlogPostCreateView.as_view()(request)
 
@@ -380,7 +380,7 @@ def test_blog_create_view_allowed_with_published(user):
 @pytest.mark.django_db
 def test_blog_update_view_requires_login(unpublished_post, client):
     """Test BlogPostUpdateView requires authentication."""
-    response = client.get(f"/weblog/blog/{unpublished_post.slug}/edit/")
+    response = client.get(f"/blog/{unpublished_post.slug}/edit/")
 
     assert response.status_code == 302  # Redirect to login
 
@@ -389,7 +389,7 @@ def test_blog_update_view_requires_login(unpublished_post, client):
 def test_blog_update_view_creator_can_edit(user, unpublished_post):
     """Test creator can access update view for unpublished post."""
     factory = RequestFactory()
-    request = factory.get(f"/weblog/blog/{unpublished_post.slug}/edit/")
+    request = factory.get(f"/blog/{unpublished_post.slug}/edit/")
     request.user = user
     response = BlogPostUpdateView.as_view()(request, slug=unpublished_post.slug)
 
@@ -400,7 +400,7 @@ def test_blog_update_view_creator_can_edit(user, unpublished_post):
 def test_blog_update_view_other_user_denied(other_user, unpublished_post):
     """Test other user cannot edit someone else's post."""
     factory = RequestFactory()
-    request = factory.get(f"/weblog/blog/{unpublished_post.slug}/edit/")
+    request = factory.get(f"/blog/{unpublished_post.slug}/edit/")
     request.user = other_user
 
     with pytest.raises(Exception):  # Should raise Http404
@@ -411,7 +411,7 @@ def test_blog_update_view_other_user_denied(other_user, unpublished_post):
 def test_blog_update_view_published_denied(user, published_post):
     """Test creator cannot edit published post."""
     factory = RequestFactory()
-    request = factory.get(f"/weblog/blog/{published_post.slug}/edit/")
+    request = factory.get(f"/blog/{published_post.slug}/edit/")
     request.user = user
 
     with pytest.raises(Exception):  # Should raise Http404
