@@ -12,6 +12,229 @@
         <p>
             You are a superuser (i.e. administrator) on Atheweb,
             and this manual will help you learn how to wield that power.
+            If you have further questions, you should ask Evan.
         </p>
+        <h2>The Django Admin (main tool)</h2>
+        <p>
+            You should have full access to the
+            <a href="{% url 'admin:index' %}">Django Admin</a>.
+            This is the <strong>most powerful view</strong> that you have that will let you
+            do <strong>pretty much anything</strong>,
+            so <strong>most maintenance should be done through here</strong>.
+            It's only "Bulk Create Students" and "Sorting Hat" views
+            that were separately written for creating many objects at once.
+        </p>
+        <p>
+            Because it is so powerful and low-level,
+            it might be overwhelming to deal with.
+            But a lot of the gadgets in here are things you'd never need to touch.
+            To help you out, here is a description of the parts of the Admin
+            which you might actually need to use.
+        </p>
+        <h3>Authentication and Authorization: Users</h3>
+        <p>
+            On this website, a <tt>User</tt> represents a single human being,
+            with a name, username, and password.
+            Staff and students identify themselves with this.
+        </p>
+        <p>
+            There's a useful button here an "impersonate", which lets you take
+            control of an arbitrary user account.
+            This could be useful for testing, for example,
+            if you want to see what a certain student would see if they logged in.
+        </p>
+        <p>When kids forgot their password, you can set it for them here.</p>
+        <h3>Home</h3>
+        <p>
+            The <tt>ApplyPSet</tt> controls
+            the problem sets and application instructions published to the web,
+            while the <tt>StaffPhotoListing</tt> shows our staff members.
+            These are pretty self-explanatory.
+            You should create new ones when you're publishing the registration
+            instructions for a new semester, or adding new staff members.
+        </p>
+        <p>
+            When staff retire, there is a special bulk Action "Mark selected staff as Past Staff".
+            So when people move on from Athemath,
+            you go in to admin, check all the retirees, and use that bulk action.
+        </p>
+        <h3>Courses</h3>
+        <p>
+            The heart of the academic system is the courses app,
+            which is directly displayed in the catalog.
+            Here are the models which you should know about.
+        </p>
+        <ul>
+            <li>
+                <p>
+                    The <tt>Semester</tt> model represents a term of Athemath.
+                    It should be pretty self-explanatory, and this is where you would go to start off a new semester.
+                    If you are planning for a future semester, you can still  create the object on the live website,
+                    Just uncheck the visible box so that it's not visible to them public until it's ready, and recheck it once you're ready to publish.
+                </p>
+            </li>
+            <li>
+                <p>
+                    Each semester has one or more <tt>Course</tt> objects attached to it.
+                    Confusingly, this model can refer to either an actual class (think "Combo Heuristics")
+                    or to a club or event such as Japanese Club or office hours.
+                    That is, on the backend they are actually stored in the same data structure.
+                    When you are starting a semester and creating new classes and clubs,
+                    you do that by making new objects in here.
+                </p>
+                <p>
+                    For classes or clubs with one obvious in-charge staff member,
+                    you should set the instructor field to that person's <tt>StaffPhotoListing</tt>.
+                    Also, if there are any staff or even students
+                    who should be able to edit the course material or schedule meetings,
+                    you can add their <tt>User</tt> into the leaders field.
+                </p>
+            </li>
+            <li>
+                <p>
+                    Then there is <tt>Student</tt>.
+                    This model represents an enrollment of a <tt>User</tt>
+                    into a <tt>Semester</tt>
+                    and can be enrolled in any class or club from the same semester.
+                    In other words, this represents our enrollment data.
+                </p>
+                <p>
+                    When a <tt>Student</tt> is first created,
+                    they do not have a <tt>User</tt> associated to them yet.
+                    This means that we can do things like enrolling the student into a course or house
+                    even before the student has completed registration and signed up on the website.
+                    The binding of a <tt>User</tt> to a <tt>Student</tt> is done when
+                    with invite links, as described later.
+                </p>
+                <p>
+                    Kids are generally pretty bad at consistently writing
+                    the same name in multiple places.
+                    So, we uniquely identify <tt>Student</tt> each semester by a field
+                    called <tt>airtable_name</tt>: whatever name they write in AirTable
+                    when they actually fill out Greta's registration form.
+                    This name is what's shown to staff and is unchangeable by the kid,
+                    but is mostly invisible to the kid when they navigate the website.
+                </p>
+                <p>
+                    Note that when a human enrolls in multiple semesters of Athemath,
+                    while they should only have one <tt>User</tt>,
+                    they get a <tt>Student</tt> object for every semester they join.
+                </p>
+            </li>
+        </ul>
+        <h3>Reg</h3>
+        <p>
+            There are two types of registration links:
+            one for staff and one for students.
+        </p>
+        <p>
+            When you want to onboard staff, you make a staff invite link and send it to them.
+            This MUST be done <strong>after</strong> you have created their <tt>StaffPhotoListing</tt>,
+            because the staff invite link requires them to identify themselves
+            among the listed staff.
+        </p>
+        <p>
+            Similarly, you should generate a student invite link
+            and send it to all the kids.
+            This link enables anyone holding it to register a
+            <tt>User</tt> (if they don't have one already)
+            and then bind it to one of the <tt>Student</tt>.
+            This MUST be done <strong>after</strong> creating students.
+        </p>
+        <h3>Weblog</h3>
+        <p>
+            This directly controls the "History" page where we post a short report
+            about every semester.
+            The posts are all in Markdown format.
+        </p>
+        <p>
+            If you need images, then you can upload them by creating a <tt>Photo</tt>.
+            This uploads the image directly to a special folder in the server,
+            making it accessible at <tt>athemath.org/media/photos/FILENAME</tt>.
+            Then you can include it in your history entry.
+        </p>
+        <h2>Special registration views: Bulk Create Students and Sorting Hat</h2>
+        <p>
+            The only thing the Django admin doesn't do easily is mass-creating
+            about a hundred new students.
+            It mostly assumes you are doing things one at a time.
+            But you probably don't want to make 80 students one by one.
+        </p>
+        <p>
+            To support this, two special views are provided in the dropdown at the top.
+            They are <a href="{% url 'courses:bulk_create_students' %}">Bulk Create Students</a>
+            and <a href="{% url 'courses:sorting_hat' %}">Sorting Hat</a>.
+            They must be used in that order and have separate instructions.
+            Basically the idea is you can copy-paste from a spreadsheet.
+        </p>
+        <h2>Workflow for the President (start of semester)</h2>
+        <p>
+            To summarize, here's the steps you take to run a semester of Athemath.
+            <strong>Order matters</strong>.
+        </p>
+        <ol>
+            <li>
+                Create new <tt>Semester</tt>.
+            </li>
+            <li>
+                Retire old <tt>StaffPhotoListing</tt> objects by making them into Past Staff.
+            </li>
+            <li>
+                Create new <tt>StaffPhotoListing</tt> objects for new staff.
+            </li>
+            <li>
+                Create new <tt>Course</tt> objects for classes and clubs for that semester,
+                attaching the relevant <tt>StaffPhotoListing</tt> to assign instructors to classes.
+            </li>
+            <li>
+                Make a staff invite link and give it to new staff so they can create a new <tt>User</tt>
+                and bind it to their <tt>StaffPhotoListing</tt>.
+            </li>
+            <li>
+                Upload application instructions and problem set to <tt>ApplyPSet</tt>.
+            </li>
+            <li>Wait for applications to roll in.</li>
+            <li>
+                Once it's time to do admissions, make a spreadsheet of students
+                and invite them all to Discord and so on.
+            </li>
+            <li>
+                Figure out the matching problem of assigning kids to classes and scheduling.
+                (Tough job. Good luck!)
+            </li>
+            <li>
+                Once you have an assignment of kids to classes,
+                use the special <a href="{% url 'courses:bulk_create_students' %}">Bulk Create Students</a>
+                to mass-create <tt>Student</tt> objects for the new semester
+                with the corresponding classes.
+                (Copy-paste your work from a spreadsheet.)
+            </li>
+            <li>
+                Use the special
+                <a href="{% url 'courses:sorting_hat' %}">Sorting Hat</a>
+                mass assign the newly created students to Houses.
+                (Copy-paste your work from a spreadsheet.)
+            </li>
+            <li>Create a student invite link and send it to kids.</li>
+            <li>
+                Make sure every instructor and club leader
+                updates their <tt>Course</tt> with their meeting times,
+                Google classroom link, and Zoom link.
+            </li>
+            <li>
+                After configuring a Discord role and webhook for each class
+                (and optionally club),
+                plug the role ID and webhook URL into the <tt>Course</tt> object on Django admin.
+                This will set up auto-reminders.
+            </li>
+            <li>
+                Make sure all the staff know how to do:
+                <ul>
+                    <li>Teachers should take attendance through the website.</li>
+                    <li>Non-attendance house points should be awarded using Award House Points.</li>
+                    <li>TA's should sign in / sign out as they run activities through here.</li>
+                </ul>
+            </li>
+        </ol>
     </div>
 {% endblock content %}

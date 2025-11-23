@@ -8,7 +8,10 @@
         <div class="row">
             <div class="col-lg-9">
                 <h1>🎩 Sorting Hat</h1>
-                <p class="lead">Assign students to houses in bulk by copying from a spreadsheet.</p>
+                <p class="text-muted">
+                    Assign students to houses in bulk by copying from a spreadsheet.
+                    Only works after the students have been <a href="{% url 'courses:bulk_create_students' %}">bulk created</a>.
+                </p>
                 <div class="card">
                     <div class="card-body">
                         <form method="post">
