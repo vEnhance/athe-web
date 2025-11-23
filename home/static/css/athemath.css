@@ -53,7 +53,7 @@ body {
   padding: 15px 0;
 }
 
-#content a {
+#content a:not(.btn) {
   color: #a02828;
   text-decoration: underline;
 }
@@ -169,11 +169,6 @@ a.f-head {
   color: #fff;
   width: 100%;
   margin: 0;
-}
-
-#content a.btn {
-  color: #fff;
-  text-decoration: none;
 }
 
 /* Global hover effect */
