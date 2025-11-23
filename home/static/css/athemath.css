@@ -53,7 +53,7 @@ body {
   padding: 15px 0;
 }
 
-#content a:not(.btn) {
+#content a:not(.btn, .list-group-item) {
   color: #a02828;
   text-decoration: underline;
 }
