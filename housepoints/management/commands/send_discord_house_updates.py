@@ -44,22 +44,21 @@ class Command(BaseCommand):
             start_date__lte=today, end_date__gte=today
         )
 
-        count = active_semesters.count()
-        if count == 0:
+        try:
+            semester = active_semesters.get()
+        except Semester.DoesNotExist:
             self.stderr.write(
                 self.style.ERROR("No active semester found for the current date")
             )
-            raise SystemExit(1)
-        if count > 1:
+            return
+        except Semester.MultipleObjectsReturned:
             self.stderr.write(
                 self.style.ERROR(
-                    f"Multiple active semesters found ({count}). "
+                    "Multiple active semesters found. "
                     "Please ensure semester dates do not overlap."
                 )
             )
             raise SystemExit(1)
-
-        semester = active_semesters.get()
 
         # Check if leaderboard is frozen
         if semester.house_points_freeze_date is not None:

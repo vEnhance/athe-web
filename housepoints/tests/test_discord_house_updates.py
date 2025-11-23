@@ -46,10 +46,8 @@ def test_discord_house_updates_no_active_semester():
     with patch.dict(
         "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
     ):
-        with pytest.raises(SystemExit) as exc_info:
-            call_command("send_discord_house_updates", stdout=out, stderr=err)
+        call_command("send_discord_house_updates", stdout=out, stderr=err)
 
-    assert exc_info.value.code == 1
     assert "No active semester" in err.getvalue()
 
 
