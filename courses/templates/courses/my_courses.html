@@ -4,33 +4,29 @@
 {% endblock title %}
 {% block content %}
     <div id="content">
-        <div class="row">
-            <div class="col-12">
-                <h1>My Classes</h1>
-                {% if enrolled_courses %}
-                    <div class="mt-4">
-                        <div class="list-group">
-                            {% for course in enrolled_courses %}
-                                <a href="{% url 'courses:course_detail' pk=course.pk %}"
-                                   class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">{{ course.name }}</h5>
-                                        <small class="text-muted">{{ course.semester }}</small>
-                                    </div>
-                                    {% if course.instructor %}
-                                        <p class="mb-1">
-                                            <strong>Instructor:</strong> {{ course.instructor }}
-                                        </p>
-                                    {% endif %}
-                                    {% if course.regular_meeting_time %}<small class="text-muted">{{ course.regular_meeting_time }}</small>{% endif %}
-                                </a>
-                            {% endfor %}
+        <h1>My Classes</h1>
+        {% if enrolled_courses %}
+            <div class="list-group mt-4">
+                {% for course in enrolled_courses %}
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">
+                                <a href="{% url 'courses:course_detail' pk=course.pk %}">{{ course.name }}</a>
+                            </h5>
+                            <small class="text-muted">{{ course.semester }}</small>
                         </div>
+                        {% if course.instructor %}
+                            <p class="mb-1">
+                                <strong>Instructor:</strong>
+                                <a href="{{ course.instructor.get_absolute_url }}">{{ course.instructor }}</a>
+                            </p>
+                        {% endif %}
+                        {% if course.regular_meeting_time %}<small class="text-muted">{{ course.regular_meeting_time }}</small>{% endif %}
                     </div>
-                {% else %}
-                    <p>You are not currently enrolled in any courses.</p>
-                {% endif %}
+                {% endfor %}
             </div>
-        </div>
+        {% else %}
+            <p>You are not currently enrolled in any courses.</p>
+        {% endif %}
     </div>
 {% endblock content %}
