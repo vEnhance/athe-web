@@ -5,28 +5,22 @@
 {% block content %}
     <div id="content">
         <h1>Blog</h1>
-        <p class="lead text-muted">Posts from the Athemath community</p>
+        <p class="lead text-muted">Posts from the Athemath community.</p>
         {% if posts %}
-            <div class="row">
+            <div class="list-group">
                 {% for post in posts %}
-                    <div class="col-12 mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h2 class="h4 card-title">
-                                    <a href="{{ post.get_absolute_url }}" class="text-decoration-none">{{ post.title }}</a>
-                                </h2>
-                                {% if post.subtitle %}<p class="card-subtitle text-muted mb-2">{{ post.subtitle }}</p>{% endif %}
-                                <p class="card-text">
-                                    <small class="text-muted">
-                                        By {{ post.display_author }} &middot;
-                                        {{ post.display_date|date:"F j, Y" }}
-                                    </small>
-                                </p>
-                                <a href="{{ post.get_absolute_url }}"
-                                   class="btn btn-outline-dark btn-sm">Read more</a>
-                            </div>
-                        </div>
-                    </div>
+                    <a href="{{ post.get_absolute_url }}"
+                       class="list-group-item list-group-item-action">
+                        <h3 class="my-1 py-0">{{ post.title }}</h3>
+                        {% if post.subtitle %}
+                            <span class="text-muted">{{ post.subtitle }}</span>
+                            <br />
+                        {% endif %}
+                        <small class="text-muted">
+                            By {{ post.display_author }} &middot;
+                            {{ post.display_date|date:"F j, Y" }}
+                        </small>
+                    </a>
                 {% endfor %}
             </div>
         {% else %}
