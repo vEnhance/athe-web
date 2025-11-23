@@ -17,7 +17,6 @@ from courses.models import Course, Semester, Student
 from housepoints.models import Award
 
 
-@login_required
 def leaderboard(request: HttpRequest, slug: str | None = None) -> HttpResponse:
     """Show the house points leaderboard for a semester."""
     # Get semester (default to most recent active or latest)
@@ -32,9 +31,12 @@ def leaderboard(request: HttpRequest, slug: str | None = None) -> HttpResponse:
                 {"semester": None, "leaderboard_data": []},
             )
 
-    try:
-        student = Student.objects.get(user=request.user, semester=semester)
-    except Student.DoesNotExist:
+    if request.user.is_authenticated:
+        try:
+            student = Student.objects.get(user=request.user, semester=semester)
+        except Student.DoesNotExist:
+            student = None
+    else:
         student = None
 
     # Calculate total points per house, respecting freeze date

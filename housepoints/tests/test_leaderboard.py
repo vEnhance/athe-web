@@ -17,14 +17,12 @@ from housepoints.models import Award
 
 
 @pytest.mark.django_db
-def test_leaderboard_requires_login():
-    """Test that leaderboard requires authentication."""
+def test_leaderboard():
+    """Test that leaderboard loads even with no login."""
     client = Client()
     url = reverse("housepoints:leaderboard")
     response = client.get(url)
-
-    assert response.status_code == 302
-    assert "/login/" in response.url
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db
