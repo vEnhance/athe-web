@@ -12,9 +12,9 @@
             </div>
         {% endif %}
         <article>
-            <header class="mb-4">
+            <header class="mb-5">
                 <h1>{{ post.title }}</h1>
-                {% if post.subtitle %}<p class="lead text-muted">{{ post.subtitle }}</p>{% endif %}
+                {% if post.subtitle %}<h3 class="my-1 py-0">{{ post.subtitle }}</h3>{% endif %}
                 <p class="text-muted">
                     By
                     {% if staff_listing %}
@@ -26,9 +26,8 @@
                     {{ post.display_date|date:"F j, Y" }}
                 </p>
             </header>
-            <div class="blog-content">{{ post.content_rendered|safe }}</div>
+            <div class="blog-content my-5">{{ post.content_rendered|safe }}</div>
         </article>
-        <hr class="my-4">
         <div class="d-flex align-items-center">
             <a href="{% url 'weblog:blog_list' %}" class="btn btn-outline-secondary">&larr; Back to Blog</a>
             {% if user == post.creator and not post.published %}
