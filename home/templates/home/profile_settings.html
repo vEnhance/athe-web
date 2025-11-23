@@ -7,18 +7,6 @@
 {% block content %}
     <div id="content">
         <h1>Profile Settings</h1>
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
-                     role="alert">
-                    {{ message }}
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert"
-                            aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
         <div class="row">
             <div class="col-md-6">
                 <h2>Update Profile Information</h2>
@@ -29,86 +17,31 @@
                 </form>
             </div>
             <div class="col-md-6">
-                <h2>Change Password</h2>
-                <form method="post">
-                    {% csrf_token %}
-                    {% bootstrap_form password_form %}
-                    {% bootstrap_button button_type="submit" content="Change Password" button_class="btn-dark" name="change_password" %}
-                </form>
-            </div>
-        </div>
-        <hr class="my-4">
-        <div class="row">
-            <div class="col-12">
-                <h2>Connected Accounts</h2>
-                <p class="text-muted">Link your social accounts to enable quick sign-in options.</p>
-                {% if social_accounts %}
-                    <div class="mb-4">
-                        <h5>Your Connected Accounts</h5>
-                        <form method="post">
-                            {% csrf_token %}
-                            <ul class="list-group mb-3">
-                                {% for account in social_accounts %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            {% if account.provider == "google" %}
-                                                <span class="text-danger">{% include "icons/google.svg" %}</span>
-                                                Google
-                                            {% elif account.provider == "github" %}
-                                                {% include "icons/github.svg" %}
-                                                GitHub
-                                            {% elif account.provider == "discord" %}
-                                                <span class="text-primary">{% include "icons/discord.svg" %}</span>
-                                                Discord
-                                            {% else %}
-                                                {{ account.provider|title }}
-                                            {% endif %}
-                                            <span class="text-muted ms-2">{{ account.get_provider_account }}</span>
-                                        </div>
-                                        <div>
-                                            <input type="radio"
-                                                   name="account"
-                                                   value="{{ account.pk }}"
-                                                   id="account_{{ account.pk }}"
-                                                   class="btn-check">
-                                            <label class="btn btn-outline-danger btn-sm" for="account_{{ account.pk }}">Remove</label>
-                                        </div>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                            <button type="submit" name="disconnect_social" class="btn btn-danger btn-sm">Disconnect Selected Account</button>
-                        </form>
-                    </div>
-                {% else %}
-                    <div class="alert alert-info">You have no social accounts connected. Connect one below to enable quick sign-in.</div>
-                {% endif %}
-                <h5>Connect a New Account</h5>
-                {% get_providers as socialaccount_providers %}
-                {% if socialaccount_providers %}
-                    <div class="d-flex gap-2 flex-wrap">
-                        {% for provider in socialaccount_providers %}
-                            {% provider_login_url provider process="connect" as href %}
-                            {% if provider.id == "google" %}
-                                <a href="{{ href }}" class="btn btn-outline-danger">
-                                    {% include "icons/google.svg" %}
-                                    Connect Google
-                                </a>
-                            {% elif provider.id == "github" %}
-                                <a href="{{ href }}" class="btn btn-outline-dark">
-                                    {% include "icons/github.svg" %}
-                                    Connect GitHub
-                                </a>
-                            {% elif provider.id == "discord" %}
-                                <a href="{{ href }}" class="btn btn-outline-primary">
-                                    {% include "icons/discord.svg" %}
-                                    Connect Discord
-                                </a>
-                            {% else %}
-                                <a href="{{ href }}" class="btn btn-outline-secondary">Connect {{ provider.name }}</a>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                {% endif %}
+                <h2>External Login Providers</h2>
+                <p>
+                    Allows you to sign in with Google, Discord, or GitHub
+                    so you have one less password to remember.
+                </p>
+                <a class="btn btn-primary" href="{% url 'socialaccount_connections' %}">Manage login providers</a>
+                <hr />
+                <h4>Username and password</h4>
+                <p>
+                    Alternatively, you can change the password you set.
+                    Your username is <tt>{{ user.username }}</tt>.
+                </p>
+                <button class="btn btn-secondary"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapsePasswordForm"
+                        aria-expanded="false"
+                        aria-controls="collapsePasswordForm">Change password</button>
+                <div id="collapsePasswordForm" class="collapse mt-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% bootstrap_form password_form %}
+                        {% bootstrap_button button_type="submit" content="Confirm" button_class="btn-dark" name="change_password" %}
+                    </form>
+                </div>
             </div>
         </div>
     </div>
