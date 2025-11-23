@@ -222,3 +222,12 @@ class LegalView(TemplateView):
     """Legal page."""
 
     template_name = "home/legal.html"
+
+
+class ManualView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    """Manual page for superusers."""
+
+    def test_func(self) -> bool:
+        return isinstance(self.request.user, User) and self.request.user.is_superuser
+
+    template_name = "home/manual.html"

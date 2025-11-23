@@ -1,0 +1,17 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block title %}
+    Admin Manual - Athemath
+{% endblock title %}
+{% block content %}
+    <div id="content">
+        <h1>Admin Manual</h1>
+        <p>
+            Hello, my lovely <strong>{{ user.first_name }}</strong>!
+        </p>
+        <p>
+            You are a superuser (i.e. administrator) on Atheweb,
+            and this manual will help you learn how to wield that power.
+        </p>
+    </div>
+{% endblock content %}

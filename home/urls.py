@@ -26,4 +26,5 @@ urlpatterns = [
     path("apply/", views.ApplyView.as_view(), name="apply"),
     path("past-psets/", views.PastPsetsView.as_view(), name="past_psets"),
     path("legal/", views.LegalView.as_view(), name="legal"),
+    path("admin-manual/", views.ManualView.as_view(), name="manual"),
 ]
