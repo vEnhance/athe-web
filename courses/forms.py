@@ -122,8 +122,17 @@ class SortingHatForm(forms.Form):
         widget=forms.Textarea(
             attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
         ),
-        label="Blob",
+        label="Blobs",
         help_text="Students to assign to Blob house",
+    )
+
+    bunny = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
+        ),
+        label="Bunnies",
+        help_text="Students to assign to Bunny house",
     )
 
     cat = forms.CharField(
@@ -131,7 +140,7 @@ class SortingHatForm(forms.Form):
         widget=forms.Textarea(
             attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
         ),
-        label="Cat",
+        label="Cats",
         help_text="Students to assign to Cat house",
     )
 
@@ -140,7 +149,7 @@ class SortingHatForm(forms.Form):
         widget=forms.Textarea(
             attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
         ),
-        label="Owl",
+        label="Owls",
         help_text="Students to assign to Owl house",
     )
 
@@ -151,13 +160,4 @@ class SortingHatForm(forms.Form):
         ),
         label="Red Panda",
         help_text="Students to assign to Red Panda house",
-    )
-
-    bunny = forms.CharField(
-        required=False,
-        widget=forms.Textarea(
-            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
-        ),
-        label="Bunny",
-        help_text="Students to assign to Bunny house",
     )

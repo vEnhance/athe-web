@@ -145,10 +145,10 @@ class Course(models.Model):
 class Student(models.Model):
     class House(models.TextChoices):
         BLOB = "blob", "Blobs"
+        BUNNY = "bunny", "Bunnies"
         CAT = "cat", "Cats"
         OWL = "owl", "Owls"
         RED_PANDA = "red_panda", "Red Panda"
-        BUNNY = "bunny", "Bunnies"
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
