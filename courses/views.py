@@ -226,32 +226,41 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def past_clubs(request: HttpRequest) -> HttpResponse:
-    """Show clubs from past semesters that the user was enrolled in (readonly)."""
-    # Get user's student records for past semesters
+    """Show all clubs from visible past semesters (readonly).
+
+    Links are clickable only if:
+    - The user is staff, OR
+    - The user was a student in the semester the club happened
+    """
+    assert isinstance(request.user, User)
     today = date.today()
-    past_student_records = Student.objects.filter(
-        user=request.user, semester__end_date__lt=today
-    ).prefetch_related(
-        Prefetch(
-            "enrolled_courses",
-            queryset=Course.objects.filter(is_club=True).select_related(
-                "semester", "instructor"
-            ),
-            to_attr="enrolled_club_list",
-        )
+    is_staff = request.user.is_staff
+
+    # Get all clubs from visible semesters that have ended
+    past_clubs_queryset = Course.objects.filter(
+        is_club=True,
+        semester__end_date__lt=today,
+        semester__visible=True,
+    ).select_related("semester", "instructor")
+
+    # Get semesters where the user was a student (for determining clickability)
+    user_semester_ids = set(
+        Student.objects.filter(user=request.user).values_list("semester_id", flat=True)
     )
 
-    # Collect all past clubs (avoid duplicates)
-    past_clubs_dict = {}
-    for student in past_student_records:
-        for course in student.enrolled_club_list:  # type: ignore[attr-defined]
-            past_clubs_dict[course.id] = course  # type: ignore[attr-defined]
-
     # Convert to list and sort by semester (most recent first), then by course name
-    past_clubs = list(past_clubs_dict.values())
-    past_clubs.sort(key=lambda c: (-c.semester.start_date.toordinal(), c.name))
+    past_clubs_list = list(past_clubs_queryset)
+    past_clubs_list.sort(key=lambda c: (-c.semester.start_date.toordinal(), c.name))
 
-    return render(request, "courses/past_clubs.html", {"past_clubs": past_clubs})
+    # Mark each club with whether it's clickable
+    for club in past_clubs_list:
+        club.is_clickable = is_staff or club.semester_id in user_semester_ids  # type: ignore[attr-defined]
+
+    return render(
+        request,
+        "courses/past_clubs.html",
+        {"past_clubs": past_clubs_list},
+    )
 
 
 @login_required

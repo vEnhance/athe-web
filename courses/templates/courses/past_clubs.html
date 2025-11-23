@@ -9,24 +9,39 @@
             <div class="mt-4">
                 <div class="list-group">
                     {% for club in past_clubs %}
-                        <a href="{% url 'courses:course_detail' pk=club.pk %}"
-                           class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">{{ club.name }}</h5>
-                                <small class="text-muted">{{ club.semester }}</small>
+                        {% if club.is_clickable %}
+                            <a href="{% url 'courses:course_detail' pk=club.pk %}"
+                               class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ club.name }}</h5>
+                                    <small class="text-muted">{{ club.semester }}</small>
+                                </div>
+                                {% if club.instructor %}
+                                    <p class="mb-1">
+                                        <strong>Instructor:</strong> {{ club.instructor }}
+                                    </p>
+                                {% endif %}
+                                {% if club.regular_meeting_time %}<small class="text-muted">{{ club.regular_meeting_time }}</small>{% endif %}
+                            </a>
+                        {% else %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ club.name }}</h5>
+                                    <small class="text-muted">{{ club.semester }}</small>
+                                </div>
+                                {% if club.instructor %}
+                                    <p class="mb-1">
+                                        <strong>Instructor:</strong> {{ club.instructor }}
+                                    </p>
+                                {% endif %}
+                                {% if club.regular_meeting_time %}<small class="text-muted">{{ club.regular_meeting_time }}</small>{% endif %}
                             </div>
-                            {% if club.instructor %}
-                                <p class="mb-1">
-                                    <strong>Instructor:</strong> {{ club.instructor }}
-                                </p>
-                            {% endif %}
-                            {% if club.regular_meeting_time %}<small class="text-muted">{{ club.regular_meeting_time }}</small>{% endif %}
-                        </a>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
         {% else %}
-            <p>You haven't been enrolled in any clubs or events from past semesters.</p>
+            <p>No clubs or events from past semesters.</p>
         {% endif %}
     </div>
 {% endblock content %}
