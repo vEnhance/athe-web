@@ -154,6 +154,22 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
     active_student_records_list = list(active_student_records)
     led_clubs_list = list(led_clubs)
 
+    assert isinstance(request.user, User)
+    if request.user.is_staff:
+        return render(
+            request,
+            "courses/my_clubs.html",
+            {
+                "enrolled_clubs": led_clubs_list,
+                "available_clubs": Course.objects.filter(
+                    is_club=True,
+                    semester__start_date__lte=today,
+                    semester__end_date__gte=today,
+                ).exclude(pk__in=led_clubs.values_list("pk", flat=True)),
+                "has_active_semester": True,
+            },
+        )
+
     if not active_student_records_list and not led_clubs_list:
         return render(
             request,
