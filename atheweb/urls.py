@@ -30,6 +30,7 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     path("reg/", include("reg.urls")),
     path("yearbook/", include("yearbook.urls")),
+    path("weblog/", include("weblog.urls")),
     path(
         "login/",
         auth_views.LoginView.as_view(),

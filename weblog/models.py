@@ -1,5 +1,9 @@
+from datetime import date
+
 from atheweb.validators import VALIDATOR_WITH_FIGURES
+from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 from markdownfield.models import MarkdownField, RenderedMarkdownField
 
 
@@ -55,3 +59,55 @@ class HistoryEntry(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+
+class BlogPost(models.Model):
+    """A blog post written by students, subject to staff review before publication."""
+
+    title = models.CharField(max_length=200, help_text="Title of the blog post")
+    subtitle = models.CharField(
+        max_length=300, blank=True, help_text="Optional subtitle for the blog post"
+    )
+    slug = models.SlugField(
+        unique=True, max_length=200, help_text="URL-friendly slug for the post"
+    )
+    display_author = models.CharField(
+        max_length=100, help_text="Author name as displayed on the post"
+    )
+    creator = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="blog_posts",
+        help_text="User who created this post",
+    )
+    content = MarkdownField(
+        rendered_field="content_rendered",
+        validator=VALIDATOR_WITH_FIGURES,
+        help_text="Blog post content in Markdown format",
+    )
+    content_rendered = RenderedMarkdownField()
+    display_date = models.DateField(
+        default=date.today,
+        help_text="Date to display on the post (defaults to creation date)",
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True, help_text="Date and time when the post was created"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True, help_text="Date and time when the post was last updated"
+    )
+    published = models.BooleanField(
+        default=False,
+        help_text="Whether the post is published. Unpublished posts are pending review.",
+    )
+
+    class Meta:
+        ordering = ["-display_date", "-created_at"]
+        verbose_name = "Blog Post"
+        verbose_name_plural = "Blog Posts"
+
+    def __str__(self) -> str:
+        return self.title
+
+    def get_absolute_url(self) -> str:
+        return reverse("weblog:blog_detail", kwargs={"slug": self.slug})

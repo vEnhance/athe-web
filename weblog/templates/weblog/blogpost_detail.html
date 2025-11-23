@@ -1,0 +1,43 @@
+{% extends "home/base.html" %}
+{% block title %}
+    {{ post.title }} - Blog - Athemath
+{% endblock title %}
+{% block content %}
+    <div class="content">
+        {% if not post.published %}
+            <div class="alert alert-warning" role="alert">
+                <strong>Draft:</strong> This post is not yet published and is only visible to you
+                {% if user.is_staff %}and staff{% endif %}
+                .
+            </div>
+        {% endif %}
+        <article>
+            <header class="mb-4">
+                <h1>{{ post.title }}</h1>
+                {% if post.subtitle %}<p class="lead text-muted">{{ post.subtitle }}</p>{% endif %}
+                <p class="text-muted">
+                    By
+                    {% if staff_listing %}
+                        <a href="{{ staff_listing.get_absolute_url }}">{{ post.display_author }}</a>
+                    {% else %}
+                        {{ post.display_author }}
+                    {% endif %}
+                    &middot;
+                    {{ post.display_date|date:"F j, Y" }}
+                </p>
+            </header>
+            <div class="blog-content">{{ post.content_rendered|safe }}</div>
+        </article>
+        <hr class="my-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{% url 'weblog:blog_list' %}" class="btn btn-outline-secondary">&larr; Back to Blog</a>
+            {% if user.is_staff %}
+                <a href="{% url 'admin:weblog_blogpost_change' post.pk %}"
+                   class="btn btn-outline-dark btn-sm">Edit in Admin</a>
+            {% elif user == post.creator and not post.published %}
+                <a href="{% url 'weblog:blog_update' slug=post.slug %}"
+                   class="btn btn-outline-dark btn-sm">Edit Draft</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

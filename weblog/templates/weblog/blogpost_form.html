@@ -1,0 +1,62 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}
+    {% if post %}
+        Edit Blog Post
+    {% else %}
+        Create Blog Post
+    {% endif %}
+    - Athemath
+{% endblock title %}
+{% block content %}
+    <div class="content">
+        <h1>
+            {% if post %}
+                Edit Blog Post
+            {% else %}
+                Create a New Blog Post
+            {% endif %}
+        </h1>
+        <p class="text-muted">
+            {% if post %}
+                Make changes to your draft below.
+            {% else %}
+                Write your blog post draft below. It will be submitted for staff review before publication.
+            {% endif %}
+        </p>
+        <form method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <div class="mt-3">
+                {% bootstrap_button button_type="submit" content="Save Draft" button_class="btn-dark" %}
+                <a href="{% url 'weblog:blog_landing' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Formatting Tips</h5>
+                <p class="card-text">Your content is written in Markdown. Here are some common formatting options:</p>
+                <ul class="mb-0">
+                    <li>
+                        <code>**bold**</code> for <strong>bold</strong>
+                    </li>
+                    <li>
+                        <code>*italic*</code> for <em>italic</em>
+                    </li>
+                    <li>
+                        <code># Heading</code> for headings (use ##, ### for smaller headings)
+                    </li>
+                    <li>
+                        <code>[link text](url)</code> for links
+                    </li>
+                    <li>
+                        <code>- item</code> for bullet lists
+                    </li>
+                    <li>
+                        <code>1. item</code> for numbered lists
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,101 @@
+{% extends "home/base.html" %}
+{% block title %}
+    My Blog Posts - Athemath
+{% endblock title %}
+{% block content %}
+    <div class="content">
+        <h1>My Blog Posts</h1>
+        <p class="lead text-muted">Write and manage your blog posts</p>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">How Blog Posts Work</h5>
+                <ol class="mb-0">
+                    <li>
+                        <strong>Write a draft</strong> &mdash; Your drafts are internal and won't be visible
+                        to anyone except you and staff.
+                    </li>
+                    <li>
+                        <strong>Use Markdown</strong> &mdash; Posts are written in Markdown format,
+                        which lets you add formatting like <strong>bold</strong>, <em>italic</em>,
+                        headings, and lists.
+                    </li>
+                    <li>
+                        <strong>Request review</strong> &mdash; Once your draft is ready, let any
+                        administrator know and they will review it for publication.
+                    </li>
+                    <li>
+                        <strong>After publication</strong> &mdash; Once your post is published,
+                        editing or deleting it on the website is no longer possible.
+                        Contact an administrator if you need changes.
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Create New Post</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if can_create %}
+                            <p class="card-text">Ready to write something new?</p>
+                            <a href="{% url 'weblog:blog_create' %}" class="btn btn-dark">Create New Draft</a>
+                        {% else %}
+                            <p class="card-text text-muted">
+                                You already have 3 pending posts.
+                                Please wait for them to be reviewed before creating more.
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Browse All Posts</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">See all published blog posts from the community.</p>
+                        <a href="{% url 'weblog:blog_list' %}" class="btn btn-outline-dark">View All Posts</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if pending_posts %}
+            <h2 class="h4">Your Pending Drafts</h2>
+            <p class="text-muted">These posts are awaiting staff review.</p>
+            <div class="list-group mb-4">
+                {% for post in pending_posts %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ post.title }}</strong>
+                            <br>
+                            <small class="text-muted">Created {{ post.created_at|date:"F j, Y" }}</small>
+                        </div>
+                        <div>
+                            <a href="{{ post.get_absolute_url }}"
+                               class="btn btn-outline-secondary btn-sm">View</a>
+                            <a href="{% url 'weblog:blog_update' slug=post.slug %}"
+                               class="btn btn-outline-dark btn-sm">Edit</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if published_posts %}
+            <h2 class="h4">Your Published Posts</h2>
+            <div class="list-group mb-4">
+                {% for post in published_posts %}
+                    <a href="{{ post.get_absolute_url }}"
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ post.title }}</strong>
+                            <small class="text-muted">{{ post.display_date|date:"F j, Y" }}</small>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock content %}

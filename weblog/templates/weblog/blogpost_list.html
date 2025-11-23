@@ -1,0 +1,36 @@
+{% extends "home/base.html" %}
+{% block title %}
+    Blog - Athemath
+{% endblock title %}
+{% block content %}
+    <div class="content">
+        <h1>Blog</h1>
+        <p class="lead text-muted">Posts from the Athemath community</p>
+        {% if posts %}
+            <div class="row">
+                {% for post in posts %}
+                    <div class="col-12 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h2 class="h4 card-title">
+                                    <a href="{{ post.get_absolute_url }}" class="text-decoration-none">{{ post.title }}</a>
+                                </h2>
+                                {% if post.subtitle %}<p class="card-subtitle text-muted mb-2">{{ post.subtitle }}</p>{% endif %}
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        By {{ post.display_author }} &middot;
+                                        {{ post.display_date|date:"F j, Y" }}
+                                    </small>
+                                </p>
+                                <a href="{{ post.get_absolute_url }}"
+                                   class="btn btn-outline-dark btn-sm">Read more</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No blog posts have been published yet.</p>
+        {% endif %}
+    </div>
+{% endblock content %}
