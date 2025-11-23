@@ -48,8 +48,8 @@ def test_join_club_active_semester():
 
 
 @pytest.mark.django_db
-def test_join_club_creates_student_record():
-    """Test that joining a club creates a Student record if it doesn't exist."""
+def test_join_club_fails_for_non_student():
+    """Test that joining a club fails if a Student record if it doesn't exist."""
     client = Client()
     user = User.objects.create_user(username="student", password="password")
 
@@ -75,14 +75,8 @@ def test_join_club_creates_student_record():
     client.login(username="student", password="password")
     url = reverse("courses:join_club", kwargs={"pk": club.pk})
     response = client.get(url)
-
-    # Should redirect successfully
     assert response.status_code == 302
-
-    # Verify student record was created and enrolled in club
-    assert Student.objects.filter(user=user, semester=active_semester).exists()
-    student = Student.objects.get(user=user, semester=active_semester)
-    assert club in student.enrolled_courses.all()
+    assert response.url == reverse("courses:my_clubs")
 
 
 @pytest.mark.django_db

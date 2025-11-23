@@ -273,10 +273,12 @@ def join_club(request: HttpRequest, pk: int) -> HttpResponse:
         messages.error(request, "This club's semester is not currently active.")
         return redirect("courses:my_clubs")
 
-    # Get or create student record for this semester
-    student, _ = Student.objects.get_or_create(
-        user=request.user, semester=club.semester
-    )
+    # Get student record for this semester
+    try:
+        student = Student.objects.get(user=request.user, semester=club.semester)
+    except Student.DoesNotExist:
+        messages.error(request, "You are not a student in this semester.")
+        return redirect("courses:my_clubs")
 
     # Check if already enrolled
     if club.students.filter(pk=student.pk).exists():
