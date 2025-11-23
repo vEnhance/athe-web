@@ -97,15 +97,21 @@ class Command(BaseCommand):
         )
 
         # Build the message lines
-        message_lines = [f"<@&{HOUSE_POINTS_ROLE_ID}>"]
+        message_lines = [f"<@&{HOUSE_POINTS_ROLE_ID}> Current standings!"]
+        n = 0
         for house_code, points in sorted_houses:
+            n += 1
             emoji = HOUSE_EMOJIS.get(house_code, "")
-            message_lines.append(f"{emoji} {points}")
+            message_lines.append(f"{n}. {emoji} {points} points")
 
+        unix_timestamp = int(timezone.now().timestamp())
         message_lines.append("")  # Empty line before links
-        message_lines.append("Live scoreboard: https://beta.athemath.org/house-points/")
+        message_lines.append(f"Generated at <t:{unix_timestamp}:F>")
         message_lines.append(
-            "Your awards: https://beta.athemath.org/house-points/awards/my/"
+            "_Live scoreboard_: https://beta.athemath.org/house-points/"
+        )
+        message_lines.append(
+            "_Your awards_: https://beta.athemath.org/house-points/awards/my/"
         )
 
         message_content = "\n".join(message_lines)

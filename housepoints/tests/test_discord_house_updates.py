@@ -247,8 +247,7 @@ def test_discord_house_updates_sorted_by_score():
     for line in score_lines:
         # Each line is like ":emoji: SCORE"
         parts = line.split()
-        if len(parts) >= 2:
-            scores.append(int(parts[-1]))
+        scores.append(int(parts[2]))
 
     # Verify scores are in descending order
     assert scores == sorted(scores, reverse=True)
@@ -301,7 +300,7 @@ def test_discord_house_updates_includes_zero_point_houses():
 
     # Should have five "0" entries (for houses with no points)
     # Count occurrences of " 0" (space before 0 to avoid matching "10")
-    assert message_content.count(" 0\n") == 4  # 4 houses with 0 points
+    assert message_content.count(" 0 points") == 4  # 4 houses with 0 points
 
 
 @pytest.mark.django_db
@@ -362,4 +361,4 @@ def test_discord_house_updates_empty_semester():
     message_content = mock_post.call_args[1]["json"]["content"]
 
     # All houses should show 0
-    assert message_content.count(" 0\n") == 5
+    assert message_content.count(" 0 points") == 5
