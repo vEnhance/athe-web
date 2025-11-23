@@ -109,7 +109,7 @@ class BlogPostCreateView(LoginRequiredMixin, CreateView):
 
     model = BlogPost
     template_name = "weblog/blogpost_form.html"
-    fields = ["title", "slug", "display_author", "content"]
+    fields = ["title", "subtitle", "slug", "display_author", "content"]
     success_url = reverse_lazy("weblog:blog_landing")
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
