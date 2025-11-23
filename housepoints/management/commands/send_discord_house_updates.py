@@ -10,14 +10,15 @@ from courses.models import Semester, Student
 from housepoints.models import Award
 
 
-# Discord emoji mappings for each house (using string values, not enum)
+# Discord emoji mappings for each house
 HOUSE_EMOJIS: dict[str, str] = {
-    "owl": ":owlheart:",
-    "blob": ":blobheart:",
-    "red_panda": ":redpandaheart:",
-    "cat": ":catlove:",
-    "bunny": ":bunnylove:",
+    "owl": "<:owlheart:1307684456982904943>",
+    "blob": "<:blobheart:822453188853760071>",
+    "red_panda": "<:redpandaheart:1227043341686804510>",
+    "cat": "<:catlove:1301819346888429618>",
+    "bunny": "<:bunnylove:1324915395035005089>",
 }
+
 
 # Discord role ID for house points updates
 HOUSE_POINTS_ROLE_ID = "1345991464831811665"

@@ -6,4 +6,4 @@ set -euxo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 cd "$DIR" || exit 1
 
-uv run --no-dev python manage.py send_discord_reminders
+uv run --no-sync python manage.py send_discord_house_updates

@@ -106,7 +106,6 @@ athe-web/
 ├── pytest.ini        # Pytest configuration
 ├── .pre-commit-config.yaml  # Pre-commit hook configuration
 ├── gunicorn.sh       # Production server startup script
-├── run-discord.sh    # Discord reminders script
 ├── sync-static.sh    # Static files sync script
 ├── OAUTH_SETUP.md    # OAuth authentication setup guide
 └── NFS.md            # NearlyFreeSpeech deployment notes
