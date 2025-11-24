@@ -65,56 +65,71 @@
                 {% csrf_token %}
                 {{ formset.management_form }}
                 {% if formset.non_form_errors %}<div class="alert alert-danger">{{ formset.non_form_errors }}</div>{% endif %}
+                {# Hidden template for cloning new forms #}
+                <template id="empty-form-template">
+                    <div class="formset-row" data-form-index="__prefix__">
+                        <div class="formset-header">
+                            <div class="form-field">
+                                {{ formset.empty_form.start_time.label_tag }}
+                                {{ formset.empty_form.start_time }}
+                            </div>
+                            <div class="form-field">
+                                {{ formset.empty_form.title.label_tag }}
+                                {{ formset.empty_form.title }}
+                            </div>
+                            <div class="form-field">{# Placeholder for grid alignment #}</div>
+                            <div class="delete-checkbox">
+                                {{ formset.empty_form.DELETE }}
+                                <label for="{{ formset.empty_form.DELETE.id_for_label }}">Delete?</label>
+                            </div>
+                        </div>
+                        {{ formset.empty_form.id }}
+                    </div>
+                </template>
+                {# Existing meetings section #}
                 {% if formset.forms %}
+                    <h3>Existing Meetings</h3>
                     {% for form in formset %}
-                        {# Show "Existing Meetings" header before first existing meeting #}
-                        {% if form.instance.pk and forloop.first %}<h3>Existing Meetings</h3>{% endif %}
-                        {# Show "Add New Meetings" header before first empty form #}
-                        {% if not form.instance.pk and forloop.counter0 == formset.queryset.count %}
-                            <div class="empty-form-section">
-                                <h3>Add New Meetings</h3>
-                            {% endif %}
-                            <div class="formset-row {% if form.instance.pk %}existing-meeting{% endif %}"
-                                 data-form-index="{{ forloop.counter0 }}">
-                                {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
-                                <div class="formset-header">
-                                    <div class="form-field">
-                                        {{ form.start_time.label_tag }}
-                                        {{ form.start_time }}
-                                        {% if form.start_time.errors %}<small class="text-danger">{{ form.start_time.errors }}</small>{% endif %}
-                                    </div>
-                                    <div class="form-field">
-                                        {{ form.title.label_tag }}
-                                        {{ form.title }}
-                                        {% if form.title.errors %}<small class="text-danger">{{ form.title.errors }}</small>{% endif %}
-                                    </div>
-                                    {% if form.instance.pk %}
-                                        <div class="form-field">
-                                            <label>Reminder Sent</label>
-                                            <div>
-                                                {% if form.instance.reminder_sent %}
-                                                    <span class="badge bg-success">Yes</span>
-                                                {% else %}
-                                                    <span class="badge bg-secondary">No</span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    {% else %}
-                                        <div class="form-field">{# Placeholder for grid alignment #}</div>
-                                    {% endif %}
-                                    <div class="delete-checkbox">
-                                        {{ form.DELETE }}
-                                        <label for="{{ form.DELETE.id_for_label }}">Delete?</label>
+                        <div class="formset-row existing-meeting"
+                             data-form-index="{{ forloop.counter0 }}">
+                            {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+                            <div class="formset-header">
+                                <div class="form-field">
+                                    {{ form.start_time.label_tag }}
+                                    {{ form.start_time }}
+                                    {% if form.start_time.errors %}<small class="text-danger">{{ form.start_time.errors }}</small>{% endif %}
+                                </div>
+                                <div class="form-field">
+                                    {{ form.title.label_tag }}
+                                    {{ form.title }}
+                                    {% if form.title.errors %}<small class="text-danger">{{ form.title.errors }}</small>{% endif %}
+                                </div>
+                                <div class="form-field">
+                                    <label>Reminder Sent</label>
+                                    <div>
+                                        {% if form.instance.reminder_sent %}
+                                            <span class="badge bg-success">Yes</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">No</span>
+                                        {% endif %}
                                     </div>
                                 </div>
-                                {{ form.id }}
+                                <div class="delete-checkbox">
+                                    {{ form.DELETE }}
+                                    <label for="{{ form.DELETE.id_for_label }}">Delete?</label>
+                                </div>
                             </div>
-                        {% endfor %}
-                        {# Close the empty-form-section div if there were any empty forms #}
-                        {% if formset.queryset.count < formset.total_form_count %}</div>{% endif %}
+                            {{ form.id }}
+                        </div>
+                    {% endfor %}
                 {% else %}
-                    <p class="text-muted">No meetings configured yet. Use the forms below to add new meetings.</p>
+                    <p class="text-muted">No meetings configured yet.</p>
                 {% endif %}
+                {# Add new meetings section #}
+                <div class="empty-form-section" id="new-meetings-section">
+                    <h3>Add New Meetings</h3>
+                    <button type="button" id="add-form-btn" class="btn btn-outline-secondary">+ Add another meeting</button>
+                </div>
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">Save All Changes</button>
                     <a href="{% url 'courses:course_detail' pk=course.pk %}"
@@ -124,10 +139,10 @@
         </div>
     </div>
     <script>
-        // Add visual feedback when delete checkbox is checked
         document.addEventListener('DOMContentLoaded', function() {
-            const deleteCheckboxes = document.querySelectorAll('input[name$="-DELETE"]');
-            deleteCheckboxes.forEach(checkbox => {
+            // === Delete checkbox visual feedback ===
+            function setupDeleteCheckbox(checkbox) {
+                if (!checkbox) return;
                 checkbox.addEventListener('change', function() {
                     const row = this.closest('.formset-row');
                     if (this.checked) {
@@ -140,6 +155,46 @@
                 if (checkbox.checked) {
                     checkbox.closest('.formset-row').classList.add('to-delete');
                 }
+            }
+
+            // Setup existing delete checkboxes
+            document.querySelectorAll('input[name$="-DELETE"]').forEach(setupDeleteCheckbox);
+
+            // === Add form functionality ===
+            const addButton = document.getElementById('add-form-btn');
+            const template = document.getElementById('empty-form-template');
+            const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
+            const container = document.getElementById('new-meetings-section');
+
+            addButton.addEventListener('click', function() {
+                const formCount = parseInt(totalFormsInput.value, 10);
+                const newForm = template.content.cloneNode(true);
+
+                // Replace __prefix__ with form index in all attributes
+                newForm.querySelectorAll('*').forEach(el => {
+                    ['name', 'id', 'for'].forEach(attr => {
+                        const value = el.getAttribute(attr);
+                        if (value && value.includes('__prefix__')) {
+                            el.setAttribute(attr, value.replace(/__prefix__/g, formCount));
+                        }
+                    });
+                });
+
+                // Update data-form-index
+                const formRow = newForm.querySelector('.formset-row');
+                formRow.dataset.formIndex = formCount;
+
+                // Insert before button
+                container.insertBefore(newForm, addButton);
+
+                // Update the total forms count
+                totalFormsInput.value = formCount + 1;
+
+                // Setup delete checkbox for the new form
+                const newDeleteCheckbox = container.querySelector(
+                    '[data-form-index="' + formCount + '"] input[name$="-DELETE"]'
+                );
+                setupDeleteCheckbox(newDeleteCheckbox);
             });
         });
     </script>

@@ -485,7 +485,7 @@ def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
     MeetingFormSet = modelformset_factory(
         CourseMeeting,
         form=CourseMeetingForm,
-        extra=3,  # Number of empty forms to display
+        extra=0,  # JavaScript handles adding new forms dynamically
         can_delete=True,
     )
 
