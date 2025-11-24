@@ -62,7 +62,10 @@ class Command(BaseCommand):
             if meeting.title:
                 message_parts.append(f"Topic: {meeting.title}")
             if course.zoom_meeting_link:
-                message_parts.append(f"Zoom link: {course.zoom_meeting_link}")
+                message_parts.append(
+                    f"Usual Zoom link: {course.zoom_meeting_link} "
+                    "(for irregular times, double-check this)"
+                )
             message_parts.append(
                 f"Full schedule: https://beta.athemath.org{course.get_absolute_url()}"
             )
