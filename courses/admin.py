@@ -95,7 +95,7 @@ class CourseAdmin(admin.ModelAdmin):
 class StudentAdmin(admin.ModelAdmin):
     list_display = ("user", "airtable_name", "semester", "house")
     list_display_links = ("user", "airtable_name")
-    list_filter = ("semester", "house")
+    list_filter = ("semester", "house", ("user", admin.EmptyFieldListFilter))
     search_fields = (
         "user__username",
         "user__email",
