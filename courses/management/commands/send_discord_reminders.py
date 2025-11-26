@@ -50,13 +50,13 @@ class Command(BaseCommand):
             # Prepare Discord message
             unix_timestamp = int(meeting.start_time.timestamp())
             role_mention = (
-                f"<@&{course.discord_role_id}>" if course.discord_role_id else "@here"
+                f"<@&{course.discord_role_id}> " if course.discord_role_id else ""
             )
 
             # Build message content
-            kind = "club" if course.is_club else "class"
+            kind = "event" if course.is_club else "class"
             message_parts = [
-                f"{role_mention} Reminder: the {kind} **{course.name}** is meeting soon!",
+                f"{role_mention}Reminder: the {kind} **{course.name}** is meeting soon!",
                 f"Time: <t:{unix_timestamp}:F> in your time zone --- <t:{unix_timestamp}:R>",
             ]
             if meeting.title:
