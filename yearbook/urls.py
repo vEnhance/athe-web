@@ -21,6 +21,11 @@ urlpatterns = [
         name="entry_list",
     ),
     path(
+        "entry/<int:pk>/",
+        views.YearbookEntryDetailView.as_view(),
+        name="entry_detail",
+    ),
+    path(
         "create/<int:student_pk>/",
         views.YearbookEntryCreateView.as_view(),
         name="create",

@@ -1,8 +1,14 @@
 {% extends "home/base.html" %}
 {% load django_bootstrap5 %}
+{% load static %}
 {% block title %}
     {{ semester }} Yearbook - Athemath
 {% endblock title %}
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/yearbook.css' %}">
+{% endblock extra_css %}
 {% block content %}
     <div id="content">
         <h1>{{ semester }} Yearbook</h1>
@@ -30,41 +36,44 @@
                 <div class="row">
                     {% for entry in house.list %}
                         <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card h-100">
+                            <div class="card h-100 yearbook-card">
                                 <div class="card-body">
-                                    <h4 class="card-title">{{ entry.display_name }}</h4>
-                                    <p class="card-text">{{ entry.bio|linebreaks }}</p>
+                                    <h4 class="card-title">
+                                        <a href="{% url 'yearbook:entry_detail' pk=entry.pk %}"
+                                           class="stretched-link text-decoration-none text-reset">{{ entry.display_name }}</a>
+                                    </h4>
+                                    <p class="card-text text-muted">{{ entry.bio|truncatechars:100 }}</p>
                                     {% if entry.discord_username or entry.instagram_username or entry.github_username or entry.website_url %}
-                                        <hr>
-                                        <div class="small">
+                                        <div class="social-icons d-flex gap-3 mt-2">
                                             {% if entry.discord_username %}
-                                                <p class="mb-1">
-                                                    <strong>Discord:</strong> {{ entry.discord_username }}
-                                                </p>
+                                                <a href="{% url 'yearbook:entry_detail' pk=entry.pk %}"
+                                                   title="Discord: {{ entry.discord_username }}">
+                                                    <i class="bi bi-discord"></i>
+                                                </a>
                                             {% endif %}
                                             {% if entry.instagram_username %}
-                                                <p class="mb-1">
-                                                    <strong>Instagram:</strong>
-                                                    <a href="https://instagram.com/{{ entry.instagram_username }}"
-                                                       target="_blank"
-                                                       rel="noopener noreferrer">@{{ entry.instagram_username }}</a>
-                                                </p>
+                                                <a href="https://instagram.com/{{ entry.instagram_username }}"
+                                                   target="_blank"
+                                                   rel="noopener noreferrer"
+                                                   title="Instagram: @{{ entry.instagram_username }}">
+                                                    <i class="bi bi-instagram"></i>
+                                                </a>
                                             {% endif %}
                                             {% if entry.github_username %}
-                                                <p class="mb-1">
-                                                    <strong>GitHub:</strong>
-                                                    <a href="https://github.com/{{ entry.github_username }}"
-                                                       target="_blank"
-                                                       rel="noopener noreferrer">{{ entry.github_username }}</a>
-                                                </p>
+                                                <a href="https://github.com/{{ entry.github_username }}"
+                                                   target="_blank"
+                                                   rel="noopener noreferrer"
+                                                   title="GitHub: {{ entry.github_username }}">
+                                                    <i class="bi bi-github"></i>
+                                                </a>
                                             {% endif %}
                                             {% if entry.website_url %}
-                                                <p class="mb-1">
-                                                    <strong>Website:</strong>
-                                                    <a href="{{ entry.website_url }}"
-                                                       target="_blank"
-                                                       rel="noopener noreferrer">{{ entry.website_url }}</a>
-                                                </p>
+                                                <a href="{{ entry.website_url }}"
+                                                   target="_blank"
+                                                   rel="noopener noreferrer"
+                                                   title="Website">
+                                                    <i class="bi bi-globe"></i>
+                                                </a>
                                             {% endif %}
                                         </div>
                                     {% endif %}
