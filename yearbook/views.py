@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic import CreateView, ListView, UpdateView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from courses.models import Semester, Student
 
@@ -102,6 +102,35 @@ class YearbookEntryUpdateView(StudentOwnerMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["student"] = self.get_student()
         context["is_create"] = False
+        return context
+
+
+class YearbookEntryDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    """View a single yearbook entry."""
+
+    model = YearbookEntry
+    template_name = "yearbook/yearbookentry_detail.html"
+    context_object_name = "entry"
+
+    def test_func(self) -> bool:
+        assert isinstance(self.request.user, User)
+        if not self.request.user.is_authenticated:
+            return False
+        entry = self.get_object()
+        semester = entry.student.semester
+
+        # Staff can view any entry
+        if self.request.user.is_staff:
+            return True
+
+        # Users with a student in this semester can view
+        return Student.objects.filter(
+            user=self.request.user, semester=semester
+        ).exists()
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["semester"] = self.get_object().student.semester
         return context
 
 

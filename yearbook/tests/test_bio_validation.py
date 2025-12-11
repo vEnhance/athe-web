@@ -13,7 +13,7 @@ from yearbook.models import YearbookEntry
 
 @pytest.mark.django_db
 def test_bio_max_length_validation():
-    """Test that bio is limited to 1000 characters."""
+    """Test that bio is limited to 2000 characters."""
     client = Client()
     semester = Semester.objects.create(
         name="Fall 2025",
@@ -32,7 +32,7 @@ def test_bio_max_length_validation():
     url = reverse("yearbook:create", kwargs={"student_pk": student.pk})
 
     # Try to submit a bio that's too long
-    long_bio = "x" * 1001
+    long_bio = "x" * 2001
     response = client.post(
         url,
         {
@@ -53,7 +53,7 @@ def test_bio_max_length_validation():
 
 @pytest.mark.django_db
 def test_bio_at_max_length_succeeds():
-    """Test that a bio at exactly 1000 characters is accepted."""
+    """Test that a bio at exactly 2000 characters is accepted."""
     client = Client()
     semester = Semester.objects.create(
         name="Fall 2025",
@@ -71,8 +71,8 @@ def test_bio_at_max_length_succeeds():
     client.login(username="owner", password="password")
     url = reverse("yearbook:create", kwargs={"student_pk": student.pk})
 
-    # Submit a bio at exactly 1000 characters
-    max_bio = "x" * 1000
+    # Submit a bio at exactly 2000 characters
+    max_bio = "x" * 2000
     response = client.post(
         url,
         {
@@ -89,4 +89,4 @@ def test_bio_at_max_length_succeeds():
     assert response.status_code == 302
     # Entry should be created
     entry = YearbookEntry.objects.get(student=student)
-    assert len(entry.bio) == 1000
+    assert len(entry.bio) == 2000

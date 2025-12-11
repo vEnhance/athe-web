@@ -15,7 +15,7 @@ class YearbookEntry(models.Model):
         help_text="How you want your name displayed to other students.",
     )
     bio = models.TextField(
-        validators=[MaxLengthValidator(1000)],
+        validators=[MaxLengthValidator(2000)],
         help_text="Tell us about yourself!",
     )
 

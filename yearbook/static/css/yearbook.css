@@ -1,0 +1,16 @@
+.yearbook-card {
+  transition: box-shadow 0.2s ease-in-out;
+}
+.yearbook-card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+.social-icons {
+  position: relative;
+  z-index: 1;
+}
+.social-icons a {
+  text-decoration: none;
+}
+.social-icons .bi {
+  font-size: 1.25rem;
+}

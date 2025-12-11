@@ -21,8 +21,8 @@ class YearbookEntryForm(forms.ModelForm):
             "bio": forms.Textarea(
                 attrs={
                     "placeholder": "Tell us about yourself!",
-                    "rows": 5,
-                    "maxlength": 1000,
+                    "rows": 8,
+                    "maxlength": 2000,
                 }
             ),
             "discord_username": forms.TextInput(
