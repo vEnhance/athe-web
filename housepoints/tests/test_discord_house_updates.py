@@ -179,8 +179,8 @@ def test_discord_house_updates_sends_message():
     assert "5" in message_content
 
     # Should contain the links
-    assert "https://beta.athemath.org/house-points/" in message_content
-    assert "https://beta.athemath.org/house-points/awards/my/" in message_content
+    assert "https://athemath.org/house-points/" in message_content
+    assert "https://athemath.org/house-points/awards/my/" in message_content
 
     # Success message
     assert "Successfully sent" in out.getvalue()

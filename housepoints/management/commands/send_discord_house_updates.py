@@ -106,11 +106,9 @@ class Command(BaseCommand):
         unix_timestamp = int(timezone.now().timestamp())
         message_lines.append("")  # Empty line before links
         message_lines.append(f"Generated at <t:{unix_timestamp}:F>")
+        message_lines.append("_Live scoreboard_: https://athemath.org/house-points/")
         message_lines.append(
-            "_Live scoreboard_: https://beta.athemath.org/house-points/"
-        )
-        message_lines.append(
-            "_Your awards_: https://beta.athemath.org/house-points/awards/my/"
+            "_Your awards_: https://athemath.org/house-points/awards/my/"
         )
 
         message_content = "\n".join(message_lines)

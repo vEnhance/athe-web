@@ -67,7 +67,7 @@ class Command(BaseCommand):
                     "(for irregular times, double-check this)"
                 )
             message_parts.append(
-                f"Full schedule: https://beta.athemath.org{course.get_absolute_url()}"
+                f"Full schedule: https://athemath.org{course.get_absolute_url()}"
             )
 
             message_content = "\n".join(message_parts)
