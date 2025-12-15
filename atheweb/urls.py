@@ -20,8 +20,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
+    path(
+        "favicon.ico",
+        RedirectView.as_view(url="/static/favicon.ico", permanent=True),
+    ),
     path("admin/", admin.site.urls),
     path("hijack/", include("hijack.urls")),
     path("catalog/", include("courses.urls")),
