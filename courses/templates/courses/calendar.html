@@ -165,8 +165,8 @@
                                     <div class="calendar-event event-{{ event.category }}"
                                          data-category="{{ event.category }}">
                                         <a href="{{ event.url }}"
-                                           title="{{ event.title }} - {{ event.start_time|date:'g:i A' }}">
-                                            {{ event.start_time|date:"g:i A" }} {{ event.title }}
+                                           title="{{ event.title }} - {{ event.start_time|date:'H:i' }}">
+                                            {{ event.start_time|date:"H:i" }} {{ event.title }}
                                         </a>
                                     </div>
                                 {% endfor %}
