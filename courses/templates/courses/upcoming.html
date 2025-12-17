@@ -5,9 +5,39 @@
 {% block content %}
     <div id="content">
         <h1>Upcoming Meetings</h1>
-        <p class="text-muted">All upcoming meetings for courses, clubs, and events you're enrolled in.</p>
+        <p class="text-muted">
+            All upcoming meetings for courses, clubs, and events you're enrolled in.
+            <a href="{% url 'courses:calendar' %}">View Calendar</a>
+        </p>
+        {% if upcoming_events %}
+            <h2>Global Events</h2>
+            <div class="mt-3 mb-4">
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="table-dark">
+                            <th>Event</th>
+                            <th>Date/Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in upcoming_events %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'courses:global_event_detail' pk=event.pk %}">{{ event.title }}</a>
+                                    <span class="badge bg-info ms-1">Global</span>
+                                    <br>
+                                    <small class="text-muted">{{ event.semester }}</small>
+                                </td>
+                                <td>{{ event.start_time|date:"F j, Y, g:i A e" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+        <h2>Class/Club Meetings</h2>
         {% if upcoming_meetings %}
-            <div class="mt-4">
+            <div class="mt-3">
                 <table class="table table-striped">
                     <thead>
                         <tr class="table-dark">

@@ -1,0 +1,213 @@
+{% extends "home/base.html" %}
+{% block title %}
+    Calendar - Athemath
+{% endblock title %}
+{% block extra_css %}
+    <style>
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        .calendar-table th {
+            background-color: #343a40;
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: bold;
+        }
+        .calendar-table td {
+            border: 1px solid #dee2e6;
+            vertical-align: top;
+            height: 100px;
+            padding: 0.25rem;
+            background: #fff;
+        }
+        .calendar-table td.other-month {
+            background: #f8f9fa;
+            color: #adb5bd;
+        }
+        .calendar-table td.today {
+            background: #fff3cd;
+        }
+        .day-number {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        .calendar-event {
+            font-size: 0.75rem;
+            padding: 0.15rem 0.25rem;
+            margin-bottom: 0.15rem;
+            border-radius: 3px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .calendar-event a,
+        .calendar-event a:link,
+        .calendar-event a:visited {
+            color: white !important;
+            text-decoration: none;
+        }
+        .calendar-event a:hover {
+            color: white !important;
+            text-decoration: underline;
+        }
+        .event-global {
+            background-color: #dc3545;
+            color: white;
+        }
+        .event-enrolled_class {
+            background-color: #28a745;
+            color: white;
+        }
+        .event-enrolled_club {
+            background-color: #007bff;
+            color: white;
+        }
+        .event-other_club {
+            background-color: #6c757d;
+            color: white;
+        }
+        .calendar-filters {
+            margin-bottom: 1rem;
+        }
+        .calendar-filters label {
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+        .filter-legend {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 4px;
+            border-radius: 2px;
+        }
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        @media (max-width: 768px) {
+            .calendar-table td {
+                height: 80px;
+                font-size: 0.8rem;
+            }
+            .calendar-event {
+                font-size: 0.65rem;
+            }
+        }
+    </style>
+{% endblock extra_css %}
+{% block content %}
+    <div id="content">
+        <h1>Calendar</h1>
+        <p class="text-muted">
+            Monthly view of all meetings and events.
+            <a href="{% url 'courses:upcoming' %}">View Upcoming List</a>
+        </p>
+        <div class="calendar-nav">
+            <a href="?year={{ prev_year }}&amp;month={{ prev_month }}"
+               class="btn btn-secondary btn-sm">&laquo; Previous</a>
+            <div>
+                <strong>{{ month_name }} {{ display_year }}</strong>
+                {% if display_month != today.month or display_year != today.year %}
+                    | <a href="{% url 'courses:calendar' %}">Today</a>
+                {% endif %}
+            </div>
+            <a href="?year={{ next_year }}&amp;month={{ next_month }}"
+               class="btn btn-secondary btn-sm">Next &raquo;</a>
+        </div>
+        <div class="calendar-filters">
+            <strong>Show:</strong>
+            <label>
+                <input type="checkbox" id="filter-global" checked>
+                <span class="filter-legend" style="background-color: #dc3545;"></span>
+                Global Events
+            </label>
+            <label>
+                <input type="checkbox" id="filter-enrolled_class" checked>
+                <span class="filter-legend" style="background-color: #28a745;"></span>
+                My Classes
+            </label>
+            <label>
+                <input type="checkbox" id="filter-enrolled_club" checked>
+                <span class="filter-legend" style="background-color: #007bff;"></span>
+                My Clubs
+            </label>
+            <label>
+                <input type="checkbox" id="filter-other_club">
+                <span class="filter-legend" style="background-color: #6c757d;"></span>
+                Other Clubs
+            </label>
+        </div>
+        <table class="calendar-table">
+            <thead>
+                <tr>
+                    <th>Sun</th>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in weeks_data %}
+                    <tr>
+                        {% for day in week %}
+                            <td class="{% if not day.is_current_month %}other-month{% endif %} {% if day.is_today %}today{% endif %}">
+                                <div class="day-number">{{ day.date.day }}</div>
+                                {% for event in day.events %}
+                                    <div class="calendar-event event-{{ event.category }}"
+                                         data-category="{{ event.category }}">
+                                        <a href="{{ event.url }}"
+                                           title="{{ event.title }} - {{ event.start_time|date:'H:i' }}">
+                                            {{ event.start_time|date:"H:i" }} {{ event.title }}
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock content %}
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filters = ['global', 'enrolled_class', 'enrolled_club', 'other_club'];
+
+            // Load saved preferences from localStorage
+            filters.forEach(function(category) {
+                const checkbox = document.getElementById('filter-' + category);
+                const saved = localStorage.getItem('calendar-filter-' + category);
+                if (saved !== null) {
+                    checkbox.checked = saved === 'true';
+                }
+                applyFilter(category, checkbox.checked);
+            });
+
+            // Add event listeners
+            filters.forEach(function(category) {
+                const checkbox = document.getElementById('filter-' + category);
+                checkbox.addEventListener('change', function() {
+                    applyFilter(category, this.checked);
+                    localStorage.setItem('calendar-filter-' + category, this.checked);
+                });
+            });
+
+            function applyFilter(category, show) {
+                const events = document.querySelectorAll('.calendar-event[data-category="' + category + '"]');
+                events.forEach(function(event) {
+                    event.style.display = show ? 'block' : 'none';
+                });
+            }
+        });
+    </script>
+{% endblock extra_js %}

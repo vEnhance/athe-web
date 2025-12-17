@@ -11,6 +11,7 @@ urlpatterns = [
     path("my-clubs/", views.my_clubs, name="my_clubs"),
     path("past-clubs/", views.past_clubs, name="past_clubs"),
     path("upcoming/", views.upcoming, name="upcoming"),
+    path("calendar/", views.calendar_view, name="calendar"),
     path(
         "bulk-create-students/", views.bulk_create_students, name="bulk_create_students"
     ),
@@ -21,6 +22,11 @@ urlpatterns = [
     path("course/<int:pk>/meetings/", views.manage_meetings, name="manage_meetings"),
     path("club/<int:pk>/join/", views.join_club, name="join_club"),
     path("club/<int:pk>/drop/", views.drop_club, name="drop_club"),
+    path(
+        "event/<int:pk>/",
+        views.GlobalEventDetailView.as_view(),
+        name="global_event_detail",
+    ),
     path("sorting-hat/", views.SortingHatView.as_view(), name="sorting_hat"),
     path("<slug:slug>/", views.course_list, name="course_list"),
 ]

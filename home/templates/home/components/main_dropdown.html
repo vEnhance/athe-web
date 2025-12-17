@@ -1,6 +1,9 @@
 <ul class="dropdown-menu" aria-labelledby="navbarDropdownUser">
     {# Student views #}
     <li>
+        <a class="dropdown-item" href="{% url 'courses:calendar' %}">Calendar</a>
+    </li>
+    <li>
         <a class="dropdown-item" href="{% url 'courses:upcoming' %}">Upcoming</a>
     </li>
     <li>
@@ -8,6 +11,9 @@
     </li>
     <li>
         <a class="dropdown-item" href="{% url 'courses:my_clubs' %}">Clubs and Events</a>
+    </li>
+    <li>
+        <hr class="dropdown-divider">
     </li>
     <li>
         <a class="dropdown-item" href="{% url 'housepoints:leaderboard' %}">House Standings</a>

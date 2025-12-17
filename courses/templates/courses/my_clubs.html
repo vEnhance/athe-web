@@ -10,7 +10,7 @@
         {% else %}
             {% if enrolled_clubs %}
                 <div class="mb-4">
-                    <h2>Enrolled Clubs and Events</h2>
+                    <h2>Enrolled Clubs</h2>
                     <div class="list-group">
                         {% for club in enrolled_clubs %}
                             <div class="list-group-item">
@@ -34,7 +34,7 @@
             {% endif %}
             {% if available_clubs %}
                 <div class="mb-4">
-                    <h2>Available Clubs and Events</h2>
+                    <h2>Available Clubs</h2>
                     <div class="list-group">
                         {% for club in available_clubs %}
                             <div class="list-group-item">
@@ -55,7 +55,29 @@
                     </div>
                 </div>
             {% endif %}
-            {% if not enrolled_clubs and not available_clubs %}
+            {% if global_events %}
+                <div class="mb-4">
+                    <h2>Global Events</h2>
+                    <div class="list-group">
+                        {% for event in global_events %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="mb-1">
+                                            <a href="{% url 'courses:global_event_detail' pk=event.pk %}">{{ event.title }}</a>
+                                            <span class="badge bg-info ms-1">Global</span>
+                                        </h5>
+                                        <p class="mb-1">
+                                            <small class="text-muted">{{ event.start_time|date:"F j, Y, g:i A" }} | {{ event.semester }}</small>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            {% if not enrolled_clubs and not available_clubs and not global_events %}
                 <p>No clubs or events are available in active semesters.</p>
             {% endif %}
         {% endif %}

@@ -212,3 +212,28 @@ class CourseMeeting(models.Model):
 
     class Meta:
         ordering = ("start_time",)
+
+
+class GlobalEvent(models.Model):
+    """All-student events not attached to any particular club/course."""
+
+    semester = models.ForeignKey(
+        Semester, on_delete=models.CASCADE, related_name="global_events"
+    )
+    title = models.CharField(max_length=200, help_text="Title of the event.")
+    start_time = models.DateTimeField(help_text="When this event starts.")
+    description = models.TextField(
+        blank=True, help_text="Optional description of the event."
+    )
+    link = models.URLField(
+        blank=True, help_text="Optional link (e.g. Zoom meeting link)."
+    )
+
+    def __str__(self) -> str:
+        return f"{self.title} ({self.start_time})"
+
+    def get_absolute_url(self) -> str:
+        return reverse("courses:global_event_detail", kwargs={"pk": self.pk})
+
+    class Meta:
+        ordering = ("start_time",)
