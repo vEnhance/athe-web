@@ -280,18 +280,16 @@ class TestCalendarView:
         assert response.status_code == 200
         assert "Calendar Test Event" in response.content.decode()
 
-    def test_calendar_week_navigation(self):
-        """Test calendar week navigation with query parameter."""
+    def test_calendar_month_navigation(self):
+        """Test calendar month navigation with query parameter."""
         client = Client()
         User.objects.create_user(username="user", password="password")
         client.login(username="user", password="password")
 
-        # Navigate to next week
-        next_week = (timezone.now() + timedelta(days=7)).date()
-        response = client.get(
-            reverse("courses:calendar") + f"?week={next_week.isoformat()}"
-        )
+        # Navigate to next month
+        response = client.get(reverse("courses:calendar") + "?year=2025&month=6")
         assert response.status_code == 200
+        assert "June 2025" in response.content.decode()
 
     def test_calendar_shows_enrolled_classes(self):
         """Test that calendar shows enrolled class meetings."""

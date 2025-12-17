@@ -1,3 +1,4 @@
+import calendar
 from datetime import date, datetime, time, timedelta
 
 from django.contrib import messages
@@ -751,24 +752,30 @@ class SortingHatView(UserPassesTestMixin, View):
 @login_required
 def calendar_view(request: HttpRequest) -> HttpResponse:
     """
-    Calendar view showing all events in a 7-day week format.
+    Calendar view showing all events in a monthly format.
     Includes filtering options for different event types.
     """
     assert isinstance(request.user, User)
 
-    # Get current active semesters (for GlobalEvents)
+    # Get current date
     today = date.today()
 
-    # Get the week to display (default to current week)
-    week_param = request.GET.get("week")
-    if week_param:
+    # Get the month to display (default to current month)
+    year_param = request.GET.get("year")
+    month_param = request.GET.get("month")
+    if year_param and month_param:
         try:
-            reference_date = date.fromisoformat(week_param)
+            display_year = int(year_param)
+            display_month = int(month_param)
+            # Validate month range
+            if not 1 <= display_month <= 12:
+                display_year, display_month = today.year, today.month
         except ValueError:
-            reference_date = today
+            display_year, display_month = today.year, today.month
     else:
-        reference_date = today
+        display_year, display_month = today.year, today.month
 
+    # Get active semesters
     active_semesters = Semester.objects.filter(
         start_date__lte=today, end_date__gte=today
     )
@@ -799,8 +806,6 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
             enrolled_class_ids.add(course.id)  # type: ignore[attr-defined]
 
     # Get all active club IDs for "other clubs" category
-    # For staff, show all clubs in active semesters
-    # For students, show clubs from semesters they're enrolled in
     if request.user.is_staff:
         active_club_ids = set(
             Course.objects.filter(
@@ -816,34 +821,32 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
         )
     other_club_ids = active_club_ids - enrolled_club_ids
 
-    # Prepare calendar data structure
-    # Get week start (Sunday) and end (Saturday)
-    week_start = reference_date - timedelta(days=reference_date.weekday() + 1)  # Sunday
-    if reference_date.weekday() == 6:  # If reference_date is Sunday
-        week_start = reference_date
-    week_end = week_start + timedelta(days=6)  # Saturday
+    # Build the calendar grid for the month
+    # Use Sunday as first day of week (6 in Python's calendar module)
+    cal = calendar.Calendar(firstweekday=6)
+    month_days = cal.monthdatescalendar(display_year, display_month)
 
-    # Create a list of days in the week
-    week_days = [week_start + timedelta(days=i) for i in range(7)]
+    # Get the date range for fetching events (full calendar grid)
+    first_day = month_days[0][0]
+    last_day = month_days[-1][-1]
 
-    # Fetch all events within date range
     # Convert dates to timezone-aware datetimes for filtering
     tz = timezone.get_current_timezone()
-    week_start_dt = timezone.make_aware(datetime.combine(week_start, time.min), tz)
-    week_end_dt = timezone.make_aware(datetime.combine(week_end, time.max), tz)
+    range_start_dt = timezone.make_aware(datetime.combine(first_day, time.min), tz)
+    range_end_dt = timezone.make_aware(datetime.combine(last_day, time.max), tz)
 
     # Gather calendar events with categories
-    calendar_events = []
+    calendar_events: list[dict] = []
 
-    # GlobalEvents for active semesters
+    # GlobalEvents
     if request.user.is_staff:
         global_events = GlobalEvent.objects.filter(
-            start_time__range=(week_start_dt, week_end_dt), semester__visible=True
+            start_time__range=(range_start_dt, range_end_dt), semester__visible=True
         ).select_related("semester")
     else:
         student_semester_ids = set(s.semester_id for s in student_records)  # type: ignore[attr-defined]
         global_events = GlobalEvent.objects.filter(
-            start_time__range=(week_start_dt, week_end_dt),
+            start_time__range=(range_start_dt, range_end_dt),
             semester_id__in=student_semester_ids,
             semester__visible=True,
         ).select_related("semester")
@@ -862,7 +865,7 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
     # CourseMeetings for enrolled classes
     class_meetings = CourseMeeting.objects.filter(
         course_id__in=enrolled_class_ids,
-        start_time__range=(week_start_dt, week_end_dt),
+        start_time__range=(range_start_dt, range_end_dt),
     ).select_related("course", "course__semester")
 
     for meeting in class_meetings:
@@ -880,7 +883,7 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
     # CourseMeetings for enrolled clubs
     club_meetings = CourseMeeting.objects.filter(
         course_id__in=enrolled_club_ids,
-        start_time__range=(week_start_dt, week_end_dt),
+        start_time__range=(range_start_dt, range_end_dt),
     ).select_related("course", "course__semester")
 
     for meeting in club_meetings:
@@ -898,7 +901,7 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
     # CourseMeetings for other clubs (not enrolled)
     other_club_meetings = CourseMeeting.objects.filter(
         course_id__in=other_club_ids,
-        start_time__range=(week_start_dt, week_end_dt),
+        start_time__range=(range_start_dt, range_end_dt),
     ).select_related("course", "course__semester")
 
     for meeting in other_club_meetings:
@@ -913,28 +916,58 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
             }
         )
 
-    # Sort events by start time
-    calendar_events.sort(key=lambda e: e["start_time"])
-
-    # Group events by day
-    events_by_day = {day: [] for day in week_days}
+    # Group events by date
+    events_by_day: dict[date, list[dict]] = {}
     for event in calendar_events:
         event_date = timezone.localtime(event["start_time"]).date()
-        if event_date in events_by_day:
-            events_by_day[event_date].append(event)
+        if event_date not in events_by_day:
+            events_by_day[event_date] = []
+        events_by_day[event_date].append(event)
 
-    # Create list of (day, events) tuples for template
-    week_data = [(day, events_by_day[day]) for day in week_days]
+    # Sort events within each day
+    for day_events in events_by_day.values():
+        day_events.sort(key=lambda e: e["start_time"])
+
+    # Build weeks data for template
+    weeks_data = []
+    for week in month_days:
+        week_data = []
+        for day in week:
+            week_data.append(
+                {
+                    "date": day,
+                    "is_current_month": day.month == display_month,
+                    "is_today": day == today,
+                    "events": events_by_day.get(day, []),
+                }
+            )
+        weeks_data.append(week_data)
+
+    # Calculate previous and next month
+    if display_month == 1:
+        prev_year, prev_month = display_year - 1, 12
+    else:
+        prev_year, prev_month = display_year, display_month - 1
+    if display_month == 12:
+        next_year, next_month = display_year + 1, 1
+    else:
+        next_year, next_month = display_year, display_month + 1
+
+    # Month name for display
+    month_name = calendar.month_name[display_month]
 
     return render(
         request,
         "courses/calendar.html",
         {
-            "week_data": week_data,
-            "week_start": week_start,
-            "week_end": week_end,
-            "prev_week_start": week_start - timedelta(days=7),
-            "next_week_start": week_start + timedelta(days=7),
+            "weeks_data": weeks_data,
+            "display_year": display_year,
+            "display_month": display_month,
+            "month_name": month_name,
+            "prev_year": prev_year,
+            "prev_month": prev_month,
+            "next_year": next_year,
+            "next_month": next_month,
             "today": today,
         },
     )

@@ -4,35 +4,45 @@
 {% endblock title %}
 {% block extra_css %}
     <style>
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            margin-top: 1rem;
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
         }
-        .calendar-day {
-            border: 1px solid #dee2e6;
-            min-height: 150px;
+        .calendar-table th {
+            background-color: #343a40;
+            color: white;
             padding: 0.5rem;
+            text-align: center;
+            font-weight: bold;
+        }
+        .calendar-table td {
+            border: 1px solid #dee2e6;
+            vertical-align: top;
+            height: 100px;
+            padding: 0.25rem;
             background: #fff;
         }
-        .calendar-day.today {
+        .calendar-table td.other-month {
+            background: #f8f9fa;
+            color: #adb5bd;
+        }
+        .calendar-table td.today {
             background: #fff3cd;
         }
-        .calendar-day-header {
+        .day-number {
             font-weight: bold;
             font-size: 0.9rem;
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 0.25rem;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
         .calendar-event {
-            font-size: 0.8rem;
-            padding: 0.25rem;
-            margin-bottom: 0.25rem;
+            font-size: 0.75rem;
+            padding: 0.15rem 0.25rem;
+            margin-bottom: 0.15rem;
             border-radius: 3px;
             overflow: hidden;
             text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .calendar-event a {
             color: inherit;
@@ -78,11 +88,12 @@
             margin-bottom: 1rem;
         }
         @media (max-width: 768px) {
-            .calendar-grid {
-                grid-template-columns: 1fr;
+            .calendar-table td {
+                height: 80px;
+                font-size: 0.8rem;
             }
-            .calendar-day {
-                min-height: 100px;
+            .calendar-event {
+                font-size: 0.65rem;
             }
         }
     </style>
@@ -91,20 +102,20 @@
     <div id="content">
         <h1>Calendar</h1>
         <p class="text-muted">
-            Weekly view of all meetings and events.
+            Monthly view of all meetings and events.
             <a href="{% url 'courses:upcoming' %}">View Upcoming List</a>
         </p>
         <div class="calendar-nav">
-            <a href="?week={{ prev_week_start|date:'Y-m-d' }}"
-               class="btn btn-secondary btn-sm">&laquo; Previous Week</a>
+            <a href="?year={{ prev_year }}&amp;month={{ prev_month }}"
+               class="btn btn-secondary btn-sm">&laquo; Previous</a>
             <div>
-                <strong>{{ week_start|date:"M j" }} - {{ week_end|date:"M j, Y" }}</strong>
-                {% if week_start != today %}
+                <strong>{{ month_name }} {{ display_year }}</strong>
+                {% if display_month != today.month or display_year != today.year %}
                     | <a href="{% url 'courses:calendar' %}">Today</a>
                 {% endif %}
             </div>
-            <a href="?week={{ next_week_start|date:'Y-m-d' }}"
-               class="btn btn-secondary btn-sm">Next Week &raquo;</a>
+            <a href="?year={{ next_year }}&amp;month={{ next_month }}"
+               class="btn btn-secondary btn-sm">Next &raquo;</a>
         </div>
         <div class="calendar-filters">
             <strong>Show:</strong>
@@ -129,29 +140,39 @@
                 Other Clubs
             </label>
         </div>
-        <div class="calendar-grid">
-            {% for day, events in week_data %}
-                <div class="calendar-day {% if day == today %}today{% endif %}">
-                    <div class="calendar-day-header">
-                        {{ day|date:"D" }}
-                        <br>
-                        {{ day|date:"M j" }}
-                    </div>
-                    {% for event in events %}
-                        <div class="calendar-event event-{{ event.category }}"
-                             data-category="{{ event.category }}">
-                            <a href="{{ event.url }}"
-                               title="{{ event.title }} - {{ event.start_time|date:'g:i A' }}">
-                                <strong>{{ event.start_time|date:"g:i A" }}</strong>
-                                {{ event.title }}
-                            </a>
-                        </div>
-                    {% empty %}
-                        <small class="text-muted">No events</small>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-        </div>
+        <table class="calendar-table">
+            <thead>
+                <tr>
+                    <th>Sun</th>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in weeks_data %}
+                    <tr>
+                        {% for day in week %}
+                            <td class="{% if not day.is_current_month %}other-month{% endif %} {% if day.is_today %}today{% endif %}">
+                                <div class="day-number">{{ day.date.day }}</div>
+                                {% for event in day.events %}
+                                    <div class="calendar-event event-{{ event.category }}"
+                                         data-category="{{ event.category }}">
+                                        <a href="{{ event.url }}"
+                                           title="{{ event.title }} - {{ event.start_time|date:'g:i A' }}">
+                                            {{ event.start_time|date:"g:i A" }} {{ event.title }}
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock content %}
 {% block extra_js %}
