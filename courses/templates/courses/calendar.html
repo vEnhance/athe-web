@@ -1,0 +1,184 @@
+{% extends "home/base.html" %}
+{% block title %}
+    Calendar - Athemath
+{% endblock title %}
+{% block extra_css %}
+    <style>
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-top: 1rem;
+        }
+        .calendar-day {
+            border: 1px solid #dee2e6;
+            min-height: 150px;
+            padding: 0.5rem;
+            background: #fff;
+        }
+        .calendar-day.today {
+            background: #fff3cd;
+        }
+        .calendar-day-header {
+            font-weight: bold;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .calendar-event {
+            font-size: 0.8rem;
+            padding: 0.25rem;
+            margin-bottom: 0.25rem;
+            border-radius: 3px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .calendar-event a {
+            color: inherit;
+            text-decoration: none;
+        }
+        .calendar-event a:hover {
+            text-decoration: underline;
+        }
+        .event-global {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .event-enrolled_class {
+            background-color: #28a745;
+            color: white;
+        }
+        .event-enrolled_club {
+            background-color: #6f42c1;
+            color: white;
+        }
+        .event-other_club {
+            background-color: #6c757d;
+            color: white;
+        }
+        .calendar-filters {
+            margin-bottom: 1rem;
+        }
+        .calendar-filters label {
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+        .filter-legend {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 4px;
+            border-radius: 2px;
+        }
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        @media (max-width: 768px) {
+            .calendar-grid {
+                grid-template-columns: 1fr;
+            }
+            .calendar-day {
+                min-height: 100px;
+            }
+        }
+    </style>
+{% endblock extra_css %}
+{% block content %}
+    <div id="content">
+        <h1>Calendar</h1>
+        <p class="text-muted">
+            Weekly view of all meetings and events.
+            <a href="{% url 'courses:upcoming' %}">View Upcoming List</a>
+        </p>
+        <div class="calendar-nav">
+            <a href="?week={{ prev_week_start|date:'Y-m-d' }}" class="btn btn-secondary btn-sm">&laquo; Previous Week</a>
+            <div>
+                <strong>{{ week_start|date:"M j" }} - {{ week_end|date:"M j, Y" }}</strong>
+                {% if week_start != today %}
+                    | <a href="{% url 'courses:calendar' %}">Today</a>
+                {% endif %}
+            </div>
+            <a href="?week={{ next_week_start|date:'Y-m-d' }}" class="btn btn-secondary btn-sm">Next Week &raquo;</a>
+        </div>
+        <div class="calendar-filters">
+            <strong>Show:</strong>
+            <label>
+                <input type="checkbox" id="filter-global" checked>
+                <span class="filter-legend" style="background-color: #17a2b8;"></span>
+                Global Events
+            </label>
+            <label>
+                <input type="checkbox" id="filter-enrolled_class" checked>
+                <span class="filter-legend" style="background-color: #28a745;"></span>
+                My Classes
+            </label>
+            <label>
+                <input type="checkbox" id="filter-enrolled_club" checked>
+                <span class="filter-legend" style="background-color: #6f42c1;"></span>
+                My Clubs
+            </label>
+            <label>
+                <input type="checkbox" id="filter-other_club">
+                <span class="filter-legend" style="background-color: #6c757d;"></span>
+                Other Clubs
+            </label>
+        </div>
+        <div class="calendar-grid">
+            {% for day, events in week_data %}
+                <div class="calendar-day {% if day == today %}today{% endif %}">
+                    <div class="calendar-day-header">
+                        {{ day|date:"D" }}<br>
+                        {{ day|date:"M j" }}
+                    </div>
+                    {% for event in events %}
+                        <div class="calendar-event event-{{ event.category }}" data-category="{{ event.category }}">
+                            <a href="{{ event.url }}" title="{{ event.title }} - {{ event.start_time|date:'g:i A' }}">
+                                <strong>{{ event.start_time|date:"g:i A" }}</strong>
+                                {{ event.title }}
+                            </a>
+                        </div>
+                    {% empty %}
+                        <small class="text-muted">No events</small>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filters = ['global', 'enrolled_class', 'enrolled_club', 'other_club'];
+
+            // Load saved preferences from localStorage
+            filters.forEach(function(category) {
+                const checkbox = document.getElementById('filter-' + category);
+                const saved = localStorage.getItem('calendar-filter-' + category);
+                if (saved !== null) {
+                    checkbox.checked = saved === 'true';
+                }
+                applyFilter(category, checkbox.checked);
+            });
+
+            // Add event listeners
+            filters.forEach(function(category) {
+                const checkbox = document.getElementById('filter-' + category);
+                checkbox.addEventListener('change', function() {
+                    applyFilter(category, this.checked);
+                    localStorage.setItem('calendar-filter-' + category, this.checked);
+                });
+            });
+
+            function applyFilter(category, show) {
+                const events = document.querySelectorAll('.calendar-event[data-category="' + category + '"]');
+                events.forEach(function(event) {
+                    event.style.display = show ? 'block' : 'none';
+                });
+            }
+        });
+    </script>
+{% endblock extra_js %}

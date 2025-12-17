@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -18,7 +18,7 @@ from courses.forms import (
     CourseUpdateForm,
     SortingHatForm,
 )
-from courses.models import Course, CourseMeeting, Semester, Student
+from courses.models import Course, CourseMeeting, GlobalEvent, Semester, Student
 
 
 def catalog_root(request: HttpRequest) -> HttpResponse:
@@ -315,15 +315,18 @@ def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
 
 @login_required
 def upcoming(request: HttpRequest) -> HttpResponse:
-    """Show all upcoming meetings for courses/clubs the user is enrolled in or leads."""
+    """Show all upcoming meetings and events for courses/clubs the user is enrolled in or leads."""
+    assert isinstance(request.user, User)
     # Get all student records for this user
     student_records = Student.objects.filter(user=request.user).prefetch_related(
         "enrolled_courses"
     )
 
-    # Collect all enrolled course IDs
+    # Collect all enrolled course IDs and semester IDs
     enrolled_course_ids = set()
+    enrolled_semester_ids = set()
     for student in student_records:
+        enrolled_semester_ids.add(student.semester_id)  # type: ignore[attr-defined]
         for course in student.enrolled_courses.all():  # type: ignore[attr-defined]
             enrolled_course_ids.add(course.id)  # type: ignore[attr-defined]
 
@@ -331,6 +334,7 @@ def upcoming(request: HttpRequest) -> HttpResponse:
     led_courses = Course.objects.filter(leaders=request.user)
     for course in led_courses:
         enrolled_course_ids.add(course.id)  # type: ignore[attr-defined]
+        enrolled_semester_ids.add(course.semester_id)  # type: ignore[attr-defined]
 
     # Get all future meetings for those courses
     now = timezone.now()
@@ -342,10 +346,26 @@ def upcoming(request: HttpRequest) -> HttpResponse:
         .order_by("start_time")
     )
 
+    # Get all future global events for semesters where user is enrolled or leads
+    # Staff can see all visible semester events
+    if request.user.is_staff:
+        upcoming_events = GlobalEvent.objects.filter(
+            start_time__gte=now, semester__visible=True
+        ).select_related("semester")
+    else:
+        upcoming_events = GlobalEvent.objects.filter(
+            start_time__gte=now,
+            semester_id__in=enrolled_semester_ids,
+            semester__visible=True,
+        ).select_related("semester")
+
     return render(
         request,
         "courses/upcoming.html",
-        {"upcoming_meetings": upcoming_meetings},
+        {
+            "upcoming_meetings": upcoming_meetings,
+            "upcoming_events": upcoming_events,
+        },
     )
 
 
@@ -726,3 +746,227 @@ class SortingHatView(UserPassesTestMixin, View):
             "courses/sorting_hat.html",
             {"form": form, "results": results},
         )
+
+
+@login_required
+def calendar_view(request: HttpRequest) -> HttpResponse:
+    """
+    Calendar view showing all events in a 7-day week format.
+    Includes filtering options for different event types.
+    """
+    assert isinstance(request.user, User)
+
+    # Get current active semesters (for GlobalEvents)
+    today = date.today()
+
+    # Get the week to display (default to current week)
+    week_param = request.GET.get("week")
+    if week_param:
+        try:
+            reference_date = date.fromisoformat(week_param)
+        except ValueError:
+            reference_date = today
+    else:
+        reference_date = today
+
+    active_semesters = Semester.objects.filter(
+        start_date__lte=today, end_date__gte=today
+    )
+    if not request.user.is_staff:
+        active_semesters = active_semesters.filter(visible=True)
+
+    # Get user's student records and enrolled courses
+    student_records = Student.objects.filter(user=request.user).select_related(
+        "semester"
+    )
+
+    # Get user's enrolled course IDs (classes and clubs separately)
+    enrolled_class_ids = set()
+    enrolled_club_ids = set()
+    for student in student_records:
+        for course in student.enrolled_courses.all():  # type: ignore[attr-defined]
+            if course.is_club:  # type: ignore[attr-defined]
+                enrolled_club_ids.add(course.id)  # type: ignore[attr-defined]
+            else:
+                enrolled_class_ids.add(course.id)  # type: ignore[attr-defined]
+
+    # Get all courses where user is a leader
+    led_courses = Course.objects.filter(leaders=request.user)
+    for course in led_courses:
+        if course.is_club:
+            enrolled_club_ids.add(course.id)  # type: ignore[attr-defined]
+        else:
+            enrolled_class_ids.add(course.id)  # type: ignore[attr-defined]
+
+    # Get all active club IDs for "other clubs" category
+    # For staff, show all clubs in active semesters
+    # For students, show clubs from semesters they're enrolled in
+    if request.user.is_staff:
+        active_club_ids = set(
+            Course.objects.filter(
+                is_club=True, semester__in=active_semesters
+            ).values_list("id", flat=True)
+        )
+    else:
+        student_semester_ids = set(s.semester_id for s in student_records)  # type: ignore[attr-defined]
+        active_club_ids = set(
+            Course.objects.filter(
+                is_club=True, semester_id__in=student_semester_ids
+            ).values_list("id", flat=True)
+        )
+    other_club_ids = active_club_ids - enrolled_club_ids
+
+    # Prepare calendar data structure
+    # Get week start (Sunday) and end (Saturday)
+    week_start = reference_date - timedelta(days=reference_date.weekday() + 1)  # Sunday
+    if reference_date.weekday() == 6:  # If reference_date is Sunday
+        week_start = reference_date
+    week_end = week_start + timedelta(days=6)  # Saturday
+
+    # Create a list of days in the week
+    week_days = [week_start + timedelta(days=i) for i in range(7)]
+
+    # Fetch all events within date range
+    # Convert dates to timezone-aware datetimes for filtering
+    tz = timezone.get_current_timezone()
+    week_start_dt = timezone.make_aware(datetime.combine(week_start, time.min), tz)
+    week_end_dt = timezone.make_aware(datetime.combine(week_end, time.max), tz)
+
+    # Gather calendar events with categories
+    calendar_events = []
+
+    # GlobalEvents for active semesters
+    if request.user.is_staff:
+        global_events = GlobalEvent.objects.filter(
+            start_time__range=(week_start_dt, week_end_dt), semester__visible=True
+        ).select_related("semester")
+    else:
+        student_semester_ids = set(s.semester_id for s in student_records)  # type: ignore[attr-defined]
+        global_events = GlobalEvent.objects.filter(
+            start_time__range=(week_start_dt, week_end_dt),
+            semester_id__in=student_semester_ids,
+            semester__visible=True,
+        ).select_related("semester")
+
+    for event in global_events:
+        calendar_events.append(
+            {
+                "title": event.title,
+                "start_time": event.start_time,
+                "category": "global",
+                "url": event.get_absolute_url(),
+                "semester": event.semester.name,
+            }
+        )
+
+    # CourseMeetings for enrolled classes
+    class_meetings = CourseMeeting.objects.filter(
+        course_id__in=enrolled_class_ids,
+        start_time__range=(week_start_dt, week_end_dt),
+    ).select_related("course", "course__semester")
+
+    for meeting in class_meetings:
+        calendar_events.append(
+            {
+                "title": meeting.course.name
+                + (f": {meeting.title}" if meeting.title else ""),
+                "start_time": meeting.start_time,
+                "category": "enrolled_class",
+                "url": meeting.course.get_absolute_url(),
+                "semester": meeting.course.semester.name,
+            }
+        )
+
+    # CourseMeetings for enrolled clubs
+    club_meetings = CourseMeeting.objects.filter(
+        course_id__in=enrolled_club_ids,
+        start_time__range=(week_start_dt, week_end_dt),
+    ).select_related("course", "course__semester")
+
+    for meeting in club_meetings:
+        calendar_events.append(
+            {
+                "title": meeting.course.name
+                + (f": {meeting.title}" if meeting.title else ""),
+                "start_time": meeting.start_time,
+                "category": "enrolled_club",
+                "url": meeting.course.get_absolute_url(),
+                "semester": meeting.course.semester.name,
+            }
+        )
+
+    # CourseMeetings for other clubs (not enrolled)
+    other_club_meetings = CourseMeeting.objects.filter(
+        course_id__in=other_club_ids,
+        start_time__range=(week_start_dt, week_end_dt),
+    ).select_related("course", "course__semester")
+
+    for meeting in other_club_meetings:
+        calendar_events.append(
+            {
+                "title": meeting.course.name
+                + (f": {meeting.title}" if meeting.title else ""),
+                "start_time": meeting.start_time,
+                "category": "other_club",
+                "url": meeting.course.get_absolute_url(),
+                "semester": meeting.course.semester.name,
+            }
+        )
+
+    # Sort events by start time
+    calendar_events.sort(key=lambda e: e["start_time"])
+
+    # Group events by day
+    events_by_day = {day: [] for day in week_days}
+    for event in calendar_events:
+        event_date = timezone.localtime(event["start_time"]).date()
+        if event_date in events_by_day:
+            events_by_day[event_date].append(event)
+
+    # Create list of (day, events) tuples for template
+    week_data = [(day, events_by_day[day]) for day in week_days]
+
+    return render(
+        request,
+        "courses/calendar.html",
+        {
+            "week_data": week_data,
+            "week_start": week_start,
+            "week_end": week_end,
+            "prev_week_start": week_start - timedelta(days=7),
+            "next_week_start": week_start + timedelta(days=7),
+            "today": today,
+        },
+    )
+
+
+class GlobalEventDetailView(UserPassesTestMixin, DetailView):
+    """
+    Detail view for a global event.
+    Only accessible to staff or students from the event's semester.
+    """
+
+    model = GlobalEvent
+    template_name = "courses/global_event_detail.html"
+    context_object_name = "event"
+
+    def test_func(self) -> bool:
+        """Check access permissions for global events."""
+        if not self.request.user.is_authenticated:
+            return False
+        assert isinstance(self.request.user, User)
+
+        event = self.get_object()
+
+        # Staff users have access to everything
+        if self.request.user.is_staff:
+            return True
+
+        # Non-staff users cannot access events in invisible semesters
+        if not event.semester.visible:
+            return False
+
+        # Students from the event's semester can access
+        return Student.objects.filter(
+            user=self.request.user, semester=event.semester
+        ).exists()

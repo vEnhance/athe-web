@@ -27,6 +27,10 @@ urlpatterns = [
         "favicon.ico",
         RedirectView.as_view(url="/static/favicon.ico", permanent=True),
     ),
+    path(
+        "cal/",
+        RedirectView.as_view(pattern_name="courses:calendar", permanent=False),
+    ),
     path("admin/", admin.site.urls),
     path("hijack/", include("hijack.urls")),
     path("catalog/", include("courses.urls")),
