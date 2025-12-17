@@ -156,6 +156,31 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
     led_clubs_list = list(led_clubs)
 
     assert isinstance(request.user, User)
+
+    # Get GlobalEvents for active semesters
+    if request.user.is_staff:
+        # Staff see all global events in visible active semesters
+        global_events = (
+            GlobalEvent.objects.filter(
+                semester__start_date__lte=today,
+                semester__end_date__gte=today,
+                semester__visible=True,
+            )
+            .select_related("semester")
+            .order_by("start_time")
+        )
+    else:
+        # Students see global events from semesters they're enrolled in
+        student_semester_ids = [s.semester_id for s in active_student_records_list]  # type: ignore[attr-defined]
+        global_events = (
+            GlobalEvent.objects.filter(
+                semester_id__in=student_semester_ids,
+                semester__visible=True,
+            )
+            .select_related("semester")
+            .order_by("start_time")
+        )
+
     if request.user.is_staff:
         return render(
             request,
@@ -167,6 +192,7 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
                     semester__start_date__lte=today,
                     semester__end_date__gte=today,
                 ).exclude(pk__in=led_clubs.values_list("pk", flat=True)),
+                "global_events": global_events,
                 "has_active_semester": True,
             },
         )
@@ -178,6 +204,7 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
             {
                 "enrolled_clubs": [],
                 "available_clubs": [],
+                "global_events": [],
                 "has_active_semester": False,
             },
         )
@@ -220,6 +247,7 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
         {
             "enrolled_clubs": enrolled_clubs,
             "available_clubs": available_clubs,
+            "global_events": global_events,
             "has_active_semester": True,
         },
     )
