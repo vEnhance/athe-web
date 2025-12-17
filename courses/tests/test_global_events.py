@@ -62,7 +62,9 @@ class TestGlobalEventDetailView:
         )
 
         client.login(username="staff", password="password")
-        response = client.get(reverse("courses:global_event_detail", kwargs={"pk": event.pk}))
+        response = client.get(
+            reverse("courses:global_event_detail", kwargs={"pk": event.pk})
+        )
         assert response.status_code == 200
         assert "Welcome Event" in response.content.decode()
 
@@ -76,7 +78,9 @@ class TestGlobalEventDetailView:
             start_date=timezone.now().date(),
             end_date=(timezone.now() + timedelta(days=90)).date(),
         )
-        Student.objects.create(user=user, semester=semester, airtable_name="Test Student")
+        Student.objects.create(
+            user=user, semester=semester, airtable_name="Test Student"
+        )
         event = GlobalEvent.objects.create(
             semester=semester,
             title="Welcome Event",
@@ -84,7 +88,9 @@ class TestGlobalEventDetailView:
         )
 
         client.login(username="student", password="password")
-        response = client.get(reverse("courses:global_event_detail", kwargs={"pk": event.pk}))
+        response = client.get(
+            reverse("courses:global_event_detail", kwargs={"pk": event.pk})
+        )
         assert response.status_code == 200
 
     def test_unenrolled_student_cannot_access(self):
@@ -104,7 +110,9 @@ class TestGlobalEventDetailView:
         )
 
         client.login(username="student", password="password")
-        response = client.get(reverse("courses:global_event_detail", kwargs={"pk": event.pk}))
+        response = client.get(
+            reverse("courses:global_event_detail", kwargs={"pk": event.pk})
+        )
         assert response.status_code == 403
 
     def test_invisible_semester_blocked_for_non_staff(self):
@@ -118,7 +126,9 @@ class TestGlobalEventDetailView:
             end_date=(timezone.now() + timedelta(days=90)).date(),
             visible=False,
         )
-        Student.objects.create(user=user, semester=semester, airtable_name="Test Student")
+        Student.objects.create(
+            user=user, semester=semester, airtable_name="Test Student"
+        )
         event = GlobalEvent.objects.create(
             semester=semester,
             title="Welcome Event",
@@ -126,7 +136,9 @@ class TestGlobalEventDetailView:
         )
 
         client.login(username="student", password="password")
-        response = client.get(reverse("courses:global_event_detail", kwargs={"pk": event.pk}))
+        response = client.get(
+            reverse("courses:global_event_detail", kwargs={"pk": event.pk})
+        )
         assert response.status_code == 403
 
     def test_event_with_link_and_description(self):
@@ -148,7 +160,9 @@ class TestGlobalEventDetailView:
         )
 
         client.login(username="staff", password="password")
-        response = client.get(reverse("courses:global_event_detail", kwargs={"pk": event.pk}))
+        response = client.get(
+            reverse("courses:global_event_detail", kwargs={"pk": event.pk})
+        )
         assert response.status_code == 200
         content = response.content.decode()
         assert "This is a test event" in content
@@ -167,8 +181,10 @@ class TestUpcomingView:
             start_date=timezone.now().date(),
             end_date=(timezone.now() + timedelta(days=90)).date(),
         )
-        Student.objects.create(user=user, semester=semester, airtable_name="Test Student")
-        event = GlobalEvent.objects.create(
+        Student.objects.create(
+            user=user, semester=semester, airtable_name="Test Student"
+        )
+        GlobalEvent.objects.create(
             semester=semester,
             title="Upcoming Global Event",
             start_time=timezone.now() + timedelta(hours=1),
@@ -191,7 +207,9 @@ class TestUpcomingView:
             start_date=timezone.now().date(),
             end_date=(timezone.now() + timedelta(days=90)).date(),
         )
-        Student.objects.create(user=user, semester=semester, airtable_name="Test Student")
+        Student.objects.create(
+            user=user, semester=semester, airtable_name="Test Student"
+        )
         GlobalEvent.objects.create(
             semester=semester,
             title="Past Event",
@@ -247,7 +265,9 @@ class TestCalendarView:
             start_date=today,
             end_date=today + timedelta(days=90),
         )
-        Student.objects.create(user=user, semester=semester, airtable_name="Test Student")
+        Student.objects.create(
+            user=user, semester=semester, airtable_name="Test Student"
+        )
         # Create event for today
         GlobalEvent.objects.create(
             semester=semester,
@@ -268,7 +288,9 @@ class TestCalendarView:
 
         # Navigate to next week
         next_week = (timezone.now() + timedelta(days=7)).date()
-        response = client.get(reverse("courses:calendar") + f"?week={next_week.isoformat()}")
+        response = client.get(
+            reverse("courses:calendar") + f"?week={next_week.isoformat()}"
+        )
         assert response.status_code == 200
 
     def test_calendar_shows_enrolled_classes(self):
@@ -282,7 +304,9 @@ class TestCalendarView:
             start_date=today,
             end_date=today + timedelta(days=90),
         )
-        student = Student.objects.create(user=user, semester=semester, airtable_name="Test Student")
+        student = Student.objects.create(
+            user=user, semester=semester, airtable_name="Test Student"
+        )
         course = Course.objects.create(
             name="Test Class",
             semester=semester,
@@ -312,7 +336,9 @@ class TestCalendarView:
             start_date=today,
             end_date=today + timedelta(days=90),
         )
-        student = Student.objects.create(user=user, semester=semester, airtable_name="Test Student")
+        student = Student.objects.create(
+            user=user, semester=semester, airtable_name="Test Student"
+        )
         club = Course.objects.create(
             name="Test Club",
             semester=semester,
@@ -342,7 +368,9 @@ class TestCalendarView:
             start_date=today,
             end_date=today + timedelta(days=90),
         )
-        Student.objects.create(user=user, semester=semester, airtable_name="Test Student")
+        Student.objects.create(
+            user=user, semester=semester, airtable_name="Test Student"
+        )
         club = Course.objects.create(
             name="Other Club",
             semester=semester,

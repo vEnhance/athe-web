@@ -95,14 +95,16 @@
             <a href="{% url 'courses:upcoming' %}">View Upcoming List</a>
         </p>
         <div class="calendar-nav">
-            <a href="?week={{ prev_week_start|date:'Y-m-d' }}" class="btn btn-secondary btn-sm">&laquo; Previous Week</a>
+            <a href="?week={{ prev_week_start|date:'Y-m-d' }}"
+               class="btn btn-secondary btn-sm">&laquo; Previous Week</a>
             <div>
                 <strong>{{ week_start|date:"M j" }} - {{ week_end|date:"M j, Y" }}</strong>
                 {% if week_start != today %}
                     | <a href="{% url 'courses:calendar' %}">Today</a>
                 {% endif %}
             </div>
-            <a href="?week={{ next_week_start|date:'Y-m-d' }}" class="btn btn-secondary btn-sm">Next Week &raquo;</a>
+            <a href="?week={{ next_week_start|date:'Y-m-d' }}"
+               class="btn btn-secondary btn-sm">Next Week &raquo;</a>
         </div>
         <div class="calendar-filters">
             <strong>Show:</strong>
@@ -131,12 +133,15 @@
             {% for day, events in week_data %}
                 <div class="calendar-day {% if day == today %}today{% endif %}">
                     <div class="calendar-day-header">
-                        {{ day|date:"D" }}<br>
+                        {{ day|date:"D" }}
+                        <br>
                         {{ day|date:"M j" }}
                     </div>
                     {% for event in events %}
-                        <div class="calendar-event event-{{ event.category }}" data-category="{{ event.category }}">
-                            <a href="{{ event.url }}" title="{{ event.title }} - {{ event.start_time|date:'g:i A' }}">
+                        <div class="calendar-event event-{{ event.category }}"
+                             data-category="{{ event.category }}">
+                            <a href="{{ event.url }}"
+                               title="{{ event.title }} - {{ event.start_time|date:'g:i A' }}">
                                 <strong>{{ event.start_time|date:"g:i A" }}</strong>
                                 {{ event.title }}
                             </a>
