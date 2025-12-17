@@ -85,6 +85,9 @@ def course_list(request: HttpRequest, slug: str) -> HttpResponse:
 @login_required
 def my_courses(request: HttpRequest) -> HttpResponse:
     """Show all courses (non-clubs) the current user is enrolled in or leads."""
+    assert isinstance(request.user, User)
+    today = date.today()
+
     # Use Prefetch to filter enrolled courses at the database level
     student_records = Student.objects.filter(user=request.user).prefetch_related(
         Prefetch(
@@ -113,10 +116,37 @@ def my_courses(request: HttpRequest) -> HttpResponse:
     enrolled_courses = list(all_courses.values())
     enrolled_courses.sort(key=lambda c: (-c.semester.start_date.toordinal(), c.name))
 
+    # Get GlobalEvents for semesters the user is enrolled in
+    if request.user.is_staff:
+        # Staff see all global events in visible active semesters
+        global_events = (
+            GlobalEvent.objects.filter(
+                semester__start_date__lte=today,
+                semester__end_date__gte=today,
+                semester__visible=True,
+            )
+            .select_related("semester")
+            .order_by("start_time")
+        )
+    else:
+        # Students see global events from semesters they're enrolled in
+        student_semester_ids = [s.semester_id for s in student_records]  # type: ignore[attr-defined]
+        global_events = (
+            GlobalEvent.objects.filter(
+                semester_id__in=student_semester_ids,
+                semester__visible=True,
+            )
+            .select_related("semester")
+            .order_by("start_time")
+        )
+
     return render(
         request,
         "courses/my_courses.html",
-        {"enrolled_courses": enrolled_courses},
+        {
+            "enrolled_courses": enrolled_courses,
+            "global_events": global_events,
+        },
     )
 
 
