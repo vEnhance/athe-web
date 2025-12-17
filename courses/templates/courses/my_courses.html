@@ -5,28 +5,6 @@
 {% block content %}
     <div id="content">
         <h1>My Classes</h1>
-        {% if global_events %}
-            <div class="mb-4">
-                <h2>Global Events</h2>
-                <div class="list-group">
-                    {% for event in global_events %}
-                        <div class="list-group-item">
-                            <div class="d-flex w-100 justify-content-between align-items-start">
-                                <div>
-                                    <h5 class="mb-1">
-                                        <a href="{% url 'courses:global_event_detail' pk=event.pk %}">{{ event.title }}</a>
-                                        <span class="badge bg-info ms-1">Global</span>
-                                    </h5>
-                                    <p class="mb-1">
-                                        <small class="text-muted">{{ event.start_time|date:"F j, Y, g:i A" }} | {{ event.semester }}</small>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
         {% if enrolled_courses %}
             <h2>Classes</h2>
             <div class="list-group mt-3">
@@ -50,6 +28,28 @@
             </div>
         {% else %}
             <p>You are not currently enrolled in any courses.</p>
+        {% endif %}
+        {% if global_events %}
+            <div class="mb-4">
+                <h2>Global Events</h2>
+                <div class="list-group">
+                    {% for event in global_events %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="mb-1">
+                                        <a href="{% url 'courses:global_event_detail' pk=event.pk %}">{{ event.title }}</a>
+                                        <span class="badge bg-info ms-1">Global</span>
+                                    </h5>
+                                    <p class="mb-1">
+                                        <small class="text-muted">{{ event.start_time|date:"F j, Y, g:i A" }} | {{ event.semester }}</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
         {% endif %}
     </div>
 {% endblock content %}
