@@ -559,10 +559,6 @@ def house_detail_staff(request: HttpRequest, slug: str, house: str) -> HttpRespo
 
     # Get awards for this house, respecting freeze date
     awards_query = Award.objects.filter(semester=semester, house=house)
-    if semester.house_points_freeze_date:
-        awards_query = awards_query.filter(
-            awarded_at__lte=semester.house_points_freeze_date
-        )
 
     # Get all students in this house for the semester
     students = (
