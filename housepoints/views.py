@@ -557,7 +557,7 @@ def house_detail_staff(request: HttpRequest, slug: str, house: str) -> HttpRespo
         messages.error(request, "Invalid house specified.")
         return redirect("housepoints:leaderboard_semester", slug=slug)
 
-    # Get awards for this house, respecting freeze date
+    # Get awards for this house, NOT respecting freeze date
     awards_query = Award.objects.filter(semester=semester, house=house)
 
     # Get all students in this house for the semester
@@ -584,12 +584,8 @@ def house_detail_staff(request: HttpRequest, slug: str, house: str) -> HttpRespo
     column_totals = {at: 0 for at in used_award_types}
 
     for student in students:
-        # Get points per category for this student
+        # Get points per category for this student, NOT following freeze date
         student_awards = awards_query.filter(student=student)
-        if semester.house_points_freeze_date:
-            student_awards = student_awards.filter(
-                awarded_at__lte=semester.house_points_freeze_date
-            )
 
         category_points = dict(
             student_awards.values("award_type")
