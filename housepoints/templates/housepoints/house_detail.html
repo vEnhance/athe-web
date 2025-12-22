@@ -23,8 +23,7 @@
                         Points awarded after this date are not shown.
                         {% if user.is_staff %}
                             Staff members can
-                            <a href="{% url 'housepoints:house_detail_staff' slug=semester.slug house=house %}"
-                               class="btn btn-outline-primary">view true totals</a>.
+                            <a href="{% url 'housepoints:house_detail_staff' slug=semester.slug house=house %}">view true totals</a>.
                         {% endif %}
                     </div>
                 {% endif %}
