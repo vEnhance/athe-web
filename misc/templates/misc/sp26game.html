@@ -1,22 +1,22 @@
 {% extends "home/base.html" %}
 {% load static %}
 {% block title %}
-    athemath battle
+    athe battle
 {% endblock title %}
 {% block content %}
     <div id="content">
-        <h1>athemath battle</h1>
+        <h1>athe battle</h1>
         <div id="game-container">
             <div id="setup-screen">
                 <div class="card p-4">
-                    <h2>Setup</h2>
-                    <p class="mb-3">Configure your monsters for battle:</p>
+                    <p>Set up your enemy monsters!</p>
+                    <button id="start-button" class="btn btn-primary btn-lg w-100">Start Battle</button>
+                    <h3>Monsters</h3>
                     <div id="monster-forms-container"></div>
                     <div class="d-flex gap-2 mb-3">
-                        <button id="add-monster-button" class="btn btn-success">+ Add Monster</button>
-                        <button id="remove-monster-button" class="btn btn-danger">- Remove Last</button>
+                        <button id="add-monster-button" class="btn btn-primary">+ Add Monster</button>
+                        <button id="remove-monster-button" class="btn btn-secondary">- Remove Last</button>
                     </div>
-                    <button id="start-button" class="btn btn-primary btn-lg w-100">Start Battle</button>
                 </div>
             </div>
             <div id="game-screen" style="display: none;">
@@ -36,7 +36,7 @@
     </div>
     <style>
         #game-container {
-            max-width: 600px;
+            max-width: 720px;
             margin: 20px auto;
         }
         #monster-input {
@@ -96,17 +96,16 @@
         startButton.addEventListener('click', startGame);
         resetButton.addEventListener('click', resetGame);
         undoButton.addEventListener('click', undoMove);
-        addMonsterButton.addEventListener('click', addMonsterForm);
+        addMonsterButton.addEventListener('click', () => addMonsterForm());
         removeMonsterButton.addEventListener('click', removeMonsterForm);
 
-        function addMonsterForm(hp = 2, attack = 5) {
+        function addMonsterForm(hp = 3, attack = 5) {
             monsterFormCount++;
             const formId = monsterFormCount;
             const formDiv = document.createElement('div');
             formDiv.className = 'card mb-3 p-3 bg-light';
             formDiv.id = `monster-form-${formId}`;
             formDiv.innerHTML = `
-                <h5 class="mb-3">Monster ${formId}</h5>
                 <div class="mb-3">
                     <div class="row align-items-center">
                         <div class="col-auto">
@@ -267,7 +266,7 @@
             updateUndoButton();
 
             if (aliveMonsters.length === 0) {
-                victoryMessage.textContent = `All enemies defeated! Total damage taken: ${totalDamage}`;
+                victoryMessage.textContent = `All monsters defeated! Total damage taken: ${totalDamage}`;
                 victoryMessage.style.display = 'block';
             }
         }
