@@ -40,6 +40,7 @@ urlpatterns = [
     path("reg/", include("reg.urls")),
     path("yearbook/", include("yearbook.urls")),
     path("blog/", include("weblog.urls")),
+    path("misc/", include("misc.urls")),
     path(
         "login/",
         auth_views.LoginView.as_view(),

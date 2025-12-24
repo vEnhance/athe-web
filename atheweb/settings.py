@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     "courses",
     "home",
     "housepoints",
+    "misc",
     "reg",
     "ta_attendance",
     "weblog",
