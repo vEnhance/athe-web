@@ -7,19 +7,19 @@
     <div id="content">
         <h1>athe battle</h1>
         <div id="game-container">
-            <div id="setup-screen">
+            <div id="setup-screen" style="display: none;">
                 <div class="card p-4">
                     <p>Set up your enemy monsters!</p>
-                    <button id="start-button" class="btn btn-primary btn-lg w-100">Start Battle</button>
                     <h3>Monsters</h3>
                     <div id="monster-forms-container"></div>
                     <div class="d-flex gap-2 mb-3">
                         <button id="add-monster-button" class="btn btn-primary">+ Add Monster</button>
                         <button id="remove-monster-button" class="btn btn-secondary">- Remove Last</button>
                     </div>
+                    <button id="start-button" class="btn btn-primary btn-lg w-100">Start Battle</button>
                 </div>
             </div>
-            <div id="game-screen" style="display: none;">
+            <div id="game-screen">
                 <div class="alert alert-secondary">
                     <h3>
                         Total Damage Taken: <span id="total-damage">0</span>
@@ -27,7 +27,8 @@
                 </div>
                 <div id="monsters-container"></div>
                 <button id="undo-button" class="btn btn-secondary me-2">Undo</button>
-                <button id="reset-button" class="btn btn-primary">Reset Game</button>
+                <button id="restart-button" class="btn btn-warning me-2">Restart Game</button>
+                <button id="setup-button" class="btn btn-primary">Setup Game</button>
                 <div id="victory-message"
                      class="alert alert-success mt-3"
                      style="display: none"></div>
@@ -77,6 +78,7 @@
     </style>
     <script>
         let monsters = [];
+        let initialMonsters = [];
         let totalDamage = 0;
         let history = [];
         let monsterFormCount = 0;
@@ -84,7 +86,8 @@
         const setupScreen = document.getElementById('setup-screen');
         const gameScreen = document.getElementById('game-screen');
         const startButton = document.getElementById('start-button');
-        const resetButton = document.getElementById('reset-button');
+        const setupButton = document.getElementById('setup-button');
+        const restartButton = document.getElementById('restart-button');
         const undoButton = document.getElementById('undo-button');
         const addMonsterButton = document.getElementById('add-monster-button');
         const removeMonsterButton = document.getElementById('remove-monster-button');
@@ -94,7 +97,8 @@
         const victoryMessage = document.getElementById('victory-message');
 
         startButton.addEventListener('click', startGame);
-        resetButton.addEventListener('click', resetGame);
+        setupButton.addEventListener('click', goToSetup);
+        restartButton.addEventListener('click', restartGame);
         undoButton.addEventListener('click', undoMove);
         addMonsterButton.addEventListener('click', () => addMonsterForm());
         removeMonsterButton.addEventListener('click', removeMonsterForm);
@@ -175,12 +179,8 @@
             }
         }
 
-        // Initialize with default monsters
-        addMonsterForm(2, 5);
-        addMonsterForm(3, 6);
-
         function startGame() {
-            monsters = [];
+            initialMonsters = [];
 
             for (let i = 1; i <= monsterFormCount; i++) {
                 const hpInput = document.getElementById(`hp-input-${i}`);
@@ -189,30 +189,34 @@
                 if (hpInput && attackInput) {
                     const hp = parseInt(hpInput.value);
                     const attack = parseInt(attackInput.value);
-                    monsters.push({ hp, maxHp: hp, attack, id: Math.random() });
+                    initialMonsters.push({ hp, maxHp: hp, attack });
                 }
             }
 
-            if (monsters.length === 0) {
+            if (initialMonsters.length === 0) {
                 alert('Please add at least one monster!');
                 return;
             }
 
+            setupScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            restartGame();
+        }
+
+        function restartGame() {
+            monsters = JSON.parse(JSON.stringify(initialMonsters));
+            monsters.forEach(m => m.id = Math.random());
             totalDamage = 0;
             history = [];
             victoryMessage.style.display = 'none';
-            setupScreen.style.display = 'none';
-            gameScreen.style.display = 'block';
             renderMonsters();
             updateDamage();
             updateUndoButton();
         }
 
-        function resetGame() {
+        function goToSetup() {
             setupScreen.style.display = 'block';
             gameScreen.style.display = 'none';
-            monsters = [];
-            totalDamage = 0;
         }
 
         function renderMonsters() {
@@ -291,5 +295,10 @@
         function updateDamage() {
             totalDamageSpan.textContent = totalDamage;
         }
+
+        // Initialize with default monsters and auto-start
+        addMonsterForm(2, 5);
+        addMonsterForm(3, 6);
+        startGame();
     </script>
 {% endblock content %}
