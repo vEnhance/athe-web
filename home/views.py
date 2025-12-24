@@ -82,17 +82,6 @@ class ProfileSettingsView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
 
 
-def index(request: HttpRequest) -> HttpResponse:
-    """Homepage view."""
-    return render(request, "home/index.html")
-
-
-class AboutView(TemplateView):
-    """About Us page."""
-
-    template_name = "home/about.html"
-
-
 class StaffView(TemplateView):
     """Staff page."""
 
@@ -160,30 +149,6 @@ class StaffPhotoUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return get_object_or_404(StaffPhotoListing, user=self.request.user)
 
 
-class DonorsView(TemplateView):
-    """Donors page."""
-
-    template_name = "home/donors.html"
-
-
-class HistoryView(TemplateView):
-    """History page."""
-
-    template_name = "home/history.html"
-
-
-class VirtualProgramView(TemplateView):
-    """Virtual Program page."""
-
-    template_name = "home/virtual_program.html"
-
-
-class ScholarshipsView(TemplateView):
-    """Scholarships page."""
-
-    template_name = "home/scholarships.html"
-
-
 class ApplyView(TemplateView):
     """Apply to be a student page."""
 
@@ -216,12 +181,6 @@ class PastPsetsView(ListView):
     def get_queryset(self):  # type: ignore
         """Return only completed problem sets in reverse chronological order."""
         return ApplyPSet.objects.filter(status="completed").order_by("-deadline")
-
-
-class LegalView(TemplateView):
-    """Legal page."""
-
-    template_name = "home/legal.html"
 
 
 class ManualView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):

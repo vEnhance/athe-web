@@ -1,13 +1,23 @@
 from django.urls import path
+from django.views.generic import TemplateView
 
 from home import views
 from weblog.views import HistoryListView
 
 app_name = "home"
 
+
+def T(name: str):
+    return TemplateView.as_view(template_name=name)
+
+
 urlpatterns = [
-    path("", views.index, name="index"),
-    path("about/", views.AboutView.as_view(), name="about"),
+    path("", T("home/index.html"), name="index"),
+    path("about/", T("home/about.html"), name="about"),
+    path("donors/", T("home/donors.html"), name="donors"),
+    path("virtual-program/", T("home/virtual_program.html"), name="virtual_program"),
+    path("scholarships/", T("home/scholarships.html"), name="scholarships"),
+    path("legal/", T("home/legal.html"), name="legal"),
     path(
         "profile/settings/",
         views.ProfileSettingsView.as_view(),
@@ -17,14 +27,8 @@ urlpatterns = [
     path("staff/past", views.PastStaffView.as_view(), name="past_staff"),
     path("staff/edit/", views.StaffPhotoUpdateView.as_view(), name="staff_edit"),
     path("staff/<slug:slug>/", views.StaffDetailView.as_view(), name="staff_detail"),
-    path("donors/", views.DonorsView.as_view(), name="donors"),
     path("history/", HistoryListView.as_view(), name="history"),
-    path(
-        "virtual-program/", views.VirtualProgramView.as_view(), name="virtual_program"
-    ),
-    path("scholarships/", views.ScholarshipsView.as_view(), name="scholarships"),
     path("apply/", views.ApplyView.as_view(), name="apply"),
     path("past-psets/", views.PastPsetsView.as_view(), name="past_psets"),
-    path("legal/", views.LegalView.as_view(), name="legal"),
     path("admin-manual/", views.ManualView.as_view(), name="manual"),
 ]
