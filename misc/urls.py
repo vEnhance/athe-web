@@ -6,7 +6,7 @@ app_name = "misc"
 
 urlpatterns = [
     path(
-        "athebattle",
+        "battle",
         TemplateView.as_view(template_name="misc/sp26game.html"),
         name="sp26game",
     )
