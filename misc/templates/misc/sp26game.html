@@ -6,5 +6,291 @@
 {% block content %}
     <div id="content">
         <h1>athemath battle</h1>
+        <div id="game-container">
+            <div id="setup-screen">
+                <div class="card p-4">
+                    <h2>Setup</h2>
+                    <p class="mb-3">Configure your monsters for battle:</p>
+                    <div id="monster-forms-container"></div>
+                    <div class="d-flex gap-2 mb-3">
+                        <button id="add-monster-button" class="btn btn-success">+ Add Monster</button>
+                        <button id="remove-monster-button" class="btn btn-danger">- Remove Last</button>
+                    </div>
+                    <button id="start-button" class="btn btn-primary btn-lg w-100">Start Battle</button>
+                </div>
+            </div>
+            <div id="game-screen" style="display: none;">
+                <div class="alert alert-secondary">
+                    <h3>
+                        Total Damage Taken: <span id="total-damage">0</span>
+                    </h3>
+                </div>
+                <div id="monsters-container"></div>
+                <button id="undo-button" class="btn btn-secondary me-2">Undo</button>
+                <button id="reset-button" class="btn btn-primary">Reset Game</button>
+                <div id="victory-message"
+                     class="alert alert-success mt-3"
+                     style="display: none"></div>
+            </div>
+        </div>
     </div>
+    <style>
+        #game-container {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        #monster-input {
+            width: 100%;
+            padding: 10px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        #monsters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .monster {
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 120px;
+            text-align: center;
+        }
+        .monster:hover {
+            transform: scale(1.05);
+        }
+        .monster.defeated {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .monster.defeated:hover {
+            transform: none;
+        }
+        .monster-emoji {
+            font-size: 48px;
+        }
+        .monster-stats {
+            margin-top: 10px;
+            font-family: monospace;
+        }
+    </style>
+    <script>
+        let monsters = [];
+        let totalDamage = 0;
+        let history = [];
+        let monsterFormCount = 0;
+
+        const setupScreen = document.getElementById('setup-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const startButton = document.getElementById('start-button');
+        const resetButton = document.getElementById('reset-button');
+        const undoButton = document.getElementById('undo-button');
+        const addMonsterButton = document.getElementById('add-monster-button');
+        const removeMonsterButton = document.getElementById('remove-monster-button');
+        const monsterFormsContainer = document.getElementById('monster-forms-container');
+        const monstersContainer = document.getElementById('monsters-container');
+        const totalDamageSpan = document.getElementById('total-damage');
+        const victoryMessage = document.getElementById('victory-message');
+
+        startButton.addEventListener('click', startGame);
+        resetButton.addEventListener('click', resetGame);
+        undoButton.addEventListener('click', undoMove);
+        addMonsterButton.addEventListener('click', addMonsterForm);
+        removeMonsterButton.addEventListener('click', removeMonsterForm);
+
+        function addMonsterForm(hp = 2, attack = 5) {
+            monsterFormCount++;
+            const formId = monsterFormCount;
+            const formDiv = document.createElement('div');
+            formDiv.className = 'card mb-3 p-3 bg-light';
+            formDiv.id = `monster-form-${formId}`;
+            formDiv.innerHTML = `
+                <h5 class="mb-3">Monster ${formId}</h5>
+                <div class="mb-3">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="badge bg-danger">HP</span>
+                        </div>
+                        <div class="col-auto">
+                            <input type="number" class="form-control form-control-sm" style="width: 70px;" min="1" value="${hp}" id="hp-input-${formId}">
+                        </div>
+                        <div class="col">
+                            <input type="range" class="form-range" min="1" max="20" value="${Math.min(hp, 20)}" id="hp-slider-${formId}">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-0">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="badge bg-warning text-dark">Attack</span>
+                        </div>
+                        <div class="col-auto">
+                            <input type="number" class="form-control form-control-sm" style="width: 70px;" min="1" value="${attack}" id="attack-input-${formId}">
+                        </div>
+                        <div class="col">
+                            <input type="range" class="form-range" min="1" max="20" value="${Math.min(attack, 20)}" id="attack-slider-${formId}">
+                        </div>
+                    </div>
+                </div>
+            `;
+            monsterFormsContainer.appendChild(formDiv);
+
+            const hpSlider = document.getElementById(`hp-slider-${formId}`);
+            const hpInput = document.getElementById(`hp-input-${formId}`);
+            const attackSlider = document.getElementById(`attack-slider-${formId}`);
+            const attackInput = document.getElementById(`attack-input-${formId}`);
+
+            hpSlider.addEventListener('input', (e) => {
+                hpInput.value = e.target.value;
+            });
+            hpInput.addEventListener('input', (e) => {
+                let val = parseInt(e.target.value);
+                if (isNaN(val) || val < 1) val = 1;
+                hpInput.value = val;
+                if (val <= 20) {
+                    hpSlider.value = val;
+                }
+            });
+
+            attackSlider.addEventListener('input', (e) => {
+                attackInput.value = e.target.value;
+            });
+            attackInput.addEventListener('input', (e) => {
+                let val = parseInt(e.target.value);
+                if (isNaN(val) || val < 1) val = 1;
+                attackInput.value = val;
+                if (val <= 20) {
+                    attackSlider.value = val;
+                }
+            });
+        }
+
+        function removeMonsterForm() {
+            if (monsterFormCount > 0) {
+                const formDiv = document.getElementById(`monster-form-${monsterFormCount}`);
+                if (formDiv) {
+                    formDiv.remove();
+                    monsterFormCount--;
+                }
+            }
+        }
+
+        // Initialize with default monsters
+        addMonsterForm(2, 5);
+        addMonsterForm(3, 6);
+
+        function startGame() {
+            monsters = [];
+
+            for (let i = 1; i <= monsterFormCount; i++) {
+                const hpInput = document.getElementById(`hp-input-${i}`);
+                const attackInput = document.getElementById(`attack-input-${i}`);
+
+                if (hpInput && attackInput) {
+                    const hp = parseInt(hpInput.value);
+                    const attack = parseInt(attackInput.value);
+                    monsters.push({ hp, maxHp: hp, attack, id: Math.random() });
+                }
+            }
+
+            if (monsters.length === 0) {
+                alert('Please add at least one monster!');
+                return;
+            }
+
+            totalDamage = 0;
+            history = [];
+            victoryMessage.style.display = 'none';
+            setupScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            renderMonsters();
+            updateDamage();
+            updateUndoButton();
+        }
+
+        function resetGame() {
+            setupScreen.style.display = 'block';
+            gameScreen.style.display = 'none';
+            monsters = [];
+            totalDamage = 0;
+        }
+
+        function renderMonsters() {
+            monstersContainer.innerHTML = '';
+            monsters.forEach(monster => {
+                const monsterDiv = document.createElement('div');
+                monsterDiv.className = 'monster card p-3 border border-dark';
+                if (monster.hp <= 0) {
+                    monsterDiv.classList.add('defeated');
+                }
+                const hpPercentage = (monster.hp / monster.maxHp) * 100;
+                monsterDiv.innerHTML = `
+                    <div class="monster-emoji">👾</div>
+                    <div class="monster-stats">
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-danger fw-bold">HP: ${monster.hp}/${monster.maxHp}</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: ${hpPercentage}%" aria-valuenow="${monster.hp}" aria-valuemin="0" aria-valuemax="${monster.maxHp}"></div>
+                            </div>
+                        </div>
+                        <div>ATK: <span class="text-warning fw-bold">${monster.attack}</span></div>
+                    </div>
+                `;
+                if (monster.hp > 0) {
+                    monsterDiv.addEventListener('click', () => attackMonster(monster.id));
+                }
+                monstersContainer.appendChild(monsterDiv);
+            });
+        }
+
+        function attackMonster(monsterId) {
+            const monster = monsters.find(m => m.id === monsterId);
+            if (!monster || monster.hp <= 0) return;
+
+            history.push({
+                monsters: JSON.parse(JSON.stringify(monsters)),
+                totalDamage: totalDamage
+            });
+
+            monster.hp--;
+
+            const aliveMonsters = monsters.filter(m => m.hp > 0);
+
+            const damageThisTurn = aliveMonsters.reduce((sum, m) => sum + m.attack, 0);
+            totalDamage += damageThisTurn;
+
+            renderMonsters();
+            updateDamage();
+            updateUndoButton();
+
+            if (aliveMonsters.length === 0) {
+                victoryMessage.textContent = `All enemies defeated! Total damage taken: ${totalDamage}`;
+                victoryMessage.style.display = 'block';
+            }
+        }
+
+        function undoMove() {
+            if (history.length === 0) return;
+
+            const previousState = history.pop();
+            monsters = previousState.monsters;
+            totalDamage = previousState.totalDamage;
+
+            victoryMessage.style.display = 'none';
+            renderMonsters();
+            updateDamage();
+            updateUndoButton();
+        }
+
+        function updateUndoButton() {
+            undoButton.disabled = history.length === 0;
+        }
+
+        function updateDamage() {
+            totalDamageSpan.textContent = totalDamage;
+        }
+    </script>
 {% endblock content %}
