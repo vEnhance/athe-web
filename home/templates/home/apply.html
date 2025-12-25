@@ -30,7 +30,12 @@
             </div>
             {% if not forloop.last %}<hr>{% endif %}
         {% endfor %}
-        {% if most_recent_pset %}
+        {% if active_psets %}
+            <h2>Past problem sets</h2>
+            <p>
+                <a href="{% url 'home:past_psets' %}">See past problem sets</a>.
+            </p>
+        {% elif most_recent_pset %}
             <h2>{{ most_recent_pset.name }}</h2>
             <div class="closed-message">{{ most_recent_pset.closed_message_rendered|safe }}</div>
             <h2>Past problem sets</h2>
