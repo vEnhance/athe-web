@@ -32,5 +32,12 @@ urlpatterns = [
     path("apply/", views.ApplyView.as_view(), name="apply"),
     path("past-psets/", views.PastPsetsView.as_view(), name="past_psets"),
     path("admin-manual/", views.ManualView.as_view(), name="manual"),
-    path("alumapp/", RedirectView.as_view(url="https://airtable.com/app26vQ9wjACgHpTh/shrgVj1IXP9Uv7jyz",permanent=False),name="alumapp"),
+    path(
+        "alumapp/",
+        RedirectView.as_view(
+            url="https://airtable.com/app26vQ9wjACgHpTh/shrgVj1IXP9Uv7jyz",
+            permanent=False,
+        ),
+        name="alumapp",
+    ),
 ]
