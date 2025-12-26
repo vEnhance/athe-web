@@ -168,3 +168,68 @@ def test_semester_visible_by_default():
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     assert semester.visible is True
+
+
+@pytest.mark.django_db
+def test_get_current_semester():
+    """Test that get_current_semester returns the active semester."""
+    # Create a current semester
+    current = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=(timezone.now() - timedelta(days=10)).date(),
+        end_date=(timezone.now() + timedelta(days=80)).date(),
+    )
+    # Create a past semester
+    Semester.objects.create(
+        name="Spring 2025",
+        slug="sp25",
+        start_date=(timezone.now() - timedelta(days=200)).date(),
+        end_date=(timezone.now() - timedelta(days=100)).date(),
+    )
+    # Create a future semester
+    Semester.objects.create(
+        name="Spring 2026",
+        slug="sp26",
+        start_date=(timezone.now() + timedelta(days=100)).date(),
+        end_date=(timezone.now() + timedelta(days=200)).date(),
+    )
+
+    result = Semester.get_current_semester()
+    assert result == current
+
+
+@pytest.mark.django_db
+def test_get_current_semester_no_active():
+    """Test that get_current_semester raises ValueError when no active semester."""
+    # Create only past semesters
+    Semester.objects.create(
+        name="Spring 2025",
+        slug="sp25",
+        start_date=(timezone.now() - timedelta(days=200)).date(),
+        end_date=(timezone.now() - timedelta(days=100)).date(),
+    )
+
+    with pytest.raises(ValueError, match="No active semester found"):
+        Semester.get_current_semester()
+
+
+@pytest.mark.django_db
+def test_get_current_semester_multiple_overlapping():
+    """Test that get_current_semester raises ValueError with overlapping semesters."""
+    # Create two overlapping semesters
+    Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=(timezone.now() - timedelta(days=10)).date(),
+        end_date=(timezone.now() + timedelta(days=80)).date(),
+    )
+    Semester.objects.create(
+        name="Winter 2025",
+        slug="wi25",
+        start_date=(timezone.now() - timedelta(days=5)).date(),
+        end_date=(timezone.now() + timedelta(days=85)).date(),
+    )
+
+    with pytest.raises(ValueError, match="Multiple active semesters found"):
+        Semester.get_current_semester()

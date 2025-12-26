@@ -46,6 +46,31 @@ class Semester(models.Model):
             Exists(Student.objects.filter(semester=OuterRef("pk"), user=user))
         )
 
+    @classmethod
+    def get_current_semester(cls) -> "Semester":
+        """Get the current active semester based on today's date.
+
+        Returns the semester where today's date falls between start_date and end_date.
+
+        Raises:
+            ValueError: If no active semester is found or multiple overlapping semesters exist.
+        """
+        today = date.today()
+        current_semesters = cls.objects.filter(
+            start_date__lte=today, end_date__gte=today
+        )
+
+        count = current_semesters.count()
+        if count == 0:
+            raise ValueError("No active semester found for the current date.")
+        if count > 1:
+            raise ValueError(
+                "Multiple active semesters found for the current date. "
+                "Please ensure semester dates do not overlap."
+            )
+
+        return current_semesters.first()  # type: ignore[return-value]
+
     class Meta:
         ordering = ("-start_date",)
 

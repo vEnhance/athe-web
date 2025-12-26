@@ -19,17 +19,21 @@ from housepoints.models import Award
 
 def leaderboard(request: HttpRequest, slug: str | None = None) -> HttpResponse:
     """Show the house points leaderboard for a semester."""
-    # Get semester (default to most recent active or latest)
+    # Get semester (default to current active semester, then most recent)
     if slug:
         semester = get_object_or_404(Semester, slug=slug)
     else:
-        semester = Semester.objects.order_by("-start_date").first()
-        if not semester:
-            return render(
-                request,
-                "housepoints/leaderboard.html",
-                {"semester": None, "leaderboard_data": []},
-            )
+        try:
+            semester = Semester.get_current_semester()
+        except ValueError:
+            # No current semester, fall back to latest by start_date
+            semester = Semester.objects.order_by("-start_date").first()
+            if not semester:
+                return render(
+                    request,
+                    "housepoints/leaderboard.html",
+                    {"semester": None, "leaderboard_data": []},
+                )
 
     if request.user.is_authenticated:
         try:
@@ -141,30 +145,10 @@ class BulkAwardView(UserPassesTestMixin, View):
         """Only staff can access this view."""
         return self.request.user.is_staff  # type: ignore[attr-defined]
 
-    def _get_current_semester(self) -> Semester:
-        """Get the current active semester based on today's date."""
-        from django.utils import timezone
-
-        today = timezone.now().date()
-        current_semesters = Semester.objects.filter(
-            start_date__lte=today, end_date__gte=today
-        )
-
-        count = current_semesters.count()
-        if count == 0:
-            raise ValueError("No active semester found for the current date.")
-        if count > 1:
-            raise ValueError(
-                "Multiple active semesters found for the current date. "
-                "Please ensure semester dates do not overlap."
-            )
-
-        return current_semesters.first()  # type: ignore[return-value]
-
     def get(self, request: HttpRequest) -> HttpResponse:
         """Display the bulk award form."""
         try:
-            semester = self._get_current_semester()
+            semester = Semester.get_current_semester()
         except ValueError as e:
             messages.error(request, str(e))
             return redirect("home:index")
@@ -188,7 +172,7 @@ class BulkAwardView(UserPassesTestMixin, View):
     def post(self, request: HttpRequest) -> HttpResponse:
         """Process bulk award creation."""
         try:
-            semester = self._get_current_semester()
+            semester = Semester.get_current_semester()
         except ValueError as e:
             messages.error(request, str(e))
             return redirect("home:index")
@@ -344,31 +328,11 @@ class SingleAwardView(UserPassesTestMixin, CreateView):
         """Only staff can access this view."""
         return self.request.user.is_staff  # type: ignore[attr-defined]
 
-    def _get_current_semester(self) -> Semester:
-        """Get the current active semester based on today's date."""
-        from django.utils import timezone
-
-        today = timezone.now().date()
-        current_semesters = Semester.objects.filter(
-            start_date__lte=today, end_date__gte=today
-        )
-
-        count = current_semesters.count()
-        if count == 0:
-            raise ValueError("No active semester found for the current date.")
-        if count > 1:
-            raise ValueError(
-                "Multiple active semesters found for the current date. "
-                "Please ensure semester dates do not overlap."
-            )
-
-        return current_semesters.first()  # type: ignore[return-value]
-
     def get_context_data(self, **kwargs):  # type: ignore[no-untyped-def]
         """Add semester and default points to context."""
         context = super().get_context_data(**kwargs)
         try:
-            context["semester"] = self._get_current_semester()
+            context["semester"] = Semester.get_current_semester()
             context["default_points"] = Award.DEFAULT_POINTS
         except ValueError as e:
             messages.error(self.request, str(e))
@@ -378,7 +342,7 @@ class SingleAwardView(UserPassesTestMixin, CreateView):
     def form_valid(self, form):  # type: ignore[no-untyped-def]
         """Set semester, awarded_by, and default points if needed."""
         try:
-            semester = self._get_current_semester()
+            semester = Semester.get_current_semester()
         except ValueError as e:
             messages.error(self.request, str(e))
             return redirect("home:index")

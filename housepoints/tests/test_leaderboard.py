@@ -159,3 +159,73 @@ def test_leaderboard_shows_all_houses():
     assert "Owls" in content
     assert "Red Panda" in content
     assert "Bunnies" in content
+
+
+@pytest.mark.django_db
+def test_leaderboard_uses_current_semester_when_no_slug():
+    """Test that leaderboard uses the current active semester when no slug provided."""
+    client = Client()
+    # Create a past semester
+    Semester.objects.create(
+        name="Spring 2025",
+        slug="sp25",
+        start_date=(timezone.now() - timedelta(days=200)).date(),
+        end_date=(timezone.now() - timedelta(days=100)).date(),
+    )
+    # Create a current semester
+    current_semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=(timezone.now() - timedelta(days=10)).date(),
+        end_date=(timezone.now() + timedelta(days=80)).date(),
+    )
+
+    # Create an award in the current semester to make it appear
+    user = User.objects.create_user(username="user1", password="password")
+    student = Student.objects.create(
+        user=user,
+        semester=current_semester,
+        house=Student.House.OWL,
+        airtable_name="Student 1",
+    )
+    Award.objects.create(
+        semester=current_semester,
+        student=student,
+        award_type=Award.AwardType.HOMEWORK,
+        points=5,
+    )
+
+    # Access the leaderboard without a slug
+    url = reverse("housepoints:leaderboard")
+    response = client.get(url)
+
+    assert response.status_code == 200
+    # Check that the current semester is used, not the past one
+    assert response.context["semester"] == current_semester
+
+
+@pytest.mark.django_db
+def test_leaderboard_falls_back_to_latest_when_no_current():
+    """Test that leaderboard falls back to latest semester when no current semester."""
+    client = Client()
+    # Create only past semesters
+    Semester.objects.create(
+        name="Spring 2024",
+        slug="sp24",
+        start_date=(timezone.now() - timedelta(days=300)).date(),
+        end_date=(timezone.now() - timedelta(days=200)).date(),
+    )
+    latest_semester = Semester.objects.create(
+        name="Fall 2024",
+        slug="fa24",
+        start_date=(timezone.now() - timedelta(days=150)).date(),
+        end_date=(timezone.now() - timedelta(days=50)).date(),
+    )
+
+    # Access the leaderboard without a slug
+    url = reverse("housepoints:leaderboard")
+    response = client.get(url)
+
+    assert response.status_code == 200
+    # Should use the latest semester by start_date
+    assert response.context["semester"] == latest_semester
