@@ -421,7 +421,9 @@ class AttendanceBulkForm(forms.Form):
         today = date.today()
         # Filter courses to those in semesters that haven't ended
         self.fields["course"].queryset = Course.objects.filter(  # type: ignore[attr-defined]
-            semester__end_date__gte=today, is_club=False
+            semester__start_date__lte=today,
+            semester__end_date__gte=today,
+            is_club=False,
         ).select_related("semester")
 
         # Set default to a course the user leads, if any
