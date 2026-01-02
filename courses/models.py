@@ -1,4 +1,3 @@
-
 from django.contrib.auth.models import User
 from django.db.models import Exists, OuterRef
 from django.db.models import UniqueConstraint, Q, QuerySet
