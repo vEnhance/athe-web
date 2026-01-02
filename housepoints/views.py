@@ -10,6 +10,7 @@ from django.db.models import Exists, OuterRef, Sum
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views import View
 from django.views.generic import CreateView
 
@@ -418,7 +419,7 @@ class AttendanceBulkForm(forms.Form):
 
     def __init__(self, *args, user=None, **kwargs):  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
-        today = date.today()
+        today = timezone.now().date()
         # Filter courses to those in semesters that haven't ended
         self.fields["course"].queryset = Course.objects.filter(  # type: ignore[attr-defined]
             semester__start_date__lte=today,
@@ -673,7 +674,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
             )
 
             # Pre-populate description with date and course name
-            today_str = date.today().strftime("%Y-%m-%d")
+            today_str = timezone.now().date().strftime("%Y-%m-%d")
             default_description = f"Attendance on {today_str} for {course.name}"
 
             # Create a new form with the description pre-filled
