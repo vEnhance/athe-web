@@ -18,7 +18,7 @@ class ApplyPSet(models.Model):
         max_length=200,
         help_text="Name of the problem set (e.g., 'Fall 2025')",
     )
-    deadline = models.DateTimeField(
+    deadline = models.DateField(
         help_text="Application deadline",
     )
     status = models.CharField(
