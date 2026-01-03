@@ -20,6 +20,7 @@
                 <h2>{{ pset.name }}</h2>
                 <p>
                     <strong>Deadline:</strong> {{ pset.deadline|date:"F j, Y" }}
+                    (anywhere on Earth)
                 </p>
                 <div class="instructions">{{ pset.instructions_rendered|safe }}</div>
                 {% if pset.file %}
