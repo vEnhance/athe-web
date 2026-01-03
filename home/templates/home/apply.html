@@ -19,7 +19,7 @@
             <div class="apply-pset-section">
                 <h2>{{ pset.name }}</h2>
                 <p>
-                    <strong>Deadline:</strong> {{ pset.deadline|date:"F j, Y, g:i a" }}
+                    <strong>Deadline:</strong> {{ pset.deadline|date:"F j, Y" }}
                 </p>
                 <div class="instructions">{{ pset.instructions_rendered|safe }}</div>
                 {% if pset.file %}
