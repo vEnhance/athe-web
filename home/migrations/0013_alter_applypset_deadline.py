@@ -21,12 +21,12 @@ def reverse_convert(apps, schema_editor):
         if pset.deadline_date:
             # Import datetime here to avoid issues with migrations
             from datetime import datetime
+
             pset.deadline = datetime.combine(pset.deadline_date, datetime.min.time())
             pset.save(update_fields=["deadline"])
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("home", "0012_add_staff_social_fields"),
     ]
