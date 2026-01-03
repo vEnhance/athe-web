@@ -51,4 +51,10 @@ class Migration(migrations.Migration):
             old_name="deadline_date",
             new_name="deadline",
         ),
+        # Step 5: Make the field non-nullable
+        migrations.AlterField(
+            model_name="applypset",
+            name="deadline",
+            field=models.DateField(help_text="Application deadline"),
+        ),
     ]
