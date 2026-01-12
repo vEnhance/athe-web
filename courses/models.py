@@ -1,5 +1,3 @@
-from datetime import date
-
 from django.contrib.auth.models import User
 from django.db.models import Exists, OuterRef
 from django.db.models import UniqueConstraint, Q, QuerySet
@@ -7,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from home.models import StaffPhotoListing
 
 
@@ -37,7 +36,7 @@ class Semester(models.Model):
 
     def is_active(self) -> bool:
         """Check if the semester is currently active."""
-        today = date.today()
+        today = timezone.now().date()
         return self.start_date <= today <= self.end_date
 
     @classmethod
@@ -55,7 +54,7 @@ class Semester(models.Model):
         Raises:
             ValueError: If no active semester is found or multiple overlapping semesters exist.
         """
-        today = date.today()
+        today = timezone.now().date()
         current_semesters = cls.objects.filter(
             start_date__lte=today, end_date__gte=today
         )

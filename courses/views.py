@@ -86,7 +86,7 @@ def course_list(request: HttpRequest, slug: str) -> HttpResponse:
 def my_courses(request: HttpRequest) -> HttpResponse:
     """Show all courses (non-clubs) the current user is enrolled in or leads."""
     assert isinstance(request.user, User)
-    today = date.today()
+    today = timezone.now().date()
 
     # Use Prefetch to filter enrolled courses at the database level
     student_records = Student.objects.filter(user=request.user).prefetch_related(
@@ -154,7 +154,7 @@ def my_courses(request: HttpRequest) -> HttpResponse:
 def my_clubs(request: HttpRequest) -> HttpResponse:
     """Show clubs in active semesters, split by enrollment status. Includes led clubs."""
     # Get user's student records for active semesters
-    today = date.today()
+    today = timezone.now().date()
     active_student_records = (
         Student.objects.filter(
             user=request.user,
@@ -292,7 +292,7 @@ def past_clubs(request: HttpRequest) -> HttpResponse:
     - The user was a student in the semester the club happened
     """
     assert isinstance(request.user, User)
-    today = date.today()
+    today = timezone.now().date()
     is_staff = request.user.is_staff
 
     # Get all clubs from visible semesters that have ended
@@ -612,7 +612,7 @@ def bulk_create_students(request: HttpRequest) -> HttpResponse:
             student_data = form.cleaned_data["student_data"]
 
             # Validate that semester hasn't ended
-            if semester.end_date < date.today():
+            if semester.end_date < timezone.now().date():
                 messages.error(
                     request,
                     f"Cannot create students for {semester.name} - semester has ended.",
@@ -816,7 +816,7 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
     assert isinstance(request.user, User)
 
     # Get current date
-    today = date.today()
+    today = timezone.now().date()
 
     # Get the month to display (default to current month)
     year_param = request.GET.get("year")
