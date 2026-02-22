@@ -2,6 +2,12 @@
 {% block title %}
     {{ post.title }} - Blog - Athemath
 {% endblock title %}
+{% block extra_css %}
+    <style>
+        .footnote hr { margin-top: 2rem; }
+        .footnote ol { font-size: 0.9em; }
+    </style>
+{% endblock extra_css %}
 {% block content %}
     <div id="content">
         {% if not post.published %}
@@ -41,3 +47,16 @@
         </div>
     </div>
 {% endblock content %}
+{% block extra_js %}
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            },
+        };
+    </script>
+    <script id="MathJax-script"
+            async
+            src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+{% endblock extra_js %}

@@ -234,10 +234,12 @@ SOCIALACCOUNT_PROVIDERS = {
 
 # Markdownfield settings
 MARKDOWN_EXTENSIONS = [
-    "markdown.extensions.fenced_code",
-    "markdown.extensions.tables",
-    "markdown.extensions.nl2br",
+    "markdown.extensions.extra",
+    "markdown.extensions.sane_lists",
+    "markdown.extensions.smarty",
+    "markdown.extensions.footnotes",
     "weblog.markdown_extensions",
+    "weblog.math_extension",
 ]
 
 # Discord webhook logging (django-discordo)
