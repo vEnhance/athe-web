@@ -7,7 +7,7 @@ authors = [
     { name = "Evan Chen", email = "evan@evanchen.cc" },
     { name = "Violet Xu", email = "violet@vbnm.dev"},
     { name = "Greta Qu", email = "greta.qu@athemath.org" },
-    { name = "Ritwin Narra", email = "ritwin@stanford.edu" }
+    { name = "Ritwin Narra", email = "ritwin@stanford.edu" },
     { name = "Vera Puah", email = "v4nillacl0uds@gmail.com" }
 ]
 dependencies = [
