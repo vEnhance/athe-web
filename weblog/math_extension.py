@@ -7,13 +7,15 @@ special characters like _ and * inside math expressions.
 """
 
 import re
+from html import unescape
 
 from markdown import Extension
 from markdown.postprocessors import Postprocessor
 from markdown.preprocessors import Preprocessor
 
-# Sentinel characters unlikely to appear in normal text
-MATH_PLACEHOLDER = "\x02MATHBLOCK%d\x03"
+# Use alphanumeric placeholder to survive HTML processing (e.g. footnotes)
+MATH_PLACEHOLDER = "MATHSTASH%dENDMATHSTASH"
+MATH_PLACEHOLDER_RE = re.compile(r"MATHSTASH(\d+)ENDMATHSTASH")
 
 
 class MathPreprocessor(Preprocessor):
@@ -45,9 +47,14 @@ class MathPostprocessor(Postprocessor):
 
     def run(self, text: str) -> str:
         stash: list[str] = getattr(self.md, "_math_stash", [])
-        for i, math in enumerate(stash):
-            text = text.replace(MATH_PLACEHOLDER % i, math)
-        return text
+
+        def restore(m: re.Match[str]) -> str:
+            idx = int(m.group(1))
+            if idx < len(stash):
+                return unescape(stash[idx])
+            return m.group(0)
+
+        return MATH_PLACEHOLDER_RE.sub(restore, text)
 
 
 class MathExtension(Extension):
@@ -55,7 +62,8 @@ class MathExtension(Extension):
 
     def extendMarkdown(self, md) -> None:  # type: ignore[override]
         md.preprocessors.register(MathPreprocessor(md), "math_protect", 200)
-        md.postprocessors.register(MathPostprocessor(md), "math_restore", 200)
+        # Low priority so this runs after all other postprocessors (e.g. footnotes)
+        md.postprocessors.register(MathPostprocessor(md), "math_restore", 0)
 
 
 def makeExtension(**kwargs) -> MathExtension:  # type: ignore[no-untyped-def]
