@@ -240,6 +240,7 @@ MARKDOWN_EXTENSIONS = [
     "markdown.extensions.footnotes",
     "weblog.markdown_extensions",
     "weblog.math_extension",
+    "pymdownx.tilde",
 ]
 
 # Discord webhook logging (django-discordo)
