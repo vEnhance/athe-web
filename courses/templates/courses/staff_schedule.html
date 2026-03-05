@@ -59,7 +59,7 @@
                                 <td>
                                     <a href="{% url 'courses:course_detail' pk=meeting.course.pk %}">{{ meeting.course.name|truncatechars:24 }}</a>
                                 </td>
-                                <td>{{ meeting.start_time|local_datetime:"F j, Y, g:i A e" }}</td>
+                                <td>{{ meeting.start_time|local_datetime:"D M j, Y, G:i e" }}</td>
                                 <td>
                                     <a href="{% url 'courses:manage_meetings' pk=meeting.course.pk %}">
                                         {% if meeting.title %}
@@ -104,7 +104,7 @@
                                 <td>
                                     <a href="{% url 'courses:course_detail' pk=meeting.course.pk %}">{{ meeting.course.name|truncatechars:24 }}</a>
                                 </td>
-                                <td>{{ meeting.start_time|local_datetime:"F j, Y, g:i A e" }}</td>
+                                <td>{{ meeting.start_time|local_datetime:"D M j, Y, G:i e" }}</td>
                                 <td>
                                     <a href="{% url 'courses:manage_meetings' pk=meeting.course.pk %}">
                                         {% if meeting.title %}
