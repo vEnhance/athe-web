@@ -76,12 +76,15 @@
             {% if classes_without_meetings %}
                 <p class="mt-2 text-muted">
                     <strong>No meetings configured:</strong>
-                    {% for course in classes_without_meetings %}
-                        <a href="{% url 'courses:course_detail' pk=course.pk %}">{{ course.name }}</a>
-                        (<a href="{% url 'courses:manage_meetings' pk=course.pk %}">manage</a>)
-                        {% if not forloop.last %},{% endif %}
-                    {% endfor %}
                 </p>
+                <ul>
+                    {% for course in classes_without_meetings %}
+                        <li>
+                            <a href="{% url 'courses:course_detail' pk=course.pk %}">{{ course.name }}</a>
+                            (<a href="{% url 'courses:manage_meetings' pk=course.pk %}">manage</a>)
+                        </li>
+                    {% endfor %}
+                </ul>
             {% endif %}
             <h2 class="mt-4">Clubs &amp; Events</h2>
             {% if club_meetings %}
