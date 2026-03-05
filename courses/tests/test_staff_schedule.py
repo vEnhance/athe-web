@@ -168,7 +168,9 @@ def test_class_and_club_meetings_are_separated(staff_client):
 @pytest.mark.django_db
 def test_course_without_meetings_listed(staff_client):
     sem = make_semester()
-    Course.objects.create(name="Empty Class", description="", semester=sem, is_club=False)
+    Course.objects.create(
+        name="Empty Class", description="", semester=sem, is_club=False
+    )
     client, _ = staff_client
     response = client.get(reverse("courses:staff_schedule"))
     assert b"Empty Class" in response.content
@@ -199,8 +201,12 @@ def test_sort_by_course(staff_client):
     sem = make_semester()
     c1 = Course.objects.create(name="Zebra Course", description="", semester=sem)
     c2 = Course.objects.create(name="Alpha Course", description="", semester=sem)
-    CourseMeeting.objects.create(course=c1, start_time=timezone.now() + timedelta(days=1))
-    CourseMeeting.objects.create(course=c2, start_time=timezone.now() + timedelta(days=2))
+    CourseMeeting.objects.create(
+        course=c1, start_time=timezone.now() + timedelta(days=1)
+    )
+    CourseMeeting.objects.create(
+        course=c2, start_time=timezone.now() + timedelta(days=2)
+    )
     client, _ = staff_client
     response = client.get(reverse("courses:staff_schedule") + "?sort=course")
     meetings = response.context["class_meetings"]
