@@ -2,6 +2,7 @@ import datetime
 
 from django import template
 from django.template.defaultfilters import date as date_filter
+from django.utils import timezone
 from django.utils.html import format_html
 
 register = template.Library()
@@ -30,7 +31,7 @@ def local_datetime(
     except Exception:
         return date_filter(value, fmt)
 
-    display = date_filter(value, fmt)
+    display = date_filter(timezone.localtime(value), fmt)
     return format_html(
         '<time class="local-datetime" datetime="{}" tabindex="0">{}</time>',
         iso,
