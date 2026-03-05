@@ -1,5 +1,5 @@
 {% extends "home/base.html" %}
-{% load static %}
+{% load static local_time %}
 {% block extra_css %}
     <link type="text/css"
           rel="stylesheet"
@@ -90,7 +90,7 @@
                         {% for meeting in meetings %}
                             <tr {% if meeting == next_meeting %}class="table-danger fw-bold"{% endif %}>
                                 <td>{{ forloop.counter }}</td>
-                                <td>{{ meeting.start_time|date:"F j, Y, g:i A e" }}</td>
+                                <td>{{ meeting.start_time|local_datetime:"F j, Y, g:i A e" }}</td>
                                 <td>
                                     {% if meeting.title %}
                                         {{ meeting.title }}

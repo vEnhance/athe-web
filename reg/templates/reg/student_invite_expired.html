@@ -1,4 +1,5 @@
 {% extends "home/base.html" %}
+{% load local_time %}
 {% block title %}
     Invite Link Expired
 {% endblock title %}
@@ -13,7 +14,7 @@
                             <p class="lead">This invite link has expired and can no longer be used.</p>
                             <p>
                                 The invite link for <strong>{{ invite.semester }}</strong> expired on
-                                <strong>{{ invite.expiration_date|date:"F j, Y \a\t g:i A" }}</strong>.
+                                <strong>{{ invite.expiration_date|local_datetime:"F j, Y \a\t g:i A" }}</strong>.
                             </p>
                         {% elif reason == "semester_ended" %}
                             <p class="lead">This invite link is no longer valid because the semester has ended.</p>

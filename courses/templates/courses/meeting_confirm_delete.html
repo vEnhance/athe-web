@@ -1,5 +1,5 @@
 {% extends "home/base.html" %}
-{% load static %}
+{% load static local_time %}
 {% block extra_css %}
     <link type="text/css"
           rel="stylesheet"
@@ -18,7 +18,7 @@
             <div class="alert alert-danger">
                 <h4>Are you sure you want to delete this meeting?</h4>
                 <p>
-                    <strong>Date & Time:</strong> {{ meeting.start_time|date:"F j, Y, g:i A e" }}
+                    <strong>Date & Time:</strong> {{ meeting.start_time|local_datetime:"F j, Y, g:i A e" }}
                 </p>
                 {% if meeting.title %}
                     <p>
