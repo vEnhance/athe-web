@@ -410,6 +410,13 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
     else:
         base_qs = base_qs.order_by("start_time", "course__name")
 
+    courses_qs = Course.objects.filter(semester=semester).order_by("name")
+    courses_with_meetings = set(
+        CourseMeeting.objects.filter(course__semester=semester).values_list(
+            "course_id", flat=True
+        )
+    )
+
     return render(
         request,
         "courses/staff_schedule.html",
@@ -418,6 +425,12 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
             "all_semesters": all_semesters,
             "class_meetings": list(base_qs.filter(course__is_club=False)),
             "club_meetings": list(base_qs.filter(course__is_club=True)),
+            "classes_without_meetings": list(
+                courses_qs.filter(is_club=False).exclude(pk__in=courses_with_meetings)
+            ),
+            "clubs_without_meetings": list(
+                courses_qs.filter(is_club=True).exclude(pk__in=courses_with_meetings)
+            ),
             "sort": sort,
         },
     )
