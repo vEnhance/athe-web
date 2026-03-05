@@ -81,9 +81,9 @@
                 <ul>
                     {% for course in classes_without_meetings %}
                         <li>
+                            <a href="{% url 'courses:course_detail' pk=course.pk %}">[View]</a>
+                            <a href="{% url 'courses:manage_meetings' pk=course.pk %}">[Manage]</a>
                             {{ course.name }}
-                            (<a href="{% url 'courses:course_detail' pk=course.pk %}">view</a>)
-                            (<a href="{% url 'courses:manage_meetings' pk=course.pk %}">edit</a>)
                         </li>
                     {% endfor %}
                 </ul>
@@ -124,9 +124,9 @@
             {% if clubs_without_meetings %}
                 <h3>⚠️ Clubs with no meetings configured yet</h3>
                 {% for course in clubs_without_meetings %}
+                    <a href="{% url 'courses:course_detail' pk=course.pk %}">[View]</a>
+                    <a href="{% url 'courses:manage_meetings' pk=course.pk %}">[Manage]</a>
                     {{ course.name }}
-                    (<a href="{% url 'courses:course_detail' pk=course.pk %}">view</a>)
-                    (<a href="{% url 'courses:manage_meetings' pk=course.pk %}">edit</a>)
                 {% endfor %}
             {% endif %}
         {% endif %}
