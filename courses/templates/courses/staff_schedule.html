@@ -53,11 +53,13 @@
                                 </td>
                                 <td>{{ meeting.start_time|local_datetime:"N j, Y, g:i A e" }}</td>
                                 <td>
-                                    {% if meeting.title %}
-                                        {{ meeting.title }}
-                                    {% else %}
-                                        <span class="text-muted">—</span>
-                                    {% endif %}
+                                    <a href="{% url 'courses:manage_meetings' pk=meeting.course.pk %}">
+                                        {% if meeting.title %}
+                                            {{ meeting.title }}
+                                        {% else %}
+                                            <i>no topic</i>
+                                        {% endif %}
+                                    </a>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -84,11 +86,13 @@
                                 </td>
                                 <td>{{ meeting.start_time|local_datetime:"N j, Y, g:i A e" }}</td>
                                 <td>
-                                    {% if meeting.title %}
-                                        {{ meeting.title }}
-                                    {% else %}
-                                        <span class="text-muted">—</span>
-                                    {% endif %}
+                                    <a href="{% url 'courses:manage_meetings' pk=meeting.course.pk %}">
+                                        {% if meeting.title %}
+                                            {{ meeting.title }}
+                                        {% else %}
+                                            <i>no topic</i>
+                                        {% endif %}
+                                    </a>
                                 </td>
                             </tr>
                         {% endfor %}
