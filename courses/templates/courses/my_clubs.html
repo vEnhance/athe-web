@@ -1,4 +1,5 @@
 {% extends "home/base.html" %}
+{% load local_time %}
 {% block title %}
     My Clubs and Events - Athemath
 {% endblock title %}
@@ -68,7 +69,7 @@
                                             <span class="badge bg-info ms-1">Global</span>
                                         </h5>
                                         <p class="mb-1">
-                                            <small class="text-muted">{{ event.start_time|date:"F j, Y, g:i A" }} | {{ event.semester }}</small>
+                                            <small class="text-muted">{{ event.start_time|local_datetime }} | {{ event.semester }}</small>
                                         </p>
                                     </div>
                                 </div>

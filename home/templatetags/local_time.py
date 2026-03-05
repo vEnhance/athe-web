@@ -11,11 +11,11 @@ register = template.Library()
 @register.filter
 def local_datetime(
     value: datetime.datetime | datetime.date | str | None,
-    fmt: str = "N j, Y, g:i A",
+    fmt: str = "D M j, Y, g:i A e",
 ) -> object:
     """Render a datetime as an interactive span showing local time on hover/click.
 
-    Usage: {{ obj.datetime_field|local_datetime:"F j, Y g:i A e" }}
+    Usage: {{ obj.datetime_field|local_datetime }}
 
     The span shows server time by default. Hovering shows a tooltip with the
     user's local time, and clicking toggles between server and local time.
