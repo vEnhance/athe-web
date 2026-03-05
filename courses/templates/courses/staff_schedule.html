@@ -6,12 +6,21 @@
 {% block content %}
     <div id="content">
         <h1>Master Schedule</h1>
+        <div class="mb-3">
+            <label for="semester-select" class="form-label fw-bold">Semester:</label>
+            <select id="semester-select"
+                    class="form-select w-auto d-inline-block"
+                    onchange="window.location = this.value">
+                {% if not semester %}<option value="" selected>— select a semester —</option>{% endif %}
+                {% for s in all_semesters %}
+                    <option value="{% url 'courses:staff_schedule_semester' slug=s.slug %}"
+                            {% if s == semester %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
         {% if error %}
             <div class="alert alert-warning">{{ error }}</div>
         {% else %}
-            <p class="text-muted">
-                Semester: <strong>{{ semester }}</strong>
-            </p>
             <div class="mb-3">
                 Sort by:
                 {% if sort == "date" %}

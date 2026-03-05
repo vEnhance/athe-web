@@ -373,21 +373,32 @@ def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @login_required
-def staff_schedule(request: HttpRequest) -> HttpResponse:
-    """Staff-only master schedule: all course meetings for the current semester."""
+def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpResponse:
+    """Staff-only master schedule: all course meetings for a semester.
+
+    If no slug is given, defaults to the current active semester.
+    """
     assert isinstance(request.user, User)
     if not request.user.is_staff:
         messages.error(request, "You don't have permission to view the staff schedule.")
         return redirect("courses:catalog_root")
 
-    try:
-        semester = Semester.get_current_semester()
-    except ValueError as e:
-        return render(
-            request,
-            "courses/staff_schedule.html",
-            {"error": str(e)},
-        )
+    all_semesters = list(Semester.objects.order_by("-start_date"))
+
+    if slug is not None:
+        semester = get_object_or_404(Semester, slug=slug)
+    else:
+        try:
+            semester = Semester.get_current_semester()
+        except ValueError:
+            return render(
+                request,
+                "courses/staff_schedule.html",
+                {
+                    "error": "There is no currently active semester to show.",
+                    "all_semesters": all_semesters,
+                },
+            )
 
     sort = request.GET.get("sort", "course")
 
@@ -404,6 +415,7 @@ def staff_schedule(request: HttpRequest) -> HttpResponse:
         "courses/staff_schedule.html",
         {
             "semester": semester,
+            "all_semesters": all_semesters,
             "class_meetings": list(base_qs.filter(course__is_club=False)),
             "club_meetings": list(base_qs.filter(course__is_club=True)),
             "sort": sort,
