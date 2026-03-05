@@ -27,6 +27,12 @@ urlpatterns = [
         views.GlobalEventDetailView.as_view(),
         name="global_event_detail",
     ),
+    path("staff-schedule/", views.staff_schedule, name="staff_schedule"),
+    path(
+        "staff-schedule/<slug:slug>/",
+        views.staff_schedule,
+        name="staff_schedule_semester",
+    ),
     path("sorting-hat/", views.SortingHatView.as_view(), name="sorting_hat"),
     path("<slug:slug>/", views.course_list, name="course_list"),
 ]
