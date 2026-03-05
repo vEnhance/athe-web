@@ -103,10 +103,15 @@
 {% endblock extra_css %}
 {% block content %}
     <div id="content">
-        <h1>Calendar</h1>
-        <p class="text-muted">
-            Monthly view of all meetings and events.
-            <a href="{% url 'courses:upcoming' %}">View Upcoming List</a>
+        <h1>Calendar ({{ timezone_name }})</h1>
+        <p>
+            This is a monthly view of all meetings and events.
+            You can also get a
+            <a href="{% url 'courses:upcoming' %}">upcoming list view</a>.
+        </p>
+        <p>
+            This calendar uses <strong>{{ timezone_name }}</strong> time zone
+            (for example, right now it is {% now "g:i a e" %}).
         </p>
         <div class="calendar-nav">
             <a href="?year={{ prev_year }}&amp;month={{ prev_month }}"

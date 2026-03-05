@@ -1091,6 +1091,7 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
             "next_year": next_year,
             "next_month": next_month,
             "today": today,
+            "timezone_name": timezone.get_current_timezone_name(),
         },
     )
 
