@@ -1,4 +1,5 @@
 {% extends "home/base.html" %}
+{% load local_time %}
 {% block title %}
     {{ house_display }} House Details (Staff) - Athemath
 {% endblock title %}
@@ -23,7 +24,7 @@
                 <h3 class="text-muted mb-4">{{ semester.name }}</h3>
                 {% if is_frozen %}
                     <div class="alert alert-warning">
-                        <strong>Leaderboard was frozen as of {{ freeze_date|date:"F j, Y g:i A" }}</strong>
+                        <strong>Leaderboard was frozen as of {{ freeze_date|local_datetime:"F j, Y g:i A" }}</strong>
                         <br>
                         This staff view still shows points awarded after the freeze date.
                         Make sure to not share this externally!
