@@ -44,7 +44,6 @@
                         <tr class="table-dark">
                             <th>Class/Club</th>
                             <th>Date/Time</th>
-                            <th>Topic</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -55,12 +54,11 @@
                                     <br>
                                     <small class="text-muted">{{ meeting.course.semester }}</small>
                                 </td>
-                                <td>{{ meeting.start_time|local_datetime }}</td>
                                 <td>
+                                    {{ meeting.start_time|local_datetime }}
                                     {% if meeting.title %}
-                                        {{ meeting.title }}
-                                    {% else %}
-                                        <i>None specified</i>
+                                        <br>
+                                        <small class="text-muted">{{ meeting.title }}</small>
                                     {% endif %}
                                 </td>
                             </tr>
