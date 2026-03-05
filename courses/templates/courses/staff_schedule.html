@@ -1,15 +1,18 @@
 {% extends "home/base.html" %}
 {% load local_time %}
 {% block title %}
-    Master Schedule
+    Staff Master Schedule
     {% if semester %}- {{ semester }}{% endif %}
     - Athemath
 {% endblock title %}
 {% block content %}
     <div id="content">
         <h1>
-            Master Schedule
-            {% if semester %}: {{ semester }}{% endif %}
+            {% if semester %}
+                Schedule: {{ semester }}
+            {% else %}
+                Schedule
+            {% endif %}
         </h1>
         <div class="mb-3">
             <label for="semester-select" class="form-label fw-bold">Semester:</label>
@@ -74,14 +77,13 @@
                 <p class="text-muted">No class meetings scheduled for this semester.</p>
             {% endif %}
             {% if classes_without_meetings %}
-                <p class="mt-2 text-muted">
-                    <strong>No meetings configured:</strong>
-                </p>
+                <h3>⚠️ Classes with no meetings configured yet</h3>
                 <ul>
                     {% for course in classes_without_meetings %}
                         <li>
-                            <a href="{% url 'courses:course_detail' pk=course.pk %}">{{ course.name }}</a>
-                            (<a href="{% url 'courses:manage_meetings' pk=course.pk %}">manage</a>)
+                            {{ course.name }}
+                            (<a href="{% url 'courses:course_detail' pk=course.pk %}">view</a>)
+                            (<a href="{% url 'courses:manage_meetings' pk=course.pk %}">edit</a>)
                         </li>
                     {% endfor %}
                 </ul>
@@ -120,14 +122,12 @@
                 <p class="text-muted">No club/event meetings scheduled for this semester.</p>
             {% endif %}
             {% if clubs_without_meetings %}
-                <p class="mt-2 text-muted">
-                    <strong>No meetings configured:</strong>
-                    {% for course in clubs_without_meetings %}
-                        <a href="{% url 'courses:course_detail' pk=course.pk %}">{{ course.name }}</a>
-                        (<a href="{% url 'courses:manage_meetings' pk=course.pk %}">manage</a>)
-                        {% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                </p>
+                <h3>⚠️ Clubs with no meetings configured yet</h3>
+                {% for course in clubs_without_meetings %}
+                    {{ course.name }}
+                    (<a href="{% url 'courses:course_detail' pk=course.pk %}">view</a>)
+                    (<a href="{% url 'courses:manage_meetings' pk=course.pk %}">edit</a>)
+                {% endfor %}
             {% endif %}
         {% endif %}
     </div>
