@@ -375,40 +375,37 @@ def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
 @login_required
 def staff_schedule(request: HttpRequest) -> HttpResponse:
     """Staff-only master schedule: all course meetings for the current semester."""
+    assert isinstance(request.user, User)
     if not request.user.is_staff:
         messages.error(request, "You don't have permission to view the staff schedule.")
         return redirect("courses:catalog_root")
 
     try:
         semester = Semester.get_current_semester()
-    except ValueError:
-        semester = Semester.objects.order_by("-start_date").first()
-
-    sort = request.GET.get("sort", "date")
-
-    class_meetings: list[CourseMeeting] = []
-    club_meetings: list[CourseMeeting] = []
-
-    if semester:
-        base_qs = (
-            CourseMeeting.objects.filter(course__semester=semester)
-            .select_related("course")
+    except ValueError as e:
+        return render(
+            request,
+            "courses/staff_schedule.html",
+            {"error": str(e)},
         )
-        if sort == "course":
-            base_qs = base_qs.order_by("course__name", "start_time")
-        else:
-            base_qs = base_qs.order_by("start_time", "course__name")
 
-        class_meetings = list(base_qs.filter(course__is_club=False))
-        club_meetings = list(base_qs.filter(course__is_club=True))
+    sort = request.GET.get("sort", "course")
+
+    base_qs = CourseMeeting.objects.filter(course__semester=semester).select_related(
+        "course"
+    )
+    if sort == "course":
+        base_qs = base_qs.order_by("course__name", "start_time")
+    else:
+        base_qs = base_qs.order_by("start_time", "course__name")
 
     return render(
         request,
         "courses/staff_schedule.html",
         {
             "semester": semester,
-            "class_meetings": class_meetings,
-            "club_meetings": club_meetings,
+            "class_meetings": list(base_qs.filter(course__is_club=False)),
+            "club_meetings": list(base_qs.filter(course__is_club=True)),
             "sort": sort,
         },
     )
