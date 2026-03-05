@@ -13,7 +13,7 @@
         <div class="mb-4">
             <p>
                 <strong>Date/Time:</strong>
-                {{ event.start_time|local_datetime:"F j, Y, g:i A e" }}
+                {{ event.start_time|local_datetime }}
             </p>
             {% if event.link %}
                 <p>

@@ -29,7 +29,7 @@
                                     <br>
                                     <small class="text-muted">{{ event.semester }}</small>
                                 </td>
-                                <td>{{ event.start_time|local_datetime:"F j, Y, g:i A e" }}</td>
+                                <td>{{ event.start_time|local_datetime }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -55,7 +55,7 @@
                                     <br>
                                     <small class="text-muted">{{ meeting.course.semester }}</small>
                                 </td>
-                                <td>{{ meeting.start_time|local_datetime:"F j, Y, g:i A e" }}</td>
+                                <td>{{ meeting.start_time|local_datetime }}</td>
                                 <td>
                                     {% if meeting.title %}
                                         {{ meeting.title }}
