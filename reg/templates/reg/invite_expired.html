@@ -1,4 +1,5 @@
 {% extends "home/base.html" %}
+{% load local_time %}
 {% block title %}
     Invite Link Expired
 {% endblock title %}
@@ -10,7 +11,7 @@
                     <div class="card-body">
                         <h1 class="card-title mb-4 text-danger">Invite Link Expired</h1>
                         <div class="alert alert-danger">
-                            This invite link expired on {{ invite.expiration_date|date:"F j, Y \a\t g:i A" }}.
+                            This invite link expired on {{ invite.expiration_date|local_datetime:"F j, Y \a\t g:i A" }}.
                         </div>
                         <p>The invite link you're trying to use is no longer valid.</p>
                         <p>If you need to register as a staff member, please contact an administrator to request a new invite link.</p>
