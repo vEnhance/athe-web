@@ -115,7 +115,12 @@ class StudentAdmin(admin.ModelAdmin):
 @admin.register(CourseMeeting)
 class CourseMeetingAdmin(admin.ModelAdmin):
     list_display = ("course", "title", "start_time", "reminder_sent")
-    list_filter = ("course", "reminder_sent", "start_time")
+    list_filter = (
+        "reminder_sent",
+        "course__is_club",
+        "course__semester",
+        "course",
+    )
     search_fields = ("title", "course__name")
     date_hierarchy = "start_time"
 
