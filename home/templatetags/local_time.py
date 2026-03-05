@@ -32,7 +32,7 @@ def local_datetime(
 
     display = date_filter(value, fmt)
     return format_html(
-        '<span class="local-datetime" data-utc="{}" tabindex="0">{}</span>',
+        '<time class="local-datetime" datetime="{}" tabindex="0">{}</time>',
         iso,
         display,
     )
