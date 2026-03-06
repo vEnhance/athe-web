@@ -3,11 +3,12 @@ from datetime import date, datetime, time, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import Prefetch
 from django.forms import modelformset_factory
-from django.http import HttpRequest, HttpResponse, HttpResponseNotAllowed
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -336,10 +337,9 @@ def join_club(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @login_required
+@require_POST
 def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
     """Drop a club if the semester is still active."""
-    if request.method != "POST":
-        return HttpResponseNotAllowed(["POST"])
     club = get_object_or_404(Course, pk=pk, is_club=True)
 
     # Check if semester is active

@@ -215,10 +215,8 @@ def test_past_clubs_staff_can_click_all_clubs():
     response = client.get(url)
 
     assert response.status_code == 200
-    # Check that the club is rendered as a clickable link
     past_clubs = response.context["past_clubs"]
     assert len(past_clubs) == 1
-    assert past_clubs[0].is_clickable is True
     # Verify the link is in the HTML
     content = response.content.decode()
     club_url = reverse("courses:course_detail", kwargs={"pk": club.pk})
@@ -257,10 +255,8 @@ def test_past_clubs_enrolled_student_can_click():
     response = client.get(url)
 
     assert response.status_code == 200
-    # Check that the club is rendered as a clickable link
     past_clubs = response.context["past_clubs"]
     assert len(past_clubs) == 1
-    assert past_clubs[0].is_clickable is True
     # Verify the link is in the HTML
     content = response.content.decode()
     club_url = reverse("courses:course_detail", kwargs={"pk": club.pk})
@@ -295,15 +291,12 @@ def test_past_clubs_non_enrolled_student_cannot_click():
     response = client.get(url)
 
     assert response.status_code == 200
-    # Check that the club is NOT rendered as a clickable link
     past_clubs = response.context["past_clubs"]
     assert len(past_clubs) == 1
-    assert past_clubs[0].is_clickable is False
-    # Verify no link is in the HTML for this club (should be a div, not an anchor)
+    # Club is always linked regardless of enrollment
     content = response.content.decode()
     club_url = reverse("courses:course_detail", kwargs={"pk": club.pk})
-    assert f'href="{club_url}"' not in content
-    # But the club name should still be visible
+    assert f'href="{club_url}"' in content
     assert club.name in content
 
 
@@ -354,15 +347,7 @@ def test_past_clubs_mixed_clickability():
     past_clubs = response.context["past_clubs"]
     assert len(past_clubs) == 2
 
-    # Find the clubs in the response
-    clubs_by_name = {c.name: c for c in past_clubs}
-
-    # Enrolled club should be clickable
-    assert clubs_by_name["Enrolled Club"].is_clickable is True
-    # Not enrolled club should NOT be clickable
-    assert clubs_by_name["Not Enrolled Club"].is_clickable is False
-
-    # Verify in HTML
+    # All clubs are always linked
     content = response.content.decode()
     enrolled_club_url = reverse(
         "courses:course_detail", kwargs={"pk": enrolled_club.pk}
@@ -371,7 +356,7 @@ def test_past_clubs_mixed_clickability():
         "courses:course_detail", kwargs={"pk": not_enrolled_club.pk}
     )
     assert f'href="{enrolled_club_url}"' in content
-    assert f'href="{not_enrolled_club_url}"' not in content
+    assert f'href="{not_enrolled_club_url}"' in content
 
 
 @pytest.mark.django_db
