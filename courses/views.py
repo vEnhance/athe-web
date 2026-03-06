@@ -5,6 +5,7 @@ import icalendar
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import Prefetch
@@ -294,15 +295,8 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def past_clubs(request: HttpRequest) -> HttpResponse:
-    """Show all clubs from visible past semesters (readonly).
-
-    Links are clickable only if:
-    - The user is staff, OR
-    - The user was a student in the semester the club happened
-    """
-    assert isinstance(request.user, User)
+    """Show all clubs from visible past semesters (readonly)."""
     today = timezone.now().date()
-    is_staff = request.user.is_staff
 
     # Get all clubs from visible semesters that have ended
     past_clubs_queryset = Course.objects.filter(
@@ -311,18 +305,11 @@ def past_clubs(request: HttpRequest) -> HttpResponse:
         semester__visible=True,
     ).select_related("semester", "instructor")
 
-    # Get semesters where the user was a student (for determining clickability)
-    user_semester_ids = set(
-        Student.objects.filter(user=request.user).values_list("semester_id", flat=True)
-    )
-
     # Convert to list and sort by semester (most recent first), then by course name
-    past_clubs_list = list(past_clubs_queryset)
-    past_clubs_list.sort(key=lambda c: (-c.semester.start_date.toordinal(), c.name))
-
-    # Mark each club with whether it's clickable
-    for club in past_clubs_list:
-        club.is_clickable = is_staff or club.semester_id in user_semester_ids  # type: ignore[attr-defined]
+    past_clubs_list = sorted(
+        past_clubs_queryset,
+        key=lambda c: (-c.semester.start_date.toordinal(), c.name),
+    )
 
     return render(
         request,
@@ -332,6 +319,7 @@ def past_clubs(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
+@require_POST
 def join_club(request: HttpRequest, pk: int) -> HttpResponse:
     """Join a club if the user has student access to that semester."""
     club = get_object_or_404(Course, pk=pk, is_club=True)
@@ -359,6 +347,7 @@ def join_club(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @login_required
+@require_POST
 def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
     """Drop a club if the semester is still active."""
     club = get_object_or_404(Course, pk=pk, is_club=True)

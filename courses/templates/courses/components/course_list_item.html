@@ -1,0 +1,33 @@
+<div class="list-group-item">
+    <div class="d-flex w-100 justify-content-between align-items-start">
+        <div>
+            <h5 class="fw-bold mb-1">
+                <a href="{% url 'courses:course_detail' pk=course.pk %}">{{ course.name }}</a>
+            </h5>
+            {% if course.regular_meeting_time or course.instructor %}
+                <p>
+                    {% if course.regular_meeting_time %}{{ course.regular_meeting_time }}.{% endif %}
+                    {% if course.instructor %}
+                        <a class="fst-italic" href="{{ course.instructor.get_absolute_url }}">{{ course.instructor }}</a>
+                    {% endif %}
+                </p>
+            {% endif %}
+        </div>
+        <div>
+            <p class="text-muted mb-0">{{ course.semester }}</p>
+            {% if action == "drop" %}
+                <form method="post"
+                      action="{% url 'courses:drop_club' pk=course.pk %}"
+                      onsubmit="return confirm('Are you sure you want to drop {{ course.name }}?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link p-0">Drop</button>
+                </form>
+            {% elif action == "join" %}
+                <form method="post" action="{% url 'courses:join_club' pk=course.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link p-0">Join</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>

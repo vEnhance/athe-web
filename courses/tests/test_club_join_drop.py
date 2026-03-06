@@ -36,7 +36,7 @@ def test_join_club_active_semester():
 
     client.login(username="student", password="password")
     url = reverse("courses:join_club", kwargs={"pk": club.pk})
-    response = client.get(url)
+    response = client.post(url)
 
     # Should redirect to my_clubs
     assert response.status_code == 302
@@ -74,7 +74,7 @@ def test_join_club_fails_for_non_student():
 
     client.login(username="student", password="password")
     url = reverse("courses:join_club", kwargs={"pk": club.pk})
-    response = client.get(url)
+    response = client.post(url)
     assert response.status_code == 302
     assert response.url == reverse("courses:my_clubs")
 
@@ -103,7 +103,7 @@ def test_join_club_inactive_semester():
 
     client.login(username="student", password="password")
     url = reverse("courses:join_club", kwargs={"pk": club.pk})
-    response = client.get(url, follow=True)
+    response = client.post(url, follow=True)
 
     # Should redirect with error message
     assert response.status_code == 200
@@ -143,7 +143,7 @@ def test_join_club_future_semester():
 
     client.login(username="student", password="password")
     url = reverse("courses:join_club", kwargs={"pk": club.pk})
-    response = client.get(url, follow=True)
+    response = client.post(url, follow=True)
 
     # Should redirect with error message
     assert response.status_code == 200
@@ -185,7 +185,7 @@ def test_join_club_already_enrolled():
 
     client.login(username="student", password="password")
     url = reverse("courses:join_club", kwargs={"pk": club.pk})
-    response = client.get(url, follow=True)
+    response = client.post(url, follow=True)
 
     # Should succeed without errors
     assert response.status_code == 200
@@ -223,7 +223,7 @@ def test_join_regular_course_fails():
 
     client.login(username="student", password="password")
     url = reverse("courses:join_club", kwargs={"pk": course.pk})
-    response = client.get(url)
+    response = client.post(url)
 
     # Should return 404 since is_club=True is required
     assert response.status_code == 404
@@ -255,7 +255,7 @@ def test_drop_club_active_semester():
 
     client.login(username="student", password="password")
     url = reverse("courses:drop_club", kwargs={"pk": club.pk})
-    response = client.get(url)
+    response = client.post(url)
 
     # Should redirect to my_clubs
     assert response.status_code == 302
@@ -292,7 +292,7 @@ def test_drop_club_inactive_semester():
 
     client.login(username="student", password="password")
     url = reverse("courses:drop_club", kwargs={"pk": club.pk})
-    response = client.get(url, follow=True)
+    response = client.post(url, follow=True)
 
     # Should redirect with error message
     assert response.status_code == 200
@@ -330,9 +330,9 @@ def test_drop_club_not_enrolled():
 
     client.login(username="student", password="password")
     url = reverse("courses:drop_club", kwargs={"pk": club.pk})
-    response = client.get(url, follow=True)
+    response = client.post(url, follow=True)
 
-    # Should redirect with error message
+    # Should redirect with info message
     assert response.status_code == 200
     messages = list(response.context["messages"])
     assert len(messages) == 1
@@ -363,7 +363,7 @@ def test_drop_regular_course_fails():
 
     client.login(username="student", password="password")
     url = reverse("courses:drop_club", kwargs={"pk": course.pk})
-    response = client.get(url)
+    response = client.post(url)
 
     # Should return 404 since is_club=True is required
     assert response.status_code == 404
@@ -390,7 +390,7 @@ def test_join_club_requires_login():
 
     # Try to join without logging in
     url = reverse("courses:join_club", kwargs={"pk": club.pk})
-    response = client.get(url)
+    response = client.post(url)
 
     # Should redirect to login page
     assert response.status_code == 302
@@ -418,7 +418,7 @@ def test_drop_club_requires_login():
 
     # Try to drop without logging in
     url = reverse("courses:drop_club", kwargs={"pk": club.pk})
-    response = client.get(url)
+    response = client.post(url)
 
     # Should redirect to login page
     assert response.status_code == 302
