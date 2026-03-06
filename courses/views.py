@@ -962,10 +962,12 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
     )
 
     for meeting in meetings:
-        if not meeting.is_club and not meeting.is_mine:
+        is_club: bool = meeting.is_club  # type: ignore[attr-defined]
+        is_mine: bool = meeting.is_mine  # type: ignore[attr-defined]
+        if not is_club and not is_mine:
             continue  # non-enrolled classes are not shown
-        if meeting.is_mine:
-            category = "enrolled_club" if meeting.is_club else "enrolled_class"
+        if is_mine:
+            category = "enrolled_club" if is_club else "enrolled_class"
         else:
             category = "other_club"
         calendar_events.append(
