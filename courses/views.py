@@ -1148,7 +1148,7 @@ def calendar_feed(request: HttpRequest, token: str) -> HttpResponse:
     cal.add("refresh-interval;value=duration", "PT12H")
     cal.add("x-published-ttl", "PT12H")
 
-    domain = "athe.web"
+    domain = "athemath.org"
 
     # GlobalEvents
     if user.is_staff:
