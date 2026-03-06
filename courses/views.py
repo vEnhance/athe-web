@@ -1130,22 +1130,14 @@ def calendar_feed(request: HttpRequest, token: str) -> HttpResponse:
     student_records = Student.objects.filter(user=user).select_related("semester")
     student_semester_ids = {s.semester_id for s in student_records}  # type: ignore[attr-defined]
 
-    # Enrolled course IDs
-    enrolled_class_ids: set[int] = set()
-    enrolled_club_ids: set[int] = set()
+    # Enrolled course IDs (classes and clubs treated identically in the feed)
+    enrolled_ids: set[int] = set()
     for student in student_records:
         for course in student.enrolled_courses.all():  # type: ignore[attr-defined]
-            if course.is_club:  # type: ignore[attr-defined]
-                enrolled_club_ids.add(course.id)  # type: ignore[attr-defined]
-            else:
-                enrolled_class_ids.add(course.id)  # type: ignore[attr-defined]
+            enrolled_ids.add(course.id)  # type: ignore[attr-defined]
 
-    led_courses = Course.objects.filter(leaders=user)
-    for course in led_courses:
-        if course.is_club:
-            enrolled_club_ids.add(course.id)  # type: ignore[attr-defined]
-        else:
-            enrolled_class_ids.add(course.id)  # type: ignore[attr-defined]
+    for course in Course.objects.filter(leaders=user):
+        enrolled_ids.add(course.id)  # type: ignore[attr-defined]
 
     cal = icalendar.Calendar()
     cal.add("prodid", "-//ATHE Calendar Feed//athe.web//EN")
@@ -1183,10 +1175,9 @@ def calendar_feed(request: HttpRequest, token: str) -> HttpResponse:
         vevent.add("dtstamp", now)
         cal.add_component(vevent)
 
-    # CourseMeetings for enrolled classes and clubs
-    all_enrolled_ids = enrolled_class_ids | enrolled_club_ids
+    # CourseMeetings for enrolled courses
     meetings = CourseMeeting.objects.filter(
-        course_id__in=all_enrolled_ids,
+        course_id__in=enrolled_ids,
         start_time__range=(range_start, range_end),
     ).select_related("course", "course__semester")
 
