@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.db.models import Prefetch
+from django.db.models import Exists, F, OuterRef, Prefetch
 from django.forms import modelformset_factory
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -895,52 +895,6 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
     else:
         display_year, display_month = today.year, today.month
 
-    # Get active semesters
-    active_semesters = Semester.objects.filter(
-        start_date__lte=today, end_date__gte=today
-    )
-    if not request.user.is_staff:
-        active_semesters = active_semesters.filter(visible=True)
-
-    # Get user's student records and enrolled courses
-    student_records = Student.objects.filter(user=request.user).select_related(
-        "semester"
-    )
-
-    # Get user's enrolled course IDs (classes and clubs separately)
-    enrolled_class_ids = set()
-    enrolled_club_ids = set()
-    for student in student_records:
-        for course in student.enrolled_courses.all():  # type: ignore[attr-defined]
-            if course.is_club:  # type: ignore[attr-defined]
-                enrolled_club_ids.add(course.id)  # type: ignore[attr-defined]
-            else:
-                enrolled_class_ids.add(course.id)  # type: ignore[attr-defined]
-
-    # Get all courses where user is a leader
-    led_courses = Course.objects.filter(leaders=request.user)
-    for course in led_courses:
-        if course.is_club:
-            enrolled_club_ids.add(course.id)  # type: ignore[attr-defined]
-        else:
-            enrolled_class_ids.add(course.id)  # type: ignore[attr-defined]
-
-    # Get all active club IDs for "other clubs" category
-    if request.user.is_staff:
-        active_club_ids = set(
-            Course.objects.filter(
-                is_club=True, semester__in=active_semesters
-            ).values_list("id", flat=True)
-        )
-    else:
-        student_semester_ids = set(s.semester_id for s in student_records)  # type: ignore[attr-defined]
-        active_club_ids = set(
-            Course.objects.filter(
-                is_club=True, semester_id__in=student_semester_ids
-            ).values_list("id", flat=True)
-        )
-    other_club_ids = active_club_ids - enrolled_club_ids
-
     # Build the calendar grid for the month
     # Use Sunday as first day of week (6 in Python's calendar module)
     cal = calendar.Calendar(firstweekday=6)
@@ -958,16 +912,18 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
     # Gather calendar events with categories
     calendar_events: list[dict] = []
 
-    # GlobalEvents
+    # GlobalEvents: staff see all visible semesters; others see their enrolled semesters
     if request.user.is_staff:
         global_events = GlobalEvent.objects.filter(
             start_time__range=(range_start_dt, range_end_dt), semester__visible=True
         ).select_related("semester")
     else:
-        student_semester_ids = set(s.semester_id for s in student_records)  # type: ignore[attr-defined]
+        enrolled_semester_ids = Student.objects.filter(user=request.user).values_list(
+            "semester_id", flat=True
+        )
         global_events = GlobalEvent.objects.filter(
             start_time__range=(range_start_dt, range_end_dt),
-            semester_id__in=student_semester_ids,
+            semester_id__in=enrolled_semester_ids,
             semester__visible=True,
         ).select_related("semester")
 
@@ -982,55 +938,46 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
             }
         )
 
-    # CourseMeetings for enrolled classes
-    class_meetings = CourseMeeting.objects.filter(
-        course_id__in=enrolled_class_ids,
-        start_time__range=(range_start_dt, range_end_dt),
-    ).select_related("course", "course__semester")
-
-    for meeting in class_meetings:
-        calendar_events.append(
-            {
-                "title": meeting.course.name
-                + (f": {meeting.title}" if meeting.title else ""),
-                "start_time": meeting.start_time,
-                "category": "enrolled_class",
-                "url": meeting.course.get_absolute_url(),
-                "semester": meeting.course.semester.name,
-            }
+    # CourseMeetings: fetch all in range for visible semesters, annotated with
+    # is_club (from the course) and is_mine (enrolled student or leader).
+    # Non-enrolled classes (is_club=False, is_mine=False) are skipped.
+    is_enrolled = Exists(
+        Course.students.through.objects.filter(
+            course_id=OuterRef("course_id"),
+            student__user=request.user,
         )
-
-    # CourseMeetings for enrolled clubs
-    club_meetings = CourseMeeting.objects.filter(
-        course_id__in=enrolled_club_ids,
-        start_time__range=(range_start_dt, range_end_dt),
-    ).select_related("course", "course__semester")
-
-    for meeting in club_meetings:
-        calendar_events.append(
-            {
-                "title": meeting.course.name
-                + (f": {meeting.title}" if meeting.title else ""),
-                "start_time": meeting.start_time,
-                "category": "enrolled_club",
-                "url": meeting.course.get_absolute_url(),
-                "semester": meeting.course.semester.name,
-            }
+    )
+    is_leader = Exists(
+        Course.leaders.through.objects.filter(
+            course_id=OuterRef("course_id"),
+            user=request.user,
         )
+    )
+    meetings = (
+        CourseMeeting.objects.filter(
+            start_time__range=(range_start_dt, range_end_dt),
+            course__semester__visible=True,
+        )
+        .select_related("course", "course__semester")
+        .annotate(
+            is_club=F("course__is_club"),
+            is_mine=is_enrolled | is_leader,
+        )
+    )
 
-    # CourseMeetings for other clubs (not enrolled)
-    other_club_meetings = CourseMeeting.objects.filter(
-        course_id__in=other_club_ids,
-        start_time__range=(range_start_dt, range_end_dt),
-    ).select_related("course", "course__semester")
-
-    for meeting in other_club_meetings:
+    for meeting in meetings:
+        if not meeting.is_club and not meeting.is_mine:
+            continue  # non-enrolled classes are not shown
+        if meeting.is_mine:
+            category = "enrolled_club" if meeting.is_club else "enrolled_class"
+        else:
+            category = "other_club"
         calendar_events.append(
             {
                 "title": meeting.course.name
                 + (f": {meeting.title}" if meeting.title else ""),
                 "start_time": meeting.start_time,
-                "category": "other_club",
+                "category": category,
                 "url": meeting.course.get_absolute_url(),
                 "semester": meeting.course.semester.name,
             }
