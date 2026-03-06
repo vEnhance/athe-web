@@ -12,7 +12,7 @@ from housepoints.models import Award
 
 # Discord emoji mappings for each house
 HOUSE_EMOJIS: dict[str, str] = {
-    "owl": "<:owlheart:1307684456982904943>",
+    "owl": "<:owlheart:1457263992245326022>",
     "blob": "<:blobheart:822453188853760071>",
     "red_panda": "<:redpandaheart:1227043341686804510>",
     "cat": "<:catlove:1301819346888429618>",
