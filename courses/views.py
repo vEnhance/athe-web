@@ -953,6 +953,12 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
             user=request.user,
         )
     )
+    is_instructor = Exists(
+        Course.objects.filter(
+            id=OuterRef("course_id"),
+            instructor__user=request.user,
+        )
+    )
     meetings = (
         CourseMeeting.objects.filter(
             start_time__range=(range_start_dt, range_end_dt),
@@ -961,7 +967,7 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
         .select_related("course", "course__semester")
         .annotate(
             is_club=F("course__is_club"),
-            is_mine=is_enrolled | is_leader,
+            is_mine=is_enrolled | is_leader | is_instructor,
         )
     )
 
