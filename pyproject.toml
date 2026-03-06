@@ -23,6 +23,7 @@ dependencies = [
     "requests>=2.32.0",
     "django-discordo>=0.1.0",
     "pymdown-extensions>=10.21",
+    "icalendar>=6.0,<7.0",
 ]
 
 [project.optional-dependencies]

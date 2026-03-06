@@ -1,6 +1,8 @@
 import calendar
 from datetime import date, datetime, time, timedelta
 
+import icalendar
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -19,7 +21,14 @@ from courses.forms import (
     CourseUpdateForm,
     SortingHatForm,
 )
-from courses.models import Course, CourseMeeting, GlobalEvent, Semester, Student
+from courses.models import (
+    CalendarToken,
+    Course,
+    CourseMeeting,
+    GlobalEvent,
+    Semester,
+    Student,
+)
 
 
 def catalog_root(request: HttpRequest) -> HttpResponse:
@@ -1078,6 +1087,11 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
     # Month name for display
     month_name = calendar.month_name[display_month]
 
+    cal_token, _ = CalendarToken.objects.get_or_create(user=request.user)
+    feed_url = request.build_absolute_uri(
+        reverse("courses:calendar-feed", kwargs={"token": cal_token.token})
+    )
+
     return render(
         request,
         "courses/calendar.html",
@@ -1092,7 +1106,105 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
             "next_month": next_month,
             "today": today,
             "timezone_name": timezone.get_current_timezone_name(),
+            "feed_url": feed_url,
         },
+    )
+
+
+def calendar_feed(request: HttpRequest, token: str) -> HttpResponse:
+    """
+    Return a user-specific iCalendar (.ics) feed.
+
+    The feed URL contains a secret token so no login session is required —
+    Google Calendar (and other clients) can subscribe and auto-refresh it.
+    """
+    cal_token = get_object_or_404(CalendarToken, token=token)
+    user = cal_token.user
+
+    # Fetch events from 90 days in the past to 365 days in the future
+    now = timezone.now()
+    range_start = now - timedelta(days=90)
+    range_end = now + timedelta(days=365)
+
+    # Determine which semesters the user can see
+    student_records = Student.objects.filter(user=user).select_related("semester")
+    student_semester_ids = {s.semester_id for s in student_records}  # type: ignore[attr-defined]
+
+    # Enrolled course IDs
+    enrolled_class_ids: set[int] = set()
+    enrolled_club_ids: set[int] = set()
+    for student in student_records:
+        for course in student.enrolled_courses.all():  # type: ignore[attr-defined]
+            if course.is_club:  # type: ignore[attr-defined]
+                enrolled_club_ids.add(course.id)  # type: ignore[attr-defined]
+            else:
+                enrolled_class_ids.add(course.id)  # type: ignore[attr-defined]
+
+    led_courses = Course.objects.filter(leaders=user)
+    for course in led_courses:
+        if course.is_club:
+            enrolled_club_ids.add(course.id)  # type: ignore[attr-defined]
+        else:
+            enrolled_class_ids.add(course.id)  # type: ignore[attr-defined]
+
+    cal = icalendar.Calendar()
+    cal.add("prodid", "-//ATHE Calendar Feed//athe.web//EN")
+    cal.add("version", "2.0")
+    cal.add("calscale", "GREGORIAN")
+    cal.add("method", "PUBLISH")
+    cal.add("x-wr-calname", "ATHE Calendar")
+    cal.add("refresh-interval;value=duration", "PT12H")
+    cal.add("x-published-ttl", "PT12H")
+
+    domain = "athe.web"
+
+    # GlobalEvents
+    if user.is_staff:
+        global_events = GlobalEvent.objects.filter(
+            start_time__range=(range_start, range_end), semester__visible=True
+        ).select_related("semester")
+    else:
+        global_events = GlobalEvent.objects.filter(
+            start_time__range=(range_start, range_end),
+            semester_id__in=student_semester_ids,
+            semester__visible=True,
+        ).select_related("semester")
+
+    for event in global_events:
+        vevent = icalendar.Event()
+        vevent.add("uid", f"globalevent-{event.pk}@{domain}")
+        vevent.add("summary", event.title)
+        vevent.add("dtstart", event.start_time)
+        vevent.add("dtend", event.start_time + timedelta(hours=1))
+        if event.description:
+            vevent.add("description", event.description)
+        if event.link:
+            vevent.add("url", event.link)
+        vevent.add("dtstamp", now)
+        cal.add_component(vevent)
+
+    # CourseMeetings for enrolled classes and clubs
+    all_enrolled_ids = enrolled_class_ids | enrolled_club_ids
+    meetings = CourseMeeting.objects.filter(
+        course_id__in=all_enrolled_ids,
+        start_time__range=(range_start, range_end),
+    ).select_related("course", "course__semester")
+
+    for meeting in meetings:
+        vevent = icalendar.Event()
+        vevent.add("uid", f"meeting-{meeting.pk}@{domain}")
+        title = meeting.course.name + (f": {meeting.title}" if meeting.title else "")
+        vevent.add("summary", title)
+        vevent.add("dtstart", meeting.start_time)
+        vevent.add("dtend", meeting.start_time + timedelta(hours=1))
+        if meeting.course.zoom_meeting_link:
+            vevent.add("url", meeting.course.zoom_meeting_link)
+        vevent.add("dtstamp", now)
+        cal.add_component(vevent)
+
+    return HttpResponse(
+        cal.to_ical(),
+        content_type="text/calendar; charset=utf-8",
     )
 
 

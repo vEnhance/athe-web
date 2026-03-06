@@ -13,6 +13,11 @@ urlpatterns = [
     path("upcoming/", views.upcoming, name="upcoming"),
     path("calendar/", views.calendar_view, name="calendar"),
     path(
+        "calendar/feed/<str:token>.ics",
+        views.calendar_feed,
+        name="calendar-feed",
+    ),
+    path(
         "bulk-create-students/", views.bulk_create_students, name="bulk_create_students"
     ),
     path("course/<int:pk>/", views.CourseDetailView.as_view(), name="course_detail"),
