@@ -8,7 +8,15 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.db.models import Exists, F, OuterRef, Prefetch
+from django.db.models import (
+    BooleanField,
+    Exists,
+    ExpressionWrapper,
+    F,
+    OuterRef,
+    Prefetch,
+    Q,
+)
 from django.forms import modelformset_factory
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -943,11 +951,9 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
             user=request.user,
         )
     )
-    is_instructor = Exists(
-        Course.objects.filter(
-            id=OuterRef("course_id"),
-            instructor__user=request.user,
-        )
+    is_instructor = ExpressionWrapper(
+        Q(course__instructor__user=request.user),
+        output_field=BooleanField(),
     )
     meetings = (
         CourseMeeting.objects.filter(
