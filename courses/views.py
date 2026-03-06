@@ -12,7 +12,6 @@ from django.db.models import (
     BooleanField,
     Exists,
     ExpressionWrapper,
-    F,
     OuterRef,
     Prefetch,
     Q,
@@ -962,13 +961,12 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
         )
         .select_related("course", "course__semester")
         .annotate(
-            is_club=F("course__is_club"),
             is_mine=is_enrolled | is_leader | is_instructor,
         )
     )
 
     for meeting in meetings:
-        is_club: bool = meeting.is_club  # type: ignore[attr-defined]
+        is_club: bool = meeting.course.is_club
         is_mine: bool = meeting.is_mine  # type: ignore[attr-defined]
         if not is_club and not is_mine:
             continue  # non-enrolled classes are not shown
