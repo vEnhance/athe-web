@@ -35,7 +35,10 @@ if SECRET_KEY is None:
     SECRET_KEY = "django-insecure-h4^#6%7b=8p+e9nauqobbf0i$rzsx5!1g9k34bgx_@pikr*#)+"
 
 ALLOWED_HOSTS = ["beta.athemath.org", "athemath.org", "www.athemath.org"]
-if not PRODUCTION:
+if PRODUCTION:
+    USE_X_FORWARDED_HOST = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+else:
     ALLOWED_HOSTS += ["127.0.0.1"]
 
 CSRF_TRUSTED_ORIGINS = [
