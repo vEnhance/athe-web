@@ -1077,9 +1077,7 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
     month_name = calendar.month_name[display_month]
 
     cal_token, _ = CalendarToken.objects.get_or_create(user=request.user)
-    feed_url = request.build_absolute_uri(
-        reverse("courses:calendar-feed", kwargs={"token": cal_token.token})
-    )
+    feed_url = reverse("courses:calendar-feed", kwargs={"token": cal_token.token})
 
     return render(
         request,

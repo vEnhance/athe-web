@@ -110,16 +110,8 @@
             <a href="{% url 'courses:upcoming' %}">upcoming list view</a>.
         </p>
         <p>
-            This calendar uses <strong>{{ timezone_name }}</strong> time zone
+            The calendar is also displayed below in <strong>{{ timezone_name }}</strong> time zone
             (for example, right now it is {% now "g:i a e" %}).
-        </p>
-        <p>
-            <strong>Subscribe:</strong> Add this calendar to
-            <a href="https://calendar.google.com/calendar/r/settings/addbyurl?url={{ feed_url|urlencode }}"
-               target="_blank"
-               rel="noopener">Google Calendar</a>
-            or any calendar app that supports iCal/ICS feeds by subscribing to:
-            <code>{{ feed_url }}</code>
         </p>
         <div class="calendar-nav">
             <a href="?year={{ prev_year }}&amp;month={{ prev_month }}"
@@ -189,6 +181,14 @@
                 {% endfor %}
             </tbody>
         </table>
+        <hr />
+        <p>
+            <a href="https://calendar.google.com/calendar/r/settings/addbyurl?url={{ feed_url|urlencode }}"
+               target="_blank"
+               class="btn btn-primary"
+               rel="noopener">Add to Google Calendar</a>
+            (or use <a href="{{ feed_url }}">this feed URL in any other ICS app</a>)
+        </p>
     </div>
 {% endblock content %}
 {% block extra_js %}
