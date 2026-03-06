@@ -1140,7 +1140,7 @@ def calendar_feed(request: HttpRequest, token: str) -> HttpResponse:
         enrolled_ids.add(course.id)  # type: ignore[attr-defined]
 
     cal = icalendar.Calendar()
-    cal.add("prodid", "-//ATHE Calendar Feed//athe.web//EN")
+    cal.add("prodid", "-//ATHE Calendar Feed//athemath.org//EN")
     cal.add("version", "2.0")
     cal.add("calscale", "GREGORIAN")
     cal.add("method", "PUBLISH")
