@@ -4,29 +4,30 @@
             <h5 class="mb-1">
                 <a href="{% url 'courses:course_detail' pk=course.pk %}">{{ course.name }}</a>
             </h5>
-            <p class="mb-1">
-                <small class="text-muted">{{ course.semester }}</small>
-            </p>
-            {% if course.instructor %}
-                <p class="mb-1">
-                    <strong>Instructor:</strong>
-                    <a href="{{ course.instructor.get_absolute_url }}">{{ course.instructor }}</a>
+            {% if course.regular_meeting_time or course.instructor %}
+                <p>
+                    {% if course.regular_meeting_time %}{{ course.regular_meeting_time }}.{% endif %}
+                    {% if course.instructor %}
+                        <a class="fst-italic" href="{{ course.instructor.get_absolute_url }}">{{ course.instructor }}</a>
+                    {% endif %}
                 </p>
             {% endif %}
-            {% if course.regular_meeting_time %}<small class="text-muted">{{ course.regular_meeting_time }}</small>{% endif %}
         </div>
-        {% if action == "drop" %}
-            <form method="post"
-                  action="{% url 'courses:drop_club' pk=course.pk %}"
-                  onsubmit="return confirm('Are you sure you want to drop {{ course.name }}?');">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-link p-0">Drop</button>
-            </form>
-        {% elif action == "join" %}
-            <form method="post" action="{% url 'courses:join_club' pk=course.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-link p-0">Join</button>
-            </form>
-        {% endif %}
+        <div>
+            <p class="text-muted mb-0">{{ course.semester }}</p>
+            {% if action == "drop" %}
+                <form method="post"
+                      action="{% url 'courses:drop_club' pk=course.pk %}"
+                      onsubmit="return confirm('Are you sure you want to drop {{ course.name }}?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link p-0">Drop</button>
+                </form>
+            {% elif action == "join" %}
+                <form method="post" action="{% url 'courses:join_club' pk=course.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link p-0">Join</button>
+                </form>
+            {% endif %}
+        </div>
     </div>
 </div>
