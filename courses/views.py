@@ -310,6 +310,7 @@ def past_clubs(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
+@require_POST
 def join_club(request: HttpRequest, pk: int) -> HttpResponse:
     """Join a club if the user has student access to that semester."""
     club = get_object_or_404(Course, pk=pk, is_club=True)

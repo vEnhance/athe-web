@@ -13,9 +13,7 @@
                     <a href="{{ course.instructor.get_absolute_url }}">{{ course.instructor }}</a>
                 </p>
             {% endif %}
-            {% if course.regular_meeting_time %}
-                <small class="text-muted">{{ course.regular_meeting_time }}</small>
-            {% endif %}
+            {% if course.regular_meeting_time %}<small class="text-muted">{{ course.regular_meeting_time }}</small>{% endif %}
         </div>
         {% if action == "drop" %}
             <form method="post"
@@ -25,7 +23,10 @@
                 <button type="submit" class="btn btn-link p-0">Drop</button>
             </form>
         {% elif action == "join" %}
-            <a href="{% url 'courses:join_club' pk=course.pk %}">Join</a>
+            <form method="post" action="{% url 'courses:join_club' pk=course.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-link p-0">Join</button>
+            </form>
         {% endif %}
     </div>
 </div>
