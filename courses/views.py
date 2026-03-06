@@ -912,20 +912,10 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
     # Gather calendar events with categories
     calendar_events: list[dict] = []
 
-    # GlobalEvents: staff see all visible semesters; others see their enrolled semesters
-    if request.user.is_staff:
-        global_events = GlobalEvent.objects.filter(
-            start_time__range=(range_start_dt, range_end_dt), semester__visible=True
-        ).select_related("semester")
-    else:
-        enrolled_semester_ids = Student.objects.filter(user=request.user).values_list(
-            "semester_id", flat=True
-        )
-        global_events = GlobalEvent.objects.filter(
-            start_time__range=(range_start_dt, range_end_dt),
-            semester_id__in=enrolled_semester_ids,
-            semester__visible=True,
-        ).select_related("semester")
+    # GlobalEvents: everyone sees all visible semesters
+    global_events = GlobalEvent.objects.filter(
+        start_time__range=(range_start_dt, range_end_dt), semester__visible=True
+    ).select_related("semester")
 
     for event in global_events:
         calendar_events.append(
