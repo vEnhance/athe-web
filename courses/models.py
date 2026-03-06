@@ -1,3 +1,5 @@
+import secrets
+
 from django.contrib.auth.models import User
 from django.db.models import Exists, OuterRef
 from django.db.models import UniqueConstraint, Q, QuerySet
@@ -261,3 +263,22 @@ class GlobalEvent(models.Model):
 
     class Meta:
         ordering = ("start_time",)
+
+
+def _default_token() -> str:
+    return secrets.token_hex(32)
+
+
+class CalendarToken(models.Model):
+    """Per-user secret token for the iCalendar feed URL."""
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="calendar_token",
+    )
+    token = models.CharField(max_length=64, unique=True, default=_default_token)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"CalendarToken for {self.user}"
