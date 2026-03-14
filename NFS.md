@@ -38,11 +38,11 @@ nfsn signal-daemon django hup
 
   Then `flush tables;` to actually get it live.
 
-## Gotchas: permission issues
+## Gotchas: permission issues on protected/
 
 - On NFS, the main user `atheweb` and the more restricted `web` user (daemon)
-  will often fight for ownership of the `.venv` user.
+  will often fight for ownership of the `.venv` directory.
 - My strategy right now is to have only the `atheweb` user
-  do any `uv` operations
-- Consequently, web scripts will always run `uv run --no-sync`
+  do any `uv` operations.
+- Thus, web scripts will always run `uv run --no-sync`
   to avoid writing to the virtualenv.
