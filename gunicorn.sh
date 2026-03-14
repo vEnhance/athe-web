@@ -8,7 +8,7 @@ log() {
 }
 
 reload() {
-  log "♻️ RELOAD TRIGGERED. Every day I'm shuffling 🔀"
+  log "♻️  RELOAD TRIGGERED. Every day I'm shuffling 🔀"
   uv run --no-sync python3 manage.py migrate
   kill -HUP "$GUNICORN_PID"
 }
