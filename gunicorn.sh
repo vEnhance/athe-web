@@ -4,11 +4,7 @@ set -euo pipefail
 umask 002
 
 log() {
-  local msg="$1"
-  local ts commit
-  ts=$(date +"%F %T %Z")
-  commit=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
-  echo "[$ts] [$commit] $msg"
+  echo "[$(date +"%F %T %Z")] $1"
 }
 
 reload() {
