@@ -20,7 +20,7 @@ TARGET=/home/protected/atheweb/
 mkdir -p "$TARGET"
 cd "$TARGET" || exit 1
 git --git-dir="/home/private/atheweb.git" --work-tree="." checkout -f main
-chgrp -R web .
+uv sync --all-extras --no-dev
 nfsn signal-daemon django hup
 ```
 
@@ -40,9 +40,9 @@ nfsn signal-daemon django hup
 
 ## Gotchas: permission issues
 
-- When running commands, be careful to use `uv run --no-sync`
+- On NFS, the main user `atheweb` and the more restricted `web` user (daemon)
+  will often fight for ownership of the `.venv` user.
+- My strategy right now is to have only the `atheweb` user
+  do any `uv` operations
+- Consequently, web scripts will always run `uv run --no-sync`
   to avoid writing to the virtualenv.
-- The daemon runs as a user `web` and not the main user `atheweb`.
-  So if the main writes to the virtual environment,
-  permission errors will arise later on.
-- If that does happen, `chgrp -R web`.
