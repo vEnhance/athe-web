@@ -87,7 +87,7 @@ class StaffView(TemplateView):
 
     template_name = "home/staff.html"
 
-    def get_context_data(self, **kwargs):  # type: ignore
+    def get_context_data(self, **kwargs):
         """Add staff listings grouped by category."""
         context = super().get_context_data(**kwargs)
         context["board"] = StaffPhotoListing.objects.filter(category="board")
@@ -101,7 +101,7 @@ class PastStaffView(TemplateView):
 
     template_name = "home/past_staff.html"
 
-    def get_context_data(self, **kwargs):  # type: ignore
+    def get_context_data(self, **kwargs):
         """Add staff listings grouped by category."""
         context = super().get_context_data(**kwargs)
         context["xstaff"] = StaffPhotoListing.objects.filter(category="xstaff")
@@ -115,7 +115,7 @@ class StaffDetailView(DetailView):
     template_name = "home/staff_detail.html"
     context_object_name = "staff_member"
 
-    def get_context_data(self, **kwargs):  # type: ignore
+    def get_context_data(self, **kwargs):
         """Add courses taught by this staff member."""
         context = super().get_context_data(**kwargs)
         context["courses_taught"] = self.object.courses.select_related("semester").all()
@@ -144,7 +144,7 @@ class StaffPhotoUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         obj = self.get_object()
         return obj.user == self.request.user
 
-    def get_object(self, queryset=None):  # type: ignore
+    def get_object(self, queryset=None):
         """Get the staff listing for the current user."""
         return get_object_or_404(StaffPhotoListing, user=self.request.user)
 
@@ -154,7 +154,7 @@ class ApplyView(TemplateView):
 
     template_name = "home/apply.html"
 
-    def get_context_data(self, **kwargs):  # type: ignore
+    def get_context_data(self, **kwargs):
         """Add active psets or closed message."""
         context = super().get_context_data(**kwargs)
 
@@ -178,7 +178,7 @@ class PastPsetsView(ListView):
     template_name = "home/past_psets.html"
     context_object_name = "psets"
 
-    def get_queryset(self):  # type: ignore
+    def get_queryset(self):
         """Return only completed problem sets in reverse chronological order."""
         return ApplyPSet.objects.filter(status="completed").order_by("-deadline")
 

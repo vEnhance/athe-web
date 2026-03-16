@@ -253,7 +253,7 @@ DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 # Custom filter to suppress only 404 errors
 class Suppress404Filter:
-    def __call__(self, record):  # type: ignore[no-untyped-def]
+    def __call__(self, record):
         # Django adds status_code to the log record for request errors
         return getattr(record, "status_code", None) != 404
 
@@ -290,4 +290,4 @@ if DISCORD_WEBHOOK_URL:
         "class": "django_discordo.DiscordWebhookHandler",
         "level": "SUCCESS",
     }
-    LOGGING["root"]["handlers"].append("discord")  # type: ignore[union-attr]
+    LOGGING["root"]["handlers"].append("discord")

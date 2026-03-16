@@ -130,8 +130,8 @@ def test_post_login_choice_yes(student_invite_view_setup):
     response = client.post(url, {"has_account": "yes"})
     assert response.status_code == 302
     # Should redirect to login with next parameter
-    assert "/login/" in response.url
-    assert "next=" in response.url
+    assert "/login/" in response["Location"]
+    assert "next=" in response["Location"]
 
 
 @pytest.mark.django_db
@@ -318,7 +318,7 @@ def test_existing_user_login_flow(student_invite_view_setup):
     # First, choose "yes" (has account)
     response = client.post(url, {"has_account": "yes"})
     assert response.status_code == 302
-    assert "/login/" in response.url
+    assert "/login/" in response["Location"]
 
     # Login
     client.login(username="existinguser", password="testpass123")

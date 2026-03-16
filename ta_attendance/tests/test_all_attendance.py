@@ -19,7 +19,7 @@ def test_all_attendance_requires_login():
     response = client.get(url)
 
     assert response.status_code == 302
-    assert "/login/" in response.url
+    assert "/login/" in response["Location"]
 
 
 @pytest.mark.django_db
@@ -33,14 +33,14 @@ def test_all_attendance_requires_superuser():
     url = reverse("ta_attendance:all_attendance")
     response = client.get(url)
     assert response.status_code == 302
-    assert response.url == reverse("home:index")
+    assert response["Location"] == reverse("home:index")
 
     # Test with staff (but not superuser)
     User.objects.create_user(username="staff", password="password", is_staff=True)
     client.login(username="staff", password="password")
     response = client.get(url)
     assert response.status_code == 302
-    assert response.url == reverse("home:index")
+    assert response["Location"] == reverse("home:index")
 
 
 @pytest.mark.django_db

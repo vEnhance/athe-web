@@ -7,7 +7,7 @@ from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 
 
 class NoNewUsersAccountAdapter(DefaultAccountAdapter):
-    def is_open_for_signup(self, request):  # type: ignore
+    def is_open_for_signup(self, request):
         """
         Checks whether or not the site is open for signups.
 
@@ -20,7 +20,7 @@ class NoNewUsersAccountAdapter(DefaultAccountAdapter):
 
 
 class PreservePasswordSocialAccountAdapter(DefaultSocialAccountAdapter):
-    def authentication_inited(self, request, sociallogin):  # type: ignore
+    def authentication_inited(self, request, sociallogin):
         """
         Called when email-based authentication is initiated.
 
@@ -40,7 +40,7 @@ class PreservePasswordSocialAccountAdapter(DefaultSocialAccountAdapter):
             except User.DoesNotExist:
                 pass
 
-    def authentication_finished(self, request, sociallogin):  # type: ignore
+    def authentication_finished(self, request, sociallogin):
         """
         Called when email-based authentication is finished.
 

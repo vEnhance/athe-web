@@ -309,7 +309,7 @@ class SingleAwardForm(forms.ModelForm):
             "description": "Optional description for this award",
         }
 
-    def __init__(self, *args, **kwargs):  # type: ignore[no-untyped-def]
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Make house required for single awards
         self.fields["house"].required = True
@@ -327,7 +327,7 @@ class SingleAwardView(UserPassesTestMixin, CreateView):
         """Only staff can access this view."""
         return self.request.user.is_staff  # type: ignore[attr-defined]
 
-    def get_context_data(self, **kwargs):  # type: ignore[no-untyped-def]
+    def get_context_data(self, **kwargs):
         """Add semester and default points to context."""
         context = super().get_context_data(**kwargs)
         try:
@@ -338,7 +338,7 @@ class SingleAwardView(UserPassesTestMixin, CreateView):
             context["semester"] = None
         return context
 
-    def form_valid(self, form):  # type: ignore[no-untyped-def]
+    def form_valid(self, form):
         """Set semester, awarded_by, and default points if needed."""
         try:
             semester = Semester.get_current_semester()
@@ -360,7 +360,7 @@ class SingleAwardView(UserPassesTestMixin, CreateView):
         messages.success(
             self.request,
             f"Successfully awarded {form.instance.points} points to "
-            f"{form.instance.get_house_display()}!",  # type: ignore[attr-defined]
+            f"{form.instance.get_house_display()}!",
         )
         return response
 
@@ -386,7 +386,7 @@ def my_awards(request: HttpRequest) -> HttpResponse:
         total = Award.objects.filter(student=student).aggregate(total=Sum("points"))[
             "total"
         ]
-        semester_totals[student.semester.id] = {  # type: ignore[attr-defined]
+        semester_totals[student.semester.id] = {
             "semester": student.semester,
             "house": student.get_house_display() if student.house else "Unassigned",  # type: ignore[attr-defined]
             "total": total or 0,
@@ -415,7 +415,7 @@ class AttendanceBulkForm(forms.Form):
         help_text="Description for the attendance awards",
     )
 
-    def __init__(self, *args, user=None, **kwargs):  # type: ignore[no-untyped-def]
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         today = timezone.now().date()
         # Filter courses to those in semesters that haven't ended
@@ -635,7 +635,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
 
     def get(self, request: HttpRequest) -> HttpResponse:
         """Display the attendance bulk award form."""
-        form = AttendanceBulkForm(user=request.user)  # type: ignore[arg-type]
+        form = AttendanceBulkForm(user=request.user)
 
         return render(
             request,
@@ -650,7 +650,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
 
     def post(self, request: HttpRequest) -> HttpResponse:
         """Process attendance bulk award creation."""
-        form = AttendanceBulkForm(request.POST, user=request.user)  # type: ignore[arg-type]
+        form = AttendanceBulkForm(request.POST, user=request.user)
 
         # Check if this is a "load students" action or the final submission
         if "load_students" in request.POST:
@@ -679,7 +679,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
             form_data = request.POST.copy()
             if not form_data.get("description"):
                 form_data["description"] = default_description
-            updated_form = AttendanceBulkForm(form_data, user=request.user)  # type: ignore[arg-type]
+            updated_form = AttendanceBulkForm(form_data, user=request.user)
 
             # Calculate attendance points for each student
             # Use total points instead of count to handle legacy imports
@@ -802,7 +802,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
             request,
             "housepoints/attendance_bulk.html",
             {
-                "form": AttendanceBulkForm(user=request.user),  # type: ignore[arg-type]
+                "form": AttendanceBulkForm(user=request.user),
                 "results": results,
                 "students": [],
                 "selected_course": None,

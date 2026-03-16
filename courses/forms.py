@@ -6,7 +6,7 @@ from django.utils import timezone
 from courses.models import Course, CourseMeeting, Semester
 
 
-class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
+class CourseMeetingForm(forms.ModelForm):
     """Form for creating/editing course meetings."""
 
     class Meta:
@@ -38,7 +38,7 @@ class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
         return start_time
 
 
-class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
+class CourseUpdateForm(forms.ModelForm):
     """Form for updating course details by leaders."""
 
     class Meta:

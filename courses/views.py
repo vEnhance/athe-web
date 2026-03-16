@@ -125,7 +125,7 @@ def my_courses(request: HttpRequest) -> HttpResponse:
     all_courses = {}
     for student in student_records:
         for course in student.non_club_courses:  # type: ignore[attr-defined]
-            all_courses[course.id] = course  # type: ignore[attr-defined]
+            all_courses[course.id] = course
     for course in led_courses:
         all_courses[course.id] = course  # type: ignore[attr-defined]
 
@@ -266,7 +266,7 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
     enrolled_club_ids = set()
     for student in active_student_records_list:
         for course in student.enrolled_club_list:  # type: ignore[attr-defined]
-            enrolled_club_ids.add(course.id)  # type: ignore[attr-defined]
+            enrolled_club_ids.add(course.id)
 
     # Add led clubs to enrolled list
     for club in led_clubs_list:
@@ -456,7 +456,7 @@ def upcoming(request: HttpRequest) -> HttpResponse:
     for student in student_records:
         enrolled_semester_ids.add(student.semester_id)  # type: ignore[attr-defined]
         for course in student.enrolled_courses.all():  # type: ignore[attr-defined]
-            enrolled_course_ids.add(course.id)  # type: ignore[attr-defined]
+            enrolled_course_ids.add(course.id)
 
     # Get all courses where user is a leader
     led_courses = Course.objects.filter(leaders=request.user)
@@ -1072,7 +1072,7 @@ def calendar_feed(request: HttpRequest, token: str) -> HttpResponse:
     enrolled_ids: set[int] = set()
     for student in student_records:
         for course in student.enrolled_courses.all():  # type: ignore[attr-defined]
-            enrolled_ids.add(course.id)  # type: ignore[attr-defined]
+            enrolled_ids.add(course.id)
 
     for course in Course.objects.filter(leaders=user):
         enrolled_ids.add(course.id)  # type: ignore[attr-defined]

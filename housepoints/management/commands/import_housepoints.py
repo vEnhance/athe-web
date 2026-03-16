@@ -124,7 +124,7 @@ def parse_cell_value(value: str, is_intro: bool = False) -> int | None:
 class Command(BaseCommand):
     help = "Bulk import house points from a TSV file"
 
-    def add_arguments(self, parser):  # type: ignore[no-untyped-def]
+    def add_arguments(self, parser):
         parser.add_argument(
             "tsv_file",
             type=str,

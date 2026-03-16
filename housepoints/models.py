@@ -113,7 +113,7 @@ class Award(models.Model):
                 self.house = self.student.house
             elif self.house != self.student.house:
                 raise ValidationError(
-                    f"House mismatch: student is in {self.student.get_house_display()} "  # type: ignore[attr-defined]
+                    f"House mismatch: student is in {self.student.get_house_display()} "
                     f"but award is for {self.get_house_display()}."  # type: ignore[attr-defined]
                 )
             # Ensure student belongs to the same semester
@@ -126,7 +126,7 @@ class Award(models.Model):
             if not self.house:
                 raise ValidationError("House-level awards must specify a house.")
 
-    def save(self, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
+    def save(self, *args, **kwargs) -> None:
         # Auto-fill house from student before saving
         if self.student and self.student.house:
             self.house = self.student.house

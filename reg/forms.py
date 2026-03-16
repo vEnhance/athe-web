@@ -46,7 +46,7 @@ class StaffRegistrationForm(UserCreationForm):
             "password2",
         ]
 
-    def __init__(self, *args, **kwargs):  # type: ignore
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Add Bootstrap classes and help text
         self.fields[
@@ -107,7 +107,7 @@ class StudentRegistrationForm(UserCreationForm):
             "last_name",
         ]
 
-    def __init__(self, *args, **kwargs):  # type: ignore
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Add help text
         self.fields[
@@ -133,7 +133,7 @@ class StudentSelectionForm(forms.Form):
         help_text="Please select your name from the roster below.",
     )
 
-    def __init__(self, semester, *args, **kwargs):  # type: ignore
+    def __init__(self, semester, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Only show students from this semester
         self.fields["student"].queryset = Student.objects.filter(  # type: ignore

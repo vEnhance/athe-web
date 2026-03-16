@@ -13,7 +13,7 @@ User = get_user_model()
 class Command(BaseCommand):
     help = "Generate 20 sample students for Fall Session 2025"
 
-    def add_arguments(self, parser):  # type: ignore[no-untyped-def]
+    def add_arguments(self, parser):
         parser.add_argument(
             "--count",
             type=int,

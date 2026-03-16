@@ -23,7 +23,7 @@ class MathPreprocessor(Preprocessor):
 
     def run(self, lines: list[str]) -> list[str]:
         text = "\n".join(lines)
-        self.md._math_stash: list[str] = []  # type: ignore[attr-defined]
+        self.md._math_stash: list[str] = []
 
         def stash(m: re.Match[str]) -> str:
             idx = len(self.md._math_stash)  # type: ignore[attr-defined]
@@ -60,12 +60,12 @@ class MathPostprocessor(Postprocessor):
 class MathExtension(Extension):
     """Extension to protect LaTeX math from markdown processing."""
 
-    def extendMarkdown(self, md) -> None:  # type: ignore[override]
+    def extendMarkdown(self, md) -> None:
         md.preprocessors.register(MathPreprocessor(md), "math_protect", 200)
         # Low priority so this runs after all other postprocessors (e.g. footnotes)
         md.postprocessors.register(MathPostprocessor(md), "math_restore", 0)
 
 
-def makeExtension(**kwargs) -> MathExtension:  # type: ignore[no-untyped-def]
+def makeExtension(**kwargs) -> MathExtension:
     """Create the extension."""
     return MathExtension(**kwargs)

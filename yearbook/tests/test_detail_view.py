@@ -35,7 +35,7 @@ def test_detail_view_requires_login():
     response = client.get(url)
 
     assert response.status_code == 302
-    assert "/login/" in response.url
+    assert "/login/" in response["Location"]
 
 
 @pytest.mark.django_db

@@ -29,7 +29,7 @@ class StaffInviteView(View):
     4. Otherwise, let them create a Django user account
     """
 
-    def get(self, request, invite_id):  # type: ignore
+    def get(self, request, invite_id):
         """Display the staff selection form."""
         invite = get_object_or_404(StaffInviteLink, id=invite_id)
 
@@ -82,7 +82,7 @@ class StaffInviteView(View):
             },
         )
 
-    def post(self, request, invite_id):  # type: ignore
+    def post(self, request, invite_id):
         """Handle form submissions."""
         invite = get_object_or_404(StaffInviteLink, id=invite_id)
 
@@ -100,7 +100,7 @@ class StaffInviteView(View):
         else:
             return self._handle_staff_selection(request, invite)
 
-    def _handle_staff_selection(self, request, invite):  # type: ignore
+    def _handle_staff_selection(self, request, invite):
         """Handle the staff selection step."""
         form = StaffSelectionForm(request.POST)
 
@@ -132,7 +132,7 @@ class StaffInviteView(View):
             },
         )
 
-    def _handle_registration(self, request, invite):  # type: ignore
+    def _handle_registration(self, request, invite):
         """Handle the registration step."""
         staff_listing_id = request.session["staff_listing_id"]
         staff_listing = get_object_or_404(StaffPhotoListing, id=staff_listing_id)
@@ -208,7 +208,7 @@ class StudentInviteView(View):
     7. Link the user to the selected Student record
     """
 
-    def get(self, request, invite_id):  # type: ignore
+    def get(self, request, invite_id):
         """Display the appropriate step in the registration process."""
         invite = get_object_or_404(StudentInviteLink, id=invite_id)
 
@@ -316,7 +316,7 @@ class StudentInviteView(View):
             },
         )
 
-    def post(self, request, invite_id):  # type: ignore
+    def post(self, request, invite_id):
         """Handle form submissions."""
         invite = get_object_or_404(StudentInviteLink, id=invite_id)
 
@@ -347,7 +347,7 @@ class StudentInviteView(View):
         # User is logged in - handle student selection
         return self._handle_student_selection(request, invite)
 
-    def _handle_login_choice(self, request, invite):  # type: ignore
+    def _handle_login_choice(self, request, invite):
         """Handle the login choice step (has account or create new)."""
         form = LoginChoiceForm(request.POST)
 
@@ -374,7 +374,7 @@ class StudentInviteView(View):
             },
         )
 
-    def _handle_new_account_creation(self, request, invite):  # type: ignore
+    def _handle_new_account_creation(self, request, invite):
         """Handle the new account creation step."""
         form = StudentRegistrationForm(request.POST)
 
@@ -401,7 +401,7 @@ class StudentInviteView(View):
             },
         )
 
-    def _handle_student_selection(self, request, invite):  # type: ignore
+    def _handle_student_selection(self, request, invite):
         """Handle the student selection step."""
         # Check if user already has a Student for this semester
         existing_student = Student.objects.filter(

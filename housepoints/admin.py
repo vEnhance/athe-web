@@ -59,7 +59,7 @@ class AwardAdmin(admin.ModelAdmin):
         request: HttpRequest,
         obj: Award,
         form,
-        change: bool,  # type: ignore[no-untyped-def]
+        change: bool,
     ) -> None:
         """Auto-set awarded_by to current user if not set."""
         if not obj.awarded_by:

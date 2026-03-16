@@ -40,7 +40,7 @@ def test_join_club_active_semester():
 
     # Should redirect to my_clubs
     assert response.status_code == 302
-    assert response.url == reverse("courses:my_clubs")
+    assert response["Location"] == reverse("courses:my_clubs")
 
     # Verify student is enrolled
     student = Student.objects.get(user=user, semester=active_semester)
@@ -76,7 +76,7 @@ def test_join_club_fails_for_non_student():
     url = reverse("courses:join_club", kwargs={"pk": club.pk})
     response = client.post(url)
     assert response.status_code == 302
-    assert response.url == reverse("courses:my_clubs")
+    assert response["Location"] == reverse("courses:my_clubs")
 
 
 @pytest.mark.django_db
@@ -259,7 +259,7 @@ def test_drop_club_active_semester():
 
     # Should redirect to my_clubs
     assert response.status_code == 302
-    assert response.url == reverse("courses:my_clubs")
+    assert response["Location"] == reverse("courses:my_clubs")
 
     # Verify student is no longer enrolled
     student.refresh_from_db()
@@ -394,7 +394,7 @@ def test_join_club_requires_login():
 
     # Should redirect to login page
     assert response.status_code == 302
-    assert "/login/" in response.url
+    assert "/login/" in response["Location"]
 
 
 @pytest.mark.django_db
@@ -422,4 +422,4 @@ def test_drop_club_requires_login():
 
     # Should redirect to login page
     assert response.status_code == 302
-    assert "/login/" in response.url
+    assert "/login/" in response["Location"]

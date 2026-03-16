@@ -20,7 +20,7 @@ def test_sorting_hat_requires_superuser():
     url = reverse("courses:sorting_hat")
     response = client.get(url)
     assert response.status_code == 302
-    assert "/login/" in response.url
+    assert "/login/" in response["Location"]
 
     # Test with regular user
     User.objects.create_user(username="regular", password="password")

@@ -5,28 +5,28 @@ from courses.models import Course, CourseMeeting, GlobalEvent, Semester, Student
 
 # Admin actions for changing student houses
 @admin.action(description="Assign selected students to Blob house")
-def assign_to_blob(modeladmin, request, queryset):  # type: ignore
+def assign_to_blob(modeladmin, request, queryset):
     """Change the house of selected students to Blob."""
     updated = queryset.update(house=Student.House.BLOB)
     modeladmin.message_user(request, f"{updated} student(s) assigned to Blob house.")
 
 
 @admin.action(description="Assign selected students to Cat house")
-def assign_to_cat(modeladmin, request, queryset):  # type: ignore
+def assign_to_cat(modeladmin, request, queryset):
     """Change the house of selected students to Cat."""
     updated = queryset.update(house=Student.House.CAT)
     modeladmin.message_user(request, f"{updated} student(s) assigned to Cat house.")
 
 
 @admin.action(description="Assign selected students to Owl house")
-def assign_to_owl(modeladmin, request, queryset):  # type: ignore
+def assign_to_owl(modeladmin, request, queryset):
     """Change the house of selected students to Owl."""
     updated = queryset.update(house=Student.House.OWL)
     modeladmin.message_user(request, f"{updated} student(s) assigned to Owl house.")
 
 
 @admin.action(description="Assign selected students to Red Panda house")
-def assign_to_red_panda(modeladmin, request, queryset):  # type: ignore
+def assign_to_red_panda(modeladmin, request, queryset):
     """Change the house of selected students to Red Panda."""
     updated = queryset.update(house=Student.House.RED_PANDA)
     modeladmin.message_user(
@@ -35,7 +35,7 @@ def assign_to_red_panda(modeladmin, request, queryset):  # type: ignore
 
 
 @admin.action(description="Assign selected students to Bunny house")
-def assign_to_bunny(modeladmin, request, queryset):  # type: ignore
+def assign_to_bunny(modeladmin, request, queryset):
     """Change the house of selected students to Bunny."""
     updated = queryset.update(house=Student.House.BUNNY)
     modeladmin.message_user(request, f"{updated} student(s) assigned to Bunny house.")
@@ -74,11 +74,11 @@ class CourseAdmin(admin.ModelAdmin):
     filter_horizontal = ("leaders", "students")
     inlines = [CourseMeetingInline]
 
-    def formfield_for_manytomany(self, db_field, request, **kwargs):  # type: ignore
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
         """Filter students to only show students from the course's semester."""
         if db_field.name == "students":
             # Get the course instance being edited
-            course_id = request.resolver_match.kwargs.get("object_id")  # type: ignore[attr-defined]
+            course_id = request.resolver_match.kwargs.get("object_id")
             if course_id:
                 try:
                     course = Course.objects.get(pk=course_id)

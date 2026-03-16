@@ -403,7 +403,7 @@ class TestCalRedirect:
         client.login(username="user", password="password")
         response = client.get("/cal/")
         assert response.status_code == 302
-        assert "/catalog/calendar/" in response.url
+        assert "/catalog/calendar/" in response["Location"]
 
 
 @pytest.mark.django_db

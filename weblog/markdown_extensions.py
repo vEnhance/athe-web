@@ -9,7 +9,7 @@ from markdown.treeprocessors import Treeprocessor
 class FigureCaptionProcessor(Treeprocessor):
     """Convert images with alt text to figures with captions."""
 
-    def run(self, root):  # type: ignore
+    def run(self, root):
         """Process the markdown tree."""
         for parent in root.iter():
             for i, child in enumerate(list(parent)):
@@ -49,11 +49,11 @@ class FigureCaptionProcessor(Treeprocessor):
 class FigureCaptionExtension(Extension):
     """Extension to add figure captions to images."""
 
-    def extendMarkdown(self, md):  # type: ignore
+    def extendMarkdown(self, md):
         """Register the tree processor."""
         md.treeprocessors.register(FigureCaptionProcessor(md), "figure_caption", 15)
 
 
-def makeExtension(**kwargs):  # type: ignore
+def makeExtension(**kwargs):
     """Create the extension."""
     return FigureCaptionExtension(**kwargs)
