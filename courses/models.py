@@ -70,7 +70,7 @@ class Semester(models.Model):
                 "Please ensure semester dates do not overlap."
             )
 
-        return current_semesters.first()  # type: ignore[return-value]
+        return current_semesters.first()
 
     class Meta:
         ordering = ("-start_date",)

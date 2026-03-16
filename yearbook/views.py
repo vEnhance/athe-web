@@ -3,7 +3,8 @@ from typing import Any
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.http import HttpRequest, HttpResponseBase
+from django.http import HttpRequest
+from django.http.response import HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
@@ -48,7 +49,7 @@ class YearbookEntryCreateView(StudentOwnerMixin, CreateView):
             )
         return self._student
 
-    def dispatch(
+    def dispatch(  # type: ignore[override]
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
         # Check if student already has an entry
@@ -61,7 +62,7 @@ class YearbookEntryCreateView(StudentOwnerMixin, CreateView):
             pass
         return super().dispatch(request, *args, **kwargs)
 
-    def form_valid(self, form: YearbookEntryForm) -> HttpResponseBase:
+    def form_valid(self, form: YearbookEntryForm) -> HttpResponseBase:  # type: ignore[override]
         form.instance.student = self.get_student()
         return super().form_valid(form)
 
@@ -86,16 +87,20 @@ class YearbookEntryUpdateView(StudentOwnerMixin, UpdateView):
     template_name = "yearbook/yearbookentry_form.html"
 
     def get_student(self) -> Student:
-        return self.get_object().student
+        entry = self.get_object()
+        assert isinstance(entry, YearbookEntry)
+        return entry.student
 
     def get_queryset(self):
         # Only allow editing entries owned by the current user
         return YearbookEntry.objects.filter(student__user=self.request.user)
 
     def get_success_url(self) -> str:
+        entry = self.get_object()
+        assert isinstance(entry, YearbookEntry)
         return reverse(
             "yearbook:entry_list",
-            kwargs={"slug": self.get_object().student.semester.slug},
+            kwargs={"slug": entry.student.semester.slug},
         )
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
@@ -117,6 +122,7 @@ class YearbookEntryDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailVie
         if not self.request.user.is_authenticated:
             return False
         entry = self.get_object()
+        assert isinstance(entry, YearbookEntry)
         semester = entry.student.semester
 
         # Staff can view any entry
@@ -130,7 +136,9 @@ class YearbookEntryDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailVie
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["semester"] = self.get_object().student.semester
+        entry = self.get_object()
+        assert isinstance(entry, YearbookEntry)
+        context["semester"] = entry.student.semester
         return context
 
 
@@ -182,7 +190,7 @@ class YearbookEntryListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         if user_student:
             context["can_edit"] = date.today() <= semester.end_date
             try:
-                context["user_entry"] = user_student.yearbook_entry  # type: ignore[attr-defined]
+                context["user_entry"] = user_student.yearbook_entry
                 context["has_entry"] = True
             except YearbookEntry.DoesNotExist:
                 context["has_entry"] = False
@@ -215,7 +223,7 @@ class YearbookIndexView(LoginRequiredMixin, ListView):
 
     model = Semester
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:  # type: ignore[override]
         user = request.user
         assert isinstance(user, User)
 

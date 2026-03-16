@@ -42,7 +42,7 @@ class HistoryEntry(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True, help_text="Date and time when the entry was created"
     )
-    content = MarkdownField(
+    content = MarkdownField(  # type: ignore[call-overload]
         rendered_field="content_rendered",
         validator=VALIDATOR_WITH_FIGURES,
         help_text="History entry content in Markdown format",
@@ -80,7 +80,7 @@ class BlogPost(models.Model):
         related_name="blog_posts",
         help_text="User who created this post",
     )
-    content = MarkdownField(
+    content = MarkdownField(  # type: ignore[call-overload]
         rendered_field="content_rendered",
         validator=VALIDATOR_WITH_FIGURES,
         help_text="Blog post content in Markdown format",

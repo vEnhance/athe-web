@@ -91,7 +91,7 @@ class Command(BaseCommand):
                     continue
 
                 # Create user with a default password
-                user = User.objects.create_user(  # type: ignore[attr-defined]
+                user = User.objects.create_user(
                     username=username,
                     email=email,
                     password="athemath2025",  # Default password for all test users

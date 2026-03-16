@@ -124,10 +124,10 @@ def my_courses(request: HttpRequest) -> HttpResponse:
     # Combine enrolled and led courses (avoid duplicates)
     all_courses = {}
     for student in student_records:
-        for course in student.non_club_courses:  # type: ignore[attr-defined]
+        for course in student.non_club_courses:
             all_courses[course.id] = course
     for course in led_courses:
-        all_courses[course.id] = course  # type: ignore[attr-defined]
+        all_courses[course.id] = course
 
     # Convert to list and sort
     enrolled_courses = list(all_courses.values())
@@ -147,7 +147,7 @@ def my_courses(request: HttpRequest) -> HttpResponse:
         )
     else:
         # Students see global events from semesters they're enrolled in
-        student_semester_ids = [s.semester_id for s in student_records]  # type: ignore[attr-defined]
+        student_semester_ids = [s.semester_id for s in student_records]
         global_events = (
             GlobalEvent.objects.filter(
                 semester_id__in=student_semester_ids,
@@ -218,7 +218,7 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
         )
     else:
         # Students see global events from semesters they're enrolled in
-        student_semester_ids = [s.semester_id for s in active_student_records_list]  # type: ignore[attr-defined]
+        student_semester_ids = [s.semester_id for s in active_student_records_list]
         global_events = (
             GlobalEvent.objects.filter(
                 semester_id__in=student_semester_ids,
@@ -265,26 +265,26 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
     # Build set of enrolled club IDs
     enrolled_club_ids = set()
     for student in active_student_records_list:
-        for course in student.enrolled_club_list:  # type: ignore[attr-defined]
+        for course in student.enrolled_club_list:
             enrolled_club_ids.add(course.id)
 
     # Add led clubs to enrolled list
     for club in led_clubs_list:
-        enrolled_club_ids.add(club.id)  # type: ignore[attr-defined]
+        enrolled_club_ids.add(club.id)
 
     # Split into enrolled and available
     enrolled_clubs_dict = {}
     available_clubs = []
     for club in all_active_clubs:
-        if club.id in enrolled_club_ids:  # type: ignore[attr-defined]
-            enrolled_clubs_dict[club.id] = club  # type: ignore[attr-defined]
+        if club.id in enrolled_club_ids:
+            enrolled_clubs_dict[club.id] = club
         else:
             available_clubs.append(club)
 
     # Also include led clubs that might not be in active_semesters
     for club in led_clubs_list:
-        if club.id not in enrolled_clubs_dict:  # type: ignore[attr-defined]
-            enrolled_clubs_dict[club.id] = club  # type: ignore[attr-defined]
+        if club.id not in enrolled_clubs_dict:
+            enrolled_clubs_dict[club.id] = club
 
     enrolled_clubs = list(enrolled_clubs_dict.values())
 
@@ -454,15 +454,15 @@ def upcoming(request: HttpRequest) -> HttpResponse:
     enrolled_course_ids = set()
     enrolled_semester_ids = set()
     for student in student_records:
-        enrolled_semester_ids.add(student.semester_id)  # type: ignore[attr-defined]
-        for course in student.enrolled_courses.all():  # type: ignore[attr-defined]
+        enrolled_semester_ids.add(student.semester_id)
+        for course in student.enrolled_courses.all():
             enrolled_course_ids.add(course.id)
 
     # Get all courses where user is a leader
     led_courses = Course.objects.filter(leaders=request.user)
     for course in led_courses:
-        enrolled_course_ids.add(course.id)  # type: ignore[attr-defined]
-        enrolled_semester_ids.add(course.semester_id)  # type: ignore[attr-defined]
+        enrolled_course_ids.add(course.id)
+        enrolled_semester_ids.add(course.semester_id)
 
     # Get all future meetings for those courses
     now = timezone.now()
@@ -507,6 +507,7 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
     model = Course
     template_name = "courses/course_detail.html"
     context_object_name = "course"
+    object: Course
 
     def test_func(self) -> bool:
         """Check access permissions based on whether it's a club or class."""
@@ -515,6 +516,7 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
         assert isinstance(self.request.user, User)
 
         course = self.get_object()
+        assert isinstance(course, Course)
 
         # Staff users have access to everything
         if self.request.user.is_staff:
@@ -591,6 +593,7 @@ class CourseUpdateView(UserPassesTestMixin, UpdateView):
     form_class = CourseUpdateForm
     template_name = "courses/course_update.html"
     context_object_name = "course"
+    object: Course
 
     def test_func(self) -> bool:
         """Check if user is staff or a leader of this course."""
@@ -601,13 +604,14 @@ class CourseUpdateView(UserPassesTestMixin, UpdateView):
             return True
 
         course = self.get_object()
+        assert isinstance(course, Course)
         return course.leaders.filter(pk=self.request.user.pk).exists()
 
     def get_success_url(self) -> str:
         """Redirect back to the course detail page after successful update."""
         return reverse("courses:course_detail", kwargs={"pk": self.object.pk})
 
-    def form_valid(self, form: CourseUpdateForm):
+    def form_valid(self, form: CourseUpdateForm) -> HttpResponse:  # type: ignore[override]
         """Add a success message when the form is saved."""
         messages.success(
             self.request, f"{self.object.name} has been updated successfully!"
@@ -771,8 +775,8 @@ def bulk_create_students(request: HttpRequest) -> HttpResponse:
                     course = courses_in_semester[course_name]
                     enrollments.append(
                         Course.students.through(
-                            student_id=student.id,  # type: ignore[attr-defined]
-                            course_id=course.id,  # type: ignore[attr-defined]
+                            student_id=student.id,
+                            course_id=course.id,
                         )
                     )
 
@@ -797,7 +801,7 @@ class SortingHatView(UserPassesTestMixin, View):
 
     def test_func(self) -> bool:
         """Only superusers can access this view."""
-        return self.request.user.is_superuser  # type: ignore[attr-defined]
+        return self.request.user.is_superuser
 
     def get(self, request: HttpRequest) -> HttpResponse:
         """Display the sorting hat form."""
@@ -967,7 +971,7 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
 
     for meeting in meetings:
         is_club: bool = meeting.course.is_club
-        is_mine: bool = meeting.is_mine  # type: ignore[attr-defined]
+        is_mine: bool = meeting.is_mine
         if not is_club and not is_mine:
             continue  # non-enrolled classes are not shown
         if is_mine:
@@ -1066,16 +1070,16 @@ def calendar_feed(request: HttpRequest, token: str) -> HttpResponse:
 
     # Determine which semesters the user can see
     student_records = Student.objects.filter(user=user).select_related("semester")
-    student_semester_ids = {s.semester_id for s in student_records}  # type: ignore[attr-defined]
+    student_semester_ids = {s.semester_id for s in student_records}
 
     # Enrolled course IDs (classes and clubs treated identically in the feed)
     enrolled_ids: set[int] = set()
     for student in student_records:
-        for course in student.enrolled_courses.all():  # type: ignore[attr-defined]
+        for course in student.enrolled_courses.all():
             enrolled_ids.add(course.id)
 
     for course in Course.objects.filter(leaders=user):
-        enrolled_ids.add(course.id)  # type: ignore[attr-defined]
+        enrolled_ids.add(course.id)
 
     cal = icalendar.Calendar()
     cal.add("prodid", "-//Athemath Calendar Feed//athemath.org//EN")
@@ -1154,6 +1158,7 @@ class GlobalEventDetailView(UserPassesTestMixin, DetailView):
         assert isinstance(self.request.user, User)
 
         event = self.get_object()
+        assert isinstance(event, GlobalEvent)
 
         # Staff users have access to everything
         if self.request.user.is_staff:

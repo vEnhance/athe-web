@@ -113,7 +113,7 @@ class Award(models.Model):
                 self.house = self.student.house
             elif self.house != self.student.house:
                 raise ValidationError(
-                    f"House mismatch: student is in {self.student.get_house_display()} "
+                    f"House mismatch: student is in {self.student.get_house_display()} "  # type: ignore[attr-defined]
                     f"but award is for {self.get_house_display()}."  # type: ignore[attr-defined]
                 )
             # Ensure student belongs to the same semester

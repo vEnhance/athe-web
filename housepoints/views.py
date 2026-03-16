@@ -142,7 +142,7 @@ class BulkAwardView(UserPassesTestMixin, View):
 
     def test_func(self) -> bool:
         """Only staff can access this view."""
-        return self.request.user.is_staff  # type: ignore[attr-defined]
+        return self.request.user.is_staff
 
     def get(self, request: HttpRequest) -> HttpResponse:
         """Display the bulk award form."""
@@ -227,7 +227,7 @@ class BulkAwardView(UserPassesTestMixin, View):
                         awarded_by=request.user,
                     )
                     results["success"].append(
-                        f"{airtable_name}: +{points} pts ({student.get_house_display()})"  # type: ignore[attr-defined]
+                        f"{airtable_name}: +{points} pts ({student.get_house_display()})"
                     )
                 except Exception as e:
                     results["errors"].append(f"{airtable_name}: {str(e)}")
@@ -325,7 +325,7 @@ class SingleAwardView(UserPassesTestMixin, CreateView):
 
     def test_func(self) -> bool:
         """Only staff can access this view."""
-        return self.request.user.is_staff  # type: ignore[attr-defined]
+        return self.request.user.is_staff
 
     def get_context_data(self, **kwargs):
         """Add semester and default points to context."""
@@ -388,7 +388,7 @@ def my_awards(request: HttpRequest) -> HttpResponse:
         ]
         semester_totals[student.semester.id] = {
             "semester": student.semester,
-            "house": student.get_house_display() if student.house else "Unassigned",  # type: ignore[attr-defined]
+            "house": student.get_house_display() if student.house else "Unassigned",
             "total": total or 0,
         }
 
@@ -488,7 +488,7 @@ def house_detail(request: HttpRequest, slug: str, house: str) -> HttpResponse:
     grand_total = sum(c["total_points"] for c in category_data)
 
     # Get house display name
-    house_display = dict(Student.House.choices).get(house, house)
+    house_display = Student.House(house).label
 
     return render(
         request,
@@ -606,7 +606,7 @@ def house_detail_staff(request: HttpRequest, slug: str, house: str) -> HttpRespo
     grand_total = sum(column_totals_list)
 
     # Get house display name
-    house_display = dict(Student.House.choices).get(house, house)
+    house_display = Student.House(house).label
 
     return render(
         request,
@@ -631,7 +631,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
 
     def test_func(self) -> bool:
         """Only staff can access this view."""
-        return self.request.user.is_staff  # type: ignore[attr-defined]
+        return self.request.user.is_staff
 
     def get(self, request: HttpRequest) -> HttpResponse:
         """Display the attendance bulk award form."""
@@ -782,7 +782,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
                         )
                         results["success"].append(
                             f"{student.airtable_name}: +{points} pts "
-                            f"({student.get_house_display()})"  # type: ignore[attr-defined]
+                            f"({student.get_house_display()})"
                         )
                     except Exception as e:
                         results["errors"].append(f"{student.airtable_name}: {str(e)}")

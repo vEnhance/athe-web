@@ -33,14 +33,14 @@ class ApplyPSet(models.Model):
         upload_to="apply_psets/",
         help_text="PDF file for the problem set",
     )
-    instructions = MarkdownField(
+    instructions = MarkdownField(  # type: ignore[call-overload]
         blank=True,
         rendered_field="instructions_rendered",
         validator=VALIDATOR_WITH_FIGURES,
         help_text="Instructions displayed when status is active (Markdown format)",
     )
     instructions_rendered = RenderedMarkdownField()
-    closed_message = MarkdownField(
+    closed_message = MarkdownField(  # type: ignore[call-overload]
         blank=True,
         rendered_field="closed_message_rendered",
         validator=VALIDATOR_WITH_FIGURES,
@@ -86,7 +86,7 @@ class StaffPhotoListing(models.Model):
         choices=CATEGORY_CHOICES,
         help_text="Staff category",
     )
-    biography = MarkdownField(
+    biography = MarkdownField(  # type: ignore[call-overload]
         rendered_field="biography_rendered",
         validator=VALIDATOR_WITH_FIGURES,
         help_text="Biography in Markdown format",

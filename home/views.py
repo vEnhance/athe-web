@@ -1,3 +1,5 @@
+from typing import cast
+
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
@@ -44,8 +46,9 @@ class ProfileSettingsView(LoginRequiredMixin, View):
 
     def get(self, request: HttpRequest) -> HttpResponse:
         """Display the profile settings forms."""
-        profile_form = UserProfileForm(instance=request.user)
-        password_form = PasswordChangeForm(request.user)
+        user = cast(User, request.user)
+        profile_form = UserProfileForm(instance=user)
+        password_form = PasswordChangeForm(user)
         context = {
             "profile_form": profile_form,
             "password_form": password_form,
@@ -54,26 +57,27 @@ class ProfileSettingsView(LoginRequiredMixin, View):
 
     def post(self, request: HttpRequest) -> HttpResponse:
         """Handle form submissions for profile or password updates."""
+        user = cast(User, request.user)
         if "update_profile" in request.POST:
-            profile_form = UserProfileForm(request.POST, instance=request.user)
+            profile_form = UserProfileForm(request.POST, instance=user)
             if profile_form.is_valid():
                 profile_form.save()
                 messages.success(request, "Your profile has been updated successfully.")
                 return redirect("home:profile_settings")
-            password_form = PasswordChangeForm(request.user)
+            password_form = PasswordChangeForm(user)
         elif "change_password" in request.POST:
-            password_form = PasswordChangeForm(request.user, request.POST)
+            password_form = PasswordChangeForm(user, request.POST)
             if password_form.is_valid():
-                user = password_form.save()
-                update_session_auth_hash(request, user)
+                saved_user = password_form.save()
+                update_session_auth_hash(request, saved_user)
                 messages.success(
                     request, "Your password has been changed successfully."
                 )
                 return redirect("home:profile_settings")
-            profile_form = UserProfileForm(instance=request.user)
+            profile_form = UserProfileForm(instance=user)
         else:
-            profile_form = UserProfileForm(instance=request.user)
-            password_form = PasswordChangeForm(request.user)
+            profile_form = UserProfileForm(instance=user)
+            password_form = PasswordChangeForm(user)
 
         context = {
             "profile_form": profile_form,
@@ -114,11 +118,12 @@ class StaffDetailView(DetailView):
     model = StaffPhotoListing
     template_name = "home/staff_detail.html"
     context_object_name = "staff_member"
+    object: StaffPhotoListing
 
     def get_context_data(self, **kwargs):
         """Add courses taught by this staff member."""
         context = super().get_context_data(**kwargs)
-        context["courses_taught"] = self.object.courses.select_related("semester").all()
+        context["courses_taught"] = self.object.courses.select_related("semester").all()  # type: ignore[attr-defined]
         return context
 
 

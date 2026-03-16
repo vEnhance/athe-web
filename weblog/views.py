@@ -49,6 +49,7 @@ class BlogPostDetailView(DetailView):
     model = BlogPost
     template_name = "weblog/blogpost_detail.html"
     context_object_name = "post"
+    object: BlogPost
 
     def get_queryset(self) -> QuerySet[BlogPost]:
         """Allow viewing published posts by all, unpublished by creator/staff only."""
@@ -152,10 +153,11 @@ class BlogPostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self) -> bool:
         """Only the creator can edit, and only while unpublished."""
         post = self.get_object()
+        assert isinstance(post, BlogPost)
         user = self.request.user
         return post.creator == user and not post.published
 
-    def handle_no_permission(self) -> HttpResponse:
+    def handle_no_permission(self) -> HttpResponse:  # type: ignore[override]
         """Show appropriate message when access is denied."""
         # Unauthenticated users should redirect to login
         if not self.request.user.is_authenticated:
@@ -163,6 +165,7 @@ class BlogPostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
         # Authenticated users who fail test get 404
         post = self.get_object()
+        assert isinstance(post, BlogPost)
         if post.published:
             messages.error(
                 self.request,
