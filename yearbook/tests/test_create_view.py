@@ -30,7 +30,7 @@ def test_create_view_requires_login():
     response = client.get(url)
 
     assert response.status_code == 302
-    assert "/login/" in response["Location"]
+    assert "/login/" in response.url
 
 
 @pytest.mark.django_db
@@ -135,7 +135,7 @@ def test_create_view_redirects_if_entry_exists():
     response = client.get(url)
 
     assert response.status_code == 302
-    assert response["Location"] == reverse("yearbook:edit", kwargs={"pk": entry.pk})
+    assert response.url == reverse("yearbook:edit", kwargs={"pk": entry.pk})
 
 
 @pytest.mark.django_db
@@ -170,7 +170,7 @@ def test_create_view_successful_submission():
     )
 
     assert response.status_code == 302
-    assert response["Location"] == reverse(
+    assert response.url == reverse(
         "yearbook:entry_list", kwargs={"slug": semester.slug}
     )
 

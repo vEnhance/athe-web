@@ -35,7 +35,7 @@ def test_past_clubs_requires_login():
 
     # Should redirect to login page
     assert response.status_code == 302
-    assert "/login/" in response["Location"]
+    assert "/login/" in response.url
 
 
 @pytest.mark.django_db

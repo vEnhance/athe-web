@@ -241,7 +241,7 @@ def test_bulk_award_no_active_semester():
 
     # Should redirect to home with error message
     assert response.status_code == 302
-    assert response["Location"] == reverse("home:index")
+    assert response.url == reverse("home:index")
 
 
 @pytest.mark.django_db
@@ -269,4 +269,4 @@ def test_bulk_award_multiple_active_semesters():
 
     # Should redirect to home with error message
     assert response.status_code == 302
-    assert response["Location"] == reverse("home:index")
+    assert response.url == reverse("home:index")

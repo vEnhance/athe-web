@@ -147,7 +147,7 @@ class YearbookEntryListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self._semester
 
     def test_func(self) -> bool:
-        if not self.request.user.is_authenticated:
+        if not self.request.user.is_authenticated:  # type: ignore[union-attr]
             return False
         assert isinstance(self.request.user, User)
         semester = self.get_semester()

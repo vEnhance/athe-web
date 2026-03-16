@@ -19,7 +19,7 @@ def test_my_attendance_requires_login():
     response = client.get(url)
 
     assert response.status_code == 302
-    assert "/login/" in response["Location"]
+    assert "/login/" in response.url
 
 
 @pytest.mark.django_db
@@ -34,7 +34,7 @@ def test_my_attendance_requires_staff():
 
     # Should redirect with error message
     assert response.status_code == 302
-    assert response["Location"] == reverse("home:index")
+    assert response.url == reverse("home:index")
 
 
 @pytest.mark.django_db
@@ -121,7 +121,7 @@ def test_my_attendance_post_creates_record():
 
     # Should redirect after successful creation
     assert response.status_code == 302
-    assert response["Location"] == url
+    assert response.url == url
 
     # Verify record was created
     assert Attendance.objects.filter(user=user, club=club, date=date.today()).exists()

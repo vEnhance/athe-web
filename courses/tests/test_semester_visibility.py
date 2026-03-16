@@ -225,7 +225,7 @@ def test_catalog_root_skips_invisible_for_non_staff():
 
     # Should redirect to the older visible semester
     assert response.status_code == 302
-    assert response["Location"] == reverse(
+    assert response.url == reverse(
         "courses:course_list", kwargs={"slug": older_visible.slug}
     )
 
@@ -258,7 +258,7 @@ def test_catalog_root_includes_invisible_for_staff():
 
     # Should redirect to the newer invisible semester
     assert response.status_code == 302
-    assert response["Location"] == reverse(
+    assert response.url == reverse(
         "courses:course_list", kwargs={"slug": newer_invisible.slug}
     )
 

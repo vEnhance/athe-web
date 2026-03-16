@@ -23,7 +23,7 @@ def test_my_awards_requires_login():
     response = client.get(url)
 
     assert response.status_code == 302
-    assert "/login/" in response["Location"]
+    assert "/login/" in response.url
 
 
 @pytest.mark.django_db

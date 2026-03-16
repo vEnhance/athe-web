@@ -144,7 +144,7 @@ def test_staff_edit_view_requires_login():
     client = Client()
     response = client.get(reverse("home:staff_edit"))
     assert response.status_code == 302
-    assert "/login/" in response["Location"]
+    assert "/login/" in response.url
 
 
 @pytest.mark.django_db

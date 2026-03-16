@@ -17,7 +17,7 @@ def test_index_view_requires_login():
     response = client.get(url)
 
     assert response.status_code == 302
-    assert "/login/" in response["Location"]
+    assert "/login/" in response.url
 
 
 @pytest.mark.django_db
@@ -43,7 +43,7 @@ def test_index_view_redirects_staff_to_most_recent_semester():
     response = client.get(url)
 
     assert response.status_code == 302
-    assert response["Location"] == reverse(
+    assert response.url == reverse(
         "yearbook:entry_list", kwargs={"slug": most_recent.slug}
     )
 
@@ -72,7 +72,7 @@ def test_index_view_redirects_student_to_their_semester():
     response = client.get(url)
 
     assert response.status_code == 302
-    assert response["Location"] == reverse(
+    assert response.url == reverse(
         "yearbook:entry_list", kwargs={"slug": most_recent.slug}
     )
 
@@ -102,7 +102,7 @@ def test_index_view_redirects_to_semester_list_if_no_access():
     response = client.get(url)
 
     assert response.status_code == 302
-    assert response["Location"] == reverse("yearbook:semester_list")
+    assert response.url == reverse("yearbook:semester_list")
 
 
 @pytest.mark.django_db
@@ -116,7 +116,7 @@ def test_index_view_redirects_to_semester_list_if_no_semesters():
     response = client.get(url)
 
     assert response.status_code == 302
-    assert response["Location"] == reverse("yearbook:semester_list")
+    assert response.url == reverse("yearbook:semester_list")
 
 
 @pytest.mark.django_db
@@ -136,4 +136,4 @@ def test_index_view_user_without_student_redirects_to_semester_list():
     response = client.get(url)
 
     assert response.status_code == 302
-    assert response["Location"] == reverse("yearbook:semester_list")
+    assert response.url == reverse("yearbook:semester_list")

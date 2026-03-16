@@ -143,7 +143,7 @@ class Course(models.Model):
     def get_absolute_url(self) -> str:
         return reverse("courses:course_detail", kwargs={"pk": self.pk})
 
-    def save(self, *args, **kwargs) -> None:
+    def save(self, *args, **kwargs) -> None:  # type: ignore[override]
         """Override save to auto-add instructor as a leader."""
         super().save(*args, **kwargs)
         # Add instructor's user as a leader if instructor is set and has a user

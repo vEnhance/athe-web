@@ -35,7 +35,7 @@ def test_update_view_requires_login():
     response = client.get(url)
 
     assert response.status_code == 302
-    assert "/login/" in response["Location"]
+    assert "/login/" in response.url
 
 
 @pytest.mark.django_db
@@ -165,7 +165,7 @@ def test_update_view_successful_submission():
     )
 
     assert response.status_code == 302
-    assert response["Location"] == reverse(
+    assert response.url == reverse(
         "yearbook:entry_list", kwargs={"slug": semester.slug}
     )
 

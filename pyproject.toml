@@ -38,11 +38,13 @@ dev = [
     "djlint",
     "pytest",
     "pytest-django",
+    "pyright",
+    "django-stubs",
+    "django-stubs-ext",
     "prek",
     "werkzeug>=3.1.6",
     "pytest-xdist>=3.8.0",
     "copier>=9.11.0",
-    "ty>=0.0.23",
     "codespell>=2.4.2",
 ]
 
@@ -65,8 +67,66 @@ exclude = ["**/migrations/*.py", "manage.py"]
 "**/tests.py" = ["S101"]
 "**/test_*.py" = ["S101"]
 
-[tool.ty.src]
-exclude = ["**/migrations", "**/apps.py", "**/test_*.py", "**/tests.py"]
+[tool.pyright]
+enableTypeIgnoreComments = true
+exclude = ["**/node_modules", "**/typings", "**/__pycache__", ".git", "venv", ".venv", "**/migrations", "**/test_*.py", "**/tests.py", "**/apps.py"]
+pythonPlatform = "Linux"
+pythonVersion = "3.13"
+typeCheckingMode = "basic"
+useLibraryCodeForTypes = true
+
+reportAssertAlwaysTrue = "error"
+reportCallInDefaultInitializer = "warning"
+reportConstantRedefinition = "none"
+reportDuplicateImport = "error"
+reportFunctionMemberAccess = "none"
+reportGeneralTypeIssues = "error"
+reportImplicitStringConcatenation = "none"
+reportImportCycles = "none"
+reportIncompatibleMethodOverride = "none"
+reportIncompatibleVariableOverride = "none"
+reportIncompleteStub = "none"
+reportInvalidStringEscapeSequence = "error"
+reportInvalidTypeVarUse = "warning"
+reportMissingImports = "error"
+reportMissingModuleSource = "warning"
+reportMissingTypeArgument = false
+reportMissingTypeStubs = false
+reportOptionalCall = "error"
+reportOptionalContextManager = "error"
+reportOptionalIterable = "error"
+reportOptionalMemberAccess = "error"
+reportOptionalOperand = "error"
+reportOptionalSubscript = "error"
+reportOverlappingOverload = "error"
+reportPrivateUsage = "error"
+reportPropertyTypeMismatch = "error"
+reportSelfClsParameterName = "warning"
+reportTypedDictNotRequiredAccess = "warning"
+reportUnboundVariable = "error"
+reportUndefinedVariable = "error"
+reportUnknownArgumentType = "none"
+reportUnknownMemberType = "none"
+reportUnknownParameterType = "error"
+reportUnknownVariableType = "none"
+reportUnnecessaryCast = "error"
+reportUnnecessaryComparison = "error"
+reportUnnecessaryIsInstance = "error"
+reportUntypedBaseClass = "none"
+reportUntypedClassDecorator = "none"
+reportUntypedFunctionDecorator = "none"
+reportUntypedNamedTuple = "error"
+reportUnusedCallResult = "none"
+reportUnusedClass = "error"
+reportUnusedCoroutine = "error"
+reportUnusedFunction = "error"
+reportUnusedImport = "warning"
+reportUnusedVariable = "error"
+reportWildcardImportFromLibrary = "warning"
+strictDictionaryInference = false
+strictListInference = false
+strictParameterNoneValue = false
+strictSetInference = false
 
 [tool.codespell]
 skip = "*/migrations/*.py,uv.lock,fixtures/staff-snapshot-fa25.json,fixtures/course-snapshot-fa25.json"
