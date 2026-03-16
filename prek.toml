@@ -134,7 +134,7 @@ repo = "local"
 hooks = [
   {
     id = "make-fmt",
-    name = "Check code formatting",
+    name = "Format code",
     entry = "make fmt",
     language = "system",
     pass_filenames = false,
@@ -142,18 +142,18 @@ hooks = [
     fail_fast= true
   },
   {
-    id = "make-fmt",
-    name = "Check code formatting",
-    entry = "make fmt",
+    id = "make-check",
+    name = "Run Django checks",
+    entry = "make check",
     language = "system",
     pass_filenames = false,
     stages = ["pre-push"],
     fail_fast= true
   },
   {
-    id = "make-fmt",
-    name = "Check code formatting",
-    entry = "make fmt",
+    id = "make-test",
+    name = "Run tests",
+    entry = "make test",
     language = "system",
     pass_filenames = false,
     stages = ["pre-push"],
