@@ -6,7 +6,6 @@ from django.db import migrations, models
 def transfer_enrollments(apps, schema_editor):
     """Transfer enrollments from Student.enrolled_courses to Course.students."""
     Student = apps.get_model("courses", "Student")
-    Course = apps.get_model("courses", "Course")
 
     # Iterate through all students and transfer their enrollments
     for student in Student.objects.all():
@@ -16,7 +15,6 @@ def transfer_enrollments(apps, schema_editor):
 
 def reverse_transfer_enrollments(apps, schema_editor):
     """Reverse transfer: from Course.students back to Student.enrolled_courses."""
-    Student = apps.get_model("courses", "Student")
     Course = apps.get_model("courses", "Course")
 
     # Iterate through all courses and reverse transfer their enrollments
