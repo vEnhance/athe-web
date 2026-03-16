@@ -43,7 +43,6 @@ dev = [
     "pytest-xdist>=3.8.0",
     "copier>=9.11.0",
     "ty>=0.0.23",
-    "django-types>=0.23.0",
     "codespell>=2.4.2",
 ]
 

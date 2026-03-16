@@ -35,6 +35,7 @@ check:
 	uv run python manage.py check
 	uv run python manage.py validate_templates
 	uv run python manage.py makemigrations --check --dry-run
+	uv run ty check .
 
 test:
 	uv run pytest -n auto
