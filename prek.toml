@@ -57,7 +57,7 @@ hooks = [
     name = "djlint reformat",
     entry = "uv run djlint --reformat",
     language = "system",
-    files = "^templates/",
+    files = "templates/",
     types = ["html"]
   },
   {
@@ -65,7 +65,7 @@ hooks = [
     name = "djlint check",
     entry = "uv run djlint",
     language = "system",
-    files = "^templates/",
+    files = "templates/",
     types = ["html"]
   },
   {
