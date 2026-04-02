@@ -29,6 +29,7 @@ nfsn signal-daemon django hup
   - Write a simple `.htaccess` that says `Require all granted` for `/home/public`
 
 - Create a daemon using `gunicorn.sh`
+
 - Set up proxies for `static/` and `media/`
 
 - Apparently you have to install time zones manually,

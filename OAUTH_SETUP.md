@@ -37,96 +37,96 @@ For production, use your actual domain (e.g., `athemath.org`).
 
 ### 2. Set Up Google OAuth
 
-1. **Create a Google Cloud Project:**
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create a new project or select an existing one
-   - Enable the Google+ API
+1.  **Create a Google Cloud Project:**
+    - Go to [Google Cloud Console](https://console.cloud.google.com/)
+    - Create a new project or select an existing one
+    - Enable the Google+ API
 
-2. **Create OAuth 2.0 Credentials:**
-   - Navigate to "APIs & Services" > "Credentials"
-   - Click "Create Credentials" > "OAuth client ID"
-   - Application type: "Web application"
-   - Authorized redirect URIs:
-     - Development: `http://localhost:8000/accounts/google/login/callback/`
-     - Production: `https://your-domain.com/accounts/google/login/callback/`
+2.  **Create OAuth 2.0 Credentials:**
+    - Navigate to "APIs & Services" > "Credentials"
+    - Click "Create Credentials" > "OAuth client ID"
+    - Application type: "Web application"
+    - Authorized redirect URIs:
+      - Development: `http://localhost:8000/accounts/google/login/callback/`
+      - Production: `https://your-domain.com/accounts/google/login/callback/`
 
-3. **Add Credentials to Django Admin:**
-   - Start the development server: `make runserver`
-   - Go to `http://localhost:8000/admin/`
-   - Navigate to "Social applications" under "Social Accounts"
-   - Click "Add social application"
-   - Provider: Google
-   - Name: Google OAuth
-   - Client id: (paste from Google Cloud Console)
-   - Secret key: (paste from Google Cloud Console)
-   - Sites: Select your site (localhost:8000 or your domain)
-   - Save
+3.  **Add Credentials to Django Admin:**
+    - Start the development server: `make runserver`
+    - Go to `http://localhost:8000/admin/`
+    - Navigate to "Social applications" under "Social Accounts"
+    - Click "Add social application"
+    - Provider: Google
+    - Name: Google OAuth
+    - Client id: (paste from Google Cloud Console)
+    - Secret key: (paste from Google Cloud Console)
+    - Sites: Select your site (localhost:8000 or your domain)
+    - Save
 
 ### 3. Set Up GitHub OAuth
 
-1. **Create a GitHub OAuth App:**
-   - Go to [GitHub Developer Settings](https://github.com/settings/developers)
-   - Click "New OAuth App"
-   - Application name: Athemath (or your app name)
-   - Homepage URL:
-     - Development: `http://localhost:8000`
-     - Production: `https://your-domain.com`
-   - Authorization callback URL:
-     - Development: `http://localhost:8000/accounts/github/login/callback/`
-     - Production: `https://your-domain.com/accounts/github/login/callback/`
+1.  **Create a GitHub OAuth App:**
+    - Go to [GitHub Developer Settings](https://github.com/settings/developers)
+    - Click "New OAuth App"
+    - Application name: Athemath (or your app name)
+    - Homepage URL:
+      - Development: `http://localhost:8000`
+      - Production: `https://your-domain.com`
+    - Authorization callback URL:
+      - Development: `http://localhost:8000/accounts/github/login/callback/`
+      - Production: `https://your-domain.com/accounts/github/login/callback/`
 
-2. **Add Credentials to Django Admin:**
-   - Go to `http://localhost:8000/admin/`
-   - Navigate to "Social applications" under "Social Accounts"
-   - Click "Add social application"
-   - Provider: GitHub
-   - Name: GitHub OAuth
-   - Client id: (paste from GitHub)
-   - Secret key: (paste from GitHub)
-   - Sites: Select your site
-   - Save
+2.  **Add Credentials to Django Admin:**
+    - Go to `http://localhost:8000/admin/`
+    - Navigate to "Social applications" under "Social Accounts"
+    - Click "Add social application"
+    - Provider: GitHub
+    - Name: GitHub OAuth
+    - Client id: (paste from GitHub)
+    - Secret key: (paste from GitHub)
+    - Sites: Select your site
+    - Save
 
 ### 4. Set Up Discord OAuth
 
-1. **Create a Discord OAuth App:**
-   - Go to [Discord Developer Portal](https://discord.com/developers/applications)
-   - Click "New Application"
-   - Give it a name (e.g., "Athemath")
-   - Navigate to the "OAuth2" section in the left sidebar
-   - Add Redirects:
-     - Development: `http://localhost:8000/accounts/discord/login/callback/`
-     - Production: `https://your-domain.com/accounts/discord/login/callback/`
-   - Copy your Client ID and Client Secret
+1.  **Create a Discord OAuth App:**
+    - Go to [Discord Developer Portal](https://discord.com/developers/applications)
+    - Click "New Application"
+    - Give it a name (e.g., "Athemath")
+    - Navigate to the "OAuth2" section in the left sidebar
+    - Add Redirects:
+      - Development: `http://localhost:8000/accounts/discord/login/callback/`
+      - Production: `https://your-domain.com/accounts/discord/login/callback/`
+    - Copy your Client ID and Client Secret
 
-2. **Add Credentials to Django Admin:**
-   - Go to `http://localhost:8000/admin/`
-   - Navigate to "Social applications" under "Social Accounts"
-   - Click "Add social application"
-   - Provider: Discord
-   - Name: Discord OAuth
-   - Client id: (paste from Discord Developer Portal)
-   - Secret key: (paste from Discord Developer Portal)
-   - Sites: Select your site
-   - Save
+2.  **Add Credentials to Django Admin:**
+    - Go to `http://localhost:8000/admin/`
+    - Navigate to "Social applications" under "Social Accounts"
+    - Click "Add social application"
+    - Provider: Discord
+    - Name: Discord OAuth
+    - Client id: (paste from Discord Developer Portal)
+    - Secret key: (paste from Discord Developer Portal)
+    - Sites: Select your site
+    - Save
 
 ## Testing
 
-1. Start the development server:
+1.  Start the development server:
 
-   ```bash
-   make runserver
-   ```
+    ```bash
+    make runserver
+    ```
 
-2. Navigate to `http://localhost:8000/login/`
+2.  Navigate to `http://localhost:8000/login/`
 
-3. You should see:
-   - Prominent "Continue with Google" button (red/danger style)
-   - Prominent "Continue with GitHub" button (dark style)
-   - Prominent "Continue with Discord" button (blue/primary style)
-   - A divider with "or use username/password"
-   - A de-emphasized traditional login form
+3.  You should see:
+    - Prominent "Continue with Google" button (red/danger style)
+    - Prominent "Continue with GitHub" button (dark style)
+    - Prominent "Continue with Discord" button (blue/primary style)
+    - A divider with "or use username/password"
+    - A de-emphasized traditional login form
 
-4. Click on a social login button and test the authentication flow
+4.  Click on a social login button and test the authentication flow
 
 ## Configuration Details
 
@@ -145,37 +145,39 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
 ### How It Works
 
-1. **New Users:** When a user signs in with Google/GitHub for the first time:
-   - Their account is automatically created
-   - Email is fetched from the OAuth provider
-   - They are logged in immediately
+1.  **New Users:** When a user signs in with Google/GitHub for the first time:
+    - Their account is automatically created
+    - Email is fetched from the OAuth provider
+    - They are logged in immediately
 
-2. **Existing Users:** If a user's email matches an existing account:
-   - The social account is automatically connected to their existing account
-   - They can use either social login or username/password
+2.  **Existing Users:** If a user's email matches an existing account:
+    - The social account is automatically connected to their existing account
+    - They can use either social login or username/password
 
-3. **Fallback:** Users without Google/GitHub access can still use username/password
+3.  **Fallback:** Users without Google/GitHub access can still use username/password
 
 ## Production Considerations
 
-1. **Environment Variables:** For production, consider using environment variables for OAuth secrets:
+1.  **Environment Variables:** For production, consider using environment variables for OAuth secrets:
 
-   ```python
-   import os
-   SOCIALACCOUNT_PROVIDERS = {
+    ```python
+    import os
+    SOCIALACCOUNT_PROVIDERS = {
        "google": {
            "APP": {
                "client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
                "secret": os.getenv("GOOGLE_SECRET", ""),
            },
        },
+
        # ...
-   }
-   ```
 
-2. **HTTPS:** Always use HTTPS in production for OAuth callbacks
+    }
+    ```
 
-3. **Domain Configuration:** Update the Site domain to match your production domain
+2.  **HTTPS:** Always use HTTPS in production for OAuth callbacks
+
+3.  **Domain Configuration:** Update the Site domain to match your production domain
 
 ## Troubleshooting
 
