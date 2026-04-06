@@ -83,9 +83,9 @@ Run `make test` or `uv run pytest`. Tests use pytest-django and are configured v
 
 GitHub Actions workflow (`.github/workflows/ci.yml`) runs on push/PR to main:
 
-1.  `make fmt` - Formatting and linting
-2.  `make check` - Django checks, template validation, migration check, type checking
-3.  `make test` - Test suite (pytest)
+1. `make fmt` - Formatting and linting
+2. `make check` - Django checks, template validation, migration check, type checking
+3. `make test` - Test suite (pytest)
 
 ## Project Structure
 
@@ -124,17 +124,17 @@ For OAuth setup instructions, see [OAUTH_SETUP.md](OAUTH_SETUP.md).
 
 ## Tips for Development
 
-1.  **Always use `uv run`** for running Python commands to ensure you're using the project's virtual environment.
-2.  **Update dependencies**:
+1. **Always use `uv run`** for running Python commands to ensure you're using the project's virtual environment.
+2. **Update dependencies**:
 
 - Add to `dependencies` in `pyproject.toml` for production deps
 - Add to `dev` in `[project.optional-dependencies]` for dev deps
 - Run `uv lock` to update the lockfile
 - Run `make install` to install
 
-3.  **Type hints**: Add type hints to new code. Run `make check` to verify types.
-4.  **Before committing**: Run `make ci` (or `make fmt`, `make check`, and `make test` individually) to verify everything works.
-5.  **Django shell**: Use `uv run python manage.py shell_plus` (from django-extensions) for an enhanced shell with models auto-imported.
+3. **Type hints**: Add type hints to new code. Run `make check` to verify types.
+4. **Before committing**: Run `make ci` (or `make fmt`, `make check`, and `make test` individually) to verify everything works.
+5. **Django shell**: Use `uv run python manage.py shell_plus` (from django-extensions) for an enhanced shell with models auto-imported.
 
 ## Pre-commit Hooks
 
