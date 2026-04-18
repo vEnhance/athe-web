@@ -235,15 +235,14 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 
-# Markdownfield settings
-MARKDOWN_EXTENSIONS = [
-    "markdown.extensions.extra",
-    "markdown.extensions.sane_lists",
-    "markdown.extensions.smarty",
-    "markdown.extensions.footnotes",
-    "weblog.markdown_extensions",
-    "weblog.math_extension",
-    "pymdownx.tilde",
+# Markdownfield settings (markdownit/CommonMark backend)
+MARKDOWNFIELD_TYPOGRAPHER = (
+    True  # smart quotes and dashes (was markdown.extensions.smarty)
+)
+MARKDOWNFIELD_PLUGINS = [
+    "mdit_py_plugins.footnote.footnote_plugin",
+    "mdit_py_plugins.subscript.sub_plugin",
+    "weblog.markdown_extensions.figure_plugin",
 ]
 
 # Discord webhook logging (django-discordo)
