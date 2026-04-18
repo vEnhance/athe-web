@@ -11,39 +11,39 @@ authors = [
     { name = "Vera Puah", email = "v4nillacl0uds@gmail.com" }
 ]
 dependencies = [
-    "django>=5.2,<6.0",
-    "django-allauth[socialaccount]>=65.0,<66.0",
-    "django-bootstrap5>=24.2,<25.0",
-    "django-extensions>=3.2,<3.3",
-    "django-hijack>=3.4.0",
-    "django-markdownfield>=0.11.0",
+    "django>=5.2.13,<6.0",
+    "django-allauth[socialaccount]>=65.16.1,<66.0",
+    "django-bootstrap5>=24.3,<25.0",
+    "django-extensions>=3.2.3,<3.3",
+    "django-hijack>=3.7.7",
+    "django-markdownfield>=0.20.0",
     "dotenv>=0.9.9",
     "ipython",
-    "pillow>=10.0.0",
-    "requests>=2.32.0",
-    "django-discordo>=0.1.0",
-    "icalendar>=6.0,<7.0",
+    "pillow>=12.2.0",
+    "requests>=2.33.1",
+    "django-discordo>=1.0.0",
+    "icalendar>=6.3.2,<7.0",
 ]
 
 [project.optional-dependencies]
 prod = [
-    "gunicorn>=23.0.0",
-    "mysqlclient>=2.2.7",
+    "gunicorn>=25.3.0",
+    "mysqlclient>=2.2.8",
 ]
 
 [dependency-groups]
 dev = [
-    "ruff",
-    "djlint",
-    "pytest",
-    "pytest-django",
-    "pyright",
-    "django-stubs",
-    "django-stubs-ext",
-    "prek",
-    "werkzeug>=3.1.6",
-    "pytest-xdist>=3.8.0",
     "codespell>=2.4.2",
+    "django-stubs-ext>=5.2.9,<6.0",
+    "django-stubs>=5.2.9,<6.0",
+    "djlint>=1.36.4",
+    "prek>=0.3.9",
+    "pyright>=1.1.408",
+    "pytest-django>=4.12.0",
+    "pytest-xdist>=3.8.0",
+    "pytest>=9.0.3",
+    "ruff>=0.15.11",
+    "werkzeug>=3.1.8",
 ]
 
 [tool.djlint]
