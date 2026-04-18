@@ -236,7 +236,9 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 # Markdownfield settings (markdownit/CommonMark backend)
-MARKDOWNFIELD_TYPOGRAPHER = True  # smart quotes and dashes (was markdown.extensions.smarty)
+MARKDOWNFIELD_TYPOGRAPHER = (
+    True  # smart quotes and dashes (was markdown.extensions.smarty)
+)
 MARKDOWNFIELD_PLUGINS = [
     "mdit_py_plugins.footnote.footnote_plugin",
     "mdit_py_plugins.subscript.sub_plugin",

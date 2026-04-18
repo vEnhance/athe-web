@@ -5,6 +5,8 @@ from html import escape
 from markdown_it import MarkdownIt
 from markdown_it.rules_core import StateCore
 from markdown_it.token import Token
+
+
 def figure_plugin(md: MarkdownIt) -> None:
     md.core.ruler.push("figure_caption", _figure_caption_rule)
 
