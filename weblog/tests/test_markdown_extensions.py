@@ -56,3 +56,17 @@ def test_math_underscores_not_italicised():
     result = render("$a_1 + a_2$")
     assert "<em>" not in result
     assert '<span class="math inline">a_1 + a_2</span>' in result
+
+
+def test_math_inline_in_footnote():
+    result = render("See[^1]\n\n[^1]: Value is $x^2$")
+    assert '<span class="math inline">x^2</span>' in result
+
+
+def test_math_display_in_footnote():
+    result = render("See[^1]\n\n[^1]: Value is $$x^2$$")
+    assert "math inline" in result
+    assert "x^2" in result
+    # should not leave stray dollar signs around the math
+    assert "$<" not in result
+    assert ">$" not in result
