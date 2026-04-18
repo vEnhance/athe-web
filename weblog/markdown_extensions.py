@@ -5,14 +5,6 @@ from html import escape
 from markdown_it import MarkdownIt
 from markdown_it.rules_core import StateCore
 from markdown_it.token import Token
-from mdit_py_plugins.dollarmath import dollarmath_plugin as _dollarmath_plugin
-
-
-def dollarmath_plugin(md: MarkdownIt) -> None:
-    # double_inline treats $$...$$ as inline math in inline contexts (e.g. footnotes)
-    _dollarmath_plugin(md, double_inline=True)
-
-
 def figure_plugin(md: MarkdownIt) -> None:
     md.core.ruler.push("figure_caption", _figure_caption_rule)
 

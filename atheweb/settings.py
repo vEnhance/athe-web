@@ -240,7 +240,6 @@ MARKDOWNFIELD_TYPOGRAPHER = True  # smart quotes and dashes (was markdown.extens
 MARKDOWNFIELD_PLUGINS = [
     "mdit_py_plugins.footnote.footnote_plugin",
     "mdit_py_plugins.subscript.sub_plugin",
-    "weblog.markdown_extensions.dollarmath_plugin",
     "weblog.markdown_extensions.figure_plugin",
 ]
 

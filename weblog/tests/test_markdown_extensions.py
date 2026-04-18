@@ -38,35 +38,30 @@ def test_figure_link_opens_in_new_tab():
     assert "noopener" in result
 
 
-# Math rendering
+# Math rendering - $...$ is passed through as literal text for MathJax to process
+# client-side. CommonMark's stricter emphasis rules mean underscores inside
+# $...$ are never mangled, so no server-side math plugin is needed.
 
 
-def test_math_inline():
+def test_math_inline_preserved():
     result = render("$x^2$")
-    assert '<span class="math inline">x^2</span>' in result
+    assert "$x^2$" in result
+    assert "<em>" not in result
 
 
-def test_math_display():
+def test_math_display_preserved():
     result = render("$$\\int_0^1 x\\,dx$$")
-    assert '<div class="math block">' in result
-    assert "\\int_0^1 x\\,dx" in result
+    assert "$$" in result
+    assert "\\int_0^1" in result
 
 
 def test_math_underscores_not_italicised():
     result = render("$a_1 + a_2$")
     assert "<em>" not in result
-    assert '<span class="math inline">a_1 + a_2</span>' in result
+    assert "$a_1 + a_2$" in result
 
 
-def test_math_inline_in_footnote():
+def test_math_in_footnote():
     result = render("See[^1]\n\n[^1]: Value is $x^2$")
-    assert '<span class="math inline">x^2</span>' in result
-
-
-def test_math_display_in_footnote():
-    result = render("See[^1]\n\n[^1]: Value is $$x^2$$")
-    assert "math inline" in result
-    assert "x^2" in result
-    # should not leave stray dollar signs around the math
-    assert "$<" not in result
-    assert ">$" not in result
+    assert "$x^2$" in result
+    assert "<em>" not in result
