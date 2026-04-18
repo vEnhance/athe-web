@@ -236,6 +236,9 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 # Markdownfield settings
+# v0.19.0 changed the default backend to markdownit; use pymarkdown so that
+# MARKDOWN_EXTENSIONS (including our custom figure extension) still works.
+MARKDOWNFIELD_BACKEND = "markdownfield.backends.pymarkdown"
 MARKDOWN_EXTENSIONS = [
     "markdown.extensions.extra",
     "markdown.extensions.sane_lists",
