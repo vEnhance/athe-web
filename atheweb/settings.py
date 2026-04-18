@@ -235,18 +235,13 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 
-# Markdownfield settings
-# v0.19.0 changed the default backend to markdownit; use pymarkdown so that
-# MARKDOWN_EXTENSIONS (including our custom figure extension) still works.
-MARKDOWNFIELD_BACKEND = "markdownfield.backends.pymarkdown"
-MARKDOWN_EXTENSIONS = [
-    "markdown.extensions.extra",
-    "markdown.extensions.sane_lists",
-    "markdown.extensions.smarty",
-    "markdown.extensions.footnotes",
-    "weblog.markdown_extensions",
-    "weblog.math_extension",
-    "pymdownx.tilde",
+# Markdownfield settings (markdownit/CommonMark backend)
+MARKDOWNFIELD_TYPOGRAPHER = True  # smart quotes and dashes (was markdown.extensions.smarty)
+MARKDOWNFIELD_PLUGINS = [
+    "mdit_py_plugins.footnote.footnote_plugin",
+    "mdit_py_plugins.dollarmath.dollarmath_plugin",
+    "mdit_py_plugins.subscript.sub_plugin",
+    "weblog.markdown_extensions.figure_plugin",
 ]
 
 # Discord webhook logging (django-discordo)
