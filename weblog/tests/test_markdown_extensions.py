@@ -1,5 +1,3 @@
-import pytest
-
 from atheweb.validators import VALIDATOR_WITH_FIGURES
 from markdownfield.rendering import render_markdown
 
@@ -38,3 +36,23 @@ def test_figure_link_opens_in_new_tab():
     result = render("![Caption](https://example.com/img.png)")
     assert 'target="_blank"' in result
     assert "noopener" in result
+
+
+# Math rendering
+
+
+def test_math_inline():
+    result = render("$x^2$")
+    assert '<span class="math inline">x^2</span>' in result
+
+
+def test_math_display():
+    result = render("$$\\int_0^1 x\\,dx$$")
+    assert '<div class="math block">' in result
+    assert "\\int_0^1 x\\,dx" in result
+
+
+def test_math_underscores_not_italicised():
+    result = render("$a_1 + a_2$")
+    assert "<em>" not in result
+    assert '<span class="math inline">a_1 + a_2</span>' in result
