@@ -49,8 +49,21 @@
     <script>
         MathJax = {
             tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']],
+            },
+            startup: {
+                typeset: false,
+                ready() {
+                    MathJax.startup.defaultReady();
+                    document.querySelectorAll('.math.inline').forEach(function(el) {
+                        el.textContent = '\\(' + el.textContent + '\\)';
+                    });
+                    document.querySelectorAll('.math.block').forEach(function(el) {
+                        el.textContent = '\\[' + el.textContent + '\\]';
+                    });
+                    MathJax.typesetPromise();
+                },
             },
         };
     </script>

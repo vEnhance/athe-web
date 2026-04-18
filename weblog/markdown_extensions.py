@@ -9,8 +9,7 @@ from mdit_py_plugins.dollarmath import dollarmath_plugin as _dollarmath_plugin
 
 
 def dollarmath_plugin(md: MarkdownIt) -> None:
-    # double_inline=True treats $$...$$ as inline math in inline contexts
-    # (e.g. inside footnotes), preventing it from being mis-parsed as $+$...$+$
+    # double_inline treats $$...$$ as inline math in inline contexts (e.g. footnotes)
     _dollarmath_plugin(md, double_inline=True)
 
 
