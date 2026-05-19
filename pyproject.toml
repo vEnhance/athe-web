@@ -15,19 +15,19 @@ dependencies = [
     "django-allauth[socialaccount]>=65.16.1,<66.0",
     "django-bootstrap5>=24.3,<25.0",
     "django-extensions>=3.2.3,<3.3",
-    "django-hijack>=3.7.7",
-    "django-markdownfield>=0.20.0",
+    "django-hijack>=3.7.8",
+    "django-markdownfield>=0.20.2",
     "dotenv>=0.9.9",
     "ipython",
     "pillow>=12.2.0",
-    "requests>=2.33.1",
+    "requests>=2.34.2",
     "django-discordo>=1.0.0",
     "icalendar>=6.3.2,<7.0",
 ]
 
 [project.optional-dependencies]
 prod = [
-    "gunicorn>=25.3.0",
+    "gunicorn>=26.0.0",
     "mysqlclient>=2.2.8",
 ]
 
@@ -37,12 +37,12 @@ dev = [
     "django-stubs-ext>=5.2.9,<6.0",
     "django-stubs>=5.2.9,<6.0",
     "djlint>=1.36.4",
-    "prek>=0.3.9",
-    "pyright>=1.1.408",
+    "prek>=0.4.0",
+    "pyright>=1.1.409",
     "pytest-django>=4.12.0",
     "pytest-xdist>=3.8.0",
     "pytest>=9.0.3",
-    "ruff>=0.15.11",
+    "ruff>=0.15.13",
     "werkzeug>=3.1.8",
 ]
 
