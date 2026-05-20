@@ -23,6 +23,7 @@ dependencies = [
     "requests>=2.34.2",
     "django-discordo>=1.0.0",
     "icalendar>=6.3.2,<7.0",
+    "cryptography>=47.0.0,<48.0.0" # idk why 48.x.x maturin is failing on prod
 ]
 
 [project.optional-dependencies]
