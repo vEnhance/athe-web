@@ -40,6 +40,12 @@ nfsn signal-daemon django hup
 
   Then `flush tables;` to actually get it live.
 
+## Gotcha: OpenSSL
+
+FreeBSD might pick up an ancient version of OpenSSL (like 1.x)
+which will cause `cryptography` build with `maturin` to fail.
+That's why we have `export OPENSSL_DIR=/usr` above.
+
 ## Gotchas: permission issues on protected/
 
 - On NFS, the main user `atheweb` and the more restricted `web` user (daemon)
