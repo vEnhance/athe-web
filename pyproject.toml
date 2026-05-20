@@ -23,6 +23,7 @@ dependencies = [
     "requests>=2.34.2",
     "django-discordo>=1.0.0",
     "icalendar>=6.3.2,<7.0",
+    "cryptography<44.0.0",
 ]
 
 [project.optional-dependencies]
