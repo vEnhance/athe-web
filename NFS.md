@@ -16,6 +16,7 @@ The part where you plug in all the wires and pray.
 
 set -euo pipefail
 
+export OPENSSL_DIR=/usr
 TARGET=/home/protected/atheweb/
 mkdir -p "$TARGET"
 cd "$TARGET" || exit 1
