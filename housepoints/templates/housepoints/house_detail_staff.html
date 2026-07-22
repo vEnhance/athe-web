@@ -51,9 +51,7 @@
                                             {% endif %}
                                         </td>
                                         {% for pts in row.points %}
-                                            <td class="text-end">
-                                                {% if pts %}{{ pts }}{% endif %}
-                                            </td>
+                                            <td class="text-end">{% if pts %}{{ pts }}{% endif %}</td>
                                         {% endfor %}
                                         <td class="text-end table-dark">
                                             <strong>{{ row.total }}</strong>

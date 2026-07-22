@@ -29,7 +29,9 @@
                     </p>
                 {% endif %}
             </div>
-            {% if not forloop.last %}<hr>{% endif %}
+            {% if not forloop.last %}
+                <hr>
+            {% endif %}
         {% endfor %}
         {% if active_psets %}
             <h2>Past problem sets</h2>

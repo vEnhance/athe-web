@@ -49,6 +49,7 @@ dev = [
 [tool.djlint]
 profile = "django"
 ignore = "H006,H021,H023,H030,H031"
+custom_blocks = "element,slot,setvar"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "atheweb.settings"
