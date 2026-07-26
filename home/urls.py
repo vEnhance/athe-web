@@ -35,7 +35,7 @@ urlpatterns = [
     path(
         "alumapp/",
         RedirectView.as_view(
-            url="https://airtable.com/app26vQ9wjACgHpTh/shrgVj1IXP9Uv7jyz",
+            url="https://airtable.com/appwf8ufVUaTcmwgG/shrBEeUxfFAvF3lY2",
             permanent=False,
         ),
         name="alumapp",
