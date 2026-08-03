@@ -44,6 +44,3 @@ ci:
 	make fmt
 	make check
 	make test
-
-copier:
-	uv run copier update --skip-answered
