@@ -30,7 +30,6 @@
                     </a>
                 </div>
             {% endif %}
-            
         </div>
         <div id="content">
             <div class="session-time">
@@ -39,7 +38,7 @@
                     <a href="{% url 'courses:semester_list' %}">View all semesters</a>
                 </p>
                 {% if not next_semester %}
-                Course list still being updated!
+                    Course list still being updated!
                 {% endif %}
             </div>
             {% for course in courses %}
