@@ -19,7 +19,7 @@ dependencies = [
     "django-markdownfield>=0.20.2",
     "dotenv>=0.9.9",
     "ipython",
-    "pillow>=12.2.0",
+    "pillow>=12.3.0",
     "requests>=2.34.2",
     "django-discordo>=1.0.0",
     "icalendar>=6.3.2,<7.0",

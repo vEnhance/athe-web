@@ -74,7 +74,7 @@ requires-dist = [
     { name = "icalendar", specifier = ">=6.3.2,<7.0" },
     { name = "ipython" },
     { name = "mysqlclient", marker = "extra == 'prod'", specifier = ">=2.2.8" },
-    { name = "pillow", specifier = ">=12.2.0" },
+    { name = "pillow", specifier = ">=12.3.0" },
     { name = "requests", specifier = ">=2.34.2" },
 ]
 provides-extras = ["prod"]
