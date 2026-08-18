@@ -10,7 +10,6 @@ from django.utils import timezone
 from courses.models import Semester, Student
 from housepoints.models import Award
 
-
 # ============================================================================
 # Leaderboard View Tests
 # ============================================================================

@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import timedelta
 
 import pytest
 from django.contrib.auth.models import User
@@ -7,7 +7,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from courses.models import Course, Semester
-
 from ta_attendance.models import Attendance
 
 
@@ -46,7 +45,9 @@ def test_all_attendance_link_visible_to_superuser():
         is_club=True,
     )
 
-    Attendance.objects.create(user=user, date=date.today(), club=Course.objects.first())
+    Attendance.objects.create(
+        user=user, date=timezone.localdate(), club=Course.objects.first()
+    )
 
     client.login(username="super", password="password")
     response = client.get(reverse("ta_attendance:my_attendance"))

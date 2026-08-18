@@ -53,13 +53,17 @@ You can also use `uv run python manage.py <command>` directly for any Django com
 
 ### Development Dependencies
 
-- **ruff**: Fast Python linter and formatter
-- **djlint**: Django template linter
 - **pytest** + **pytest-django** + **pytest-xdist**: Testing framework with parallel support
 - **pyright**: Static type checker
 - **django-stubs**: Type stubs for Django
 - **werkzeug**: WSGI utilities (for runserver_plus)
 - **prek**: Pre-commit helper utilities
+
+The linters and formatters (**ruff**, **djlint**, **codespell**, **prettier**, ...) are
+deliberately *not* dev dependencies. prek pins their versions in `prek.toml` and runs them
+in its own isolated environments, so listing them in `pyproject.toml` too would just drift
+out of sync. Run them via `make fmt`, not `uv run`. Their configuration still lives in
+`pyproject.toml` (`[tool.ruff]`, `[tool.djlint]`, `[tool.codespell]`), which the hooks read.
 
 ## Code Quality
 
@@ -69,10 +73,11 @@ We use pyright with basic type checking configured in `pyproject.toml`. Migratio
 
 ### Linting and Formatting
 
-We use ruff for both linting and formatting:
+We use ruff for both linting and formatting, via the prek hook:
 
 - Line length: 88 characters
 - Migrations and `manage.py` excluded from linting
+- `RUF012` ignored project-wide (Django class attributes are mutable by design)
 - Special rules for `settings.py` and test files
 
 ### Testing

@@ -9,7 +9,6 @@ from django.utils import timezone
 from courses.models import Semester, Student
 from housepoints.models import Award
 
-
 # Discord emoji mappings for each house
 HOUSE_EMOJIS: dict[str, str] = {
     "owl": "<:owlheart:1457263992245326022>",
@@ -97,9 +96,7 @@ class Command(BaseCommand):
 
         # Build the message lines
         message_lines = [f"<@&{HOUSE_POINTS_ROLE_ID}> Current standings!"]
-        n = 0
-        for house_code, points in sorted_houses:
-            n += 1
+        for n, (house_code, points) in enumerate(sorted_houses, start=1):
             emoji = HOUSE_EMOJIS.get(house_code, "")
             message_lines.append(f"{n}. {emoji} {points} points")
 

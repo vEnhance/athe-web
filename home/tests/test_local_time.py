@@ -8,7 +8,7 @@ from home.templatetags.local_time import local_datetime
 @pytest.fixture
 def aware_dt() -> datetime.datetime:
     """A timezone-aware datetime: 2026-03-05 20:00 UTC = 15:00 America/New_York."""
-    return datetime.datetime(2026, 3, 5, 20, 0, 0, tzinfo=datetime.timezone.utc)
+    return datetime.datetime(2026, 3, 5, 20, 0, 0, tzinfo=datetime.UTC)
 
 
 def test_returns_time_element(aware_dt: datetime.datetime) -> None:

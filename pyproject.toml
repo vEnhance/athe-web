@@ -33,18 +33,18 @@ prod = [
 
 [dependency-groups]
 dev = [
-    "codespell>=2.4.2",
     "django-stubs-ext>=5.2.9,<6.0",
     "django-stubs>=5.2.9,<6.0",
-    "djlint>=1.39.2",
     "prek>=0.4.5",
     "pyright>=1.1.410",
     "pytest-django>=4.12.0",
     "pytest-xdist>=3.8.0",
     "pytest>=9.1.1",
-    "ruff>=0.15.18",
     "werkzeug>=3.1.8",
 ]
+# ruff, djlint and codespell are deliberately not listed here: prek pins their versions
+# in prek.toml and runs them in its own environments. A second pin in the lockfile only
+# drifts out of sync. Their config below is still read by the prek hooks.
 
 [tool.djlint]
 profile = "django"
@@ -60,6 +60,9 @@ line-length = 88
 
 [tool.ruff.lint]
 exclude = ["**/migrations/*.py", "manage.py"]
+# Django declares list/dict class attributes everywhere (list_display, Meta.fields,
+# form widgets, ...); annotating them all as ClassVar is noise.
+ignore = ["RUF012"]
 
 [tool.ruff.lint.extend-per-file-ignores]
 "atheweb/settings.py" = ["S105"]

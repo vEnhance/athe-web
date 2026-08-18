@@ -9,7 +9,6 @@ from django.utils import timezone
 from courses.models import Course, Semester, Student
 from housepoints.models import Award
 
-
 # ============================================================================
 # Attendance Bulk View Tests
 # ============================================================================

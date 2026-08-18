@@ -1,8 +1,9 @@
-from atheweb.validators import VALIDATOR_WITH_FIGURES
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from markdownfield.models import MarkdownField, RenderedMarkdownField
+
+from atheweb.validators import VALIDATOR_WITH_FIGURES
 
 
 class ApplyPSet(models.Model):

@@ -29,7 +29,6 @@ from django.db import transaction
 from courses.models import Semester, Student
 from housepoints.models import Award
 
-
 # Prefix mappings for column headers (checked in order)
 PREFIX_MAP: list[tuple[str, str | None]] = [
     ("class", Award.AwardType.CLASS_ATTENDANCE),
@@ -177,7 +176,7 @@ class Command(BaseCommand):
         except FileNotFoundError:
             self.stderr.write(self.style.ERROR(f"File not found: {tsv_file}"))
             sys.exit(1)
-        except Exception as e:
+        except (OSError, csv.Error, UnicodeDecodeError) as e:
             self.stderr.write(self.style.ERROR(f"Error reading file: {e}"))
             sys.exit(1)
 

@@ -1,10 +1,10 @@
-from datetime import date
-
-from atheweb.validators import VALIDATOR_WITH_FIGURES
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from markdownfield.models import MarkdownField, RenderedMarkdownField
+
+from atheweb.validators import VALIDATOR_WITH_FIGURES
 
 
 class Photo(models.Model):
@@ -87,7 +87,7 @@ class BlogPost(models.Model):
     )
     content_rendered = RenderedMarkdownField()
     display_date = models.DateField(
-        default=date.today,
+        default=timezone.localdate,
         help_text="Date to display on the post (defaults to creation date)",
     )
     created_at = models.DateTimeField(

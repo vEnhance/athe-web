@@ -74,9 +74,7 @@ class StudentInviteLink(models.Model):
 
     def is_semester_ended(self) -> bool:
         """Check if the semester has ended."""
-        from datetime import date
-
-        return date.today() > self.semester.end_date
+        return timezone.localdate() > self.semester.end_date
 
     def get_absolute_url(self) -> str:
         """Get the URL for this invite link."""

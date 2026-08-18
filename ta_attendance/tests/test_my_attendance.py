@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import timedelta
 
 import pytest
 from django.contrib.auth.models import User
@@ -7,7 +7,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from courses.models import Course, Semester
-
 from ta_attendance.models import Attendance
 
 
@@ -77,9 +76,9 @@ def test_my_attendance_shows_only_user_records():
     )
 
     # Create attendance for both users
-    Attendance.objects.create(user=user1, date=date.today(), club=club)
+    Attendance.objects.create(user=user1, date=timezone.localdate(), club=club)
     Attendance.objects.create(
-        user=user2, date=date.today() - timedelta(days=1), club=club
+        user=user2, date=timezone.localdate() - timedelta(days=1), club=club
     )
 
     # Login as user1
@@ -117,14 +116,16 @@ def test_my_attendance_post_creates_record():
     client.login(username="staff", password="password")
     url = reverse("ta_attendance:my_attendance")
 
-    response = client.post(url, {"date": date.today(), "club": club.pk})
+    response = client.post(url, {"date": timezone.localdate(), "club": club.pk})
 
     # Should redirect after successful creation
     assert response.status_code == 302
     assert response.url == url
 
     # Verify record was created
-    assert Attendance.objects.filter(user=user, club=club, date=date.today()).exists()
+    assert Attendance.objects.filter(
+        user=user, club=club, date=timezone.localdate()
+    ).exists()
 
 
 @pytest.mark.django_db
@@ -149,12 +150,14 @@ def test_my_attendance_post_duplicate_shows_error():
     )
 
     # Create existing record
-    Attendance.objects.create(user=user, date=date.today(), club=club)
+    Attendance.objects.create(user=user, date=timezone.localdate(), club=club)
 
     client.login(username="staff", password="password")
     url = reverse("ta_attendance:my_attendance")
 
-    response = client.post(url, {"date": date.today(), "club": club.pk}, follow=True)
+    response = client.post(
+        url, {"date": timezone.localdate(), "club": club.pk}, follow=True
+    )
 
     # Should show error message
     assert response.status_code == 200

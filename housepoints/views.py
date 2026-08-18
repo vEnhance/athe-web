@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import Exists, OuterRef, Sum
-
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
@@ -229,8 +228,9 @@ class BulkAwardView(UserPassesTestMixin, View):
                     results["success"].append(
                         f"{airtable_name}: +{points} pts ({student.get_house_display()})"  # type: ignore[attr-defined]
                     )
-                except Exception as e:
-                    results["errors"].append(f"{airtable_name}: {str(e)}")
+                # One bad row must not abort the rest of the bulk award
+                except Exception as e:  # noqa: BLE001
+                    results["errors"].append(f"{airtable_name}: {e!s}")
 
             if results["success"]:
                 messages.success(
@@ -784,8 +784,9 @@ class AttendanceBulkView(UserPassesTestMixin, View):
                             f"{student.airtable_name}: +{points} pts "
                             f"({student.get_house_display()})"  # type: ignore[attr-defined]
                         )
-                    except Exception as e:
-                        results["errors"].append(f"{student.airtable_name}: {str(e)}")
+                    # One bad row must not abort the rest of the bulk award
+                    except Exception as e:  # noqa: BLE001
+                        results["errors"].append(f"{student.airtable_name}: {e!s}")
 
             if results["success"]:
                 messages.success(

@@ -1,5 +1,6 @@
-from atheweb.validators import VALIDATOR_WITH_FIGURES
 from markdownfield.rendering import render_markdown
+
+from atheweb.validators import VALIDATOR_WITH_FIGURES
 
 
 def render(md: str) -> str:

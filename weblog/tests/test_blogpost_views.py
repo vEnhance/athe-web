@@ -1,5 +1,7 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.messages.storage.base import BaseStorage
+from django.http import Http404, HttpRequest
 from django.test import RequestFactory
 
 from weblog.models import BlogPost
@@ -10,6 +12,15 @@ from weblog.views import (
     BlogPostListView,
     BlogPostUpdateView,
 )
+
+
+def attach_messages(request: HttpRequest) -> HttpRequest:
+    """Give a RequestFactory request the message storage middleware would add.
+
+    Views that call ``messages.error()`` raise ``MessageFailure`` without it.
+    """
+    request._messages = BaseStorage(request)  # type: ignore[attr-defined]
+    return request
 
 
 @pytest.fixture
@@ -149,7 +160,7 @@ def test_blog_detail_view_unpublished_anonymous(unpublished_post):
     request = factory.get(f"/blog/{unpublished_post.slug}/")
     request.user = AnonymousUser()
 
-    with pytest.raises(Exception):  # Should raise Http404
+    with pytest.raises(Http404):
         BlogPostDetailView.as_view()(request, slug=unpublished_post.slug)
 
 
@@ -172,7 +183,7 @@ def test_blog_detail_view_unpublished_other_user(other_user, unpublished_post):
     request = factory.get(f"/blog/{unpublished_post.slug}/")
     request.user = other_user
 
-    with pytest.raises(Exception):  # Should raise Http404
+    with pytest.raises(Http404):
         BlogPostDetailView.as_view()(request, slug=unpublished_post.slug)
 
 
@@ -402,8 +413,9 @@ def test_blog_update_view_other_user_denied(other_user, unpublished_post):
     factory = RequestFactory()
     request = factory.get(f"/blog/{unpublished_post.slug}/edit/")
     request.user = other_user
+    attach_messages(request)
 
-    with pytest.raises(Exception):  # Should raise Http404
+    with pytest.raises(Http404):
         BlogPostUpdateView.as_view()(request, slug=unpublished_post.slug)
 
 
@@ -413,6 +425,7 @@ def test_blog_update_view_published_denied(user, published_post):
     factory = RequestFactory()
     request = factory.get(f"/blog/{published_post.slug}/edit/")
     request.user = user
+    attach_messages(request)
 
-    with pytest.raises(Exception):  # Should raise Http404
+    with pytest.raises(Http404):
         BlogPostUpdateView.as_view()(request, slug=published_post.slug)

@@ -27,9 +27,10 @@ Then in the Python shell:
 
 ```python
 from django.contrib.sites.models import Site
+
 site = Site.objects.get_current()
-site.domain = 'localhost:8000'  # For development
-site.name = 'Athemath Local'
+site.domain = "localhost:8000"  # For development
+site.name = "Athemath Local"
 site.save()
 ```
 
@@ -162,16 +163,15 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
     ```python
     import os
+
     SOCIALACCOUNT_PROVIDERS = {
-       "google": {
-           "APP": {
-               "client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
-               "secret": os.getenv("GOOGLE_SECRET", ""),
-           },
-       },
-
-       # ...
-
+        "google": {
+            "APP": {
+                "client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
+                "secret": os.getenv("GOOGLE_SECRET", ""),
+            },
+        },
+        # ...
     }
     ```
 

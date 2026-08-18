@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import timedelta
 
 import pytest
 from django.contrib.auth.models import User
@@ -7,7 +7,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from courses.models import Course, Semester
-
 from ta_attendance.models import Attendance
 
 
@@ -83,9 +82,9 @@ def test_all_attendance_shows_all_records():
     )
 
     # Create attendance for both users
-    Attendance.objects.create(user=user1, date=date.today(), club=club)
+    Attendance.objects.create(user=user1, date=timezone.localdate(), club=club)
     Attendance.objects.create(
-        user=user2, date=date.today() - timedelta(days=1), club=club
+        user=user2, date=timezone.localdate() - timedelta(days=1), club=club
     )
 
     client.login(username="super", password="password")
@@ -122,7 +121,7 @@ def test_all_attendance_displays_user_name():
         is_club=True,
     )
 
-    Attendance.objects.create(user=user, date=date.today(), club=club)
+    Attendance.objects.create(user=user, date=timezone.localdate(), club=club)
 
     client.login(username="super", password="password")
     url = reverse("ta_attendance:all_attendance")

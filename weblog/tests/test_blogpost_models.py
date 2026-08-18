@@ -3,6 +3,7 @@ from datetime import date
 import pytest
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+from django.utils import timezone
 
 from weblog.models import BlogPost
 
@@ -81,7 +82,7 @@ def test_blogpost_default_display_date(user):
         creator=user,
         content="Content.",
     )
-    assert post.display_date == date.today()
+    assert post.display_date == timezone.localdate()
 
 
 @pytest.mark.django_db

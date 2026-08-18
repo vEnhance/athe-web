@@ -1,4 +1,4 @@
-from markdownfield.validators import Validator, MARKDOWN_TAGS, MARKDOWN_ATTRS
+from markdownfield.validators import MARKDOWN_ATTRS, MARKDOWN_TAGS, Validator
 
 assert isinstance(MARKDOWN_TAGS, set)
 

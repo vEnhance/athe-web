@@ -7,7 +7,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from courses.models import Semester, Student
-
 from yearbook.models import YearbookEntry
 
 

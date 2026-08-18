@@ -1,13 +1,13 @@
 import secrets
 
-from django.contrib.auth.models import User
-from django.db.models import Exists, OuterRef
-from django.db.models import UniqueConstraint, Q, QuerySet
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Exists, OuterRef, Q, QuerySet, UniqueConstraint
 from django.urls import reverse
 from django.utils import timezone
+
 from home.models import StaffPhotoListing
 
 

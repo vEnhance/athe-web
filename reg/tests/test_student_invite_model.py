@@ -5,7 +5,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from courses.models import Semester
-
 from reg.models import StudentInviteLink
 
 

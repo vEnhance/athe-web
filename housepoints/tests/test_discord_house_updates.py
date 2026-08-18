@@ -9,7 +9,6 @@ from django.utils import timezone
 from courses.models import Semester, Student
 from housepoints.models import Award
 
-
 # ============================================================================
 # send_discord_house_updates Management Command Tests
 # ============================================================================
@@ -21,9 +20,11 @@ def test_discord_house_updates_missing_env_var():
     out = StringIO()
     err = StringIO()
 
-    with patch.dict("os.environ", {}, clear=True):
-        with pytest.raises(SystemExit) as exc_info:
-            call_command("send_discord_house_updates", stdout=out, stderr=err)
+    with (
+        patch.dict("os.environ", {}, clear=True),
+        pytest.raises(SystemExit) as exc_info,
+    ):
+        call_command("send_discord_house_updates", stdout=out, stderr=err)
 
     assert exc_info.value.code == 1
     assert "DISCORD_HOUSE_POINTS_WEBHOOK" in err.getvalue()
@@ -73,11 +74,13 @@ def test_discord_house_updates_multiple_active_semesters():
     out = StringIO()
     err = StringIO()
 
-    with patch.dict(
-        "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+    with (
+        patch.dict(
+            "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+        ),
+        pytest.raises(SystemExit) as exc_info,
     ):
-        with pytest.raises(SystemExit) as exc_info:
-            call_command("send_discord_house_updates", stdout=out, stderr=err)
+        call_command("send_discord_house_updates", stdout=out, stderr=err)
 
     assert exc_info.value.code == 1
     assert "Multiple active semesters" in err.getvalue()
@@ -153,11 +156,14 @@ def test_discord_house_updates_sends_message():
     mock_response = MagicMock()
     mock_response.raise_for_status = MagicMock()
 
-    with patch.dict(
-        "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com/webhook"}
+    with (
+        patch.dict(
+            "os.environ",
+            {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com/webhook"},
+        ),
+        patch("requests.post", return_value=mock_response) as mock_post,
     ):
-        with patch("requests.post", return_value=mock_response) as mock_post:
-            call_command("send_discord_house_updates", stdout=out, stderr=err)
+        call_command("send_discord_house_updates", stdout=out, stderr=err)
 
     # Verify requests.post was called
     assert mock_post.called
@@ -224,11 +230,13 @@ def test_discord_house_updates_sorted_by_score():
     mock_response = MagicMock()
     mock_response.raise_for_status = MagicMock()
 
-    with patch.dict(
-        "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+    with (
+        patch.dict(
+            "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+        ),
+        patch("requests.post", return_value=mock_response) as mock_post,
     ):
-        with patch("requests.post", return_value=mock_response) as mock_post:
-            call_command("send_discord_house_updates", stdout=out)
+        call_command("send_discord_house_updates", stdout=out)
 
     message_content = mock_post.call_args[1]["json"]["content"]
     lines = message_content.split("\n")
@@ -281,11 +289,13 @@ def test_discord_house_updates_includes_zero_point_houses():
     mock_response = MagicMock()
     mock_response.raise_for_status = MagicMock()
 
-    with patch.dict(
-        "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+    with (
+        patch.dict(
+            "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+        ),
+        patch("requests.post", return_value=mock_response) as mock_post,
     ):
-        with patch("requests.post", return_value=mock_response) as mock_post:
-            call_command("send_discord_house_updates", stdout=out)
+        call_command("send_discord_house_updates", stdout=out)
 
     message_content = mock_post.call_args[1]["json"]["content"]
 
@@ -318,15 +328,17 @@ def test_discord_house_updates_webhook_failure():
     out = StringIO()
     err = StringIO()
 
-    with patch.dict(
-        "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
-    ):
-        with patch(
+    with (
+        patch.dict(
+            "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+        ),
+        patch(
             "requests.post",
             side_effect=requests.exceptions.RequestException("Network error"),
-        ):
-            with pytest.raises(SystemExit) as exc_info:
-                call_command("send_discord_house_updates", stdout=out, stderr=err)
+        ),
+        pytest.raises(SystemExit) as exc_info,
+    ):
+        call_command("send_discord_house_updates", stdout=out, stderr=err)
 
     assert exc_info.value.code == 1
     assert "Failed to send" in err.getvalue()
@@ -348,11 +360,13 @@ def test_discord_house_updates_empty_semester():
     mock_response = MagicMock()
     mock_response.raise_for_status = MagicMock()
 
-    with patch.dict(
-        "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+    with (
+        patch.dict(
+            "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+        ),
+        patch("requests.post", return_value=mock_response) as mock_post,
     ):
-        with patch("requests.post", return_value=mock_response) as mock_post:
-            call_command("send_discord_house_updates", stdout=out)
+        call_command("send_discord_house_updates", stdout=out)
 
     # Should still send a message with all 0s
     assert mock_post.called

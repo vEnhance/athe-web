@@ -1,5 +1,5 @@
-from django.urls import reverse
 from django.test import Client
+from django.urls import reverse
 
 
 def test_login_works():

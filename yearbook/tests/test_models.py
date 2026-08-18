@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from courses.models import Semester, Student
-
 from yearbook.models import YearbookEntry
 
 

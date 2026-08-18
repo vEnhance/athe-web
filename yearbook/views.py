@@ -1,4 +1,3 @@
-from datetime import date
 from typing import Any
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -6,6 +5,7 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from courses.models import Semester, Student
@@ -29,9 +29,7 @@ class StudentOwnerMixin(LoginRequiredMixin, UserPassesTestMixin):
         if student.user != self.request.user:  # type: ignore[union-attr]
             return False
         # Check semester hasn't ended
-        if date.today() > student.semester.end_date:
-            return False
-        return True
+        return timezone.localdate() <= student.semester.end_date
 
 
 class YearbookEntryCreateView(StudentOwnerMixin, CreateView):
@@ -180,7 +178,7 @@ class YearbookEntryListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
         # Check if user can create/edit their entry
         if user_student:
-            context["can_edit"] = date.today() <= semester.end_date
+            context["can_edit"] = timezone.localdate() <= semester.end_date
             try:
                 context["user_entry"] = user_student.yearbook_entry  # type: ignore[attr-defined]
                 context["has_entry"] = True
@@ -222,13 +220,12 @@ class YearbookIndexView(LoginRequiredMixin, ListView):
         # Get the most recent semester
         most_recent = Semester.objects.order_by("-end_date").first()
 
-        if most_recent:
-            # Check if user has access to the most recent semester
-            if (
-                user.is_staff
-                or Student.objects.filter(user=user, semester=most_recent).exists()
-            ):
-                return redirect("yearbook:entry_list", slug=most_recent.slug)
+        # Redirect to it if the user has access to the most recent semester
+        if most_recent and (
+            user.is_staff
+            or Student.objects.filter(user=user, semester=most_recent).exists()
+        ):
+            return redirect("yearbook:entry_list", slug=most_recent.slug)
 
         # Otherwise, redirect to semester list
         return redirect("yearbook:semester_list")

@@ -8,7 +8,6 @@ from django.utils import timezone
 
 from courses.models import Course, Semester
 from home.models import StaffPhotoListing
-
 from reg.models import StaffInviteLink
 
 

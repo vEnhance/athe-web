@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import timedelta
 
 import pytest
 from django.contrib.auth.models import User
@@ -6,7 +6,6 @@ from django.db import IntegrityError
 from django.utils import timezone
 
 from courses.models import Course, Semester
-
 from ta_attendance.models import Attendance
 
 
@@ -31,14 +30,14 @@ def test_attendance_creation():
 
     attendance = Attendance.objects.create(
         user=user,
-        date=date.today(),
+        date=timezone.localdate(),
         club=club,
     )
 
     assert attendance.user == user
-    assert attendance.date == date.today()
+    assert attendance.date == timezone.localdate()
     assert attendance.club == club
-    assert str(attendance) == f"{user.username} - Math Club on {date.today()}"
+    assert str(attendance) == f"{user.username} - Math Club on {timezone.localdate()}"
 
 
 @pytest.mark.django_db
@@ -61,11 +60,11 @@ def test_attendance_unique_constraint():
     )
 
     # Create first attendance record
-    Attendance.objects.create(user=user, date=date.today(), club=club)
+    Attendance.objects.create(user=user, date=timezone.localdate(), club=club)
 
     # Try to create duplicate - should fail
     with pytest.raises(IntegrityError):
-        Attendance.objects.create(user=user, date=date.today(), club=club)
+        Attendance.objects.create(user=user, date=timezone.localdate(), club=club)
 
 
 @pytest.mark.django_db
@@ -88,9 +87,9 @@ def test_attendance_same_user_different_dates():
     )
 
     # Create attendance on different dates
-    Attendance.objects.create(user=user, date=date.today(), club=club)
+    Attendance.objects.create(user=user, date=timezone.localdate(), club=club)
     Attendance.objects.create(
-        user=user, date=date.today() - timedelta(days=1), club=club
+        user=user, date=timezone.localdate() - timedelta(days=1), club=club
     )
 
     assert Attendance.objects.filter(user=user).count() == 2
@@ -122,7 +121,7 @@ def test_attendance_same_date_different_clubs():
     )
 
     # Create attendance for different clubs on same date
-    Attendance.objects.create(user=user, date=date.today(), club=club1)
-    Attendance.objects.create(user=user, date=date.today(), club=club2)
+    Attendance.objects.create(user=user, date=timezone.localdate(), club=club1)
+    Attendance.objects.create(user=user, date=timezone.localdate(), club=club2)
 
-    assert Attendance.objects.filter(user=user, date=date.today()).count() == 2
+    assert Attendance.objects.filter(user=user, date=timezone.localdate()).count() == 2

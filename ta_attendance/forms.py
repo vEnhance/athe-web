@@ -1,6 +1,5 @@
-from datetime import date
-
 from django import forms
+from django.utils import timezone
 
 from courses.models import Course
 
@@ -20,9 +19,9 @@ class AttendanceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
         # Default date to today
-        self.fields["date"].initial = date.today()
+        today = timezone.localdate()
+        self.fields["date"].initial = today
         # Only show clubs from semesters that have not ended
-        today = date.today()
         self.fields["club"].queryset = (  # type: ignore[attr-defined]
             Course.objects.filter(
                 is_club=True,
