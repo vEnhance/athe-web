@@ -54,6 +54,14 @@ def registration(students, courses):
         course_comments="No 8am please",
         availability=["sat-1000", "sun-1030"],
         availability_comments="Weekends only",
+        subject_interest={
+            "algebra": "very",
+            "combinatorics": "somewhat",
+            "geometry": "not",
+            "number_theory": "very",
+        },
+        difficulty_levels=["aime", "olympiad"],
+        completed_steps=["you", "classes", "availability", "sorting"],
         quiz_challenge="plan",
         quiz_values="clarity",
         quiz_compass="logic",
@@ -121,6 +129,13 @@ def test_responses_download(
     assert [course["name"] for course in payload["courses"]] == ["Algebra", "Geometry"]
     assert len(payload["availability_slots"]) == 64
     assert payload["quiz_questions"]["quiz_challenge"]["choices"]["plan"]
+    assert [subject["key"] for subject in payload["subjects"]] == [
+        "algebra",
+        "combinatorics",
+        "geometry",
+        "number_theory",
+    ]
+    assert {level["key"] for level in payload["difficulty_levels"]} >= {"amc", "aime"}
 
     by_name = {student["airtable_name"]: student for student in payload["students"]}
     alice = by_name["Alice Anderson"]["registration"]
@@ -128,9 +143,12 @@ def test_responses_download(
     assert alice["parent_email"] == "parent@example.com"
     assert alice["taken_class_before"] is True
     assert alice["availability"] == ["sat-1000", "sun-1030"]
-    assert alice["course_ranking"] == [
+    assert alice["course_choices"] == [
         {"rank": 1, "course_id": courses["Geometry"].pk, "course": "Geometry"}
     ]
+    assert alice["subject_interest"]["algebra"] == "very"
+    assert alice["difficulty_levels"] == ["aime", "olympiad"]
+    assert alice["complete"] is True
     assert [entry["course"] for entry in alice["excluded_courses"]] == ["Algebra"]
     assert alice["quiz"]["quiz_challenge"] == "plan"
     assert alice["house_request"] == "Owls"

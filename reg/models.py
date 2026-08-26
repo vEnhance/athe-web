@@ -134,6 +134,13 @@ class StudentRegistration(models.Model):
         on_delete=models.CASCADE,
         related_name="registration",
     )
+    completed_steps = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Slugs of the questionnaire pages this student has saved. "
+        "The questionnaire is filled in a page at a time, so a registration "
+        "missing some of these was abandoned partway.",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -149,10 +156,25 @@ class StudentRegistration(models.Model):
         max_length=64, help_text="Your Discord username, e.g. mathlover42"
     )
     taken_class_before = models.BooleanField(
-        help_text="Whether the student has taken an Athemath class before"
+        null=True,
+        blank=True,
+        help_text="Whether the student has taken an Athemath class before",
     )
 
-    # Class selection; the ranking itself lives in CoursePreference
+    # Class selection; the top three picks and the "rather not" pile both live
+    # in CoursePreference
+    subject_interest = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="How interested the student is in each subject, "
+        "e.g. {'algebra': 'very', ...}",
+    )
+    difficulty_levels = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Difficulty bands the student would be happy in, "
+        "e.g. ['aime', 'olympiad']",
+    )
     course_comments = models.TextField(
         blank=True, help_text="Anything else to say about class preferences"
     )
@@ -206,6 +228,11 @@ class StudentRegistration(models.Model):
     def __str__(self) -> str:
         return f"Registration for {self.student}"
 
+    def mark_complete(self, step: str) -> None:
+        """Record that a page has been saved. Caller still has to save()."""
+        if step not in self.completed_steps:
+            self.completed_steps = [*self.completed_steps, step]
+
     def quiz_answers(self) -> dict[str, str]:
         """The five sorting questions, as ``{field name: stored choice}``."""
         return {
@@ -221,10 +248,11 @@ class StudentRegistration(models.Model):
 
 
 class CoursePreference(models.Model):
-    """One student's opinion of one class: either a rank, or a hard no.
+    """One student's opinion of one class: a top-three pick, or a hard no.
 
-    Every class in the semester gets a row, so an unranked class means the
-    questionnaire predates it rather than that the student had no opinion.
+    Only classes the student said something about get a row. Ranking a whole
+    catalogue is miserable and the answers below fourth place say very little,
+    so a class with no row here is simply one the student is neutral about.
     """
 
     registration = models.ForeignKey(
@@ -238,7 +266,8 @@ class CoursePreference(models.Model):
     rank = models.PositiveSmallIntegerField(
         null=True,
         blank=True,
-        help_text="1 is the most preferred class; blank when excluded",
+        help_text="1, 2 or 3 for the student's first, second and third choice; "
+        "blank when excluded",
     )
     excluded = models.BooleanField(
         default=False,

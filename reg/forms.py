@@ -10,8 +10,17 @@ from django.db import transaction
 from courses.models import Course, Semester, Student
 from home.models import StaffPhotoListing
 
-from . import availability
+from . import availability, questions
 from .models import CoursePreference, StudentRegistration
+
+#: Questions of the sorting ceremony, in the order they are asked.
+QUIZ_FIELDS = (
+    "quiz_challenge",
+    "quiz_values",
+    "quiz_compass",
+    "quiz_day_off",
+    "quiz_friend",
+)
 
 
 class Assignment(NamedTuple):
@@ -160,6 +169,7 @@ class AvailabilityGridWidget(forms.Widget):
             "rows": [
                 {
                     "label": availability.time_label(start),
+                    "on_hour": start.minute == 0,
                     "cells": [
                         {
                             "key": availability.slot_key(day, start),
@@ -192,125 +202,150 @@ class AvailabilityField(forms.MultipleChoiceField):
         super().__init__(**kwargs)
 
 
-#: One student's verdict on one class: a rank, or a refusal.
-type Preference = tuple[Course, int | None, bool]
+class SearchableSelect(forms.Select):
+    """A <select> the vendored Tom Select turns into a type-to-filter dropdown.
 
-
-class CoursePreferenceWidget(forms.Widget):
-    """Renders the ranked list of classes and the "no thanks" pile beside it.
-
-    The ranking rides on the DOM order of hidden inputs, which is the order the
-    browser submits them in. That way the drag-and-drop script has nothing to
-    serialize, and a browser running no script at all still posts a complete
-    ranking (the order the classes were rendered in) with the exclusion boxes
-    working normally.
+    Falls back to an ordinary dropdown if the script does not load, which is
+    why the roster is a select at all: a hundred radio buttons is a hundred
+    lines to scroll past to find your own name.
     """
 
-    template_name = "reg/widgets/course_preferences.html"
+    def __init__(
+        self, attrs: dict[str, Any] | None = None, choices: Iterable[Any] = ()
+    ) -> None:
+        super().__init__({"data-tom-select": "", **(attrs or {})}, choices)
+
+
+class SearchableSelectMultiple(forms.SelectMultiple):
+    """The multi-select flavour of SearchableSelect."""
 
     def __init__(
-        self, courses: Iterable[Course] = (), attrs: dict[str, Any] | None = None
+        self, attrs: dict[str, Any] | None = None, choices: Iterable[Any] = ()
     ) -> None:
-        super().__init__(attrs)
-        self.courses = list(courses)
+        super().__init__({"data-tom-select": "", **(attrs or {})}, choices)
 
-    @staticmethod
-    def excluded_name(name: str) -> str:
-        """Name of the companion checkbox input for the exclusion pile."""
-        return f"{name}_excluded"
 
-    def value_from_datadict(
-        self, data: Any, files: Any, name: str
-    ) -> dict[str, list[str]]:
-        get_list = getattr(data, "getlist", lambda key, default=(): list(default))
+class SubjectInterestWidget(forms.Widget):
+    """A radio grid: one row per subject, one column per interest level.
+
+    Four separate questions would say the same thing, but a grid lets students
+    see how their answers compare and takes a quarter of the height.
+    """
+
+    template_name = "reg/widgets/subject_interest.html"
+
+    def value_from_datadict(self, data: Any, files: Any, name: str) -> dict[str, str]:
         return {
-            "order": [str(pk) for pk in get_list(name)],
-            "excluded": [str(pk) for pk in get_list(self.excluded_name(name))],
+            subject: data.get(f"{name}_{subject}", "")
+            for subject, _ in questions.SUBJECTS
         }
-
-    def rows(self, value: Any) -> list[dict[str, Any]]:
-        """The classes in submitted order, each tagged with its exclusion.
-
-        Anything the submission left out (or invented) is ignored and the
-        missing classes are appended, so the rendered list always covers the
-        semester exactly once.
-        """
-        by_pk = {str(course.pk): course for course in self.courses}
-        value = value or {}
-        ordered: list[Course] = []
-        seen: set[str] = set()
-        for pk in value.get("order", ()):
-            if pk in by_pk and pk not in seen:
-                seen.add(pk)
-                ordered.append(by_pk[pk])
-        ordered += [c for c in self.courses if str(c.pk) not in seen]
-
-        excluded = set(value.get("excluded", ()))
-        return [
-            {"course": course, "excluded": str(course.pk) in excluded}
-            for course in ordered
-        ]
 
     def get_context(self, name: str, value: Any, attrs: Any) -> dict[str, Any]:
         context = super().get_context(name, value, attrs)
-        rows = self.rows(value)
+        answers = value or {}
+        widget_id = (attrs or {}).get("id", name)
         context["widget"].update(
-            excluded_name=self.excluded_name(name),
-            ranked=[row["course"] for row in rows if not row["excluded"]],
-            excluded=[row["course"] for row in rows if row["excluded"]],
+            levels=[label for _, label in questions.INTEREST_LEVELS],
+            rows=[
+                {
+                    "label": subject_label,
+                    "name": f"{name}_{subject}",
+                    "cells": [
+                        {
+                            "value": level,
+                            "id": f"{widget_id}_{subject}_{level}",
+                            "label": f"{subject_label}: {level_label}",
+                            "checked": answers.get(subject) == level,
+                        }
+                        for level, level_label in questions.INTEREST_LEVELS
+                    ],
+                }
+                for subject, subject_label in questions.SUBJECTS
+            ],
         )
         return context
 
 
-class CoursePreferenceField(forms.Field):
-    """Turns the ranked list into ``(course, rank, excluded)`` triples."""
+class SubjectInterestField(forms.Field):
+    """Collects the subject grid into ``{subject: interest level}``."""
 
-    widget = CoursePreferenceWidget
+    widget = SubjectInterestWidget
 
-    def __init__(self, *, courses: Iterable[Course], **kwargs: Any) -> None:
-        self.courses = list(courses)
-        kwargs.setdefault("label", "Rank the classes you'd like to take")
-        super().__init__(**kwargs)
-        self.widget.courses = self.courses
-
-    @staticmethod
-    def initial_for(registration: StudentRegistration) -> dict[str, list[str]]:
-        """The widget value that redisplays an already-saved set of answers."""
-        preferences = list(
-            CoursePreference.objects.filter(registration=registration).select_related(
-                "course"
-            )
+    def __init__(self, **kwargs: Any) -> None:
+        kwargs.setdefault("label", "How interested are you in each subject?")
+        kwargs.setdefault(
+            "help_text",
+            "So we can make sure you get put in a class on a subject you're "
+            "interested in.",
         )
-        return {
-            "order": [str(pref.course.pk) for pref in preferences],
-            "excluded": [str(pref.course.pk) for pref in preferences if pref.excluded],
-        }
+        super().__init__(**kwargs)
 
-    def clean(self, value: Any) -> list[Preference]:
-        rows = self.widget.rows(value)
-        preferences: list[Preference] = []
-        rank = 0
-        for row in rows:
-            if row["excluded"]:
-                preferences.append((row["course"], None, True))
+    def clean(self, value: Any) -> dict[str, str]:
+        answers = value or {}
+        cleaned: dict[str, str] = {}
+        missing: list[str] = []
+        for subject, label in questions.SUBJECTS:
+            if answers.get(subject) in questions.INTEREST_KEYS:
+                cleaned[subject] = answers[subject]
             else:
-                rank += 1
-                preferences.append((row["course"], rank, False))
+                missing.append(label)
 
-        if self.required and not rank:
+        if missing and self.required:
             raise forms.ValidationError(
-                "Please leave at least one class you would be willing to take."
+                f"Please say how interested you are in {', '.join(missing)}."
             )
-        return preferences
+        return cleaned
 
 
-class StudentQuestionnaireForm(forms.ModelForm):  # type: ignore[type-arg]
-    """Everything a student tells us at registration, on one page.
+class RegistrationStepForm(forms.ModelForm):  # type: ignore[type-arg]
+    """One page of the student registration questionnaire.
 
-    In *create* mode the student also picks their name off the roster, which is
-    what binds their account to a Student record; in *edit* mode the name is
-    already settled and only the answers can change.
+    Every page saves on its own rather than being held in the session, so a
+    student can stop halfway, come back on another device and carry on -- and
+    so a half-finished registration is visible in the download rather than lost.
     """
+
+    #: URL slug for this page, and the marker stored in completed_steps.
+    slug: str
+    #: Heading for this page, and its label in the progress bar.
+    title: str
+    #: Template rendering this page. (Not `template_name`, which Django uses
+    #: for rendering the form itself.)
+    page_template: str
+
+    class Meta:
+        model = StudentRegistration
+        fields: list[str] = []
+
+    def __init__(
+        self,
+        *args: Any,
+        semester: Semester,
+        # Only needed to save; a form built just to read its labels off can
+        # leave it out.
+        user: User | None = None,
+        student: Student | None = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.semester = semester
+        self.user = user
+        self.claimed_student = student
+
+    def save_step(self) -> StudentRegistration:
+        """Store this page's answers and mark it done."""
+        registration = super().save(commit=False)
+        registration.mark_complete(self.slug)
+        registration.save()
+        return registration
+
+
+class IdentityStepForm(RegistrationStepForm):
+    """Page 1: which name on the roster you are, and how to reach you."""
+
+    slug = "you"
+    title = "About you"
+    page_template = "reg/steps/you.html"
 
     taken_class_before = forms.TypedChoiceField(
         choices=(("yes", "Yes"), ("no", "No")),
@@ -318,96 +353,26 @@ class StudentQuestionnaireForm(forms.ModelForm):  # type: ignore[type-arg]
         widget=forms.RadioSelect,
         label="Have you taken an Athemath class before?",
     )
-    availability = AvailabilityField()
 
-    class Meta:
-        model = StudentRegistration
-        fields = [
-            "email",
-            "parent_email",
-            "discord_username",
-            "taken_class_before",
-            "course_comments",
-            "availability",
-            "availability_comments",
-            "quiz_challenge",
-            "quiz_values",
-            "quiz_compass",
-            "quiz_day_off",
-            "quiz_friend",
-            "house_request",
-        ]
-        widgets = {
-            "course_comments": forms.Textarea(attrs={"rows": 3}),
-            "availability_comments": forms.Textarea(attrs={"rows": 3}),
-            "house_request": forms.Textarea(attrs={"rows": 3}),
-            "quiz_challenge": forms.RadioSelect,
-            "quiz_values": forms.RadioSelect,
-            "quiz_compass": forms.RadioSelect,
-            "quiz_day_off": forms.RadioSelect,
-            "quiz_friend": forms.RadioSelect,
-        }
-        labels = {
-            "course_comments": "Anything else about your class preferences?",
-            "availability_comments": "Anything else about your availability?",
-        }
+    class Meta(RegistrationStepForm.Meta):
+        fields = ["email", "parent_email", "discord_username", "taken_class_before"]
 
-    #: Questions of the sorting ceremony, in the order they are asked.
-    QUIZ_FIELDS = (
-        "quiz_challenge",
-        "quiz_values",
-        "quiz_compass",
-        "quiz_day_off",
-        "quiz_friend",
-    )
-
-    def __init__(
-        self,
-        *args: Any,
-        semester: Semester,
-        student: Student | None = None,
-        **kwargs: Any,
-    ) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self.semester = semester
-        self.claimed_student = student
-
-        # Every quiz question must be answered, so a model-supplied blank
-        # choice would just be an unlabelled sixth radio button.
-        for name in self.QUIZ_FIELDS:
-            field = self.fields[name]
-            field.choices = [  # type: ignore[attr-defined]
-                choice
-                for choice in field.choices  # type: ignore[attr-defined]
-                if choice[0]
-            ]
-
-        classes = Course.objects.filter(semester=semester, is_club=False).order_by(
-            "name"
+        if self.claimed_student is not None:
+            return
+        # The whole roster is offered, claimed names included; picking a
+        # claimed one is rejected by clean_student() below.
+        self.fields["student"] = RosterField(
+            queryset=Student.objects.filter(semester=self.semester),
+            widget=SearchableSelect(
+                attrs={"data-placeholder": "Start typing your name..."}
+            ),
+            empty_label="",
+            label="Who are you?",
+            help_text="Start typing to find your name on the roster.",
         )
-        self.fields["course_preferences"] = CoursePreferenceField(
-            courses=classes,
-            # A semester whose classes are not up yet should not be a dead end.
-            required=classes.exists(),
-        )
-        if student is None:
-            # The whole roster is offered, claimed names included; picking a
-            # claimed one is rejected by clean_student() below.
-            self.fields["student"] = forms.ModelChoiceField(
-                queryset=Student.objects.filter(semester=semester),
-                widget=forms.RadioSelect,
-                empty_label=None,
-                label="Who are you?",
-                help_text="Please select your name from the roster below.",
-            )
-        elif self.instance.pk:
-            self.initial["course_preferences"] = CoursePreferenceField.initial_for(
-                self.instance
-            )
-
-    def quiz_fields(self) -> list[Any]:
-        """The sorting questions as bound fields, for the template to loop over."""
-        return [self[name] for name in self.QUIZ_FIELDS]
+        self.order_fields(["student", *self.Meta.fields])
 
     def clean_student(self) -> Student:
         student = self.cleaned_data["student"]
@@ -419,27 +384,225 @@ class StudentQuestionnaireForm(forms.ModelForm):  # type: ignore[type-arg]
         return student
 
     @transaction.atomic
-    def save_registration(self, user: User) -> Student:
-        """Bind the user to their Student and store this set of answers."""
+    def save_step(self) -> StudentRegistration:
+        """Bind the user to their Student, then store the page as usual."""
+        assert self.user is not None
         student = self.claimed_student or self.cleaned_data["student"]
-        if student.user != user:
-            student.user = user
+        if student.user != self.user:
+            student.user = self.user
             student.save()
+        self.instance.student = student
+        return super().save_step()
 
-        registration = super().save(commit=False)
-        registration.student = student
-        registration.save()
 
-        # Simpler to lay the preferences down fresh than to diff them, and it
-        # keeps a re-submission from leaving stale ranks behind.
-        CoursePreference.objects.filter(registration=registration).delete()
-        CoursePreference.objects.bulk_create(
-            CoursePreference(
-                registration=registration, course=course, rank=rank, excluded=excluded
-            )
-            for course, rank, excluded in self.cleaned_data["course_preferences"]
+class RosterField(forms.ModelChoiceField):  # type: ignore[type-arg]
+    """The roster dropdown, labelled by Airtable name.
+
+    Student.__str__ switches to the bound user's real name once a row is
+    claimed, but students are looking for the name they applied under.
+    """
+
+    def label_from_instance(self, obj: Student) -> str:
+        return obj.airtable_name
+
+
+class CourseChoiceField(forms.ModelChoiceField):  # type: ignore[type-arg]
+    """A dropdown of classes, labelled by name alone.
+
+    Course.__str__ tacks the semester on, which is just noise on a form that
+    only ever offers one semester's classes.
+    """
+
+    def label_from_instance(self, obj: Course) -> str:
+        return obj.name
+
+
+class CourseChoiceMultipleField(forms.ModelMultipleChoiceField):  # type: ignore[type-arg]
+    """The multi-select flavour of CourseChoiceField."""
+
+    def label_from_instance(self, obj: Course) -> str:
+        return obj.name
+
+
+class ClassPreferenceStepForm(RegistrationStepForm):
+    """Page 2: what to teach this student, and at what level."""
+
+    slug = "classes"
+    title = "Class preferences"
+    page_template = "reg/steps/classes.html"
+
+    #: Choice fields, best first; the index is the rank that gets stored.
+    CHOICE_FIELDS = ("first_choice", "second_choice", "third_choice")
+    CHOICE_LABELS = ("First choice", "Second choice", "Third choice")
+
+    subject_interest = SubjectInterestField()
+    difficulty_levels = forms.MultipleChoiceField(
+        choices=questions.DIFFICULTY_LEVELS,
+        widget=forms.CheckboxSelectMultiple,
+        label="Which level(s) of classes are you interested in taking?",
+        help_text=questions.DIFFICULTY_HELP,
+    )
+
+    class Meta(RegistrationStepForm.Meta):
+        fields = ["subject_interest", "difficulty_levels", "course_comments"]
+        widgets = {"course_comments": forms.Textarea(attrs={"rows": 3})}
+        labels = {"course_comments": "Anything else about your class preferences?"}
+        help_texts = {"course_comments": ""}
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        classes = Course.objects.filter(semester=self.semester, is_club=False).order_by(
+            "name"
         )
-        return student
+        self.classes = list(classes)
+
+        for index, (name, label) in enumerate(
+            zip(self.CHOICE_FIELDS, self.CHOICE_LABELS, strict=True)
+        ):
+            self.fields[name] = CourseChoiceField(
+                queryset=classes,
+                # Only the first pick is compulsory; second and third are a
+                # kindness to the matching, not a demand on the student.
+                required=index == 0 and bool(self.classes),
+                widget=SearchableSelect(attrs={"data-placeholder": "Pick a class..."}),
+                empty_label="",
+                label=label,
+            )
+        self.fields["avoid_courses"] = CourseChoiceMultipleField(
+            queryset=classes,
+            required=False,
+            widget=SearchableSelectMultiple(
+                attrs={"data-placeholder": "Usually none - leave empty if so"}
+            ),
+            label="Any classes you'd rather not take at all?",
+            help_text="For instance because you have taken it before, or the "
+            "difficulty is way outside your comfort zone.",
+        )
+        self.order_fields(
+            [
+                "subject_interest",
+                "difficulty_levels",
+                *self.CHOICE_FIELDS,
+                "avoid_courses",
+                "course_comments",
+            ]
+        )
+
+        if self.instance.pk:
+            self._load_preferences()
+
+    def _load_preferences(self) -> None:
+        """Show the picks already stored as CoursePreference rows."""
+        avoided: list[int] = []
+        for preference in CoursePreference.objects.filter(
+            registration=self.instance
+        ).select_related("course"):
+            if preference.excluded:
+                avoided.append(preference.course.pk)
+            elif preference.rank and preference.rank <= len(self.CHOICE_FIELDS):
+                self.initial[self.CHOICE_FIELDS[preference.rank - 1]] = (
+                    preference.course.pk
+                )
+        self.initial["avoid_courses"] = avoided
+
+    def picks(self) -> list[Course | None]:
+        """The three choices in rank order, with gaps kept as None."""
+        return [self.cleaned_data.get(name) for name in self.CHOICE_FIELDS]
+
+    def clean(self) -> dict[str, Any]:
+        cleaned = super().clean() or {}
+        picks = [cleaned.get(name) for name in self.CHOICE_FIELDS]
+        chosen = [course for course in picks if course is not None]
+
+        if len(set(chosen)) != len(chosen):
+            raise forms.ValidationError(
+                "Please pick a different class for each choice."
+            )
+
+        for earlier, later in zip(self.CHOICE_FIELDS, self.CHOICE_FIELDS[1:]):
+            if cleaned.get(later) is not None and cleaned.get(earlier) is None:
+                raise forms.ValidationError(
+                    "Please fill your choices in order, starting from the first."
+                )
+
+        avoided = set(cleaned.get("avoid_courses") or ())
+        clash = [course.name for course in chosen if course in avoided]
+        if clash:
+            raise forms.ValidationError(
+                f"You picked {', '.join(clash)} as a choice and also as a class "
+                "you'd rather not take."
+            )
+        return cleaned
+
+    @transaction.atomic
+    def save_step(self) -> StudentRegistration:
+        registration = super().save_step()
+
+        # Simpler to lay the picks down fresh than to diff them, and it keeps a
+        # re-submission from leaving a dropped choice behind.
+        CoursePreference.objects.filter(registration=registration).delete()
+        chosen = [course for course in self.picks() if course is not None]
+        CoursePreference.objects.bulk_create(
+            [
+                CoursePreference(registration=registration, course=course, rank=rank)
+                for rank, course in enumerate(chosen, 1)
+            ]
+            + [
+                CoursePreference(
+                    registration=registration, course=course, excluded=True
+                )
+                for course in self.cleaned_data.get("avoid_courses") or ()
+                if course not in chosen
+            ]
+        )
+        return registration
+
+
+class AvailabilityStepForm(RegistrationStepForm):
+    """Page 3: when this student could actually attend a class."""
+
+    slug = "availability"
+    title = "Availability"
+    page_template = "reg/steps/availability.html"
+
+    availability = AvailabilityField()
+
+    class Meta(RegistrationStepForm.Meta):
+        fields = ["availability", "availability_comments"]
+        widgets = {"availability_comments": forms.Textarea(attrs={"rows": 3})}
+        labels = {"availability_comments": "Anything else about your availability?"}
+        help_texts = {"availability_comments": ""}
+
+
+class SortingStepForm(RegistrationStepForm):
+    """Page 4: the sorting ceremony."""
+
+    slug = "sorting"
+    title = "Sorting ceremony"
+    page_template = "reg/steps/sorting.html"
+
+    class Meta(RegistrationStepForm.Meta):
+        fields = [*QUIZ_FIELDS, "house_request"]
+        widgets = {
+            "house_request": forms.Textarea(attrs={"rows": 3}),
+            **dict.fromkeys(QUIZ_FIELDS, forms.RadioSelect),
+        }
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        # Every quiz question must be answered, so a model-supplied blank
+        # choice would just be an unlabelled sixth radio button.
+        for name in QUIZ_FIELDS:
+            field = self.fields[name]
+            field.choices = [  # type: ignore[attr-defined]
+                choice
+                for choice in field.choices  # type: ignore[attr-defined]
+                if choice[0]
+            ]
+
+    def quiz_fields(self) -> list[Any]:
+        """The sorting questions as bound fields, for the template to loop over."""
+        return [self[name] for name in QUIZ_FIELDS]
 
 
 class AssignmentUploadForm(forms.Form):

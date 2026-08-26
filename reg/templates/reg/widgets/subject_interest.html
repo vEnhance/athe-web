@@ -1,0 +1,28 @@
+<div class="subject-interest">
+    <table class="table table-sm align-middle mb-0">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                {% for level in widget.levels %}<th scope="col" class="text-center">{{ level }}</th>{% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in widget.rows %}
+                <tr>
+                    <th scope="row" class="fw-normal">{{ row.label }}</th>
+                    {% for cell in row.cells %}
+                        <td class="text-center">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="{{ row.name }}"
+                                   value="{{ cell.value }}"
+                                   id="{{ cell.id }}"
+                                   aria-label="{{ cell.label }}"
+                                   {% if cell.checked %}checked{% endif %}>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

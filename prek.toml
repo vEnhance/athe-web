@@ -9,6 +9,10 @@ default_install_hook_types = [
 ]
 default_stages = ["pre-commit"]
 
+# Vendored third-party assets are copied from upstream verbatim; reformatting
+# them would only turn the next update into a merge conflict.
+exclude = "^reg/static/vendor/"
+
 [[repos]]
 repo = "https://github.com/compilerla/conventional-pre-commit"
 rev = "v4.4.0"

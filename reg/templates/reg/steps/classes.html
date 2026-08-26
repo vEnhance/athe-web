@@ -1,0 +1,25 @@
+{% extends "reg/student_step_base.html" %}
+{% load django_bootstrap5 %}
+{% block step_intro %}
+    <p>
+        Class times and who is in each class are worked out from teacher availability,
+        student availability, and which classes students are interested in. Nothing here
+        is a promise, but we use all of it.
+    </p>
+{% endblock step_intro %}
+{% block step_fields %}
+    {% bootstrap_field form.subject_interest %}
+    {% bootstrap_field form.difficulty_levels %}
+    <fieldset class="mb-3">
+        <legend class="h6">Which classes would you most like to take?</legend>
+        <p class="form-text mt-0">
+            Only your top three: below that, choices tend to be much of a muchness.
+            The second and third are optional, but they give us room to fit you in.
+        </p>
+        {% bootstrap_field form.first_choice %}
+        {% bootstrap_field form.second_choice %}
+        {% bootstrap_field form.third_choice %}
+    </fieldset>
+    {% bootstrap_field form.avoid_courses %}
+    {% bootstrap_field form.course_comments %}
+{% endblock step_fields %}

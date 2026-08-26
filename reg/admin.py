@@ -3,6 +3,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.utils.html import format_html
 
+from . import wizard
 from .models import (
     CoursePreference,
     InviteLink,
@@ -76,7 +77,7 @@ class StudentRegistrationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         "semester",
         "email",
         "discord_username",
-        "taken_class_before",
+        "pages_done",
         "updated_at",
     ]
     list_filter = ["student__semester", "taken_class_before"]
@@ -96,3 +97,7 @@ class StudentRegistrationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     @admin.display(description="Semester", ordering="student__semester")
     def semester(self, obj: StudentRegistration) -> str:
         return str(obj.student.semester)
+
+    @admin.display(description="Pages done")
+    def pages_done(self, obj: StudentRegistration) -> str:
+        return f"{len(obj.completed_steps)}/{len(wizard.STEPS)}"

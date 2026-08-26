@@ -1,5 +1,5 @@
 <div class="availability-grid" data-availability-grid>
-    <table class="table table-bordered table-sm mb-2">
+    <table>
         <thead>
             <tr>
                 <th scope="col" class="availability-time"></th>
@@ -12,8 +12,8 @@
         </thead>
         <tbody>
             {% for row in widget.grid.rows %}
-                <tr>
-                    <th scope="row" class="availability-time">{{ row.label }}</th>
+                <tr {% if row.on_hour %}class="availability-hour"{% endif %}>
+                    <th scope="row" class="availability-time">{% if row.on_hour %}{{ row.label }}{% endif %}</th>
                     {% for cell in row.cells %}
                         <td class="availability-cell">
                             <input type="checkbox"
@@ -22,6 +22,7 @@
                                    value="{{ cell.key }}"
                                    id="{{ widget.attrs.id }}_{{ cell.key }}"
                                    aria-label="{{ cell.label }}"
+                                   title="{{ cell.label }}"
                                    {% if cell.checked %}checked{% endif %}>
                         </td>
                     {% endfor %}

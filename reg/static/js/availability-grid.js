@@ -1,53 +1,55 @@
 /*
  * Click-and-drag painting for the availability grid.
  *
- * The grid is a plain table of checkboxes and works without any of this; the
- * script only spares students 64 individual clicks by letting them sweep over
- * a range, or click a day heading to take the whole column.
+ * The grid is a plain table of checkboxes and works without any of this. The
+ * script spares students 64 separate clicks: sweep the mouse over a range to
+ * paint it, or click a day heading to take the whole column.
+ *
+ * A mouse press paints the cell itself, so the browser's own toggle would undo
+ * it; that one is suppressed in the click handler below. Touch is left alone
+ * instead, so a tap toggles natively and a swipe still scrolls the page.
  */
 (function () {
   "use strict";
 
-  function slotsOf(grid) {
-    return Array.prototype.slice.call(
-      grid.querySelectorAll("input.availability-slot"),
-    );
+  function isSlot(element) {
+    return Boolean(element) && element.classList.contains("availability-slot");
   }
 
   function setUp(grid) {
     var painting = false;
     var paintTo = true;
+    var touching = false;
 
     function paint(slot) {
-      if (slot && slot.checked !== paintTo) {
+      if (isSlot(slot) && slot.checked !== paintTo) {
         slot.checked = paintTo;
       }
     }
 
-    function slotAt(event) {
-      var element = document.elementFromPoint(event.clientX, event.clientY);
-      return element && element.classList.contains("availability-slot")
-        ? element
-        : null;
-    }
-
     grid.addEventListener("pointerdown", function (event) {
-      var slot = event.target;
-      if (!slot.classList || !slot.classList.contains("availability-slot")) {
+      touching = event.pointerType === "touch";
+      if (touching || !isSlot(event.target)) {
         return;
       }
-      // Take the click ourselves so the drag doesn't select the whole table,
-      // then toggle by hand since preventDefault() suppresses the native one.
+      // Take the press ourselves so dragging doesn't select the whole table.
       event.preventDefault();
       painting = true;
-      paintTo = !slot.checked;
-      paint(slot);
-      slot.focus();
+      paintTo = !event.target.checked;
+      paint(event.target);
+      event.target.focus();
     });
 
     grid.addEventListener("pointermove", function (event) {
       if (painting) {
-        paint(slotAt(event));
+        paint(document.elementFromPoint(event.clientX, event.clientY));
+      }
+    });
+
+    grid.addEventListener("click", function (event) {
+      // detail is 0 for keyboard-generated clicks, which must still toggle.
+      if (isSlot(event.target) && event.detail !== 0 && !touching) {
+        event.preventDefault();
       }
     });
 
@@ -66,13 +68,12 @@
         heading.classList.add("availability-day-toggle");
         heading.title = "Select or clear this whole day";
         heading.addEventListener("click", function () {
-          var slots = slotsOf(grid).filter(function (slot) {
-            return (
-              slot.closest("tr").querySelectorAll(".availability-slot")[
-                column
-              ] === slot
-            );
-          });
+          var slots = Array.prototype.map.call(
+            grid.querySelectorAll("tbody tr"),
+            function (row) {
+              return row.querySelectorAll(".availability-slot")[column];
+            },
+          );
           var fill = slots.some(function (slot) {
             return !slot.checked;
           });

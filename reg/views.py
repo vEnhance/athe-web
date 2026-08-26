@@ -5,7 +5,13 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.http import HttpRequest, HttpResponse, HttpResponseBase, JsonResponse
+from django.http import (
+    Http404,
+    HttpRequest,
+    HttpResponse,
+    HttpResponseBase,
+    JsonResponse,
+)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -15,14 +21,16 @@ from atheweb.decorators import superuser_required
 from courses.models import Course, Semester, Student
 from home.models import StaffPhotoListing
 
-from . import availability
+from . import availability, questions, wizard
 from .forms import (
+    QUIZ_FIELDS,
     Assignment,
     AssignmentUploadForm,
     LoginChoiceForm,
+    RegistrationStepForm,
+    SortingStepForm,
     StaffRegistrationForm,
     StaffSelectionForm,
-    StudentQuestionnaireForm,
     StudentRegistrationForm,
 )
 from .models import (
@@ -165,22 +173,8 @@ class StaffInviteView(View):
         return redirect("home:index")
 
 
-class StudentInviteView(View):
-    """
-    View for handling student registration via invite links.
-
-    This view implements a multi-step process:
-    1. Verify the invite link is valid and not expired, and semester hasn't ended
-    2. If not logged in, ask if they have an account (login vs create new)
-    3. If creating new account, show registration form
-    4. If logging in, redirect to login page with next parameter
-    5. Once logged in, show the questionnaire: the student picks their name off
-       the roster and answers everything the class matching needs
-    6. Saving binds the user to the selected Student record
-
-    A student who comes back to the link later gets the same questionnaire with
-    their answers in it, so corrections don't have to go through Greta.
-    """
+class StudentInviteBaseView(View):
+    """Shared plumbing for the pages served off a student invite link."""
 
     invite: StudentInviteLink
 
@@ -199,7 +193,11 @@ class StudentInviteView(View):
                     "reg/student_invite_expired.html",
                     {"invite": self.invite, "reason": reason},
                 )
-        return super().dispatch(request, *args, **kwargs)
+        return self.prepare(request) or super().dispatch(request, *args, **kwargs)
+
+    def prepare(self, request: HttpRequest) -> HttpResponse | None:
+        """Last chance to answer the request before GET/POST runs."""
+        return None
 
     def _existing_student(self, request: HttpRequest) -> Student | None:
         """The Student this user is already registered as for the semester."""
@@ -207,44 +205,29 @@ class StudentInviteView(View):
             user=request.user, semester=self.invite.semester
         ).first()
 
-    def _questionnaire(
-        self, request: HttpRequest, data: Any = None
-    ) -> StudentQuestionnaireForm:
-        """The questionnaire, in edit mode if this user already claimed a name."""
-        student = self._existing_student(request)
-        return StudentQuestionnaireForm(
-            data,
-            semester=self.invite.semester,
-            student=student,
-            instance=(
-                StudentRegistration.objects.filter(student=student).first()
-                if student
-                else None
-            ),
-        )
+    def _registration(self, student: Student | None) -> StudentRegistration | None:
+        """The questionnaire answers so far, if the name has been claimed."""
+        if student is None:
+            return None
+        return StudentRegistration.objects.filter(student=student).first()
 
-    def _render_questionnaire(
-        self, request: HttpRequest, form: StudentQuestionnaireForm
-    ) -> HttpResponse:
-        if (
-            form.claimed_student is None
-            and not Student.objects.filter(semester=self.invite.semester).exists()
-        ):
-            return render(
-                request,
-                "reg/no_students_available.html",
-                {"semester": self.invite.semester},
-            )
-        return render(
-            request,
-            "reg/student_questionnaire.html",
-            {
-                "form": form,
-                "invite": self.invite,
-                "student": form.claimed_student,
-                "editing": form.claimed_student is not None,
-            },
-        )
+
+class StudentInviteView(StudentInviteBaseView):
+    """
+    The front door of a student invite link.
+
+    This view implements a multi-step process:
+    1. Verify the invite link is valid and not expired, and semester hasn't ended
+    2. If not logged in, ask if they have an account (login vs create new)
+    3. If creating new account, show registration form
+    4. If logging in, redirect to login page with next parameter
+    5. Once logged in, hand over to the questionnaire, which runs a page at a
+       time in StudentRegistrationStepView
+
+    A student who comes back to the link later lands on wherever they stopped,
+    or on the first page again if they finished, so corrections don't have to
+    go through Greta.
+    """
 
     def get(self, request: HttpRequest, invite_id: str) -> HttpResponse:
         """Display the appropriate step in the registration process."""
@@ -261,12 +244,23 @@ class StudentInviteView(View):
                 {"form": LoginChoiceForm(), "invite": self.invite},
             )
 
-        return self._render_questionnaire(request, self._questionnaire(request))
+        student = self._existing_student(request)
+        if (
+            student is None
+            and not Student.objects.filter(semester=self.invite.semester).exists()
+        ):
+            return render(
+                request,
+                "reg/no_students_available.html",
+                {"semester": self.invite.semester},
+            )
+
+        registration = self._registration(student)
+        step = wizard.next_incomplete(registration) or wizard.FIRST_STEP
+        return redirect("reg:student-step", invite_id=self.invite.id, step=step.slug)
 
     def post(self, request: HttpRequest, invite_id: str) -> HttpResponse:
         """Handle form submissions."""
-        if request.user.is_authenticated:
-            return self._handle_questionnaire(request)
         if "creating_new_account" in request.session:
             return self._handle_new_account_creation(request)
         return self._handle_login_choice(request)
@@ -307,25 +301,95 @@ class StudentInviteView(View):
             {"form": form, "invite": self.invite},
         )
 
-    def _handle_questionnaire(self, request: HttpRequest) -> HttpResponse:
-        """Claim the chosen name, if any, and store the student's answers."""
-        form = self._questionnaire(request, request.POST)
-        editing = form.claimed_student is not None
-        if not form.is_valid():
-            return self._render_questionnaire(request, form)
 
-        assert isinstance(request.user, User)
-        student = form.save_registration(request.user)
-        if editing:
+class StudentRegistrationStepView(StudentInviteBaseView):
+    """One page of the registration questionnaire.
+
+    Pages save as they are filled in, so this view only ever deals with the one
+    it is showing; the running state is the completed_steps on the student's
+    registration row.
+    """
+
+    step: type[RegistrationStepForm]
+    student: Student | None
+    registration: StudentRegistration | None
+
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        step = wizard.step_for(kwargs["step"])
+        if step is None:
+            raise Http404(f"No registration page called {kwargs['step']!r}")
+        self.step = step
+        return super().dispatch(request, *args, **kwargs)
+
+    def _form(self, data: Any = None) -> RegistrationStepForm:
+        assert isinstance(self.request.user, User)
+        return self.step(
+            data,
+            semester=self.invite.semester,
+            user=self.request.user,
+            student=self.student,
+            instance=self.registration,
+        )
+
+    def _render(self, form: RegistrationStepForm) -> HttpResponse:
+        return render(
+            self.request,
+            self.step.page_template,
+            {
+                "form": form,
+                "invite": self.invite,
+                "student": self.student,
+                "steps": wizard.progress(self.invite.id, self.step, self.registration),
+                "complete": wizard.is_complete(self.registration),
+                "last_step": self.step is wizard.STEPS[-1],
+            },
+        )
+
+    def get(self, request: HttpRequest, **kwargs: Any) -> HttpResponse:
+        return self._render(self._form())
+
+    def post(self, request: HttpRequest, **kwargs: Any) -> HttpResponse:
+        was_complete = wizard.is_complete(self.registration)
+        form = self._form(request.POST)
+        if not form.is_valid():
+            return self._render(form)
+
+        registration = form.save_step()
+        following = wizard.next_incomplete(registration)
+        if following is not None:
+            return redirect(
+                "reg:student-step", invite_id=self.invite.id, step=following.slug
+            )
+
+        if was_complete:
             messages.success(request, "Your registration has been updated. Thank you!")
         else:
             messages.success(
                 request,
-                f"Welcome! You are registered as {student.airtable_name} "
+                f"Welcome! You are registered as {registration.student.airtable_name} "
                 f"for {self.invite.semester}. We'll be in touch with your classes "
                 "once the schedule is worked out.",
             )
         return redirect("home:index")
+
+    def prepare(self, request: HttpRequest) -> HttpResponse | None:
+        """Load the student's progress, and send them back if they skipped ahead."""
+        if not request.user.is_authenticated:
+            return redirect("reg:add-student", invite_id=self.invite.id)
+
+        self.student = self._existing_student(request)
+        self.registration = self._registration(self.student)
+        if wizard.is_reachable(self.step, self.registration):
+            return None
+
+        following = wizard.next_incomplete(self.registration)
+        assert following is not None
+        messages.info(request, f"Please fill in {following.title.lower()} first.")
+        return redirect(
+            "reg:student-step", invite_id=self.invite.id, step=following.slug
+        )
 
 
 def _course_json(course: Course) -> dict[str, Any]:
@@ -348,7 +412,9 @@ def _registration_json(
         "parent_email": registration.parent_email,
         "discord_username": registration.discord_username,
         "taken_class_before": registration.taken_class_before,
-        "course_ranking": [
+        "subject_interest": registration.subject_interest,
+        "difficulty_levels": registration.difficulty_levels,
+        "course_choices": [
             {"rank": pref.rank, "course_id": pref.course.pk, "course": pref.course.name}
             for pref in preferences
             if not pref.excluded
@@ -363,6 +429,10 @@ def _registration_json(
         "availability_comments": registration.availability_comments,
         "quiz": registration.quiz_answers(),
         "house_request": registration.house_request,
+        # A student who stopped partway leaves the later pages empty; this says
+        # which pages they actually got through.
+        "complete": wizard.is_complete(registration),
+        "completed_pages": registration.completed_steps,
         "submitted_at": registration.created_at.isoformat(),
         "updated_at": registration.updated_at.isoformat(),
     }
@@ -389,7 +459,7 @@ def _responses_payload(semester: Semester) -> dict[str, Any]:
 
     # The questionnaire itself supplies the sorting-quiz legend, so whatever
     # reads this download sees the questions exactly as students were asked.
-    questions = StudentQuestionnaireForm(semester=semester)
+    quiz = SortingStepForm(semester=semester)
     return {
         "semester": {
             "name": semester.name,
@@ -405,15 +475,22 @@ def _responses_payload(semester: Semester) -> dict[str, Any]:
         "availability_slots": [
             {"key": key, "label": label} for key, label in availability.slot_choices()
         ],
+        "subjects": [{"key": key, "label": label} for key, label in questions.SUBJECTS],
+        "interest_levels": [
+            {"key": key, "label": label} for key, label in questions.INTEREST_LEVELS
+        ],
+        "difficulty_levels": [
+            {"key": key, "label": label} for key, label in questions.DIFFICULTY_LEVELS
+        ],
         "houses": [
             {"value": house.value, "label": house.label} for house in Student.House
         ],
         "quiz_questions": {
             name: {
-                "question": str(questions.fields[name].label),
-                "choices": dict(questions.fields[name].choices),  # type: ignore[attr-defined]
+                "question": str(quiz.fields[name].label),
+                "choices": dict(quiz.fields[name].choices),  # type: ignore[attr-defined]
             }
-            for name in StudentQuestionnaireForm.QUIZ_FIELDS
+            for name in QUIZ_FIELDS
         },
         "students": [
             {

@@ -1,0 +1,18 @@
+{% extends "reg/student_step_base.html" %}
+{% load django_bootstrap5 %}
+{% block step_intro %}
+    <p>
+        Welcome to <strong>{{ invite.semester }}</strong>! This questionnaire has four
+        short pages: who you are, which classes you want, when you are free, and the
+        sorting ceremony. Each page saves as you go, so you can stop and come back.
+    </p>
+{% endblock step_intro %}
+{% block step_fields %}
+    {% if form.student %}
+        {% bootstrap_field form.student %}
+    {% endif %}
+    {% bootstrap_field form.email %}
+    {% bootstrap_field form.parent_email %}
+    {% bootstrap_field form.discord_username %}
+    {% bootstrap_field form.taken_class_before %}
+{% endblock step_fields %}
