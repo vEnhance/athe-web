@@ -1,6 +1,9 @@
+from typing import Any
+
 from django.contrib import messages
 from django.contrib.auth import login
 from django.db import transaction
+from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
@@ -29,169 +32,125 @@ class StaffInviteView(View):
     4. Otherwise, let them create a Django user account
     """
 
-    def get(self, request, invite_id):  # type: ignore
-        """Display the staff selection form."""
-        invite = get_object_or_404(StaffInviteLink, id=invite_id)
+    invite: StaffInviteLink
 
-        # Check if the invite link has expired
-        if invite.is_expired():
-            return render(
-                request,
-                "reg/invite_expired.html",
-                {"invite": invite},
-            )
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        """Resolve the invite once and turn away expired ones before GET/POST."""
+        self.invite = get_object_or_404(StaffInviteLink, id=kwargs["invite_id"])
+        if self.invite.is_expired():
+            return render(request, "reg/invite_expired.html", {"invite": self.invite})
+        return super().dispatch(request, *args, **kwargs)
 
-        # Check if we're at step 2 (registration)
-        if "staff_listing_id" in request.session:
-            staff_listing_id = request.session["staff_listing_id"]
-            staff_listing = get_object_or_404(StaffPhotoListing, id=staff_listing_id)
-
-            # Verify this listing doesn't have a user
-            if staff_listing.user is not None:
-                # Clear the session and show error
-                del request.session["staff_listing_id"]
-                return render(
-                    request,
-                    "reg/already_registered.html",
-                    {
-                        "staff_listing": staff_listing,
-                        "username": staff_listing.user.username,
-                    },
-                )
-
-            # Show registration form
-            registration_form = StaffRegistrationForm()
-            return render(
-                request,
-                "reg/register.html",
-                {
-                    "staff_listing": staff_listing,
-                    "form": registration_form,
-                    "invite": invite,
-                },
-            )
-
-        # Show staff selection form
-        selection_form = StaffSelectionForm()
+    def _already_registered(
+        self, request: HttpRequest, staff_listing: StaffPhotoListing
+    ) -> HttpResponse:
+        """Report that this listing has been claimed, abandoning the flow."""
+        request.session.pop("staff_listing_id", None)
+        assert staff_listing.user is not None
         return render(
             request,
-            "reg/select_staff.html",
+            "reg/already_registered.html",
             {
-                "form": selection_form,
-                "invite": invite,
+                "staff_listing": staff_listing,
+                "username": staff_listing.user.username,
             },
         )
 
-    def post(self, request, invite_id):  # type: ignore
-        """Handle form submissions."""
-        invite = get_object_or_404(StaffInviteLink, id=invite_id)
-
-        # Check if the invite link has expired
-        if invite.is_expired():
-            return render(
-                request,
-                "reg/invite_expired.html",
-                {"invite": invite},
-            )
-
-        # Check if we're at step 2 (registration)
-        if "staff_listing_id" in request.session:
-            return self._handle_registration(request, invite)
-        else:
-            return self._handle_staff_selection(request, invite)
-
-    def _handle_staff_selection(self, request, invite):  # type: ignore
-        """Handle the staff selection step."""
-        form = StaffSelectionForm(request.POST)
-
-        if form.is_valid():
-            staff_listing = form.cleaned_data["staff_listing"]
-
-            # Check if this staff listing already has a user
-            if staff_listing.user is not None:
-                return render(
-                    request,
-                    "reg/already_registered.html",
-                    {
-                        "staff_listing": staff_listing,
-                        "username": staff_listing.user.username,
-                    },
-                )
-
-            # Store the selected staff listing in the session
-            request.session["staff_listing_id"] = staff_listing.id
-            return redirect("reg:add-staff", invite_id=invite.id)
-
-        # Form is invalid, show errors
-        return render(
-            request,
-            "reg/select_staff.html",
-            {
-                "form": form,
-                "invite": invite,
-            },
+    def _selected_listing(self, request: HttpRequest) -> StaffPhotoListing:
+        """The listing chosen in step 1, from the session."""
+        return get_object_or_404(
+            StaffPhotoListing, id=request.session["staff_listing_id"]
         )
 
-    def _handle_registration(self, request, invite):  # type: ignore
-        """Handle the registration step."""
-        staff_listing_id = request.session["staff_listing_id"]
-        staff_listing = get_object_or_404(StaffPhotoListing, id=staff_listing_id)
+    def get(self, request: HttpRequest, invite_id: str) -> HttpResponse:
+        """Display the staff selection form, or the registration form after it."""
+        if "staff_listing_id" not in request.session:
+            return render(
+                request,
+                "reg/select_staff.html",
+                {"form": StaffSelectionForm(), "invite": self.invite},
+            )
 
-        # Double-check the listing doesn't have a user
+        staff_listing = self._selected_listing(request)
         if staff_listing.user is not None:
-            del request.session["staff_listing_id"]
-            return render(
-                request,
-                "reg/already_registered.html",
-                {
-                    "staff_listing": staff_listing,
-                    "username": staff_listing.user.username,
-                },
-            )
+            return self._already_registered(request, staff_listing)
 
-        form = StaffRegistrationForm(request.POST)
-
-        if form.is_valid():
-            # Create the user account atomically
-            with transaction.atomic():
-                # Create the user
-                user = form.save(commit=False)
-                user.is_staff = True
-                user.save()
-
-                # Link the user to the staff listing
-                staff_listing.user = user
-                staff_listing.save()
-
-                # Add the user as a leader to any courses where they are the instructor
-                courses = Course.objects.filter(instructor=staff_listing)
-                for course in courses:
-                    course.leaders.add(user)
-
-            # Clear the session
-            del request.session["staff_listing_id"]
-
-            # Log the user in (specify backend since multiple are configured)
-            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-
-            # Show success message
-            messages.success(
-                request,
-                f"Welcome, {user.get_full_name() or user.username}! Your staff account has been created successfully.",
-            )
-
-            return redirect("home:index")
-
-        # Form is invalid, show errors
         return render(
             request,
             "reg/register.html",
             {
                 "staff_listing": staff_listing,
-                "form": form,
-                "invite": invite,
+                "form": StaffRegistrationForm(),
+                "invite": self.invite,
             },
         )
+
+    def post(self, request: HttpRequest, invite_id: str) -> HttpResponse:
+        """Handle form submissions."""
+        if "staff_listing_id" in request.session:
+            return self._handle_registration(request)
+        return self._handle_staff_selection(request)
+
+    def _handle_staff_selection(self, request: HttpRequest) -> HttpResponse:
+        """Handle the staff selection step."""
+        form = StaffSelectionForm(request.POST)
+
+        if form.is_valid():
+            staff_listing = form.cleaned_data["staff_listing"]
+            if staff_listing.user is not None:
+                return self._already_registered(request, staff_listing)
+
+            request.session["staff_listing_id"] = staff_listing.id
+            return redirect("reg:add-staff", invite_id=self.invite.id)
+
+        return render(
+            request,
+            "reg/select_staff.html",
+            {"form": form, "invite": self.invite},
+        )
+
+    def _handle_registration(self, request: HttpRequest) -> HttpResponse:
+        """Handle the registration step."""
+        staff_listing = self._selected_listing(request)
+        if staff_listing.user is not None:
+            return self._already_registered(request, staff_listing)
+
+        form = StaffRegistrationForm(request.POST)
+        if not form.is_valid():
+            return render(
+                request,
+                "reg/register.html",
+                {
+                    "staff_listing": staff_listing,
+                    "form": form,
+                    "invite": self.invite,
+                },
+            )
+
+        with transaction.atomic():
+            user = form.save(commit=False)
+            user.is_staff = True
+            user.save()
+
+            staff_listing.user = user
+            staff_listing.save()
+
+            # Anyone listed as instructor of a course also leads it
+            for course in Course.objects.filter(instructor=staff_listing):
+                course.leaders.add(user)
+
+        del request.session["staff_listing_id"]
+
+        # Log the user in (specify backend since multiple are configured)
+        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+        messages.success(
+            request,
+            f"Welcome, {user.get_full_name() or user.username}! "
+            "Your staff account has been created successfully.",
+        )
+        return redirect("home:index")
 
 
 class StudentInviteView(View):
@@ -208,193 +167,124 @@ class StudentInviteView(View):
     7. Link the user to the selected Student record
     """
 
-    def get(self, request, invite_id):  # type: ignore
+    invite: StudentInviteLink
+
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        """Resolve the invite once and turn away closed ones before GET/POST."""
+        self.invite = get_object_or_404(StudentInviteLink, id=kwargs["invite_id"])
+        for closed, reason in (
+            (self.invite.is_expired(), "expired"),
+            (self.invite.is_semester_ended(), "semester_ended"),
+        ):
+            if closed:
+                return render(
+                    request,
+                    "reg/student_invite_expired.html",
+                    {"invite": self.invite, "reason": reason},
+                )
+        return super().dispatch(request, *args, **kwargs)
+
+    def _existing_student(self, request: HttpRequest) -> Student | None:
+        """The Student this user is already registered as for the semester."""
+        return Student.objects.filter(
+            user=request.user, semester=self.invite.semester
+        ).first()
+
+    def _already_registered(
+        self, request: HttpRequest, student: Student
+    ) -> HttpResponse:
+        return render(
+            request,
+            "reg/student_already_registered.html",
+            {"student": student, "semester": self.invite.semester},
+        )
+
+    def get(self, request: HttpRequest, invite_id: str) -> HttpResponse:
         """Display the appropriate step in the registration process."""
-        invite = get_object_or_404(StudentInviteLink, id=invite_id)
-
-        # Check if the invite link has expired
-        if invite.is_expired():
-            return render(
-                request,
-                "reg/student_invite_expired.html",
-                {"invite": invite, "reason": "expired"},
-            )
-
-        # Check if the semester has ended
-        if invite.is_semester_ended():
-            return render(
-                request,
-                "reg/student_invite_expired.html",
-                {"invite": invite, "reason": "semester_ended"},
-            )
-
-        # Step 1: If user is not logged in, ask if they have an account
         if not request.user.is_authenticated:
-            # Check if we're at the registration step
             if "creating_new_account" in request.session:
-                registration_form = StudentRegistrationForm()
                 return render(
                     request,
                     "reg/student_register.html",
-                    {
-                        "form": registration_form,
-                        "invite": invite,
-                    },
+                    {"form": StudentRegistrationForm(), "invite": self.invite},
                 )
-
-            # Show login choice form
-            login_choice_form = LoginChoiceForm()
             return render(
                 request,
                 "reg/login_choice.html",
-                {
-                    "form": login_choice_form,
-                    "invite": invite,
-                },
+                {"form": LoginChoiceForm(), "invite": self.invite},
             )
 
-        # User is logged in at this point
-        # Check if user already has a Student for this semester
-        existing_student = Student.objects.filter(
-            user=request.user, semester=invite.semester
-        ).first()
-
+        existing_student = self._existing_student(request)
         if existing_student:
-            return render(
-                request,
-                "reg/student_already_registered.html",
-                {
-                    "student": existing_student,
-                    "semester": invite.semester,
-                },
-            )
+            return self._already_registered(request, existing_student)
 
-        # Show student selection form
-        selection_form = StudentSelectionForm(semester=invite.semester)
-
-        # Check if there are any available students
-        if not selection_form.fields["student"].queryset.exists():  # type: ignore
+        form = StudentSelectionForm(semester=self.invite.semester)
+        if not form.fields["student"].queryset.exists():  # type: ignore[attr-defined]
             return render(
                 request,
                 "reg/no_students_available.html",
-                {
-                    "semester": invite.semester,
-                },
+                {"semester": self.invite.semester},
             )
 
         return render(
             request,
             "reg/select_student.html",
-            {
-                "form": selection_form,
-                "invite": invite,
-            },
+            {"form": form, "invite": self.invite},
         )
 
-    def post(self, request, invite_id):  # type: ignore
+    def post(self, request: HttpRequest, invite_id: str) -> HttpResponse:
         """Handle form submissions."""
-        invite = get_object_or_404(StudentInviteLink, id=invite_id)
+        if request.user.is_authenticated:
+            return self._handle_student_selection(request)
+        if "creating_new_account" in request.session:
+            return self._handle_new_account_creation(request)
+        return self._handle_login_choice(request)
 
-        # Check if the invite link has expired
-        if invite.is_expired():
-            return render(
-                request,
-                "reg/student_invite_expired.html",
-                {"invite": invite, "reason": "expired"},
-            )
-
-        # Check if the semester has ended
-        if invite.is_semester_ended():
-            return render(
-                request,
-                "reg/student_invite_expired.html",
-                {"invite": invite, "reason": "semester_ended"},
-            )
-
-        # Handle login choice (when not logged in)
-        if not request.user.is_authenticated:
-            # Check if we're at the registration step
-            if "creating_new_account" in request.session:
-                return self._handle_new_account_creation(request, invite)
-            else:
-                return self._handle_login_choice(request, invite)
-
-        # User is logged in - handle student selection
-        return self._handle_student_selection(request, invite)
-
-    def _handle_login_choice(self, request, invite):  # type: ignore
+    def _handle_login_choice(self, request: HttpRequest) -> HttpResponse:
         """Handle the login choice step (has account or create new)."""
         form = LoginChoiceForm(request.POST)
 
         if form.is_valid():
-            has_account = form.cleaned_data["has_account"]
+            if form.cleaned_data["has_account"] == "yes":
+                return redirect(
+                    f"{reverse('login')}?next={self.invite.get_absolute_url()}"
+                )
+            request.session["creating_new_account"] = True
+            return redirect("reg:add-student", invite_id=self.invite.id)
 
-            if has_account == "yes":
-                # Redirect to login page with next parameter
-                login_url = reverse("login")
-                next_url = invite.get_absolute_url()
-                return redirect(f"{login_url}?next={next_url}")
-            else:
-                # Show registration form
-                request.session["creating_new_account"] = True
-                return redirect("reg:add-student", invite_id=invite.id)
-
-        # Form is invalid, show errors
         return render(
             request,
             "reg/login_choice.html",
-            {
-                "form": form,
-                "invite": invite,
-            },
+            {"form": form, "invite": self.invite},
         )
 
-    def _handle_new_account_creation(self, request, invite):  # type: ignore
+    def _handle_new_account_creation(self, request: HttpRequest) -> HttpResponse:
         """Handle the new account creation step."""
         form = StudentRegistrationForm(request.POST)
 
         if form.is_valid():
-            # Create the user account
             user = form.save()
-
-            # Clear the session flag
             del request.session["creating_new_account"]
-
             # Log the user in (specify backend since multiple are configured)
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+            # Back to the invite, now as a logged-in user
+            return redirect("reg:add-student", invite_id=self.invite.id)
 
-            # Redirect back to the invite link (now as logged in user)
-            return redirect("reg:add-student", invite_id=invite.id)
-
-        # Form is invalid, show errors
         return render(
             request,
             "reg/student_register.html",
-            {
-                "form": form,
-                "invite": invite,
-            },
+            {"form": form, "invite": self.invite},
         )
 
-    def _handle_student_selection(self, request, invite):  # type: ignore
+    def _handle_student_selection(self, request: HttpRequest) -> HttpResponse:
         """Handle the student selection step."""
-        # Check if user already has a Student for this semester
-        existing_student = Student.objects.filter(
-            user=request.user, semester=invite.semester
-        ).first()
-
+        existing_student = self._existing_student(request)
         if existing_student:
-            return render(
-                request,
-                "reg/student_already_registered.html",
-                {
-                    "student": existing_student,
-                    "semester": invite.semester,
-                },
-            )
+            return self._already_registered(request, existing_student)
 
-        form = StudentSelectionForm(invite.semester, request.POST)
-
+        form = StudentSelectionForm(semester=self.invite.semester, data=request.POST)
         if form.is_valid():
             student = form.cleaned_data["student"]
 
@@ -408,21 +298,15 @@ class StudentInviteView(View):
 
             student.user = request.user
             student.save()
-
-            # Show success message
             messages.success(
                 request,
-                f"Welcome! You have been successfully registered as {student.airtable_name} for {invite.semester}.",
+                f"Welcome! You have been successfully registered as "
+                f"{student.airtable_name} for {self.invite.semester}.",
             )
-
             return redirect("home:index")
 
-        # Form is invalid, show errors
         return render(
             request,
             "reg/select_student.html",
-            {
-                "form": form,
-                "invite": invite,
-            },
+            {"form": form, "invite": self.invite},
         )
