@@ -28,7 +28,7 @@ def local_datetime(
 
     try:
         iso = value.isoformat()
-    except (AttributeError, ValueError):
+    except AttributeError, ValueError:
         return date_filter(value, fmt)
 
     display = date_filter(timezone.localtime(value), fmt)

@@ -2,7 +2,7 @@
 name = "atheweb"
 version = "0.1.0"
 description = "TBD"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 authors = [
     { name = "Evan Chen", email = "evan@evanchen.cc" },
     { name = "Violet Xu", email = "violet@vbnm.dev"},
@@ -73,7 +73,7 @@ ignore = ["RUF012"]
 enableTypeIgnoreComments = true
 exclude = ["**/node_modules", "**/typings", "**/__pycache__", ".git", "venv", ".venv", "**/migrations", "**/test_*.py", "**/tests.py", "**/apps.py"]
 pythonPlatform = "Linux"
-pythonVersion = "3.13"
+pythonVersion = "3.14"
 typeCheckingMode = "basic"
 useLibraryCodeForTypes = true
 

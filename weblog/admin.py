@@ -34,7 +34,7 @@ class HistoryEntryAdmin(admin.ModelAdmin):
 
 @admin.action(description="Publish selected blog posts")
 def publish_posts(
-    modeladmin: "BlogPostAdmin", request: HttpRequest, queryset: QuerySet[BlogPost]
+    modeladmin: BlogPostAdmin, request: HttpRequest, queryset: QuerySet[BlogPost]
 ) -> None:
     updated = queryset.update(published=True)
     modeladmin.message_user(request, f"{updated} blog post(s) published.")
@@ -42,7 +42,7 @@ def publish_posts(
 
 @admin.action(description="Unpublish selected blog posts")
 def unpublish_posts(
-    modeladmin: "BlogPostAdmin", request: HttpRequest, queryset: QuerySet[BlogPost]
+    modeladmin: BlogPostAdmin, request: HttpRequest, queryset: QuerySet[BlogPost]
 ) -> None:
     updated = queryset.update(published=False)
     modeladmin.message_user(request, f"{updated} blog post(s) unpublished.")

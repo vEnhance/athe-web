@@ -435,7 +435,7 @@ class StudentInviteView(View):
                             "student": student,
                         },
                     )
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 # Invalid student_id, let form validation handle it
                 pass
 

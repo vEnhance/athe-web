@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, ClassVar
+from typing import ClassVar
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -7,16 +7,13 @@ from django.db import models
 from django.db.models import Sum
 from django.utils import timezone
 
-from courses.models import Semester, Student
-
-if TYPE_CHECKING:
-    from courses.models import Course
+from courses.models import Course, Semester, Student
 
 
 class AwardQuerySet(models.QuerySet["Award"]):
     def for_semester(
         self, semester: Semester, *, respect_freeze: bool = True
-    ) -> "AwardQuerySet":
+    ) -> AwardQuerySet:
         """Awards in a semester, optionally cut off at its leaderboard freeze."""
         qs = self.filter(semester=semester)
         if respect_freeze and semester.house_points_freeze_date:
@@ -129,7 +126,7 @@ class Award(models.Model):
 
     @classmethod
     def class_attendance_points(
-        cls, course: "Course", students: Iterable[Student]
+        cls, course: Course, students: Iterable[Student]
     ) -> dict[int, tuple[int, int]]:
         """Map student pk -> (attendance points already earned, points for the next award).
 

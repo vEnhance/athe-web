@@ -14,13 +14,13 @@ from home.models import StaffPhotoListing
 
 
 class SemesterQuerySet(models.QuerySet["Semester"]):
-    def visible_to(self, user: AbstractBaseUser | AnonymousUser) -> "SemesterQuerySet":
+    def visible_to(self, user: AbstractBaseUser | AnonymousUser) -> SemesterQuerySet:
         """Restrict to semesters this user is allowed to see."""
         if getattr(user, "is_staff", False):
             return self
         return self.filter(visible=True)
 
-    def active(self) -> "SemesterQuerySet":
+    def active(self) -> SemesterQuerySet:
         """Semesters that today falls inside of."""
         today = timezone.now().date()
         return self.filter(start_date__lte=today, end_date__gte=today)
@@ -59,13 +59,13 @@ class Semester(models.Model):
         return self.start_date <= today <= self.end_date
 
     @classmethod
-    def get_enrolled_semesters(cls, user: User) -> QuerySet["Semester"]:
+    def get_enrolled_semesters(cls, user: User) -> QuerySet[Semester]:
         return Semester.objects.filter(
             Exists(Student.objects.filter(semester=OuterRef("pk"), user=user))
         )
 
     @classmethod
-    def get_current_semester(cls) -> "Semester":
+    def get_current_semester(cls) -> Semester:
         """Get the current active semester based on today's date.
 
         Returns the semester where today's date falls between start_date and end_date.
@@ -91,11 +91,11 @@ class Semester(models.Model):
 
 
 class CourseQuerySet(models.QuerySet["Course"]):
-    def for_user(self, user: User) -> "CourseQuerySet":
+    def for_user(self, user: User) -> CourseQuerySet:
         """Courses the user is enrolled in as a student or leads."""
         return self.filter(Q(students__user=user) | Q(leaders=user)).distinct()
 
-    def active(self) -> "CourseQuerySet":
+    def active(self) -> CourseQuerySet:
         """Courses belonging to a semester that today falls inside of."""
         today = timezone.now().date()
         return self.filter(
@@ -278,7 +278,7 @@ class CourseMeeting(models.Model):
 
 
 class GlobalEventQuerySet(models.QuerySet["GlobalEvent"]):
-    def visible_to(self, user: User) -> "GlobalEventQuerySet":
+    def visible_to(self, user: User) -> GlobalEventQuerySet:
         """Events in visible semesters; non-staff only see semesters they are in."""
         qs = self.filter(semester__visible=True).select_related("semester")
         if user.is_staff:

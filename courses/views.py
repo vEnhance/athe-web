@@ -564,7 +564,7 @@ def _requested_month(request: HttpRequest, today: date) -> tuple[int, int]:
     try:
         year = int(request.GET["year"])
         month = int(request.GET["month"])
-    except (KeyError, ValueError):
+    except KeyError, ValueError:
         return today.year, today.month
     if not 1 <= month <= 12:
         return today.year, today.month

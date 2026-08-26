@@ -14,8 +14,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 
-View = Callable[..., HttpResponse]
-Decorator = Callable[[View], View]
+type View = Callable[..., HttpResponse]
+type Decorator = Callable[[View], View]
 
 
 def _permission_required(
