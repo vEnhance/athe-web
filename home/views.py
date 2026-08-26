@@ -81,30 +81,37 @@ class ProfileSettingsView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
 
 
-class StaffView(TemplateView):
-    """Staff page."""
+class StaffListingView(TemplateView):
+    """Base page listing staff, one context entry per category shown."""
+
+    categories: tuple[StaffPhotoListing.Category, ...] = ()
+
+    def get_context_data(self, **kwargs):  # type: ignore
+        """Add staff listings grouped by category."""
+        context = super().get_context_data(**kwargs)
+        for category in self.categories:
+            context[category.value] = StaffPhotoListing.objects.filter(
+                category=category
+            )
+        return context
+
+
+class StaffView(StaffListingView):
+    """Current staff page."""
 
     template_name = "home/staff.html"
-
-    def get_context_data(self, **kwargs):  # type: ignore
-        """Add staff listings grouped by category."""
-        context = super().get_context_data(**kwargs)
-        context["board"] = StaffPhotoListing.objects.filter(category="board")
-        context["instructor"] = StaffPhotoListing.objects.filter(category="instructor")
-        context["ta"] = StaffPhotoListing.objects.filter(category="ta")
-        return context
+    categories = (
+        StaffPhotoListing.Category.BOARD,
+        StaffPhotoListing.Category.INSTRUCTOR,
+        StaffPhotoListing.Category.TA,
+    )
 
 
-class PastStaffView(TemplateView):
-    """Staff page."""
+class PastStaffView(StaffListingView):
+    """Past staff page."""
 
     template_name = "home/past_staff.html"
-
-    def get_context_data(self, **kwargs):  # type: ignore
-        """Add staff listings grouped by category."""
-        context = super().get_context_data(**kwargs)
-        context["xstaff"] = StaffPhotoListing.objects.filter(category="xstaff")
-        return context
+    categories = (StaffPhotoListing.Category.XSTAFF,)
 
 
 class StaffDetailView(DetailView):
@@ -157,14 +164,13 @@ class ApplyView(TemplateView):
         """Add active psets or closed message."""
         context = super().get_context_data(**kwargs)
 
-        # Get all active problem sets
-        active_psets = ApplyPSet.objects.filter(status="active")
+        active_psets = ApplyPSet.objects.filter(status=ApplyPSet.Status.ACTIVE)
 
         if active_psets.exists():
             context["active_psets"] = active_psets
         else:
             context["most_recent_pset"] = ApplyPSet.objects.filter(
-                status="completed"
+                status=ApplyPSet.Status.COMPLETED
             ).first()
 
         return context
@@ -179,7 +185,9 @@ class PastPsetsView(ListView):
 
     def get_queryset(self):  # type: ignore
         """Return only completed problem sets in reverse chronological order."""
-        return ApplyPSet.objects.filter(status="completed").order_by("-deadline")
+        return ApplyPSet.objects.filter(status=ApplyPSet.Status.COMPLETED).order_by(
+            "-deadline"
+        )
 
 
 class ManualView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):

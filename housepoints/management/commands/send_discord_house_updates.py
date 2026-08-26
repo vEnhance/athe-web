@@ -3,10 +3,9 @@ from typing import Any
 
 import requests
 from django.core.management.base import BaseCommand
-from django.db.models import Sum
 from django.utils import timezone
 
-from courses.models import Semester, Student
+from courses.models import Semester
 from housepoints.models import Award
 
 # Discord emoji mappings for each house
@@ -38,13 +37,8 @@ class Command(BaseCommand):
             raise SystemExit(1)
 
         # Get the currently active semester
-        today = timezone.now().date()
-        active_semesters = Semester.objects.filter(
-            start_date__lte=today, end_date__gte=today
-        )
-
         try:
-            semester = active_semesters.get()
+            semester = Semester.objects.active().get()
         except Semester.DoesNotExist:
             self.stderr.write(
                 self.style.ERROR("No active semester found for the current date")
@@ -69,29 +63,11 @@ class Command(BaseCommand):
             )
             return
 
-        # Calculate house totals
-        awards_query = Award.objects.filter(semester=semester)
-        house_totals = (
-            awards_query.values("house")
-            .annotate(total_points=Sum("points"))
-            .order_by("-total_points")
-        )
-
-        # Build a dict of house -> points
-        house_scores: dict[str, int] = {}
-        for entry in house_totals:
-            if entry["house"]:  # Skip empty house entries
-                house_scores[entry["house"]] = entry["total_points"] or 0
-
-        # Add houses with 0 points that aren't in the results
-        for house_code, _ in Student.House.choices:
-            if house_code not in house_scores:
-                house_scores[house_code] = 0
-
-        # Sort by points descending
+        # The freeze check above means this always reflects live standings
+        house_scores = Award.objects.for_semester(semester).totals_by_house()
         sorted_houses = sorted(
             house_scores.items(),
-            key=lambda x: (-x[1], x[0]),  # Secondary sort by name
+            key=lambda item: (-item[1], item[0]),  # Secondary sort by name
         )
 
         # Build the message lines

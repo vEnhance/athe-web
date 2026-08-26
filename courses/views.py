@@ -1,5 +1,7 @@
 import calendar
+from collections import defaultdict
 from datetime import date, datetime, time, timedelta
+from typing import Any
 
 import icalendar
 from django.contrib import messages
@@ -11,7 +13,6 @@ from django.db.models import (
     Exists,
     ExpressionWrapper,
     OuterRef,
-    Prefetch,
     Q,
 )
 from django.forms import modelformset_factory
@@ -22,6 +23,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, View
 
+from atheweb.decorators import staff_required, superuser_required
 from courses.forms import (
     BulkStudentCreationForm,
     CourseMeetingForm,
@@ -40,13 +42,7 @@ from courses.models import (
 
 def catalog_root(request: HttpRequest) -> HttpResponse:
     """Show the most recent semester as the main catalog landing page."""
-    # Get the most recent semester (by start_date)
-    # Non-staff users can only see visible semesters
-    queryset = Semester.objects.order_by("-start_date")
-    is_staff = getattr(request.user, "is_staff", False)
-    if not is_staff:
-        queryset = queryset.filter(visible=True)
-    latest_semester = queryset.first()
+    latest_semester = Semester.objects.visible_to(request.user).first()
     if latest_semester:
         return redirect("courses:course_list", slug=latest_semester.slug)
     return render(request, "courses/semester_list.html", {"semesters": []})
@@ -54,37 +50,26 @@ def catalog_root(request: HttpRequest) -> HttpResponse:
 
 def semester_list(request: HttpRequest) -> HttpResponse:
     """Show all semesters in chronological order."""
-    semesters = Semester.objects.order_by("-start_date")
-    # Non-staff users can only see visible semesters
-    is_staff = getattr(request.user, "is_staff", False)
-    if not is_staff:
-        semesters = semesters.filter(visible=True)
+    semesters = Semester.objects.visible_to(request.user)
     return render(request, "courses/semester_list.html", {"semesters": semesters})
 
 
 def course_list(request: HttpRequest, slug: str) -> HttpResponse:
     """Show courses for a specific semester with previous/next navigation."""
-    # Non-staff users can only access visible semesters
-    is_staff = getattr(request.user, "is_staff", False)
-    if is_staff:
-        semester = get_object_or_404(Semester, slug=slug)
-    else:
-        semester = get_object_or_404(Semester, slug=slug, visible=True)
+    visible = Semester.objects.visible_to(request.user)
+    semester = get_object_or_404(visible, slug=slug)
 
     # Filter to only show classes (not clubs)
     courses = Course.objects.filter(semester=semester, is_club=False).select_related(
         "instructor"
     )
 
-    # Get previous and next semesters (only visible ones for non-staff)
-    prev_queryset = Semester.objects.filter(start_date__lt=semester.start_date)
-    next_queryset = Semester.objects.filter(start_date__gt=semester.start_date)
-    if not is_staff:
-        prev_queryset = prev_queryset.filter(visible=True)
-        next_queryset = next_queryset.filter(visible=True)
-
-    prev_semester = prev_queryset.order_by("-start_date").first()
-    next_semester = next_queryset.order_by("start_date").first()
+    prev_semester = visible.filter(start_date__lt=semester.start_date).first()
+    next_semester = (
+        visible.filter(start_date__gt=semester.start_date)
+        .order_by("start_date")
+        .first()
+    )
 
     return render(
         request,
@@ -102,59 +87,17 @@ def course_list(request: HttpRequest, slug: str) -> HttpResponse:
 def my_courses(request: HttpRequest) -> HttpResponse:
     """Show all courses (non-clubs) the current user is enrolled in or leads."""
     assert isinstance(request.user, User)
-    today = timezone.now().date()
 
-    # Use Prefetch to filter enrolled courses at the database level
-    student_records = Student.objects.filter(user=request.user).prefetch_related(
-        Prefetch(
-            "enrolled_courses",
-            queryset=Course.objects.filter(is_club=False).select_related(
-                "semester", "instructor"
-            ),
-            to_attr="non_club_courses",
-        )
+    enrolled_courses = (
+        Course.objects.for_user(request.user)
+        .filter(is_club=False)
+        .select_related("semester", "instructor")
     )
 
-    # Get all courses where user is a leader (non-clubs only)
-    led_courses = Course.objects.filter(
-        leaders=request.user, is_club=False
-    ).select_related("semester", "instructor")
-
-    # Combine enrolled and led courses (avoid duplicates)
-    all_courses = {}
-    for student in student_records:
-        for course in student.non_club_courses:  # type: ignore[attr-defined]
-            all_courses[course.id] = course  # type: ignore[attr-defined]
-    for course in led_courses:
-        all_courses[course.id] = course  # type: ignore[attr-defined]
-
-    # Convert to list and sort
-    enrolled_courses = list(all_courses.values())
-    enrolled_courses.sort(key=lambda c: (-c.semester.start_date.toordinal(), c.name))
-
-    # Get GlobalEvents for semesters the user is enrolled in
+    global_events = GlobalEvent.objects.visible_to(request.user).order_by("start_time")
     if request.user.is_staff:
-        # Staff see all global events in visible active semesters
-        global_events = (
-            GlobalEvent.objects.filter(
-                semester__start_date__lte=today,
-                semester__end_date__gte=today,
-                semester__visible=True,
-            )
-            .select_related("semester")
-            .order_by("start_time")
-        )
-    else:
-        # Students see global events from semesters they're enrolled in
-        student_semester_ids = [s.semester_id for s in student_records]  # type: ignore[attr-defined]
-        global_events = (
-            GlobalEvent.objects.filter(
-                semester_id__in=student_semester_ids,
-                semester__visible=True,
-            )
-            .select_related("semester")
-            .order_by("start_time")
-        )
+        # Staff have no semester of their own, so scope them to active semesters.
+        global_events = global_events.filter(semester__in=Semester.objects.active())
 
     return render(
         request,
@@ -169,132 +112,39 @@ def my_courses(request: HttpRequest) -> HttpResponse:
 @login_required
 def my_clubs(request: HttpRequest) -> HttpResponse:
     """Show clubs in active semesters, split by enrollment status. Includes led clubs."""
-    # Get user's student records for active semesters
-    today = timezone.now().date()
-    active_student_records = (
-        Student.objects.filter(
-            user=request.user,
-            semester__start_date__lte=today,
-            semester__end_date__gte=today,
-        )
-        .select_related("semester")
-        .prefetch_related(
-            Prefetch(
-                "enrolled_courses",
-                queryset=Course.objects.filter(is_club=True).select_related(
-                    "semester", "instructor"
-                ),
-                to_attr="enrolled_club_list",
-            )
-        )
-    )
-
-    # Get all clubs where user is a leader (in active semesters)
-    led_clubs = Course.objects.filter(
-        leaders=request.user,
-        is_club=True,
-        semester__start_date__lte=today,
-        semester__end_date__gte=today,
-    ).select_related("semester", "instructor")
-
-    # Convert to list for easier manipulation
-    active_student_records_list = list(active_student_records)
-    led_clubs_list = list(led_clubs)
-
     assert isinstance(request.user, User)
 
-    # Get GlobalEvents for active semesters
+    active_clubs = Course.objects.filter(is_club=True).active()
+    global_events = GlobalEvent.objects.visible_to(request.user).order_by("start_time")
+
     if request.user.is_staff:
-        # Staff see all global events in visible active semesters
-        global_events = (
-            GlobalEvent.objects.filter(
-                semester__start_date__lte=today,
-                semester__end_date__gte=today,
-                semester__visible=True,
-            )
-            .select_related("semester")
-            .order_by("start_time")
-        )
+        # Staff are never enrolled, so "enrolled" means "leads" and every other
+        # active club is on offer regardless of semester membership.
+        enrolled_clubs = active_clubs.filter(leaders=request.user)
+        available_clubs = active_clubs.exclude(leaders=request.user)
+        global_events = global_events.filter(semester__in=Semester.objects.active())
+        has_active_semester = True
     else:
-        # Students see global events from semesters they're enrolled in
-        student_semester_ids = [s.semester_id for s in active_student_records_list]  # type: ignore[attr-defined]
-        global_events = (
-            GlobalEvent.objects.filter(
-                semester_id__in=student_semester_ids,
-                semester__visible=True,
-            )
-            .select_related("semester")
-            .order_by("start_time")
+        enrolled_clubs = active_clubs.for_user(request.user)
+        # Students may only join clubs in a semester they are enrolled in.
+        available_clubs = active_clubs.filter(
+            semester__students__user=request.user
+        ).exclude(pk__in=enrolled_clubs)
+        has_active_semester = (
+            enrolled_clubs.exists()
+            or Student.objects.filter(
+                user=request.user, semester__in=Semester.objects.active()
+            ).exists()
         )
-
-    if request.user.is_staff:
-        return render(
-            request,
-            "courses/my_clubs.html",
-            {
-                "enrolled_clubs": led_clubs_list,
-                "available_clubs": Course.objects.filter(
-                    is_club=True,
-                    semester__start_date__lte=today,
-                    semester__end_date__gte=today,
-                ).exclude(pk__in=led_clubs.values_list("pk", flat=True)),
-                "global_events": global_events,
-                "has_active_semester": True,
-            },
-        )
-
-    if not active_student_records_list and not led_clubs_list:
-        return render(
-            request,
-            "courses/my_clubs.html",
-            {
-                "enrolled_clubs": [],
-                "available_clubs": [],
-                "global_events": [],
-                "has_active_semester": False,
-            },
-        )
-
-    # Get all clubs from active semesters where user has student access
-    active_semesters = [s.semester for s in active_student_records_list]
-    all_active_clubs = Course.objects.filter(
-        semester__in=active_semesters, is_club=True
-    ).select_related("semester", "instructor")
-
-    # Build set of enrolled club IDs
-    enrolled_club_ids = set()
-    for student in active_student_records_list:
-        for course in student.enrolled_club_list:  # type: ignore[attr-defined]
-            enrolled_club_ids.add(course.id)  # type: ignore[attr-defined]
-
-    # Add led clubs to enrolled list
-    for club in led_clubs_list:
-        enrolled_club_ids.add(club.id)  # type: ignore[attr-defined]
-
-    # Split into enrolled and available
-    enrolled_clubs_dict = {}
-    available_clubs = []
-    for club in all_active_clubs:
-        if club.id in enrolled_club_ids:  # type: ignore[attr-defined]
-            enrolled_clubs_dict[club.id] = club  # type: ignore[attr-defined]
-        else:
-            available_clubs.append(club)
-
-    # Also include led clubs that might not be in active_semesters
-    for club in led_clubs_list:
-        if club.id not in enrolled_clubs_dict:  # type: ignore[attr-defined]
-            enrolled_clubs_dict[club.id] = club  # type: ignore[attr-defined]
-
-    enrolled_clubs = list(enrolled_clubs_dict.values())
 
     return render(
         request,
         "courses/my_clubs.html",
         {
-            "enrolled_clubs": enrolled_clubs,
-            "available_clubs": available_clubs,
+            "enrolled_clubs": enrolled_clubs.select_related("semester", "instructor"),
+            "available_clubs": available_clubs.select_related("semester", "instructor"),
             "global_events": global_events,
-            "has_active_semester": True,
+            "has_active_semester": has_active_semester,
         },
     )
 
@@ -376,17 +226,15 @@ def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect("courses:my_clubs")
 
 
-@login_required
+@staff_required(
+    message="You don't have permission to view the staff schedule.",
+    redirect_to="courses:catalog_root",
+)
 def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpResponse:
     """Staff-only master schedule: all course meetings for a semester.
 
     If no slug is given, defaults to the current active semester.
     """
-    assert isinstance(request.user, User)
-    if not request.user.is_staff:
-        messages.error(request, "You don't have permission to view the staff schedule.")
-        return redirect("courses:catalog_root")
-
     all_semesters = list(Semester.objects.order_by("-start_date"))
 
     if slug is not None:
@@ -442,49 +290,20 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
 
 @login_required
 def upcoming(request: HttpRequest) -> HttpResponse:
-    """Show all upcoming meetings and events for courses/clubs the user is enrolled in or leads."""
+    """Show upcoming meetings and events for courses/clubs the user is in or leads."""
     assert isinstance(request.user, User)
-    # Get all student records for this user
-    student_records = Student.objects.filter(user=request.user).prefetch_related(
-        "enrolled_courses"
-    )
-
-    # Collect all enrolled course IDs and semester IDs
-    enrolled_course_ids = set()
-    enrolled_semester_ids = set()
-    for student in student_records:
-        enrolled_semester_ids.add(student.semester_id)  # type: ignore[attr-defined]
-        for course in student.enrolled_courses.all():  # type: ignore[attr-defined]
-            enrolled_course_ids.add(course.id)  # type: ignore[attr-defined]
-
-    # Get all courses where user is a leader
-    led_courses = Course.objects.filter(leaders=request.user)
-    for course in led_courses:
-        enrolled_course_ids.add(course.id)  # type: ignore[attr-defined]
-        enrolled_semester_ids.add(course.semester_id)  # type: ignore[attr-defined]
-
-    # Get all future meetings for those courses
     now = timezone.now()
+
     upcoming_meetings = (
         CourseMeeting.objects.filter(
-            course_id__in=enrolled_course_ids, start_time__gte=now
+            course__in=Course.objects.for_user(request.user), start_time__gte=now
         )
         .select_related("course", "course__semester")
         .order_by("start_time")
     )
-
-    # Get all future global events for semesters where user is enrolled or leads
-    # Staff can see all visible semester events
-    if request.user.is_staff:
-        upcoming_events = GlobalEvent.objects.filter(
-            start_time__gte=now, semester__visible=True
-        ).select_related("semester")
-    else:
-        upcoming_events = GlobalEvent.objects.filter(
-            start_time__gte=now,
-            semester_id__in=enrolled_semester_ids,
-            semester__visible=True,
-        ).select_related("semester")
+    upcoming_events = GlobalEvent.objects.visible_to(request.user).filter(
+        start_time__gte=now
+    )
 
     return render(
         request,
@@ -515,17 +334,12 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
 
         course = self.get_object()
 
-        # Staff users have access to everything
-        if self.request.user.is_staff:
+        if course.is_managed_by(self.request.user):
             return True
 
         # Non-staff users cannot access courses in invisible semesters
         if not course.semester.visible:
             return False
-
-        # Leaders always have access
-        if course.leaders.filter(pk=self.request.user.pk).exists():
-            return True
 
         if course.is_club:
             # For clubs: any student with access to this semester
@@ -554,11 +368,7 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
         # Add member list
         context["members"] = self.object.students.select_related("user")
 
-        # Check if user is a leader
-        context["is_leader"] = (
-            self.request.user.is_staff
-            or self.object.leaders.filter(pk=self.request.user.pk).exists()
-        )
+        context["is_leader"] = self.object.is_managed_by(self.request.user)
 
         # For clubs in active semesters, check if user can join/drop
         if self.object.is_club and self.object.semester.is_active():
@@ -593,14 +403,7 @@ class CourseUpdateView(UserPassesTestMixin, UpdateView):
 
     def test_func(self) -> bool:
         """Check if user is staff or a leader of this course."""
-        if not self.request.user.is_authenticated:
-            return False
-        assert isinstance(self.request.user, User)
-        if self.request.user.is_staff:
-            return True
-
-        course = self.get_object()
-        return course.leaders.filter(pk=self.request.user.pk).exists()
+        return self.get_object().is_managed_by(self.request.user)
 
     def get_success_url(self) -> str:
         """Redirect back to the course detail page after successful update."""
@@ -618,13 +421,7 @@ class CourseUpdateView(UserPassesTestMixin, UpdateView):
 def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
     """Manage meetings for a course using inline formsets. Only accessible to staff and course leaders."""
     course = get_object_or_404(Course, pk=pk)
-    assert isinstance(request.user, User)
-
-    # Check if user is staff or a leader
-    is_leader = (
-        request.user.is_staff or course.leaders.filter(pk=request.user.pk).exists()
-    )
-    if not is_leader:
+    if not course.is_managed_by(request.user):
         messages.error(request, "You don't have permission to manage this course.")
         return redirect("courses:course_detail", pk=course.pk)
 
@@ -664,129 +461,50 @@ def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
-@login_required
+@superuser_required()
 def bulk_create_students(request: HttpRequest) -> HttpResponse:
     """Bulk create students and enroll them in courses. Only accessible to superusers."""
-    assert isinstance(request.user, User)
-    # Check if user is a superuser
-    if not request.user.is_superuser:
-        messages.error(request, "You must be a superuser to access this page.")
-        return redirect("home:index")
+    form = BulkStudentCreationForm(request.POST or None)
 
-    if request.method == "POST":
-        form = BulkStudentCreationForm(request.POST)
-        if form.is_valid():
-            semester = form.cleaned_data["semester"]
-            student_data = form.cleaned_data["student_data"]
+    if request.method == "POST" and form.is_valid():
+        semester = form.cleaned_data["semester"]
+        parsed = form.cleaned_data["students"]
 
-            # Validate that semester hasn't ended
-            if semester.end_date < timezone.now().date():
-                messages.error(
-                    request,
-                    f"Cannot create students for {semester.name} - semester has ended.",
-                )
-                return render(
-                    request, "courses/bulk_create_students.html", {"form": form}
-                )
-
-            # Parse the student data
-            lines = [
-                line.strip()
-                for line in student_data.strip().split("\n")
-                if line.strip()
-            ]
-
-            # Get all courses for this semester in one query
-            courses_in_semester = {
-                course.name: course
-                for course in Course.objects.filter(semester=semester)
-            }
-
-            # Parse and validate all lines first
-            parsed_data = []
-            errors = []
-            for i, line in enumerate(lines, start=1):
-                if "\t" not in line:
-                    line = line.replace(": ", "\t")
-                parts = line.split("\t")
-                if len(parts) != 2:
-                    errors.append(
-                        f"Line {i}: Expected tab-separated values (got {len(parts)} parts)"
-                    )
-                    continue
-
-                airtable_name = parts[0].strip()
-                course_names = [c.strip() for c in parts[1].split(",") if c.strip()]
-
-                if not airtable_name:
-                    errors.append(f"Line {i}: Missing airtable_name")
-                    continue
-
-                if not course_names:
-                    errors.append(f"Line {i}: No courses specified")
-                    continue
-
-                # Validate course names
-                invalid_courses = [
-                    name for name in course_names if name not in courses_in_semester
-                ]
-                if invalid_courses:
-                    errors.append(
-                        f"Line {i}: Invalid course names: {', '.join(invalid_courses)}"
-                    )
-                    continue
-
-                parsed_data.append((airtable_name, course_names))
-
-            if errors:
-                for error in errors:
-                    messages.error(request, error)
-                return render(
-                    request, "courses/bulk_create_students.html", {"form": form}
-                )
-
-            # Bulk create students
-            students_to_create = [
+        Student.objects.bulk_create(
+            [
                 Student(airtable_name=airtable_name, semester=semester)
-                for airtable_name, _ in parsed_data
-            ]
-            Student.objects.bulk_create(students_to_create, ignore_conflicts=True)
+                for airtable_name, _ in parsed
+            ],
+            ignore_conflicts=True,
+        )
 
-            # Get all students (including those that already existed)
-            airtable_names = [airtable_name for airtable_name, _ in parsed_data]
-            student_map = {
-                student.airtable_name: student
-                for student in Student.objects.filter(
-                    airtable_name__in=airtable_names, semester=semester
-                )
-            }
-
-            # Prepare enrollments for bulk creation
-            # The through table is Course.students.through
-            enrollments = []
-            for airtable_name, course_names in parsed_data:
-                student = student_map[airtable_name]
-                for course_name in course_names:
-                    course = courses_in_semester[course_name]
-                    enrollments.append(
-                        Course.students.through(
-                            student_id=student.id,  # type: ignore[attr-defined]
-                            course_id=course.id,  # type: ignore[attr-defined]
-                        )
-                    )
-
-            # Bulk create enrollments
-            Course.students.through.objects.bulk_create(
-                enrollments, ignore_conflicts=True
+        # Re-read so students that already existed are picked up too
+        students = {
+            student.airtable_name: student.pk
+            for student in Student.objects.filter(
+                airtable_name__in=[name for name, _ in parsed], semester=semester
             )
+        }
+        courses = {
+            course.name: course.pk
+            for course in Course.objects.filter(semester=semester)
+        }
 
-            messages.success(
-                request,
-                f"Successfully processed {len(parsed_data)} students with {len(enrollments)} enrollments.",
+        enrollments = [
+            Course.students.through(
+                student_id=students[airtable_name], course_id=courses[course_name]
             )
-            return redirect("courses:bulk_create_students")
-    else:
-        form = BulkStudentCreationForm()
+            for airtable_name, course_names in parsed
+            for course_name in course_names
+        ]
+        Course.students.through.objects.bulk_create(enrollments, ignore_conflicts=True)
+
+        messages.success(
+            request,
+            f"Successfully processed {len(parsed)} students "
+            f"with {len(enrollments)} enrollments.",
+        )
+        return redirect("courses:bulk_create_students")
 
     return render(request, "courses/bulk_create_students.html", {"form": form})
 
@@ -810,59 +528,25 @@ class SortingHatView(UserPassesTestMixin, View):
             return render(request, "courses/sorting_hat.html", {"form": form})
 
         semester = form.cleaned_data["semester"]
-        results = {
-            "assigned": [],
-            "not_found": [],
-        }
+        assignments = form.house_assignments()
 
-        # Define house fields mapping
-        house_fields = {
-            "blob": Student.House.BLOB,
-            "cat": Student.House.CAT,
-            "owl": Student.House.OWL,
-            "red_panda": Student.House.RED_PANDA,
-            "bunny": Student.House.BUNNY,
-        }
-
-        # Parse all airtable names and their target houses
-        # Map: airtable_name -> house_value
-        assignments = {}
-        for field_name, house_value in house_fields.items():
-            airtable_names_text = form.cleaned_data.get(field_name, "")
-            if not airtable_names_text:
-                continue
-
-            # Split by lines and strip whitespace
-            airtable_names = [
-                name.strip()
-                for name in airtable_names_text.strip().split("\n")
-                if name.strip()
-            ]
-
-            for airtable_name in airtable_names:
-                assignments[airtable_name] = house_value
-
-        # Fetch all students in one query (O(1) queries)
-        all_airtable_names = list(assignments.keys())
         students = Student.objects.filter(
-            airtable_name__in=all_airtable_names, semester=semester
+            airtable_name__in=assignments, semester=semester
         )
-
-        # Create a mapping of airtable_name -> student
         student_map = {student.airtable_name: student for student in students}
 
-        # Update students in memory and track results
+        results: dict[str, list[str]] = {"assigned": [], "not_found": []}
         students_to_update = []
-        for airtable_name, house_value in assignments.items():
-            if airtable_name in student_map:
-                student = student_map[airtable_name]
-                student.house = house_value
-                students_to_update.append(student)
-                results["assigned"].append(f"{airtable_name} → {house_value.label}")
-            else:
+        for airtable_name, house in assignments.items():
+            student = student_map.get(airtable_name)
+            if student is None:
                 results["not_found"].append(
                     f"{airtable_name} (not found in {semester})"
                 )
+                continue
+            student.house = house
+            students_to_update.append(student)
+            results["assigned"].append(f"{airtable_name} \u2192 {house.label}")
 
         # Bulk update all students in one query (O(1) queries)
         if students_to_update:
@@ -875,68 +559,39 @@ class SortingHatView(UserPassesTestMixin, View):
         )
 
 
-@login_required
-def calendar_view(request: HttpRequest) -> HttpResponse:
-    """
-    Calendar view showing all events in a monthly format.
-    Includes filtering options for different event types.
-    """
-    assert isinstance(request.user, User)
+def _requested_month(request: HttpRequest, today: date) -> tuple[int, int]:
+    """Read ?year=&month= from the query string, falling back to this month."""
+    try:
+        year = int(request.GET["year"])
+        month = int(request.GET["month"])
+    except KeyError, ValueError:
+        return today.year, today.month
+    if not 1 <= month <= 12:
+        return today.year, today.month
+    return year, month
 
-    # Get current date
-    today = timezone.now().date()
 
-    # Get the month to display (default to current month)
-    year_param = request.GET.get("year")
-    month_param = request.GET.get("month")
-    if year_param and month_param:
-        try:
-            display_year = int(year_param)
-            display_month = int(month_param)
-            # Validate month range
-            if not 1 <= display_month <= 12:
-                display_year, display_month = today.year, today.month
-        except ValueError:
-            display_year, display_month = today.year, today.month
-    else:
-        display_year, display_month = today.year, today.month
-
-    # Build the calendar grid for the month
-    # Use Sunday as first day of week (6 in Python's calendar module)
-    cal = calendar.Calendar(firstweekday=6)
-    month_days = cal.monthdatescalendar(display_year, display_month)
-
-    # Get the date range for fetching events (full calendar grid)
-    first_day = month_days[0][0]
-    last_day = month_days[-1][-1]
-
-    # Convert dates to timezone-aware datetimes for filtering
-    tz = timezone.get_current_timezone()
-    range_start_dt = timezone.make_aware(datetime.combine(first_day, time.min), tz)
-    range_end_dt = timezone.make_aware(datetime.combine(last_day, time.max), tz)
-
-    # Gather calendar events with categories
-    calendar_events: list[dict] = []
-
-    # GlobalEvents: everyone sees all visible semesters
-    global_events = GlobalEvent.objects.filter(
-        start_time__range=(range_start_dt, range_end_dt), semester__visible=True
-    ).select_related("semester")
-
-    for event in global_events:
-        calendar_events.append(
-            {
-                "title": event.title,
-                "start_time": event.start_time,
-                "category": "global",
-                "url": event.get_absolute_url(),
-                "semester": event.semester.name,
-            }
-        )
+def _calendar_events(
+    request: HttpRequest, start: datetime, end: datetime
+) -> list[dict[str, Any]]:
+    """Every event to draw on the calendar between two instants, with categories."""
+    events: list[dict[str, Any]] = [
+        {
+            "title": event.title,
+            "start_time": event.start_time,
+            "category": "global",
+            "url": event.get_absolute_url(),
+            "semester": event.semester.name,
+        }
+        # GlobalEvents: everyone sees all visible semesters
+        for event in GlobalEvent.objects.filter(
+            start_time__range=(start, end), semester__visible=True
+        ).select_related("semester")
+    ]
 
     # CourseMeetings: fetch all in range for visible semesters, annotated with
-    # is_club (from the course) and is_mine (enrolled student or leader).
-    # Non-enrolled classes (is_club=False, is_mine=False) are skipped.
+    # is_mine (enrolled student, leader or instructor). Non-enrolled classes
+    # are skipped; clubs are shown either way.
     is_enrolled = Exists(
         Course.students.through.objects.filter(
             course_id=OuterRef("course_id"),
@@ -955,25 +610,23 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
     )
     meetings = (
         CourseMeeting.objects.filter(
-            start_time__range=(range_start_dt, range_end_dt),
+            start_time__range=(start, end),
             course__semester__visible=True,
         )
         .select_related("course", "course__semester")
-        .annotate(
-            is_mine=is_enrolled | is_leader | is_instructor,
-        )
+        .annotate(is_mine=is_enrolled | is_leader | is_instructor)
     )
 
     for meeting in meetings:
         is_club: bool = meeting.course.is_club
         is_mine: bool = meeting.is_mine  # type: ignore[attr-defined]
         if not is_club and not is_mine:
-            continue  # non-enrolled classes are not shown
+            continue
         if is_mine:
             category = "enrolled_club" if is_club else "enrolled_class"
         else:
             category = "other_club"
-        calendar_events.append(
+        events.append(
             {
                 "title": meeting.course.name
                 + (f": {meeting.title}" if meeting.title else ""),
@@ -984,45 +637,50 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
             }
         )
 
-    # Group events by date
-    events_by_day: dict[date, list[dict]] = {}
-    for event in calendar_events:
-        event_date = timezone.localtime(event["start_time"]).date()
-        if event_date not in events_by_day:
-            events_by_day[event_date] = []
-        events_by_day[event_date].append(event)
+    return events
 
-    # Sort events within each day
+
+@login_required
+def calendar_view(request: HttpRequest) -> HttpResponse:
+    """Monthly calendar of every event the user can see."""
+    assert isinstance(request.user, User)
+
+    today = timezone.now().date()
+    display_year, display_month = _requested_month(request, today)
+
+    # Sunday is the first day of the week (6 in Python's calendar module)
+    month_days = calendar.Calendar(firstweekday=6).monthdatescalendar(
+        display_year, display_month
+    )
+
+    # The grid spills past the month, so fetch events for its full extent
+    tz = timezone.get_current_timezone()
+    range_start = timezone.make_aware(datetime.combine(month_days[0][0], time.min), tz)
+    range_end = timezone.make_aware(datetime.combine(month_days[-1][-1], time.max), tz)
+
+    events_by_day: dict[date, list[dict[str, Any]]] = defaultdict(list)
+    for event in _calendar_events(request, range_start, range_end):
+        events_by_day[timezone.localtime(event["start_time"]).date()].append(event)
     for day_events in events_by_day.values():
         day_events.sort(key=lambda e: e["start_time"])
 
-    # Build weeks data for template
-    weeks_data = []
-    for week in month_days:
-        week_data = []
-        for day in week:
-            week_data.append(
-                {
-                    "date": day,
-                    "is_current_month": day.month == display_month,
-                    "is_today": day == today,
-                    "events": events_by_day.get(day, []),
-                }
-            )
-        weeks_data.append(week_data)
+    weeks_data = [
+        [
+            {
+                "date": day,
+                "is_current_month": day.month == display_month,
+                "is_today": day == today,
+                "events": events_by_day[day],
+            }
+            for day in week
+        ]
+        for week in month_days
+    ]
 
-    # Calculate previous and next month
-    if display_month == 1:
-        prev_year, prev_month = display_year - 1, 12
-    else:
-        prev_year, prev_month = display_year, display_month - 1
-    if display_month == 12:
-        next_year, next_month = display_year + 1, 1
-    else:
-        next_year, next_month = display_year, display_month + 1
-
-    # Month name for display
-    month_name = calendar.month_name[display_month]
+    # Any month is at most 31 days, so +32 always lands inside the next one
+    first_of_month = date(display_year, display_month, 1)
+    prev_month_day = first_of_month - timedelta(days=1)
+    next_month_day = (first_of_month + timedelta(days=32)).replace(day=1)
 
     cal_token, _ = CalendarToken.objects.get_or_create(user=request.user)
     feed_url = request.build_absolute_uri(
@@ -1036,11 +694,11 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
             "weeks_data": weeks_data,
             "display_year": display_year,
             "display_month": display_month,
-            "month_name": month_name,
-            "prev_year": prev_year,
-            "prev_month": prev_month,
-            "next_year": next_year,
-            "next_month": next_month,
+            "month_name": calendar.month_name[display_month],
+            "prev_year": prev_month_day.year,
+            "prev_month": prev_month_day.month,
+            "next_year": next_month_day.year,
+            "next_month": next_month_day.month,
             "today": today,
             "timezone_name": timezone.get_current_timezone_name(),
             "feed_url": feed_url,
@@ -1063,18 +721,8 @@ def calendar_feed(request: HttpRequest, token: str) -> HttpResponse:
     range_start = now - timedelta(days=90)
     range_end = now + timedelta(days=365)
 
-    # Determine which semesters the user can see
-    student_records = Student.objects.filter(user=user).select_related("semester")
-    student_semester_ids = {s.semester_id for s in student_records}  # type: ignore[attr-defined]
-
-    # Enrolled course IDs (classes and clubs treated identically in the feed)
-    enrolled_ids: set[int] = set()
-    for student in student_records:
-        for course in student.enrolled_courses.all():  # type: ignore[attr-defined]
-            enrolled_ids.add(course.id)  # type: ignore[attr-defined]
-
-    for course in Course.objects.filter(leaders=user):
-        enrolled_ids.add(course.id)  # type: ignore[attr-defined]
+    # Classes and clubs are treated identically in the feed
+    enrolled_courses = Course.objects.for_user(user)
 
     cal = icalendar.Calendar()
     cal.add("prodid", "-//Athemath Calendar Feed//athemath.org//EN")
@@ -1087,17 +735,9 @@ def calendar_feed(request: HttpRequest, token: str) -> HttpResponse:
 
     domain = "athemath.org"
 
-    # GlobalEvents
-    if user.is_staff:
-        global_events = GlobalEvent.objects.filter(
-            start_time__range=(range_start, range_end), semester__visible=True
-        ).select_related("semester")
-    else:
-        global_events = GlobalEvent.objects.filter(
-            start_time__range=(range_start, range_end),
-            semester_id__in=student_semester_ids,
-            semester__visible=True,
-        ).select_related("semester")
+    global_events = GlobalEvent.objects.visible_to(user).filter(
+        start_time__range=(range_start, range_end)
+    )
 
     for event in global_events:
         vevent = icalendar.Event()
@@ -1114,7 +754,7 @@ def calendar_feed(request: HttpRequest, token: str) -> HttpResponse:
 
     # CourseMeetings for enrolled courses
     meetings = CourseMeeting.objects.filter(
-        course_id__in=enrolled_ids,
+        course__in=enrolled_courses,
         start_time__range=(range_start, range_end),
     ).select_related("course", "course__semester")
 

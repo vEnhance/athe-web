@@ -1,7 +1,9 @@
 import secrets
+from typing import ClassVar
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import AnonymousUser, User
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Exists, OuterRef, Q, QuerySet, UniqueConstraint
@@ -9,6 +11,19 @@ from django.urls import reverse
 from django.utils import timezone
 
 from home.models import StaffPhotoListing
+
+
+class SemesterQuerySet(models.QuerySet["Semester"]):
+    def visible_to(self, user: AbstractBaseUser | AnonymousUser) -> SemesterQuerySet:
+        """Restrict to semesters this user is allowed to see."""
+        if getattr(user, "is_staff", False):
+            return self
+        return self.filter(visible=True)
+
+    def active(self) -> SemesterQuerySet:
+        """Semesters that today falls inside of."""
+        today = timezone.now().date()
+        return self.filter(start_date__lte=today, end_date__gte=today)
 
 
 class Semester(models.Model):
@@ -30,6 +45,8 @@ class Semester(models.Model):
         help_text="If unchecked, this semester will be hidden from non-staff users",
     )
 
+    objects: ClassVar[SemesterQuerySet] = SemesterQuerySet.as_manager()  # type: ignore[assignment]
+
     def __str__(self) -> str:
         return self.name
 
@@ -42,13 +59,13 @@ class Semester(models.Model):
         return self.start_date <= today <= self.end_date
 
     @classmethod
-    def get_enrolled_semesters(cls, user: User) -> QuerySet["Semester"]:
+    def get_enrolled_semesters(cls, user: User) -> QuerySet[Semester]:
         return Semester.objects.filter(
             Exists(Student.objects.filter(semester=OuterRef("pk"), user=user))
         )
 
     @classmethod
-    def get_current_semester(cls) -> "Semester":
+    def get_current_semester(cls) -> Semester:
         """Get the current active semester based on today's date.
 
         Returns the semester where today's date falls between start_date and end_date.
@@ -56,10 +73,7 @@ class Semester(models.Model):
         Raises:
             ValueError: If no active semester is found or multiple overlapping semesters exist.
         """
-        today = timezone.now().date()
-        current_semesters = cls.objects.filter(
-            start_date__lte=today, end_date__gte=today
-        )
+        current_semesters = cls.objects.active()
 
         count = current_semesters.count()
         if count == 0:
@@ -74,6 +88,19 @@ class Semester(models.Model):
 
     class Meta:
         ordering = ("-start_date",)
+
+
+class CourseQuerySet(models.QuerySet["Course"]):
+    def for_user(self, user: User) -> CourseQuerySet:
+        """Courses the user is enrolled in as a student or leads."""
+        return self.filter(Q(students__user=user) | Q(leaders=user)).distinct()
+
+    def active(self) -> CourseQuerySet:
+        """Courses belonging to a semester that today falls inside of."""
+        today = timezone.now().date()
+        return self.filter(
+            semester__start_date__lte=today, semester__end_date__gte=today
+        )
 
 
 class Course(models.Model):
@@ -137,11 +164,21 @@ class Course(models.Model):
         default=False, help_text="Whether to send Discord reminders."
     )
 
+    objects: ClassVar[CourseQuerySet] = CourseQuerySet.as_manager()  # type: ignore[assignment]
+
     def __str__(self) -> str:
         return f"{self.name} ({self.semester.name})"
 
     def get_absolute_url(self) -> str:
         return reverse("courses:course_detail", kwargs={"pk": self.pk})
+
+    def is_managed_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
+        """Whether the user may edit this course and manage its meetings."""
+        if not user.is_authenticated:
+            return False
+        return bool(
+            getattr(user, "is_staff", False) or self.leaders.filter(pk=user.pk).exists()
+        )
 
     def save(self, *args, **kwargs) -> None:  # type: ignore[override]
         """Override save to auto-add instructor as a leader."""
@@ -240,6 +277,15 @@ class CourseMeeting(models.Model):
         ordering = ("start_time",)
 
 
+class GlobalEventQuerySet(models.QuerySet["GlobalEvent"]):
+    def visible_to(self, user: User) -> GlobalEventQuerySet:
+        """Events in visible semesters; non-staff only see semesters they are in."""
+        qs = self.filter(semester__visible=True).select_related("semester")
+        if user.is_staff:
+            return qs
+        return qs.filter(semester__students__user=user).distinct()
+
+
 class GlobalEvent(models.Model):
     """All-student events not attached to any particular club/course."""
 
@@ -254,6 +300,8 @@ class GlobalEvent(models.Model):
     link = models.URLField(
         blank=True, help_text="Optional link (e.g. Zoom meeting link)."
     )
+
+    objects: ClassVar[GlobalEventQuerySet] = GlobalEventQuerySet.as_manager()  # type: ignore[assignment]
 
     def __str__(self) -> str:
         return f"{self.title} ({self.start_time})"

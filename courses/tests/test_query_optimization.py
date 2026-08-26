@@ -168,13 +168,9 @@ def test_my_clubs_query_count():
         url = reverse("courses:my_clubs")
         response = client.get(url)
 
-    # Should use a constant number of queries:
-    # 1. Session/auth queries
-    # 2. Active student records with prefetch
-    # 3. Prefetch enrolled clubs
-    # 4. Led clubs query
-    # 5. All active clubs query
-    # Total should be around 6-7 queries maximum
+    # Should use a constant number of queries regardless of how many clubs
+    # exist: session/auth, then one query each for enrolled clubs, available
+    # clubs, global events and the has_active_semester check.
     assert response.status_code == 200
     assert len(context.captured_queries) <= 7, (
         f"Expected ≤7 queries, got {len(context.captured_queries)}"

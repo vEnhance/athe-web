@@ -16,7 +16,7 @@ class ApplyPSetAdmin(admin.ModelAdmin):
 @admin.action(description="Mark selected staff as Past Staff (xstaff)")
 def mark_as_past_staff(modeladmin, request, queryset):  # type: ignore
     """Change the category of selected staff members to xstaff (Past Staff)."""
-    updated = queryset.update(category="xstaff")
+    updated = queryset.update(category=StaffPhotoListing.Category.XSTAFF)
     modeladmin.message_user(request, f"{updated} staff member(s) marked as Past Staff.")
 
 

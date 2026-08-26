@@ -163,6 +163,6 @@ The application is deployed to NearlyFreeSpeech. See [NFS.md](NFS.md) for deploy
 
 ## Notes
 
-- Python 3.11+ required (specified in `pyproject.toml`)
+- Python 3.14+ required (specified in `pyproject.toml` and `.python-version`)
 - Database: SQLite (development), MySQL (production)
 - No `[build-system]` in pyproject.toml - this is intentional as we're not building a package

@@ -1,9 +1,33 @@
+from collections.abc import Iterable
+from typing import ClassVar
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Sum
 from django.utils import timezone
 
-from courses.models import Semester, Student
+from courses.models import Course, Semester, Student
+
+
+class AwardQuerySet(models.QuerySet["Award"]):
+    def for_semester(
+        self, semester: Semester, *, respect_freeze: bool = True
+    ) -> AwardQuerySet:
+        """Awards in a semester, optionally cut off at its leaderboard freeze."""
+        qs = self.filter(semester=semester)
+        if respect_freeze and semester.house_points_freeze_date:
+            qs = qs.filter(awarded_at__lte=semester.house_points_freeze_date)
+        return qs
+
+    def totals_by_house(self) -> dict[str, int]:
+        """Points per house, including houses that have not scored."""
+        scored = {
+            entry["house"]: entry["total_points"] or 0
+            for entry in self.values("house").annotate(total_points=Sum("points"))
+            if entry["house"]
+        }
+        return {house.value: scored.get(house.value, 0) for house in Student.House}
 
 
 class Award(models.Model):
@@ -85,6 +109,8 @@ class Award(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    objects: ClassVar[AwardQuerySet] = AwardQuerySet.as_manager()  # type: ignore[assignment]
+
     def __str__(self) -> str:
         if self.student:
             return (
@@ -97,6 +123,34 @@ class Award(models.Model):
                 f"{self.get_house_display()} - {self.get_award_type_display()} "  # type: ignore[attr-defined]
                 f"({self.points} pts)"
             )
+
+    @classmethod
+    def class_attendance_points(
+        cls, course: Course, students: Iterable[Student]
+    ) -> dict[int, tuple[int, int]]:
+        """Map student pk -> (attendance points already earned, points for the next award).
+
+        A student is worth 5 points per class until they have banked the
+        semester's threshold, and 3 points after that. Totals are used rather
+        than a count so that legacy imports with odd point values still work.
+        """
+        threshold = 5 * course.semester.house_points_class_threshold
+        earned = dict(
+            cls.objects.filter(
+                semester=course.semester,
+                student__in=students,
+                award_type=cls.AwardType.CLASS_ATTENDANCE,
+            )
+            .values_list("student")
+            .annotate(total=Sum("points"))
+        )
+        return {
+            student.pk: (
+                total := earned.get(student.pk) or 0,
+                5 if total < threshold else 3,
+            )
+            for student in students
+        }
 
     def clean(self) -> None:
         """Validate the award."""

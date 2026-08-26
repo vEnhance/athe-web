@@ -1,22 +1,17 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.db import IntegrityError, transaction
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
+
+from atheweb.decorators import staff_required, superuser_required
 
 from .forms import AttendanceForm
 from .models import Attendance
 
 
-@login_required
+@staff_required()
 def my_attendance(request: HttpRequest) -> HttpResponse:
     """View for staff to log and view their attendance records."""
-    assert isinstance(request.user, User)
-    if not request.user.is_staff:
-        messages.error(request, "You must be a staff member to access this page.")
-        return redirect("home:index")
-
     if request.method == "POST":
         form = AttendanceForm(request.POST)
         if form.is_valid():
@@ -53,14 +48,9 @@ def my_attendance(request: HttpRequest) -> HttpResponse:
     )
 
 
-@login_required
+@superuser_required()
 def all_attendance(request: HttpRequest) -> HttpResponse:
     """View for superusers to see all attendance records."""
-    assert isinstance(request.user, User)
-    if not request.user.is_superuser:
-        messages.error(request, "You must be a superuser to access this page.")
-        return redirect("home:index")
-
     records = Attendance.objects.all().select_related("user", "club", "club__semester")
 
     return render(
