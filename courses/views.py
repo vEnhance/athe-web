@@ -599,59 +599,25 @@ class SortingHatView(UserPassesTestMixin, View):
             return render(request, "courses/sorting_hat.html", {"form": form})
 
         semester = form.cleaned_data["semester"]
-        results = {
-            "assigned": [],
-            "not_found": [],
-        }
+        assignments = form.house_assignments()
 
-        # Define house fields mapping
-        house_fields = {
-            "blob": Student.House.BLOB,
-            "cat": Student.House.CAT,
-            "owl": Student.House.OWL,
-            "red_panda": Student.House.RED_PANDA,
-            "bunny": Student.House.BUNNY,
-        }
-
-        # Parse all airtable names and their target houses
-        # Map: airtable_name -> house_value
-        assignments = {}
-        for field_name, house_value in house_fields.items():
-            airtable_names_text = form.cleaned_data.get(field_name, "")
-            if not airtable_names_text:
-                continue
-
-            # Split by lines and strip whitespace
-            airtable_names = [
-                name.strip()
-                for name in airtable_names_text.strip().split("\n")
-                if name.strip()
-            ]
-
-            for airtable_name in airtable_names:
-                assignments[airtable_name] = house_value
-
-        # Fetch all students in one query (O(1) queries)
-        all_airtable_names = list(assignments.keys())
         students = Student.objects.filter(
-            airtable_name__in=all_airtable_names, semester=semester
+            airtable_name__in=assignments, semester=semester
         )
-
-        # Create a mapping of airtable_name -> student
         student_map = {student.airtable_name: student for student in students}
 
-        # Update students in memory and track results
+        results: dict[str, list[str]] = {"assigned": [], "not_found": []}
         students_to_update = []
-        for airtable_name, house_value in assignments.items():
-            if airtable_name in student_map:
-                student = student_map[airtable_name]
-                student.house = house_value
-                students_to_update.append(student)
-                results["assigned"].append(f"{airtable_name} → {house_value.label}")
-            else:
+        for airtable_name, house in assignments.items():
+            student = student_map.get(airtable_name)
+            if student is None:
                 results["not_found"].append(
                     f"{airtable_name} (not found in {semester})"
                 )
+                continue
+            student.house = house
+            students_to_update.append(student)
+            results["assigned"].append(f"{airtable_name} \u2192 {house.label}")
 
         # Bulk update all students in one query (O(1) queries)
         if students_to_update:

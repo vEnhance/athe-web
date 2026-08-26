@@ -3,7 +3,7 @@ from typing import Any
 from django import forms
 from django.utils import timezone
 
-from courses.models import Course, CourseMeeting, Semester
+from courses.models import Course, CourseMeeting, Semester, Student
 
 
 class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
@@ -110,54 +110,38 @@ class BulkStudentCreationForm(forms.Form):
 
 
 class SortingHatForm(forms.Form):
-    """Form for bulk house assignment to students."""
+    """Form for bulk house assignment to students.
+
+    One textarea per house, generated from Student.House so adding a house
+    means editing the enum and nothing else.
+    """
 
     semester = forms.ModelChoiceField(
         queryset=Semester.objects.all(),
         help_text="Select the semester for house assignment",
     )
 
-    blob = forms.CharField(
-        required=False,
-        widget=forms.Textarea(
-            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
-        ),
-        label="Blobs",
-        help_text="Students to assign to Blob house",
-    )
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        for house in Student.House:
+            singular = house.name.replace("_", " ").title()
+            self.fields[house.value] = forms.CharField(
+                required=False,
+                widget=forms.Textarea(
+                    attrs={
+                        "rows": 10,
+                        "placeholder": "Enter one airtable_name per line",
+                    }
+                ),
+                label=house.label,
+                help_text=f"Students to assign to {singular} house",
+            )
 
-    bunny = forms.CharField(
-        required=False,
-        widget=forms.Textarea(
-            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
-        ),
-        label="Bunnies",
-        help_text="Students to assign to Bunny house",
-    )
-
-    cat = forms.CharField(
-        required=False,
-        widget=forms.Textarea(
-            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
-        ),
-        label="Cats",
-        help_text="Students to assign to Cat house",
-    )
-
-    owl = forms.CharField(
-        required=False,
-        widget=forms.Textarea(
-            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
-        ),
-        label="Owls",
-        help_text="Students to assign to Owl house",
-    )
-
-    red_panda = forms.CharField(
-        required=False,
-        widget=forms.Textarea(
-            attrs={"rows": 10, "placeholder": "Enter one airtable_name per line"}
-        ),
-        label="Red Panda",
-        help_text="Students to assign to Red Panda house",
-    )
+    def house_assignments(self) -> dict[str, Student.House]:
+        """Map each submitted airtable name to the house it was listed under."""
+        return {
+            name.strip(): house
+            for house in Student.House
+            for name in self.cleaned_data.get(house.value, "").splitlines()
+            if name.strip()
+        }
