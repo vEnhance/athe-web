@@ -58,34 +58,21 @@ def leaderboard(request: HttpRequest, slug: str | None = None) -> HttpResponse:
         .order_by("-total_points")
     )
 
-    # Create leaderboard data with house display names
-    leaderboard_data = []
-    for entry in house_totals:
-        if entry["house"]:  # Skip empty house entries
-            leaderboard_data.append(
-                {
-                    "house": entry["house"],
-                    "house_display": dict(Student.House.choices).get(
-                        entry["house"], entry["house"]
-                    ),
-                    "total_points": entry["total_points"] or 0,
-                }
-            )
-
-    # Add houses with 0 points that aren't in the results
-    houses_in_leaderboard = {entry["house"] for entry in leaderboard_data}
-    for house_code, house_name in Student.House.choices:
-        if house_code not in houses_in_leaderboard:
-            leaderboard_data.append(
-                {
-                    "house": house_code,
-                    "house_display": house_name,
-                    "total_points": 0,
-                }
-            )
-
-    # Sort by points descending
-    leaderboard_data.sort(key=lambda x: -x["total_points"])
+    # Every house appears, including those yet to score
+    totals_by_house = {
+        entry["house"]: entry["total_points"] or 0 for entry in house_totals
+    }
+    leaderboard_data = sorted(
+        (
+            {
+                "house": house.value,
+                "house_display": house.label,
+                "total_points": totals_by_house.get(house.value, 0),
+            }
+            for house in Student.House
+        ),
+        key=lambda entry: -entry["total_points"],
+    )
 
     # Get all semesters with any scores for navigation
     semesters = Semester.objects.filter(
@@ -440,9 +427,7 @@ def house_detail(request: HttpRequest, slug: str, house: str) -> HttpResponse:
     """Show detailed breakdown of points by category for a house (student view)."""
     semester = get_object_or_404(Semester, slug=slug)
 
-    # Validate house code
-    valid_houses = [code for code, _ in Student.House.choices]
-    if house not in valid_houses:
+    if house not in Student.House.values:
         messages.error(request, "Invalid house specified.")
         return redirect("housepoints:leaderboard_semester", slug=slug)
 
@@ -472,24 +457,19 @@ def house_detail(request: HttpRequest, slug: str, house: str) -> HttpResponse:
         .order_by("-total_points")
     )
 
-    # Build category data with display names
-    category_data = []
-    for entry in category_totals:
-        award_type = entry["award_type"]
-        display_name = dict(Award.AwardType.choices).get(award_type, award_type)
-        category_data.append(
-            {
-                "award_type": award_type,
-                "display_name": display_name,
-                "total_points": entry["total_points"] or 0,
-            }
-        )
+    category_data = [
+        {
+            "award_type": entry["award_type"],
+            "display_name": Award.AwardType(entry["award_type"]).label,
+            "total_points": entry["total_points"] or 0,
+        }
+        for entry in category_totals
+    ]
 
     # Calculate grand total
     grand_total = sum(c["total_points"] for c in category_data)
 
-    # Get house display name
-    house_display = dict(Student.House.choices).get(house, house)
+    house_display = Student.House(house).label
 
     return render(
         request,
@@ -514,9 +494,7 @@ def house_detail_staff(request: HttpRequest, slug: str, house: str) -> HttpRespo
     """Show detailed student x category breakdown for a house (staff view)."""
     semester = get_object_or_404(Semester, slug=slug)
 
-    # Validate house code
-    valid_houses = [code for code, _ in Student.House.choices]
-    if house not in valid_houses:
+    if house not in Student.House.values:
         messages.error(request, "Invalid house specified.")
         return redirect("housepoints:leaderboard_semester", slug=slug)
 
@@ -530,14 +508,9 @@ def house_detail_staff(request: HttpRequest, slug: str, house: str) -> HttpRespo
         .order_by("airtable_name")
     )
 
-    # Get all award types that have been used
-    used_award_types = list(set(awards_query.values_list("award_type", flat=True)))
-
-    # Order award types by the choices order
-    award_type_order = [code for code, _ in Award.AwardType.choices]
-    used_award_types.sort(
-        key=lambda x: award_type_order.index(x) if x in award_type_order else 999
-    )
+    # Award types actually used, in the order they are declared on the enum
+    used = set(awards_query.values_list("award_type", flat=True))
+    used_award_types = [at for at in Award.AwardType.values if at in used]
 
     # Build header row with short names for compact display
     headers = [Award.SHORT_NAMES.get(at, at) for at in used_award_types]
@@ -603,8 +576,7 @@ def house_detail_staff(request: HttpRequest, slug: str, house: str) -> HttpRespo
     column_totals_list = [column_totals[at] for at in used_award_types]
     grand_total = sum(column_totals_list)
 
-    # Get house display name
-    house_display = dict(Student.House.choices).get(house, house)
+    house_display = Student.House(house).label
 
     return render(
         request,
