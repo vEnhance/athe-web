@@ -27,7 +27,7 @@
                     <a class="badge bg-secondary dash-see-all"
                        href="{% url 'courses:my_courses' %}">See all</a>
                 </h2>
-                {% include "home/components/dashboard_course_list.html" with rows=dash_classes empty_text="You are not enrolled in any classes this semester." %}
+                {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="You are not enrolled in any classes this semester." %}
             </div>
             <div class="col-md-6">
                 <h2>
@@ -35,21 +35,19 @@
                     <a class="badge bg-secondary dash-see-all"
                        href="{% url 'courses:my_clubs' %}">See all</a>
                 </h2>
-                {% include "home/components/dashboard_course_list.html" with rows=dash_clubs empty_text="You have not joined any clubs this semester." %}
+                {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="You have not joined any clubs this semester." %}
             </div>
         </div>
-        <div class="d-flex flex-wrap gap-2 mt-3"></div>
         <div class="row">
             <div class="col-md-6">
                 <h2>
                     House Points
-                    <a class="badge bg-secondary dash-see-all"
-                       href="{% url 'housepoints:leaderboard' %}">See all</a>
+                    <a class="badge bg-secondary dash-see-all" href="{{ house_url }}">See all</a>
                 </h2>
                 {% if house_display %}
                     <div class="row gx-3">
                         <div class="col-6">
-                            <a class="dash-square" href="{{ house_url }}">
+                            <a class="dash-square" href="{{ house_detail_url }}">
                                 <span class="dash-square-label">{{ house_display }}</span>
                                 <span class="dash-square-value">{{ house_points }}</span>
                             </a>

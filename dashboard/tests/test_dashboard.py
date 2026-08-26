@@ -153,11 +153,21 @@ def test_dashboard_house_squares(semester: Semester, student: Student, client_fo
         points=5,
     )
 
-    content = client_for("lucy").get(reverse("home:index")).content.decode()
+    client = client_for("lucy")
+    content = client.get(reverse("home:index")).content.decode()
 
     # Each tile is just its label and its number.
     assert "Owls 10" in visible_text(content)
     assert "Your Points 5" in visible_text(content)
+    # The house tile drills into this student's own house for the semester,
+    # while the section badge stops at the semester's leaderboard.
+    house_detail = reverse(
+        "housepoints:house_detail",
+        kwargs={"slug": semester.slug, "house": Student.House.OWL},
+    )
+    assert f'href="{house_detail}"' in content
+    # house_detail turns non-members away, so check the student can follow it.
+    assert client.get(house_detail).status_code == 200
     assert reverse("housepoints:my_awards") in content
 
 
@@ -168,7 +178,9 @@ def test_dashboard_prompts_for_missing_yearbook_entry(
     """Without an entry, the yearbook square names the semester and invites one."""
     content = client_for("lucy").get(reverse("home:index")).content.decode()
 
-    assert "Add entry for Fall 2025" in visible_text(content)
+    text = visible_text(content)
+    assert "You don't have an entry yet for Fall 2025." in text
+    assert "Add entry" in text
     assert reverse("yearbook:create", kwargs={"student_pk": student.pk}) in content
 
 
@@ -257,7 +269,7 @@ def test_section_headings_carry_a_badge_to_the_full_page(
 
     assert "Classes See all" in text
     assert "Clubs See all" in text
-    assert "House Points Leaderboard" in text
+    assert "House Points See all" in text
     assert "Yearbook See all" in text
     for url in (
         reverse("courses:my_courses"),

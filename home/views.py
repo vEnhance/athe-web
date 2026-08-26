@@ -1,125 +1,22 @@
-from datetime import timedelta
-from typing import Any, NamedTuple
-
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.db.models import Sum
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse, reverse_lazy
-from django.utils import timezone
+from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView, UpdateView
 
-from courses.models import Course, CourseMeeting, Semester, Student
-from housepoints.models import Award
-from yearbook.models import YearbookEntry
+from dashboard.views import dashboard
 
 from .models import ApplyPSet, StaffPhotoListing
 
 
-class DashboardCourse(NamedTuple):
-    """A course shown on the dashboard, paired with its next meeting (if any)."""
-
-    course: Course
-    next_meeting: CourseMeeting | None
-
-
-def _dashboard_courses(
-    user: User,
-) -> tuple[list[DashboardCourse], list[DashboardCourse]]:
-    """The user's active classes and clubs, each with the next meeting on it."""
-    courses = list(
-        Course.objects.for_user(user)
-        .active()
-        .select_related("semester")
-        .order_by("name")
-    )
-    # A meeting counts as "next" until an hour after it starts, so a class does
-    # not disappear from the dashboard while it is in session.
-    horizon = timezone.now() - timedelta(hours=1)
-    next_meetings: dict[int, CourseMeeting] = {}
-    for meeting in (
-        CourseMeeting.objects.filter(course__in=courses, start_time__gte=horizon)
-        .select_related("course")
-        .order_by("start_time")
-    ):
-        next_meetings.setdefault(meeting.course.pk, meeting)
-
-    rows = [DashboardCourse(course, next_meetings.get(course.pk)) for course in courses]
-    return (
-        [row for row in rows if not row.course.is_club],
-        [row for row in rows if row.course.is_club],
-    )
-
-
-def _dashboard_house(student: Student) -> dict[str, Any]:
-    """House standing and personal point total for a student, if they have a house."""
-    if not student.house:
-        return {}
-    semester = student.semester
-    # The house total mirrors the leaderboard, which respects the freeze date;
-    # the personal total mirrors My Awards, which does not.
-    house_points = Award.objects.for_semester(semester).totals_by_house()[student.house]
-    my_points = (
-        Award.objects.for_semester(semester, respect_freeze=False)
-        .filter(student=student)
-        .aggregate(total=Sum("points"))["total"]
-        or 0
-    )
-    return {
-        "house_display": Student.House(student.house).label,
-        "house_points": house_points,
-        "my_points": my_points,
-    }
-
-
-@login_required
-def dashboard(request: HttpRequest) -> HttpResponse:
-    """Landing page for logged-in users: their classes, house, and staff tools."""
-    assert isinstance(request.user, User)
-
-    classes, clubs = _dashboard_courses(request.user)
-    student = (
-        Student.objects.filter(
-            user=request.user, semester__in=Semester.objects.active()
-        )
-        .select_related("semester")
-        .first()
-    )
-
-    context: dict[str, Any] = {
-        "dash_classes": classes,
-        "dash_clubs": clubs,
-        "student": student,
-        # The two section headings are links. Someone with a semester of their
-        # own lands in it; everyone else (staff, alumnae) gets the default view.
-        "house_url": reverse("housepoints:leaderboard"),
-        "yearbook_url": reverse("yearbook:index"),
-    }
-    if student is not None:
-        context |= _dashboard_house(student)
-        context["house_url"] = reverse(
-            "housepoints:leaderboard_semester", kwargs={"slug": student.semester.slug}
-        )
-        context["yearbook_url"] = reverse(
-            "yearbook:entry_list", kwargs={"slug": student.semester.slug}
-        )
-        context["yearbook_entry"] = YearbookEntry.objects.filter(
-            student=student
-        ).first()
-        context["yearbook_open"] = timezone.localdate() <= student.semester.end_date
-
-    return render(request, "home/dashboard.html", context)
-
-
 def index(request: HttpRequest) -> HttpResponse:
-    """The site root: a dashboard once logged in, the public splash page if not."""
+    """The site root: the dashboard once logged in, the public splash page if not."""
     if request.user.is_authenticated:
         return dashboard(request)
     return render(request, "home/index.html")
