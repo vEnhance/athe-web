@@ -1,11 +1,14 @@
 {% extends "home/base.html" %}
 {% load static %}
-{% load local_time %}
 {% block title %}
     Dashboard - Athemath
 {% endblock title %}
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
+    {# The yearbook entry card is reused verbatim, so it needs its own assets. #}
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/yearbook.css' %}">
 {% endblock extra_css %}
 {% block content %}
     <div id="content">
@@ -13,13 +16,17 @@
         <div class="row">
             <div class="col-md-6">
                 <h2>
-                    <a href="{% url 'courses:my_courses' %}">Classes</a>
+                    Classes
+                    <a class="badge bg-secondary dash-see-all"
+                       href="{% url 'courses:my_courses' %}">See all</a>
                 </h2>
                 {% include "home/components/dashboard_course_list.html" with rows=dash_classes empty_text="You are not enrolled in any classes this semester." %}
             </div>
             <div class="col-md-6">
                 <h2>
-                    <a href="{% url 'courses:my_clubs' %}">Clubs</a>
+                    Clubs
+                    <a class="badge bg-secondary dash-see-all"
+                       href="{% url 'courses:my_clubs' %}">See all</a>
                 </h2>
                 {% include "home/components/dashboard_course_list.html" with rows=dash_clubs empty_text="You have not joined any clubs this semester." %}
             </div>
@@ -28,98 +35,47 @@
             <a class="btn btn-outline-dark" href="{% url 'courses:calendar' %}">Full calendar</a>
             <a class="btn btn-outline-dark" href="{% url 'courses:upcoming' %}">Upcoming meetings</a>
         </div>
-        <h2>House and Yearbook</h2>
-        <div class="row g-4">
-            {% if house_display %}
-                <div class="col-12 col-lg-6">
-                    <div class="row gx-3 h-100">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>
+                    House Points
+                    <a class="badge bg-secondary dash-see-all" href="{{ house_url }}">Leaderboard</a>
+                </h2>
+                {% if house_display %}
+                    <div class="row gx-3">
                         <div class="col-6">
-                            <a class="dash-square"
-                               href="{% url 'housepoints:leaderboard_semester' slug=student.semester.slug %}">
-                                <span class="dash-square-label">Your house</span>
-                                <span class="dash-square-value">{{ house_display }}</span>
-                                <span class="dash-square-sub">{{ house_points }} house point{{ house_points|pluralize }}</span>
-                                <span class="dash-square-action">See the leaderboard</span>
+                            <a class="dash-square" href="{{ house_url }}">
+                                <span class="dash-square-label">{{ house_display }}</span>
+                                <span class="dash-square-value">{{ house_points }}</span>
                             </a>
                         </div>
                         <div class="col-6">
                             <a class="dash-square" href="{% url 'housepoints:my_awards' %}">
-                                <span class="dash-square-label">Your points</span>
+                                <span class="dash-square-label">Your Points</span>
                                 <span class="dash-square-value">{{ my_points }}</span>
-                                <span class="dash-square-sub">earned in {{ student.semester.name }}</span>
-                                <span class="dash-square-action">See my awards</span>
                             </a>
                         </div>
                     </div>
-                </div>
-            {% endif %}
-            {% if student %}
-                <div class="col-12 col-lg-6">
-                    <div class="row gx-3 h-100">
-                        <div class="col-6">
-                            {% if yearbook_entry %}
-                                <a class="dash-square"
-                                   href="{% if yearbook_open %}{% url 'yearbook:edit' pk=yearbook_entry.pk %}{% else %}{% url 'yearbook:entry_detail' pk=yearbook_entry.pk %}{% endif %}">
-                                    <span class="dash-square-label">{{ student.semester.name }} yearbook</span>
-                                    <span class="dash-square-value dash-square-name">{{ yearbook_entry.display_name }}</span>
-                                    <span class="dash-square-sub dash-square-bio">{{ yearbook_entry.bio|truncatewords:40 }}</span>
-                                    <span class="dash-square-action">
-                                        {% if yearbook_open %}
-                                            Edit my entry
-                                        {% else %}
-                                            View my entry
-                                        {% endif %}
-                                    </span>
-                                </a>
-                            {% elif yearbook_open %}
-                                <a class="dash-square dash-square-empty"
-                                   href="{% url 'yearbook:create' student_pk=student.pk %}">
-                                    <span class="dash-square-label">{{ student.semester.name }} yearbook</span>
-                                    <span class="dash-square-value dash-square-name">Not written yet</span>
-                                    <span class="dash-square-sub">
-                                        The yearbook starts over each semester, so {{ student.semester.name }} needs a new entry.
-                                    </span>
-                                    <span class="dash-square-action">Write my entry</span>
-                                </a>
-                            {% else %}
-                                <div class="dash-square dash-square-empty">
-                                    <span class="dash-square-label">{{ student.semester.name }} yearbook</span>
-                                    <span class="dash-square-value dash-square-name">Not written</span>
-                                    <span class="dash-square-sub">Entries for {{ student.semester.name }} are closed.</span>
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-6">
-                            <a class="dash-square"
-                               href="{% url 'yearbook:entry_list' slug=student.semester.slug %}">
-                                <span class="dash-square-label">Yearbook</span>
-                                <span class="dash-square-value dash-square-name">Everyone's entries</span>
-                                <span class="dash-square-sub">{{ student.semester.name }}</span>
-                                <span class="dash-square-action">Browse the yearbook</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            {% else %}
-                <div class="col-12 col-lg-6">
-                    <div class="row gx-3 h-100">
-                        <div class="col-6">
-                            <a class="dash-square" href="{% url 'housepoints:leaderboard' %}">
-                                <span class="dash-square-label">House points</span>
-                                <span class="dash-square-value dash-square-name">Leaderboard</span>
-                                <span class="dash-square-action">See the standings</span>
-                            </a>
-                        </div>
-                        <div class="col-6">
-                            <a class="dash-square" href="{% url 'yearbook:index' %}">
-                                <span class="dash-square-label">Yearbook</span>
-                                <span class="dash-square-value dash-square-name">Everyone's entries</span>
-                                <span class="dash-square-action">Browse the yearbook</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h2>
+                    Yearbook
+                    <a class="badge bg-secondary dash-see-all" href="{{ yearbook_url }}">See all</a>
+                </h2>
+                {% if yearbook_entry %}
+                    {% include "yearbook/components/entry_card.html" with entry=yearbook_entry %}
+                    {% if yearbook_open %}
+                        <a class="btn btn-outline-dark btn-sm mt-3"
+                           href="{% url 'yearbook:edit' pk=yearbook_entry.pk %}">Edit entry</a>
+                    {% endif %}
+                {% elif student and yearbook_open %}
+                    <a class="btn btn-outline-dark"
+                       href="{% url 'yearbook:create' student_pk=student.pk %}">Add entry for {{ student.semester.name }}</a>
+                {% elif student %}
+                    <p class="text-muted">Entries for {{ student.semester.name }} are closed.</p>
+                {% endif %}
+            </div>
         </div>
         {% if user.is_staff %}
             <h2>Staff</h2>

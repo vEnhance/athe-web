@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 import pytest
@@ -33,6 +34,11 @@ def student(semester: Semester) -> Student:
         house=Student.House.OWL,
         airtable_name="Lucy",
     )
+
+
+def visible_text(content: str) -> str:
+    """The page with its markup stripped, so tests can assert on what is shown."""
+    return " ".join(re.sub(r"<[^>]+>", " ", content).split())
 
 
 @pytest.fixture
@@ -149,8 +155,9 @@ def test_dashboard_house_squares(semester: Semester, student: Student, client_fo
 
     content = client_for("lucy").get(reverse("home:index")).content.decode()
 
-    assert "Owls" in content
-    assert "10 house points" in content
+    # Each tile is just its label and its number.
+    assert "Owls 10" in visible_text(content)
+    assert "Your Points 5" in visible_text(content)
     assert reverse("housepoints:my_awards") in content
 
 
@@ -161,8 +168,7 @@ def test_dashboard_prompts_for_missing_yearbook_entry(
     """Without an entry, the yearbook square names the semester and invites one."""
     content = client_for("lucy").get(reverse("home:index")).content.decode()
 
-    assert "Fall 2025 yearbook" in content
-    assert "Write my entry" in content
+    assert "Add entry for Fall 2025" in visible_text(content)
     assert reverse("yearbook:create", kwargs={"student_pk": student.pk}) in content
 
 
@@ -177,9 +183,12 @@ def test_dashboard_previews_existing_yearbook_entry(
 
     content = client_for("lucy").get(reverse("home:index")).content.decode()
 
+    # The dashboard shows the same card the yearbook listing does.
     assert "Lucy L." in content
     assert "I like combinatorics." in content
+    assert "yearbook-card" in content
     assert reverse("yearbook:edit", kwargs={"pk": entry.pk}) in content
+    # The section heading links into the semester's yearbook.
     assert reverse("yearbook:entry_list", kwargs={"slug": semester.slug}) in content
 
 
@@ -217,10 +226,11 @@ def test_dashboard_works_for_staff_without_student_record(client_for):
     content = response.content.decode()
 
     assert response.status_code == 200
+    # Just the headings and their badges, with no placeholder tiles or card.
     assert reverse("housepoints:leaderboard") in content
     assert reverse("yearbook:index") in content
-    assert "Write my entry" not in content
-    assert "Edit my entry" not in content
+    assert "dash-square" not in content
+    assert "yearbook-card" not in content
 
 
 @pytest.mark.django_db
@@ -235,3 +245,24 @@ def test_navbar_dropdown_is_trimmed(student: Student, client_for):
     # Moved onto the dashboard itself.
     assert "House Standings" not in content
     assert "Clubs and Events" not in content
+
+
+@pytest.mark.django_db
+def test_section_headings_carry_a_badge_to_the_full_page(
+    semester: Semester, student: Student, client_for
+):
+    """Each heading is plain text; the badge beside it is what links onward."""
+    content = client_for("lucy").get(reverse("home:index")).content.decode()
+    text = visible_text(content)
+
+    assert "Classes See all" in text
+    assert "Clubs See all" in text
+    assert "House Points Leaderboard" in text
+    assert "Yearbook See all" in text
+    for url in (
+        reverse("courses:my_courses"),
+        reverse("courses:my_clubs"),
+        reverse("housepoints:leaderboard_semester", kwargs={"slug": semester.slug}),
+        reverse("yearbook:entry_list", kwargs={"slug": semester.slug}),
+    ):
+        assert f'href="{url}">' in content

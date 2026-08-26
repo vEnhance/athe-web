@@ -1,5 +1,21 @@
 /* Dashboard shown at / to logged-in users. */
 
+/* Each section heading carries a badge linking to the page behind it, rather
+   than being a link itself, which read as ordinary body copy at this size. */
+#content a.dash-see-all {
+  margin-left: 12px;
+  font-size: 14px;
+  font-weight: 400;
+  vertical-align: middle;
+  color: #fff;
+  text-decoration: none;
+}
+
+#content a.dash-see-all:hover {
+  background-color: #a02828;
+  color: #fff;
+}
+
 /* One class or club per row, with its next meeting underneath. */
 #content .dash-course-list {
   list-style: none;
@@ -22,27 +38,25 @@
   color: #555;
 }
 
-/* Square tiles for house points and the yearbook. */
-#content a.dash-square,
-#content .dash-square {
+/* Minimal stat tiles: a label and a number, centred, nothing else. */
+#content a.dash-square {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   height: 100%;
   padding: 18px;
   border: 1px solid #e0d3d3;
   border-radius: 8px;
   background-color: #fff7f7;
   color: #000;
+  text-align: center;
   text-decoration: none;
 }
 
 #content a.dash-square:hover {
   border-color: #a02828;
   color: #000;
-}
-
-.dash-square-empty {
-  background-color: #fafafa;
 }
 
 .dash-square-label {
@@ -54,44 +68,9 @@
 }
 
 .dash-square-value {
-  font-size: 34px;
+  font-size: 44px;
   font-weight: 600;
   line-height: 1.15;
-  padding: 6px 0;
-}
-
-/* Tiles whose "value" is words rather than a number need a calmer size. */
-.dash-square-name {
-  font-size: 22px;
-}
-
-.dash-square-sub {
-  font-size: 15px;
-  color: #555;
-}
-
-/* The bio is free text of any length; clamp it so one chatty entry cannot
-   stretch the row of tiles. */
-.dash-square-bio {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
-  overflow: hidden;
-  font-style: italic;
-}
-
-/* Pinned to the bottom so every tile in a row ends on its call to action. */
-.dash-square-action {
-  margin-top: auto;
-  padding-top: 12px;
-  font-size: 15px;
-  color: #a02828;
-  text-decoration: underline;
-}
-
-#content a.dash-square:hover .dash-square-action {
-  color: #ff9d00;
 }
 
 #content .dash-links {
@@ -104,10 +83,6 @@
 
 @media (max-width: 600px) {
   .dash-square-value {
-    font-size: 26px;
-  }
-
-  .dash-square-name {
-    font-size: 18px;
+    font-size: 34px;
   }
 }

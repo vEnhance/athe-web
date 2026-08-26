@@ -1,5 +1,6 @@
 from django.core.validators import MaxLengthValidator
 from django.db import models
+from django.urls import reverse
 
 
 class YearbookEntry(models.Model):
@@ -45,6 +46,9 @@ class YearbookEntry(models.Model):
 
     def __str__(self) -> str:
         return f"{self.display_name} ({self.student.semester})"
+
+    def get_absolute_url(self) -> str:
+        return reverse("yearbook:entry_detail", kwargs={"pk": self.pk})
 
     class Meta:
         verbose_name = "Yearbook Entry"

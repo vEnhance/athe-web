@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView, UpdateView
@@ -97,9 +97,19 @@ def dashboard(request: HttpRequest) -> HttpResponse:
         "dash_classes": classes,
         "dash_clubs": clubs,
         "student": student,
+        # The two section headings are links. Someone with a semester of their
+        # own lands in it; everyone else (staff, alumnae) gets the default view.
+        "house_url": reverse("housepoints:leaderboard"),
+        "yearbook_url": reverse("yearbook:index"),
     }
     if student is not None:
         context |= _dashboard_house(student)
+        context["house_url"] = reverse(
+            "housepoints:leaderboard_semester", kwargs={"slug": student.semester.slug}
+        )
+        context["yearbook_url"] = reverse(
+            "yearbook:entry_list", kwargs={"slug": student.semester.slug}
+        )
         context["yearbook_entry"] = YearbookEntry.objects.filter(
             student=student
         ).first()
