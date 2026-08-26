@@ -22,7 +22,14 @@
                 </p>
             </div>
             <div class="course-text">
-                <div class="course-ds">
+                <div class="course-ds course-ds-detail">
+                    {% if course.instructor.photo %}
+                        <div class="course-instructor-aside">
+                            <img src="{{ course.instructor.photo.url }}"
+                                 alt="{{ course.instructor.display_name }}"
+                                 class="course-detail-instructor-photo">
+                        </div>
+                    {% endif %}
                     <span class="course-description">
                         {% if course.instructor %}
                             <p>
