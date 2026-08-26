@@ -19,14 +19,18 @@
             and a list of
             <a href="{% url 'courses:upcoming' %}">upcoming meetings</a>.
             It's currently {% now "g:i A e" %}.
+        </p>
+        <p>
             {% if global_event_count %}
                 There are
                 <a href="{% url 'courses:global_events' %}">
-                    {{ global_event_count }} global event{{ global_event_count|pluralize }} this semester</a>.
+                    {{ global_event_count }} global event{{ global_event_count|pluralize }} this semester
+                </a>.
                 {% if next_global_event %}
                     The next one is
                     <a href="{{ next_global_event.get_absolute_url }}">
-                        {{ next_global_event.title }} at {{ next_global_event.start_time|date:"D M j, g:i A e" }}</a>.
+                        {{ next_global_event.title }} at {{ next_global_event.start_time|date:"D M j, g:i A e" }}
+                    </a>.
                 {% else %}
                     There are none in the future.
                 {% endif %}
