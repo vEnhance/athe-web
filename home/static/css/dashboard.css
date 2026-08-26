@@ -1,0 +1,113 @@
+/* Dashboard shown at / to logged-in users. */
+
+/* One class or club per row, with its next meeting underneath. */
+#content .dash-course-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+#content .dash-course-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+#content .dash-course-list li:first-child {
+  border-top: 1px solid #eee;
+}
+
+.dash-course-when {
+  display: block;
+  font-size: 15px;
+  color: #555;
+}
+
+/* Square tiles for house points and the yearbook. */
+#content a.dash-square,
+#content .dash-square {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 18px;
+  border: 1px solid #e0d3d3;
+  border-radius: 8px;
+  background-color: #fff7f7;
+  color: #000;
+  text-decoration: none;
+}
+
+#content a.dash-square:hover {
+  border-color: #a02828;
+  color: #000;
+}
+
+.dash-square-empty {
+  background-color: #fafafa;
+}
+
+.dash-square-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #a02828;
+}
+
+.dash-square-value {
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.15;
+  padding: 6px 0;
+}
+
+/* Tiles whose "value" is words rather than a number need a calmer size. */
+.dash-square-name {
+  font-size: 22px;
+}
+
+.dash-square-sub {
+  font-size: 15px;
+  color: #555;
+}
+
+/* The bio is free text of any length; clamp it so one chatty entry cannot
+   stretch the row of tiles. */
+.dash-square-bio {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+  font-style: italic;
+}
+
+/* Pinned to the bottom so every tile in a row ends on its call to action. */
+.dash-square-action {
+  margin-top: auto;
+  padding-top: 12px;
+  font-size: 15px;
+  color: #a02828;
+  text-decoration: underline;
+}
+
+#content a.dash-square:hover .dash-square-action {
+  color: #ff9d00;
+}
+
+#content .dash-links {
+  font-size: 17px;
+}
+
+#content .dash-links li {
+  padding-bottom: 8px;
+}
+
+@media (max-width: 600px) {
+  .dash-square-value {
+    font-size: 26px;
+  }
+
+  .dash-square-name {
+    font-size: 18px;
+  }
+}

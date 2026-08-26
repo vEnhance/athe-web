@@ -1,72 +1,14 @@
-<ul class="dropdown-menu"
-    aria-labelledby="navbarDropdownUser"
-    style="max-height: 90vh;
-           overflow-y: auto">
-    {# Student views #}
+{# Everything else that used to live here now has a home on the dashboard. #}
+<ul class="dropdown-menu" aria-labelledby="navbarDropdownUser">
+    <li>
+        <a class="dropdown-item" href="{% url 'home:index' %}">Dashboard</a>
+    </li>
     <li>
         <a class="dropdown-item" href="{% url 'courses:calendar' %}">Calendar</a>
     </li>
     <li>
-        <a class="dropdown-item" href="{% url 'courses:upcoming' %}">Upcoming</a>
-    </li>
-    <li>
-        <a class="dropdown-item" href="{% url 'courses:my_courses' %}">Classes</a>
-    </li>
-    <li>
-        <a class="dropdown-item" href="{% url 'courses:my_clubs' %}">Clubs and Events</a>
-    </li>
-    <li>
-        <hr class="dropdown-divider">
-    </li>
-    <li>
-        <a class="dropdown-item" href="{% url 'housepoints:leaderboard' %}">House Standings</a>
-    </li>
-    <li>
-        <a class="dropdown-item" href="{% url 'housepoints:my_awards' %}">My Awards</a>
-    </li>
-    <li>
         <a class="dropdown-item" href="{% url 'weblog:blog_landing' %}">My Blog Posts</a>
     </li>
-    <li>
-        <a class="dropdown-item" href="{% url 'yearbook:index' %}">Yearbook</a>
-    </li>
-    {% if user.is_staff %}
-        <li>
-            <hr class="dropdown-divider">
-        </li>
-        <li>
-            <a class="dropdown-item" href="{% url 'housepoints:attendance_bulk' %}">Class Attendance</a>
-        </li>
-        <li>
-            <a class="dropdown-item" href="{% url 'ta_attendance:my_attendance' %}">TA Sign-in Sheet</a>
-        </li>
-        <li>
-            <a class="dropdown-item" href="{% url 'housepoints:bulk_award' %}">Award Points</a>
-        </li>
-        <li>
-            <a class="dropdown-item" href="{% url 'home:staff_edit' %}">Update Bio</a>
-        </li>
-        <li>
-            <a class="dropdown-item" href="{% url 'courses:staff_schedule' %}">Staff Schedule</a>
-        </li>
-    {% endif %}
-    {% if user.is_superuser %}
-        <li>
-            <hr class="dropdown-divider">
-        </li>
-        <li>
-            <a class="dropdown-item" href="{% url 'home:manual' %}">Admin Manual</a>
-        </li>
-        <li>
-            <a class="dropdown-item" href="{% url 'courses:bulk_create_students' %}">Bulk Create Students</a>
-        </li>
-        <li>
-            <a class="dropdown-item" href="{% url 'reg:upload-assignments' %}">Class Assignments</a>
-        </li>
-        <li>
-            <a class="dropdown-item" href="{% url 'admin:index' %}">Django Admin</a>
-        </li>
-    {% endif %}
     <li>
         <hr class="dropdown-divider">
     </li>
