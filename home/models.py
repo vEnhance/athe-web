@@ -9,11 +9,10 @@ from atheweb.validators import VALIDATOR_WITH_FIGURES
 class ApplyPSet(models.Model):
     """Application Problem Set model."""
 
-    STATUS_CHOICES = [
-        ("draft", "Draft"),
-        ("active", "Active"),
-        ("completed", "Completed"),
-    ]
+    class Status(models.TextChoices):
+        DRAFT = "draft", "Draft"
+        ACTIVE = "active", "Active"
+        COMPLETED = "completed", "Completed"
 
     name = models.CharField(
         max_length=200,
@@ -24,8 +23,8 @@ class ApplyPSet(models.Model):
     )
     status = models.CharField(
         max_length=20,
-        choices=STATUS_CHOICES,
-        default="draft",
+        choices=Status.choices,
+        default=Status.DRAFT,
         help_text="Status of the problem set",
     )
     file = models.FileField(
@@ -61,12 +60,11 @@ class ApplyPSet(models.Model):
 class StaffPhotoListing(models.Model):
     """Staff member photo listing with biography."""
 
-    CATEGORY_CHOICES = [
-        ("board", "Board"),
-        ("instructor", "Current Instructors"),
-        ("ta", "TAs"),
-        ("xstaff", "Past Staff"),
-    ]
+    class Category(models.TextChoices):
+        BOARD = "board", "Board"
+        INSTRUCTOR = "instructor", "Current Instructors"
+        TA = "ta", "TAs"
+        XSTAFF = "xstaff", "Past Staff"
 
     user = models.OneToOneField(
         User,
@@ -84,7 +82,7 @@ class StaffPhotoListing(models.Model):
     role = models.CharField(max_length=100, help_text="Role or title")
     category = models.CharField(
         max_length=20,
-        choices=CATEGORY_CHOICES,
+        choices=Category.choices,
         help_text="Staff category",
     )
     biography = MarkdownField(
