@@ -108,6 +108,63 @@ class BulkStudentCreationForm(forms.Form):
         help_text="Each line should contain: airtable_name (tab) comma-separated course names",
     )
 
+    def clean(self) -> dict[str, Any]:
+        """Parse student_data into [(airtable_name, [course_name, ...]), ...].
+
+        Every line is checked before any is accepted, so a typo halfway down
+        the paste does not leave the first half enrolled.
+        """
+        cleaned = super().clean() or {}
+        semester = cleaned.get("semester")
+        if semester is None or "student_data" not in cleaned:
+            return cleaned
+
+        if semester.end_date < timezone.now().date():
+            raise forms.ValidationError(
+                f"Cannot create students for {semester.name} - semester has ended."
+            )
+
+        known_courses = set(
+            Course.objects.filter(semester=semester).values_list("name", flat=True)
+        )
+
+        parsed: list[tuple[str, list[str]]] = []
+        errors: list[str] = []
+        for number, raw in enumerate(cleaned["student_data"].strip().splitlines(), 1):
+            line = raw.strip()
+            if not line:
+                continue
+            if "\t" not in line:
+                line = line.replace(": ", "\t")
+            parts = line.split("\t")
+            if len(parts) != 2:
+                errors.append(
+                    f"Line {number}: Expected tab-separated values "
+                    f"(got {len(parts)} parts)"
+                )
+                continue
+
+            airtable_name = parts[0].strip()
+            course_names = [c.strip() for c in parts[1].split(",") if c.strip()]
+            unknown = [name for name in course_names if name not in known_courses]
+
+            if not airtable_name:
+                errors.append(f"Line {number}: Missing airtable_name")
+            elif not course_names:
+                errors.append(f"Line {number}: No courses specified")
+            elif unknown:
+                errors.append(
+                    f"Line {number}: Invalid course names: {', '.join(unknown)}"
+                )
+            else:
+                parsed.append((airtable_name, course_names))
+
+        if errors:
+            raise forms.ValidationError(errors)
+
+        cleaned["students"] = parsed
+        return cleaned
+
 
 class SortingHatForm(forms.Form):
     """Form for bulk house assignment to students.

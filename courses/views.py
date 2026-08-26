@@ -464,120 +464,47 @@ def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
 @superuser_required()
 def bulk_create_students(request: HttpRequest) -> HttpResponse:
     """Bulk create students and enroll them in courses. Only accessible to superusers."""
-    if request.method == "POST":
-        form = BulkStudentCreationForm(request.POST)
-        if form.is_valid():
-            semester = form.cleaned_data["semester"]
-            student_data = form.cleaned_data["student_data"]
+    form = BulkStudentCreationForm(request.POST or None)
 
-            # Validate that semester hasn't ended
-            if semester.end_date < timezone.now().date():
-                messages.error(
-                    request,
-                    f"Cannot create students for {semester.name} - semester has ended.",
-                )
-                return render(
-                    request, "courses/bulk_create_students.html", {"form": form}
-                )
+    if request.method == "POST" and form.is_valid():
+        semester = form.cleaned_data["semester"]
+        parsed = form.cleaned_data["students"]
 
-            # Parse the student data
-            lines = [
-                line.strip()
-                for line in student_data.strip().split("\n")
-                if line.strip()
-            ]
-
-            # Get all courses for this semester in one query
-            courses_in_semester = {
-                course.name: course
-                for course in Course.objects.filter(semester=semester)
-            }
-
-            # Parse and validate all lines first
-            parsed_data = []
-            errors = []
-            for i, line in enumerate(lines, start=1):
-                if "\t" not in line:
-                    line = line.replace(": ", "\t")
-                parts = line.split("\t")
-                if len(parts) != 2:
-                    errors.append(
-                        f"Line {i}: Expected tab-separated values (got {len(parts)} parts)"
-                    )
-                    continue
-
-                airtable_name = parts[0].strip()
-                course_names = [c.strip() for c in parts[1].split(",") if c.strip()]
-
-                if not airtable_name:
-                    errors.append(f"Line {i}: Missing airtable_name")
-                    continue
-
-                if not course_names:
-                    errors.append(f"Line {i}: No courses specified")
-                    continue
-
-                # Validate course names
-                invalid_courses = [
-                    name for name in course_names if name not in courses_in_semester
-                ]
-                if invalid_courses:
-                    errors.append(
-                        f"Line {i}: Invalid course names: {', '.join(invalid_courses)}"
-                    )
-                    continue
-
-                parsed_data.append((airtable_name, course_names))
-
-            if errors:
-                for error in errors:
-                    messages.error(request, error)
-                return render(
-                    request, "courses/bulk_create_students.html", {"form": form}
-                )
-
-            # Bulk create students
-            students_to_create = [
+        Student.objects.bulk_create(
+            [
                 Student(airtable_name=airtable_name, semester=semester)
-                for airtable_name, _ in parsed_data
-            ]
-            Student.objects.bulk_create(students_to_create, ignore_conflicts=True)
+                for airtable_name, _ in parsed
+            ],
+            ignore_conflicts=True,
+        )
 
-            # Get all students (including those that already existed)
-            airtable_names = [airtable_name for airtable_name, _ in parsed_data]
-            student_map = {
-                student.airtable_name: student
-                for student in Student.objects.filter(
-                    airtable_name__in=airtable_names, semester=semester
-                )
-            }
-
-            # Prepare enrollments for bulk creation
-            # The through table is Course.students.through
-            enrollments = []
-            for airtable_name, course_names in parsed_data:
-                student = student_map[airtable_name]
-                for course_name in course_names:
-                    course = courses_in_semester[course_name]
-                    enrollments.append(
-                        Course.students.through(
-                            student_id=student.id,  # type: ignore[attr-defined]
-                            course_id=course.id,  # type: ignore[attr-defined]
-                        )
-                    )
-
-            # Bulk create enrollments
-            Course.students.through.objects.bulk_create(
-                enrollments, ignore_conflicts=True
+        # Re-read so students that already existed are picked up too
+        students = {
+            student.airtable_name: student.pk
+            for student in Student.objects.filter(
+                airtable_name__in=[name for name, _ in parsed], semester=semester
             )
+        }
+        courses = {
+            course.name: course.pk
+            for course in Course.objects.filter(semester=semester)
+        }
 
-            messages.success(
-                request,
-                f"Successfully processed {len(parsed_data)} students with {len(enrollments)} enrollments.",
+        enrollments = [
+            Course.students.through(
+                student_id=students[airtable_name], course_id=courses[course_name]
             )
-            return redirect("courses:bulk_create_students")
-    else:
-        form = BulkStudentCreationForm()
+            for airtable_name, course_names in parsed
+            for course_name in course_names
+        ]
+        Course.students.through.objects.bulk_create(enrollments, ignore_conflicts=True)
+
+        messages.success(
+            request,
+            f"Successfully processed {len(parsed)} students "
+            f"with {len(enrollments)} enrollments.",
+        )
+        return redirect("courses:bulk_create_students")
 
     return render(request, "courses/bulk_create_students.html", {"form": form})
 
