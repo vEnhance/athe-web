@@ -1,5 +1,7 @@
 import calendar
+from collections import defaultdict
 from datetime import date, datetime, time, timedelta
+from typing import Any
 
 import icalendar
 from django.contrib import messages
@@ -630,68 +632,39 @@ class SortingHatView(UserPassesTestMixin, View):
         )
 
 
-@login_required
-def calendar_view(request: HttpRequest) -> HttpResponse:
-    """
-    Calendar view showing all events in a monthly format.
-    Includes filtering options for different event types.
-    """
-    assert isinstance(request.user, User)
+def _requested_month(request: HttpRequest, today: date) -> tuple[int, int]:
+    """Read ?year=&month= from the query string, falling back to this month."""
+    try:
+        year = int(request.GET["year"])
+        month = int(request.GET["month"])
+    except (KeyError, ValueError):
+        return today.year, today.month
+    if not 1 <= month <= 12:
+        return today.year, today.month
+    return year, month
 
-    # Get current date
-    today = timezone.now().date()
 
-    # Get the month to display (default to current month)
-    year_param = request.GET.get("year")
-    month_param = request.GET.get("month")
-    if year_param and month_param:
-        try:
-            display_year = int(year_param)
-            display_month = int(month_param)
-            # Validate month range
-            if not 1 <= display_month <= 12:
-                display_year, display_month = today.year, today.month
-        except ValueError:
-            display_year, display_month = today.year, today.month
-    else:
-        display_year, display_month = today.year, today.month
-
-    # Build the calendar grid for the month
-    # Use Sunday as first day of week (6 in Python's calendar module)
-    cal = calendar.Calendar(firstweekday=6)
-    month_days = cal.monthdatescalendar(display_year, display_month)
-
-    # Get the date range for fetching events (full calendar grid)
-    first_day = month_days[0][0]
-    last_day = month_days[-1][-1]
-
-    # Convert dates to timezone-aware datetimes for filtering
-    tz = timezone.get_current_timezone()
-    range_start_dt = timezone.make_aware(datetime.combine(first_day, time.min), tz)
-    range_end_dt = timezone.make_aware(datetime.combine(last_day, time.max), tz)
-
-    # Gather calendar events with categories
-    calendar_events: list[dict] = []
-
-    # GlobalEvents: everyone sees all visible semesters
-    global_events = GlobalEvent.objects.filter(
-        start_time__range=(range_start_dt, range_end_dt), semester__visible=True
-    ).select_related("semester")
-
-    for event in global_events:
-        calendar_events.append(
-            {
-                "title": event.title,
-                "start_time": event.start_time,
-                "category": "global",
-                "url": event.get_absolute_url(),
-                "semester": event.semester.name,
-            }
-        )
+def _calendar_events(
+    request: HttpRequest, start: datetime, end: datetime
+) -> list[dict[str, Any]]:
+    """Every event to draw on the calendar between two instants, with categories."""
+    events: list[dict[str, Any]] = [
+        {
+            "title": event.title,
+            "start_time": event.start_time,
+            "category": "global",
+            "url": event.get_absolute_url(),
+            "semester": event.semester.name,
+        }
+        # GlobalEvents: everyone sees all visible semesters
+        for event in GlobalEvent.objects.filter(
+            start_time__range=(start, end), semester__visible=True
+        ).select_related("semester")
+    ]
 
     # CourseMeetings: fetch all in range for visible semesters, annotated with
-    # is_club (from the course) and is_mine (enrolled student or leader).
-    # Non-enrolled classes (is_club=False, is_mine=False) are skipped.
+    # is_mine (enrolled student, leader or instructor). Non-enrolled classes
+    # are skipped; clubs are shown either way.
     is_enrolled = Exists(
         Course.students.through.objects.filter(
             course_id=OuterRef("course_id"),
@@ -710,25 +683,23 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
     )
     meetings = (
         CourseMeeting.objects.filter(
-            start_time__range=(range_start_dt, range_end_dt),
+            start_time__range=(start, end),
             course__semester__visible=True,
         )
         .select_related("course", "course__semester")
-        .annotate(
-            is_mine=is_enrolled | is_leader | is_instructor,
-        )
+        .annotate(is_mine=is_enrolled | is_leader | is_instructor)
     )
 
     for meeting in meetings:
         is_club: bool = meeting.course.is_club
         is_mine: bool = meeting.is_mine  # type: ignore[attr-defined]
         if not is_club and not is_mine:
-            continue  # non-enrolled classes are not shown
+            continue
         if is_mine:
             category = "enrolled_club" if is_club else "enrolled_class"
         else:
             category = "other_club"
-        calendar_events.append(
+        events.append(
             {
                 "title": meeting.course.name
                 + (f": {meeting.title}" if meeting.title else ""),
@@ -739,45 +710,50 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
             }
         )
 
-    # Group events by date
-    events_by_day: dict[date, list[dict]] = {}
-    for event in calendar_events:
-        event_date = timezone.localtime(event["start_time"]).date()
-        if event_date not in events_by_day:
-            events_by_day[event_date] = []
-        events_by_day[event_date].append(event)
+    return events
 
-    # Sort events within each day
+
+@login_required
+def calendar_view(request: HttpRequest) -> HttpResponse:
+    """Monthly calendar of every event the user can see."""
+    assert isinstance(request.user, User)
+
+    today = timezone.now().date()
+    display_year, display_month = _requested_month(request, today)
+
+    # Sunday is the first day of the week (6 in Python's calendar module)
+    month_days = calendar.Calendar(firstweekday=6).monthdatescalendar(
+        display_year, display_month
+    )
+
+    # The grid spills past the month, so fetch events for its full extent
+    tz = timezone.get_current_timezone()
+    range_start = timezone.make_aware(datetime.combine(month_days[0][0], time.min), tz)
+    range_end = timezone.make_aware(datetime.combine(month_days[-1][-1], time.max), tz)
+
+    events_by_day: dict[date, list[dict[str, Any]]] = defaultdict(list)
+    for event in _calendar_events(request, range_start, range_end):
+        events_by_day[timezone.localtime(event["start_time"]).date()].append(event)
     for day_events in events_by_day.values():
         day_events.sort(key=lambda e: e["start_time"])
 
-    # Build weeks data for template
-    weeks_data = []
-    for week in month_days:
-        week_data = []
-        for day in week:
-            week_data.append(
-                {
-                    "date": day,
-                    "is_current_month": day.month == display_month,
-                    "is_today": day == today,
-                    "events": events_by_day.get(day, []),
-                }
-            )
-        weeks_data.append(week_data)
+    weeks_data = [
+        [
+            {
+                "date": day,
+                "is_current_month": day.month == display_month,
+                "is_today": day == today,
+                "events": events_by_day[day],
+            }
+            for day in week
+        ]
+        for week in month_days
+    ]
 
-    # Calculate previous and next month
-    if display_month == 1:
-        prev_year, prev_month = display_year - 1, 12
-    else:
-        prev_year, prev_month = display_year, display_month - 1
-    if display_month == 12:
-        next_year, next_month = display_year + 1, 1
-    else:
-        next_year, next_month = display_year, display_month + 1
-
-    # Month name for display
-    month_name = calendar.month_name[display_month]
+    # Any month is at most 31 days, so +32 always lands inside the next one
+    first_of_month = date(display_year, display_month, 1)
+    prev_month_day = first_of_month - timedelta(days=1)
+    next_month_day = (first_of_month + timedelta(days=32)).replace(day=1)
 
     cal_token, _ = CalendarToken.objects.get_or_create(user=request.user)
     feed_url = request.build_absolute_uri(
@@ -791,11 +767,11 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
             "weeks_data": weeks_data,
             "display_year": display_year,
             "display_month": display_month,
-            "month_name": month_name,
-            "prev_year": prev_year,
-            "prev_month": prev_month,
-            "next_year": next_year,
-            "next_month": next_month,
+            "month_name": calendar.month_name[display_month],
+            "prev_year": prev_month_day.year,
+            "prev_month": prev_month_day.month,
+            "next_year": next_month_day.year,
+            "next_month": next_month_day.month,
             "today": today,
             "timezone_name": timezone.get_current_timezone_name(),
             "feed_url": feed_url,
