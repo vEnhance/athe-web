@@ -13,6 +13,13 @@
 {% block content %}
     <div id="content">
         <h1>Welcome back, {{ user.first_name|default:user.username }}!</h1>
+        <p>
+            You can see the
+            <a href="{% url 'courses:calendar' %}">full calendar</a>
+            and a list of
+            <a href="{% url 'courses:upcoming' %}">upcoming meetings</a>.
+            It's currently {% now "g:i A e" %}.
+        </p>
         <div class="row">
             <div class="col-md-6">
                 <h2>
@@ -31,15 +38,13 @@
                 {% include "home/components/dashboard_course_list.html" with rows=dash_clubs empty_text="You have not joined any clubs this semester." %}
             </div>
         </div>
-        <div class="d-flex flex-wrap gap-2 mt-3">
-            <a class="btn btn-outline-dark" href="{% url 'courses:calendar' %}">Full calendar</a>
-            <a class="btn btn-outline-dark" href="{% url 'courses:upcoming' %}">Upcoming meetings</a>
-        </div>
+        <div class="d-flex flex-wrap gap-2 mt-3"></div>
         <div class="row">
             <div class="col-md-6">
                 <h2>
                     House Points
-                    <a class="badge bg-secondary dash-see-all" href="{{ house_url }}">Leaderboard</a>
+                    <a class="badge bg-secondary dash-see-all"
+                       href="{% url 'housepoints:leaderboard' %}">See all</a>
                 </h2>
                 {% if house_display %}
                     <div class="row gx-3">
@@ -70,8 +75,9 @@
                            href="{% url 'yearbook:edit' pk=yearbook_entry.pk %}">Edit entry</a>
                     {% endif %}
                 {% elif student and yearbook_open %}
-                    <a class="btn btn-outline-dark"
-                       href="{% url 'yearbook:create' student_pk=student.pk %}">Add entry for {{ student.semester.name }}</a>
+                    <p class="text-muted">You don't have an entry yet for {{ student.semester.name }}.</p>
+                    <a class="btn btn-primary"
+                       href="{% url 'yearbook:create' student_pk=student.pk %}">Add entry</a>
                 {% elif student %}
                     <p class="text-muted">Entries for {{ student.semester.name }} are closed.</p>
                 {% endif %}
@@ -105,11 +111,13 @@
         {% endif %}
         {% if user.is_superuser %}
             <h2>Admin</h2>
-            <div class="d-flex flex-wrap gap-2">
-                <a class="btn btn-outline-dark" href="{% url 'admin:index' %}">Django Admin</a>
-                <a class="btn btn-outline-dark" href="{% url 'home:manual' %}">Admin Manual</a>
-            </div>
             <ul class="dash-links mt-3">
+                <li>
+                    <a href="{% url 'admin:index' %}">Django Admin</a>
+                </li>
+                <li>
+                    <a href="{% url 'home:manual' %}">Admin Manual</a>
+                </li>
                 <li>
                     <a href="{% url 'courses:bulk_create_students' %}">Bulk Create Students</a>
                 </li>

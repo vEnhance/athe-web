@@ -7,11 +7,19 @@
         <a class="dropdown-item" href="{% url 'courses:calendar' %}">Calendar</a>
     </li>
     <li>
+        <a class="dropdown-item" href="{% url 'courses:upcoming' %}">Upcoming</a>
+    </li>
+    <li>
         <a class="dropdown-item" href="{% url 'weblog:blog_landing' %}">My Blog Posts</a>
     </li>
     <li>
         <hr class="dropdown-divider">
     </li>
+    {% if request.user.is_superuser %}
+        <li>
+            <a class="dropdown-item" href="{% url 'admin:index' %}">Django Admin</a>
+        </li>
+    {% endif %}
     <li>
         <a class="dropdown-item" href="{% url 'home:profile_settings' %}">Profile Settings</a>
     </li>
