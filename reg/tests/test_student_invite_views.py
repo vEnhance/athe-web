@@ -559,6 +559,35 @@ def test_first_page_rejects_a_student_from_another_semester(
 
 
 @pytest.mark.django_db
+def test_sorting_page_takes_no_answer_for_an_answer(
+    student_invite_view_setup, logged_in_client
+):
+    """The sorting ceremony is for fun, so nobody is blocked on it."""
+    setup = student_invite_view_setup
+    for step, data in (
+        ("you", you_post(setup)),
+        ("classes", classes_post(setup)),
+        ("availability", availability_post(setup)),
+    ):
+        logged_in_client.post(step_url(setup, step), data)
+
+    response = logged_in_client.post(step_url(setup, "sorting"), {"house_request": ""})
+    assert response.status_code == 302
+    registration = StudentRegistration.objects.get()
+    assert "sorting" in registration.completed_steps
+    assert registration.quiz_answers() == dict.fromkeys(
+        [
+            "quiz_challenge",
+            "quiz_values",
+            "quiz_compass",
+            "quiz_day_off",
+            "quiz_friend",
+        ],
+        "",
+    )
+
+
+@pytest.mark.django_db
 def test_a_registered_student_can_come_back_and_edit(student_invite_view_setup):
     """Every page stays open once done, and saving one returns them home."""
     client = Client()

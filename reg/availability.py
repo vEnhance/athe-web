@@ -6,6 +6,9 @@ no conversion anywhere: they are labels on a form, not points in time.
 
 from datetime import time
 
+#: Short name of the timezone every slot is quoted in.
+ZONE = "ET"
+
 #: Days of the week classes are held on, in the order the grid shows them.
 DAYS: tuple[tuple[str, str], ...] = (("sat", "Saturday"), ("sun", "Sunday"))
 
@@ -40,7 +43,7 @@ def time_label(start: time) -> str:
 def slot_label(day: str, start: time) -> str:
     """A human-readable label for one slot, e.g. ``Saturday 8:30 AM ET``."""
     day_label = dict(DAYS)[day]
-    return f"{day_label} {time_label(start)} ET"
+    return f"{day_label} {time_label(start)} {ZONE}"
 
 
 def slot_choices() -> list[tuple[str, str]]:

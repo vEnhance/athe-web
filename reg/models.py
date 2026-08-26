@@ -182,29 +182,34 @@ class StudentRegistration(models.Model):
         blank=True, help_text="Anything else to say about availability"
     )
 
-    # Sorting ceremony
+    # Sorting ceremony; all of it optional, since it is for fun
     quiz_challenge = models.CharField(
         max_length=20,
+        blank=True,
         choices=Challenge,
         verbose_name="How do you usually approach a challenge?",
     )
     quiz_values = models.CharField(
         max_length=20,
+        blank=True,
         choices=Value,
         verbose_name="What do you value most when working with others?",
     )
     quiz_compass = models.CharField(
         max_length=20,
+        blank=True,
         choices=Compass,
         verbose_name="When making a decision, what guides you most?",
     )
     quiz_day_off = models.CharField(
         max_length=20,
+        blank=True,
         choices=DayOff,
         verbose_name="What's your ideal way to spend a day off?",
     )
     quiz_friend = models.CharField(
         max_length=20,
+        blank=True,
         choices=FriendSays,
         verbose_name="How would a close friend describe you?",
     )

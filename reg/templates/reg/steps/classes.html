@@ -7,7 +7,12 @@
         based on teacher availability, student availability,
         and which students are interested in which classes!
     </p>
-    <p>See [TODO: LINK TO CATALOG] for a list of classes offered this semester.</p>
+    {% if invite.semester.visible %}
+        <p>
+            See <a href="{% url 'courses:course_list' invite.semester.slug %}">the
+            {{ invite.semester }} catalog</a> for a list of classes offered this semester.
+        </p>
+    {% endif %}
 {% endblock step_intro %}
 {% block step_fields %}
     {% question form.subject_interest %}

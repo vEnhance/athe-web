@@ -150,20 +150,25 @@ input.availability-slot {
   touch-action: manipulation;
 }
 
+/* The one place green beats the site's red: painting a cell means "I am free
+   then", and when2meet has taught everyone that green is the good one. A hat
+   tip, and cheap insurance against anyone reading red as "blocked". */
 input.availability-slot:hover {
-  background-color: rgba(var(--bs-primary-rgb, 160, 40, 40), 0.15);
+  background-color: #c8e6c9;
 }
 
 input.availability-slot:checked {
-  background-color: var(--bs-primary, #a02828);
+  background-color: #2e7d32;
 }
 
 input.availability-slot:checked:hover {
-  background-color: rgba(var(--bs-primary-rgb, 160, 40, 40), 0.85);
+  background-color: #1b5e20;
 }
 
+/* Near-black rather than either brand color, so the focus ring is visible on a
+   painted cell and an empty one alike. */
 input.availability-slot:focus-visible {
-  outline: 2px solid var(--bs-primary, #a02828);
+  outline: 2px solid #212529;
   outline-offset: -2px;
 }
 

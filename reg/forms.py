@@ -168,7 +168,9 @@ class AvailabilityGridWidget(forms.Widget):
             "days": [label for _, label in availability.DAYS],
             "rows": [
                 {
-                    "label": availability.time_label(start),
+                    # Spelled out on every row: a student converting from their
+                    # own timezone should never have to scroll up to check.
+                    "label": f"{availability.time_label(start)} {availability.ZONE}",
                     "on_hour": start.minute == 0,
                     "cells": [
                         {
