@@ -1,0 +1,101 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% block extra_css %}
+    <link type="text/css" rel="stylesheet" href="{% static "css/reg.css" %}" />
+{% endblock extra_css %}
+{% block title %}
+    Student Registration - {{ invite.semester }}
+{% endblock title %}
+{% block content %}
+    <div id="content">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <h1>Student Registration</h1>
+                {% if editing %}
+                    <div class="alert alert-info">
+                        You are registered for <strong>{{ invite.semester }}</strong> as
+                        <strong>{{ student }}</strong>. You can change your answers below
+                        and save them again; we will use whatever is here when we build
+                        the schedule.
+                    </div>
+                {% else %}
+                    <p class="lead">
+                        Welcome to <strong>{{ invite.semester }}</strong>! Please tell us who you
+                        are, which classes you want, and when you are free. We use all of this
+                        to work out the class schedule, so it is worth a few careful minutes.
+                    </p>
+                {% endif %}
+                {% if form.non_field_errors %}
+                    {% bootstrap_form_errors form type="non_fields" %}
+                {% endif %}
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% if not editing %}
+                        <fieldset class="card mb-4">
+                            <div class="card-header">
+                                <strong>1. Who are you?</strong>
+                            </div>
+                            <div class="card-body">{% bootstrap_field form.student %}</div>
+                        </fieldset>
+                    {% endif %}
+                    <fieldset class="card mb-4">
+                        <div class="card-header">
+                            <strong>About you</strong>
+                        </div>
+                        <div class="card-body">
+                            {% bootstrap_field form.email %}
+                            {% bootstrap_field form.parent_email %}
+                            {% bootstrap_field form.discord_username %}
+                            {% bootstrap_field form.taken_class_before %}
+                        </div>
+                    </fieldset>
+                    <fieldset class="card mb-4">
+                        <div class="card-header">
+                            <strong>Class preferences</strong>
+                        </div>
+                        <div class="card-body">
+                            {% bootstrap_field form.course_preferences %}
+                            {% bootstrap_field form.course_comments %}
+                        </div>
+                    </fieldset>
+                    <fieldset class="card mb-4">
+                        <div class="card-header">
+                            <strong>Availability</strong>
+                        </div>
+                        <div class="card-body">
+                            {% bootstrap_field form.availability %}
+                            {% bootstrap_field form.availability_comments %}
+                        </div>
+                    </fieldset>
+                    <fieldset class="card mb-4">
+                        <div class="card-header">
+                            <strong>🎩 Sorting ceremony</strong>
+                        </div>
+                        <div class="card-body">
+                            <p>
+                                For fun! Answer these about yourself so the sorting hat can work its
+                                magic; these decide your Athemath house.
+                            </p>
+                            {% for field in form.quiz_fields %}
+                                {% bootstrap_field field %}
+                            {% endfor %}
+                            {% bootstrap_field form.house_request %}
+                        </div>
+                    </fieldset>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        {% if editing %}
+                            Save changes
+                        {% else %}
+                            Register
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_js %}
+    <script src="{% static "js/availability-grid.js" %}"></script>
+    <script src="{% static "js/course-preferences.js" %}"></script>
+{% endblock extra_js %}

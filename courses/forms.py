@@ -89,7 +89,11 @@ class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
 
 
 class BulkStudentCreationForm(forms.Form):
-    """Form for bulk creation of students with course enrollments."""
+    """Form for bulk creation of students from a list of Airtable names.
+
+    Classes and houses are not set here: students fill in the registration
+    questionnaire first, and the computed matching is uploaded afterwards.
+    """
 
     semester = forms.ModelChoiceField(
         queryset=Semester.objects.all(),
@@ -99,20 +103,18 @@ class BulkStudentCreationForm(forms.Form):
         widget=forms.Textarea(
             attrs={
                 "rows": 15,
-                "placeholder": "Each line: airtable_name[TAB]course1,course2,course3\n"
-                "Example:\n"
-                "Alice Anderson\tAlgebra,Geometry\n"
-                "Bob Brown\tCalculus",
+                "placeholder": "One airtable_name per line:\nAlice Anderson\nBob Brown",
             }
         ),
-        help_text="Each line should contain: airtable_name (tab) comma-separated course names",
+        label="Student names",
+        help_text="One airtable_name per line, exactly as it appears in Airtable",
     )
 
     def clean(self) -> dict[str, Any]:
-        """Parse student_data into [(airtable_name, [course_name, ...]), ...].
+        """Parse student_data into a list of names.
 
         Every line is checked before any is accepted, so a typo halfway down
-        the paste does not leave the first half enrolled.
+        the paste does not leave the first half created.
         """
         cleaned = super().clean() or {}
         semester = cleaned.get("semester")
@@ -124,81 +126,21 @@ class BulkStudentCreationForm(forms.Form):
                 f"Cannot create students for {semester.name} - semester has ended."
             )
 
-        known_courses = set(
-            Course.objects.filter(semester=semester).values_list("name", flat=True)
-        )
-
-        parsed: list[tuple[str, list[str]]] = []
+        names: list[str] = []
         errors: list[str] = []
         for number, raw in enumerate(cleaned["student_data"].strip().splitlines(), 1):
-            line = raw.strip()
-            if not line:
+            name = raw.strip()
+            if not name:
                 continue
-            if "\t" not in line:
-                line = line.replace(": ", "\t")
-            parts = line.split("\t")
-            if len(parts) != 2:
-                errors.append(
-                    f"Line {number}: Expected tab-separated values "
-                    f"(got {len(parts)} parts)"
-                )
-                continue
-
-            airtable_name = parts[0].strip()
-            course_names = [c.strip() for c in parts[1].split(",") if c.strip()]
-            unknown = [name for name in course_names if name not in known_courses]
-
-            if not airtable_name:
-                errors.append(f"Line {number}: Missing airtable_name")
-            elif not course_names:
-                errors.append(f"Line {number}: No courses specified")
-            elif unknown:
-                errors.append(
-                    f"Line {number}: Invalid course names: {', '.join(unknown)}"
-                )
+            if len(name) > Student.NAME_MAX_LENGTH:
+                errors.append(f"Line {number}: '{name}' is too long for a name.")
+            elif name in names:
+                errors.append(f"Line {number}: '{name}' is listed twice.")
             else:
-                parsed.append((airtable_name, course_names))
+                names.append(name)
 
         if errors:
             raise forms.ValidationError(errors)
 
-        cleaned["students"] = parsed
+        cleaned["students"] = names
         return cleaned
-
-
-class SortingHatForm(forms.Form):
-    """Form for bulk house assignment to students.
-
-    One textarea per house, generated from Student.House so adding a house
-    means editing the enum and nothing else.
-    """
-
-    semester = forms.ModelChoiceField(
-        queryset=Semester.objects.all(),
-        help_text="Select the semester for house assignment",
-    )
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        for house in Student.House:
-            singular = house.name.replace("_", " ").title()
-            self.fields[house.value] = forms.CharField(
-                required=False,
-                widget=forms.Textarea(
-                    attrs={
-                        "rows": 10,
-                        "placeholder": "Enter one airtable_name per line",
-                    }
-                ),
-                label=house.label,
-                help_text=f"Students to assign to {singular} house",
-            )
-
-    def house_assignments(self) -> dict[str, Student.House]:
-        """Map each submitted airtable name to the house it was listed under."""
-        return {
-            name.strip(): house
-            for house in Student.House
-            for name in self.cleaned_data.get(house.value, "").splitlines()
-            if name.strip()
-        }

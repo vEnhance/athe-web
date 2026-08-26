@@ -1,0 +1,26 @@
+<div class="row g-3 course-preferences" data-course-preferences>
+    <div class="col-lg-7">
+        <p class="form-text mb-1">
+            <strong>Rank these</strong> from most wanted at the top to least wanted at the bottom.
+            Drag them around, or use the arrows.
+        </p>
+        <ol class="list-group list-group-numbered course-rank-list"
+            data-rank-list>
+            {% for course in widget.ranked %}
+                {% include "reg/widgets/course_preference_item.html" with course=course excluded=False %}
+            {% endfor %}
+        </ol>
+    </div>
+    <div class="col-lg-5">
+        <p class="form-text mb-1">
+            <strong>Classes you'd rather not take</strong>, because you have taken it before
+            or it is far outside your comfort zone. Tick "Not for me" to move a class here.
+        </p>
+        <ul class="list-group course-excluded-list" data-excluded-list>
+            {% for course in widget.excluded %}
+                {% include "reg/widgets/course_preference_item.html" with course=course excluded=True %}
+            {% endfor %}
+        </ul>
+        <p class="form-text course-excluded-empty" data-excluded-empty>Nothing here yet.</p>
+    </div>
+</div>

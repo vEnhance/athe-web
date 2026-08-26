@@ -1,0 +1,95 @@
+/* Styles for the student registration questionnaire applets. */
+
+/* --- Availability grid --- */
+
+.availability-grid {
+  overflow-x: auto;
+}
+
+.availability-grid table {
+  /* Painting a range should not leave the table text half-selected. */
+  user-select: none;
+  max-width: 30rem;
+}
+
+.availability-grid th.availability-time {
+  width: 6rem;
+  font-weight: normal;
+  font-size: 0.8rem;
+  text-align: right;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.availability-grid td.availability-cell {
+  padding: 0;
+}
+
+.availability-grid .availability-day-toggle {
+  cursor: pointer;
+  text-align: center;
+}
+
+input.availability-slot {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  margin: 0;
+  width: 100%;
+  height: 1.25rem;
+  cursor: pointer;
+  background-color: #fff;
+}
+
+input.availability-slot:hover {
+  background-color: #dee2e6;
+}
+
+input.availability-slot:checked {
+  background-color: #198754;
+}
+
+input.availability-slot:focus-visible {
+  outline: 2px solid #0d6efd;
+  outline-offset: -2px;
+}
+
+/* --- Class preference ranking --- */
+
+.course-preferences .list-group {
+  min-height: 3rem;
+}
+
+.course-preference {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.course-preference-name {
+  flex: 1 1 auto;
+}
+
+.course-preference-exclude {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.course-preference-controls {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 0.15rem;
+}
+
+.course-preference-controls .btn {
+  line-height: 1;
+  padding: 0.1rem 0.35rem;
+}
+
+.course-rank-list .course-preference {
+  cursor: grab;
+}
+
+.course-preference-dragging {
+  opacity: 0.5;
+}

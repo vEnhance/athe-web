@@ -1,0 +1,32 @@
+<div class="availability-grid" data-availability-grid>
+    <table class="table table-bordered table-sm mb-2">
+        <thead>
+            <tr>
+                <th scope="col" class="availability-time"></th>
+                {% for day in widget.grid.days %}
+                    <th scope="col"
+                        class="availability-day"
+                        data-availability-day="{{ forloop.counter0 }}">{{ day }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in widget.grid.rows %}
+                <tr>
+                    <th scope="row" class="availability-time">{{ row.label }}</th>
+                    {% for cell in row.cells %}
+                        <td class="availability-cell">
+                            <input type="checkbox"
+                                   class="availability-slot"
+                                   name="{{ widget.name }}"
+                                   value="{{ cell.key }}"
+                                   id="{{ widget.attrs.id }}_{{ cell.key }}"
+                                   aria-label="{{ cell.label }}"
+                                   {% if cell.checked %}checked{% endif %}>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
