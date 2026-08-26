@@ -18,7 +18,7 @@
 {% block content %}
     <div id="content">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
+            <div class="col-12 reg-page">
                 <h1>Student Registration</h1>
                 <p class="text-muted">
                     {{ invite.semester }}
@@ -31,32 +31,26 @@
                         change any of your answers here until registration closes.
                     </div>
                 {% endif %}
-                <div class="card">
-                    <div class="card-header">
-                        <strong>{{ form.title }}</strong>
+                <h2>{{ form.title }}</h2>
+                {% block step_intro %}
+                {% endblock step_intro %}
+                {% bootstrap_form_errors form type="non_fields" %}
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% block step_fields %}
+                    {% endblock step_fields %}
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            {% if complete %}
+                                Save changes
+                            {% elif last_step %}
+                                Finish registration
+                            {% else %}
+                                Save and continue
+                            {% endif %}
+                        </button>
                     </div>
-                    <div class="card-body">
-                        {% block step_intro %}
-                        {% endblock step_intro %}
-                        {% bootstrap_form_errors form type="non_fields" %}
-                        <form method="post" novalidate>
-                            {% csrf_token %}
-                            {% block step_fields %}
-                            {% endblock step_fields %}
-                            <div class="d-flex justify-content-end gap-2 mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    {% if complete %}
-                                        Save changes
-                                    {% elif last_step %}
-                                        Finish registration
-                                    {% else %}
-                                        Save and continue
-                                    {% endif %}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>

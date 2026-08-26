@@ -1,16 +1,16 @@
 {% extends "reg/student_step_base.html" %}
 {% load static %}
-{% load django_bootstrap5 %}
+{% load reg_questions %}
 {% block step_intro %}
     <p>
         Mark every half hour you could attend a class. The more you can mark, the easier
         you are to schedule, so include times that are possible even if they aren't your
-        favourite.
+        favorite.
     </p>
 {% endblock step_intro %}
 {% block step_fields %}
-    {% bootstrap_field form.availability %}
-    {% bootstrap_field form.availability_comments %}
+    {% question form.availability %}
+    {% question form.availability_comments %}
 {% endblock step_fields %}
 {% block step_js %}
     <script src="{% static "js/availability-grid.js" %}"></script>

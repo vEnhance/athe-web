@@ -1,5 +1,6 @@
 {% extends "reg/student_step_base.html" %}
 {% load django_bootstrap5 %}
+{% load reg_questions %}
 {% block step_intro %}
     <p>
         Class times and who is in each class are worked out from teacher availability,
@@ -8,18 +9,19 @@
     </p>
 {% endblock step_intro %}
 {% block step_fields %}
-    {% bootstrap_field form.subject_interest %}
-    {% bootstrap_field form.difficulty_levels %}
-    <fieldset class="mb-3">
-        <legend class="h6">Which classes would you most like to take?</legend>
-        <p class="form-text mt-0">
+    {% question form.subject_interest %}
+    {% question form.difficulty_levels %}
+    <div class="reg-question">
+        <h3 class="mb-1">Which classes would you most like to take?</h3>
+        <p class="form-text mt-0 mb-2">
             Only your top three: below that, choices tend to be much of a muchness.
-            The second and third are optional, but they give us room to fit you in.
+            Fill in as many or as few as you like -- naming a second and third just
+            gives us more room to fit you in.
         </p>
         {% bootstrap_field form.first_choice %}
         {% bootstrap_field form.second_choice %}
         {% bootstrap_field form.third_choice %}
-    </fieldset>
-    {% bootstrap_field form.avoid_courses %}
-    {% bootstrap_field form.course_comments %}
+    </div>
+    {% question form.taken_courses %}
+    {% question form.course_comments %}
 {% endblock step_fields %}

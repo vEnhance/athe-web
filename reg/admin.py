@@ -64,8 +64,8 @@ class StudentInviteLinkAdmin(InviteLinkAdmin):
 class CoursePreferenceInline(admin.TabularInline):  # type: ignore[type-arg]
     model = CoursePreference
     extra = 0
-    fields = ["course", "rank", "excluded"]
-    ordering = ["excluded", "rank"]
+    fields = ["course", "rank", "already_taken"]
+    ordering = ["already_taken", "rank"]
 
 
 @admin.register(StudentRegistration)
@@ -80,7 +80,7 @@ class StudentRegistrationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         "pages_done",
         "updated_at",
     ]
-    list_filter = ["student__semester", "taken_class_before"]
+    list_filter = ["student__semester"]
     search_fields = [
         "student__airtable_name",
         "email",

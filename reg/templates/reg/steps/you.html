@@ -1,5 +1,5 @@
 {% extends "reg/student_step_base.html" %}
-{% load django_bootstrap5 %}
+{% load reg_questions %}
 {% block step_intro %}
     <p>
         Welcome to <strong>{{ invite.semester }}</strong>! This questionnaire has four
@@ -9,10 +9,9 @@
 {% endblock step_intro %}
 {% block step_fields %}
     {% if form.student %}
-        {% bootstrap_field form.student %}
+        {% question form.student %}
     {% endif %}
-    {% bootstrap_field form.email %}
-    {% bootstrap_field form.parent_email %}
-    {% bootstrap_field form.discord_username %}
-    {% bootstrap_field form.taken_class_before %}
+    {% question form.email %}
+    {% question form.parent_email %}
+    {% question form.discord_username %}
 {% endblock step_fields %}

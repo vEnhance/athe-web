@@ -37,15 +37,51 @@
   font-size: 0.8rem;
 }
 
+/* Brand red throughout rather than Bootstrap's stock green and blue, which
+   fight with the site's red and black. */
 .reg-progress-done a,
 .reg-progress-done > span {
-  color: #198754;
+  color: var(--bs-primary, #a02828);
 }
 
 .reg-progress-current > span,
 .reg-progress-current a {
-  color: #0d6efd;
+  color: var(--bs-primary, #a02828);
   font-weight: 600;
+}
+
+.reg-progress-current .reg-progress-number {
+  background-color: var(--bs-primary, #a02828);
+  border-color: var(--bs-primary, #a02828);
+  color: #fff;
+}
+
+/* Wide enough for a line of about 80 characters at the site's 18px body text,
+   and no wider, however big the window is. */
+.reg-page {
+  max-width: 48rem;
+}
+
+/* --- One question and its answer --- */
+
+.reg-question {
+  margin-bottom: 1.75rem;
+}
+
+/* #content gives headings generous padding, which is too much between a
+   question and the note under it. */
+.reg-question h3 {
+  padding-bottom: 0;
+}
+
+/* The widget brings its own bottom margin; the question owns the spacing. */
+.reg-question .mb-3:last-child {
+  margin-bottom: 0 !important;
+}
+
+.reg-required {
+  color: #dc3545;
+  font-weight: normal;
 }
 
 /* --- Availability grid --- */
@@ -115,19 +151,19 @@ input.availability-slot {
 }
 
 input.availability-slot:hover {
-  background-color: #d1e7dd;
+  background-color: rgba(var(--bs-primary-rgb, 160, 40, 40), 0.15);
 }
 
 input.availability-slot:checked {
-  background-color: #198754;
+  background-color: var(--bs-primary, #a02828);
 }
 
 input.availability-slot:checked:hover {
-  background-color: #146c43;
+  background-color: rgba(var(--bs-primary-rgb, 160, 40, 40), 0.85);
 }
 
 input.availability-slot:focus-visible {
-  outline: 2px solid #0d6efd;
+  outline: 2px solid var(--bs-primary, #a02828);
   outline-offset: -2px;
 }
 

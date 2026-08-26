@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                 (
                     "discord_username",
                     models.CharField(
-                        help_text="Your Discord username, e.g. mathlover42",
+                        help_text="Your Discord username, e.g. vEnhance",
                         max_length=64,
                     ),
                 ),

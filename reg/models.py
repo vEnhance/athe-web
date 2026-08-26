@@ -153,14 +153,8 @@ class StudentRegistration(models.Model):
         help_text="A parent or guardian's email, for payment purposes"
     )
     discord_username = models.CharField(
-        max_length=64, help_text="Your Discord username, e.g. mathlover42"
+        max_length=64, help_text="Your Discord username, e.g. vEnhance"
     )
-    taken_class_before = models.BooleanField(
-        null=True,
-        blank=True,
-        help_text="Whether the student has taken an Athemath class before",
-    )
-
     # Class selection; the top three picks and the "rather not" pile both live
     # in CoursePreference
     subject_interest = models.JSONField(
@@ -248,7 +242,7 @@ class StudentRegistration(models.Model):
 
 
 class CoursePreference(models.Model):
-    """One student's opinion of one class: a top-three pick, or a hard no.
+    """One student's standing on one class: a top-three pick, or already taken.
 
     Only classes the student said something about get a row. Ranking a whole
     catalogue is miserable and the answers below fourth place say very little,
@@ -267,11 +261,12 @@ class CoursePreference(models.Model):
         null=True,
         blank=True,
         help_text="1, 2 or 3 for the student's first, second and third choice; "
-        "blank when excluded",
+        "blank for a class they have already taken",
     )
-    excluded = models.BooleanField(
+    already_taken = models.BooleanField(
         default=False,
-        help_text="Set when the student does not want to take this class at all",
+        help_text="Set when the student has taken this class before, "
+        "so they should not be placed in it again",
     )
 
     class Meta:
@@ -283,10 +278,10 @@ class CoursePreference(models.Model):
                 name="unique_course_per_registration",
             ),
         )
-        # Wanted classes first, best-ranked first; the excluded pile trails.
-        ordering = ("excluded", "rank", "course__name")
+        # Wanted classes first, best-ranked first; already-taken ones trail.
+        ordering = ("already_taken", "rank", "course__name")
 
     def __str__(self) -> str:
-        if self.excluded:
-            return f"{self.course.name}: excluded"
+        if self.already_taken:
+            return f"{self.course.name}: already taken"
         return f"{self.course.name}: #{self.rank}"

@@ -231,7 +231,6 @@ def you_post(setup, **overrides):
         "email": "alice@example.com",
         "parent_email": "parent@example.com",
         "discord_username": "alice",
-        "taken_class_before": "no",
     }
     return {**data, **overrides}
 
@@ -246,7 +245,7 @@ def classes_post(setup, **overrides):
         "first_choice": setup["geometry"].pk,
         "second_choice": setup["algebra"].pk,
         "third_choice": "",
-        "avoid_courses": [],
+        "taken_courses": [],
         "course_comments": "Geometry please!",
     }
     return {**data, **overrides}
@@ -372,7 +371,6 @@ def test_first_page_binds_the_user_and_moves_on(
     assert registration.email == "alice@example.com"
     assert registration.parent_email == "parent@example.com"
     assert registration.discord_username == "alice"
-    assert registration.taken_class_before is False
     assert registration.completed_steps == ["you"]
 
 
@@ -400,13 +398,13 @@ def test_walking_all_four_pages_saves_everything(
 
     # Only the top picks are stored; the rest of the catalogue is left alone.
     assert [
-        (pref.course.name, pref.rank, pref.excluded)
+        (pref.course.name, pref.rank, pref.already_taken)
         for pref in CoursePreference.objects.filter(registration=registration)
     ] == [("Geometry", 1, False), ("Algebra", 2, False)]
 
 
 @pytest.mark.django_db
-def test_classes_page_stores_the_avoid_pile(
+def test_classes_page_stores_classes_already_taken(
     student_invite_view_setup, logged_in_client
 ):
     logged_in_client.post(
@@ -417,7 +415,7 @@ def test_classes_page_stores_the_avoid_pile(
         classes_post(
             student_invite_view_setup,
             second_choice="",
-            avoid_courses=[student_invite_view_setup["algebra"].pk],
+            taken_courses=[student_invite_view_setup["algebra"].pk],
         ),
     )
     assert response.status_code == 302
@@ -426,7 +424,7 @@ def test_classes_page_stores_the_avoid_pile(
         student=student_invite_view_setup["student1"]
     )
     assert {
-        pref.course.name: (pref.rank, pref.excluded)
+        pref.course.name: (pref.rank, pref.already_taken)
         for pref in CoursePreference.objects.filter(registration=registration)
     } == {"Geometry": (1, False), "Algebra": (None, True)}
 
@@ -437,8 +435,7 @@ def test_classes_page_stores_the_avoid_pile(
     [
         ({"second_choice": "$geometry"}, "different class for each choice"),
         ({"first_choice": "", "second_choice": "$algebra"}, "in order"),
-        ({"avoid_courses": ["$geometry"]}, "rather not take"),
-        ({"subject_interest_geometry": ""}, "how interested you are in Geometry"),
+        ({"taken_courses": ["$geometry"]}, "already taken it"),
     ],
 )
 @pytest.mark.django_db
@@ -468,18 +465,31 @@ def test_classes_page_rejects_contradictions(
 
 
 @pytest.mark.django_db
-def test_classes_page_requires_a_difficulty_band(
+def test_classes_page_takes_no_answer_for_an_answer(
     student_invite_view_setup, logged_in_client
 ):
+    """A student with no strong feelings can leave the whole page alone."""
     logged_in_client.post(
         step_url(student_invite_view_setup, "you"), you_post(student_invite_view_setup)
     )
     response = logged_in_client.post(
         step_url(student_invite_view_setup, "classes"),
-        classes_post(student_invite_view_setup, difficulty_levels=[]),
+        {
+            "subject_interest_algebra": "",
+            "difficulty_levels": [],
+            "first_choice": "",
+            "second_choice": "",
+            "third_choice": "",
+            "taken_courses": [],
+            "course_comments": "",
+        },
     )
-    assert response.status_code == 200
-    assert response.context["form"].errors["difficulty_levels"]
+    assert response.status_code == 302
+    registration = StudentRegistration.objects.get()
+    assert "classes" in registration.completed_steps
+    assert registration.subject_interest == {}
+    assert registration.difficulty_levels == []
+    assert not CoursePreference.objects.exists()
 
 
 @pytest.mark.django_db

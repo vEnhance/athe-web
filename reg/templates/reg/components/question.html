@@ -1,0 +1,9 @@
+{% load django_bootstrap5 %}
+<div class="reg-question">
+    <h3 class="mb-1">
+        {{ field.label }}
+        {% if field.field.required %}<span class="reg-required" title="Required">*</span>{% endif %}
+    </h3>
+    {% if field.help_text %}<p class="form-text mt-0 mb-2">{{ field.help_text }}</p>{% endif %}
+    {% bootstrap_field field show_label=False show_help=False %}
+</div>

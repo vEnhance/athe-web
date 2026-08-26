@@ -411,18 +411,17 @@ def _registration_json(
         "email": registration.email,
         "parent_email": registration.parent_email,
         "discord_username": registration.discord_username,
-        "taken_class_before": registration.taken_class_before,
         "subject_interest": registration.subject_interest,
         "difficulty_levels": registration.difficulty_levels,
         "course_choices": [
             {"rank": pref.rank, "course_id": pref.course.pk, "course": pref.course.name}
             for pref in preferences
-            if not pref.excluded
+            if not pref.already_taken
         ],
-        "excluded_courses": [
+        "courses_already_taken": [
             {"course_id": pref.course.pk, "course": pref.course.name}
             for pref in preferences
-            if pref.excluded
+            if pref.already_taken
         ],
         "course_comments": registration.course_comments,
         "availability": registration.availability,
@@ -456,6 +455,19 @@ def _responses_payload(semester: Semester) -> dict[str, Any]:
         registration__student__semester=semester
     ).select_related("course", "registration"):
         preferences[preference.registration.pk].append(preference)
+
+    # Whether a student is new to Athemath is not worth asking them: their
+    # account already knows which semesters they have been a student in.
+    history: defaultdict[int, list[str]] = defaultdict(list)
+    for earlier in (
+        Student.objects.filter(
+            user__isnull=False, semester__start_date__lt=semester.start_date
+        )
+        .select_related("semester", "user")
+        .order_by("semester__start_date")
+    ):
+        assert earlier.user is not None
+        history[earlier.user.pk].append(earlier.semester.name)
 
     # The questionnaire itself supplies the sorting-quiz legend, so whatever
     # reads this download sees the questions exactly as students were asked.
@@ -505,6 +517,9 @@ def _responses_payload(semester: Semester) -> dict[str, Any]:
                     }
                     if student.user
                     else None
+                ),
+                "previous_semesters": (
+                    history[student.user.pk] if student.user else []
                 ),
                 "registration": (
                     _registration_json(

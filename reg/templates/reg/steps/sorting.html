@@ -1,5 +1,5 @@
 {% extends "reg/student_step_base.html" %}
-{% load django_bootstrap5 %}
+{% load reg_questions %}
 {% block step_intro %}
     <p>
         Last page, and this one is for fun. Answer these about yourself so the sorting
@@ -8,7 +8,7 @@
 {% endblock step_intro %}
 {% block step_fields %}
     {% for field in form.quiz_fields %}
-        {% bootstrap_field field %}
+        {% question field %}
     {% endfor %}
-    {% bootstrap_field form.house_request %}
+    {% question form.house_request %}
 {% endblock step_fields %}

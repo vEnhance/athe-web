@@ -50,7 +50,6 @@ def registration(students, courses):
         email="alice@example.com",
         parent_email="parent@example.com",
         discord_username="alice",
-        taken_class_before=True,
         course_comments="No 8am please",
         availability=["sat-1000", "sun-1030"],
         availability_comments="Weekends only",
@@ -73,7 +72,7 @@ def registration(students, courses):
         registration=registration, course=courses["Geometry"], rank=1
     )
     CoursePreference.objects.create(
-        registration=registration, course=courses["Algebra"], excluded=True
+        registration=registration, course=courses["Algebra"], already_taken=True
     )
     return registration
 
@@ -141,7 +140,6 @@ def test_responses_download(
     alice = by_name["Alice Anderson"]["registration"]
     assert alice["email"] == "alice@example.com"
     assert alice["parent_email"] == "parent@example.com"
-    assert alice["taken_class_before"] is True
     assert alice["availability"] == ["sat-1000", "sun-1030"]
     assert alice["course_choices"] == [
         {"rank": 1, "course_id": courses["Geometry"].pk, "course": "Geometry"}
@@ -149,7 +147,7 @@ def test_responses_download(
     assert alice["subject_interest"]["algebra"] == "very"
     assert alice["difficulty_levels"] == ["aime", "olympiad"]
     assert alice["complete"] is True
-    assert [entry["course"] for entry in alice["excluded_courses"]] == ["Algebra"]
+    assert [entry["course"] for entry in alice["courses_already_taken"]] == ["Algebra"]
     assert alice["quiz"]["quiz_challenge"] == "plan"
     assert alice["house_request"] == "Owls"
 

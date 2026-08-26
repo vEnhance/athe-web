@@ -347,15 +347,8 @@ class IdentityStepForm(RegistrationStepForm):
     title = "About you"
     page_template = "reg/steps/you.html"
 
-    taken_class_before = forms.TypedChoiceField(
-        choices=(("yes", "Yes"), ("no", "No")),
-        coerce=lambda value: value == "yes",
-        widget=forms.RadioSelect,
-        label="Have you taken an Athemath class before?",
-    )
-
     class Meta(RegistrationStepForm.Meta):
-        fields = ["email", "parent_email", "discord_username", "taken_class_before"]
+        fields = ["email", "parent_email", "discord_username"]
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -435,8 +428,12 @@ class ClassPreferenceStepForm(RegistrationStepForm):
     CHOICE_FIELDS = ("first_choice", "second_choice", "third_choice")
     CHOICE_LABELS = ("First choice", "Second choice", "Third choice")
 
-    subject_interest = SubjectInterestField()
+    # Nothing on this page is compulsory: a student with no strong feelings
+    # should be able to say so by leaving it alone, rather than being made to
+    # invent an opinion we would then take seriously.
+    subject_interest = SubjectInterestField(required=False)
     difficulty_levels = forms.MultipleChoiceField(
+        required=False,
         choices=questions.DIFFICULTY_LEVELS,
         widget=forms.CheckboxSelectMultiple,
         label="Which level(s) of classes are you interested in taking?",
@@ -456,34 +453,30 @@ class ClassPreferenceStepForm(RegistrationStepForm):
         )
         self.classes = list(classes)
 
-        for index, (name, label) in enumerate(
-            zip(self.CHOICE_FIELDS, self.CHOICE_LABELS, strict=True)
-        ):
+        for name, label in zip(self.CHOICE_FIELDS, self.CHOICE_LABELS, strict=True):
             self.fields[name] = CourseChoiceField(
                 queryset=classes,
-                # Only the first pick is compulsory; second and third are a
-                # kindness to the matching, not a demand on the student.
-                required=index == 0 and bool(self.classes),
+                required=False,
                 widget=SearchableSelect(attrs={"data-placeholder": "Pick a class..."}),
                 empty_label="",
                 label=label,
             )
-        self.fields["avoid_courses"] = CourseChoiceMultipleField(
+        self.fields["taken_courses"] = CourseChoiceMultipleField(
             queryset=classes,
             required=False,
             widget=SearchableSelectMultiple(
                 attrs={"data-placeholder": "Usually none - leave empty if so"}
             ),
-            label="Any classes you'd rather not take at all?",
-            help_text="For instance because you have taken it before, or the "
-            "difficulty is way outside your comfort zone.",
+            label="Have you already taken any of these classes?",
+            help_text="Classes you took in an earlier semester, so we don't put "
+            "you through them twice. Leave empty if this is all new to you.",
         )
         self.order_fields(
             [
                 "subject_interest",
                 "difficulty_levels",
                 *self.CHOICE_FIELDS,
-                "avoid_courses",
+                "taken_courses",
                 "course_comments",
             ]
         )
@@ -493,17 +486,17 @@ class ClassPreferenceStepForm(RegistrationStepForm):
 
     def _load_preferences(self) -> None:
         """Show the picks already stored as CoursePreference rows."""
-        avoided: list[int] = []
+        taken: list[int] = []
         for preference in CoursePreference.objects.filter(
             registration=self.instance
         ).select_related("course"):
-            if preference.excluded:
-                avoided.append(preference.course.pk)
+            if preference.already_taken:
+                taken.append(preference.course.pk)
             elif preference.rank and preference.rank <= len(self.CHOICE_FIELDS):
                 self.initial[self.CHOICE_FIELDS[preference.rank - 1]] = (
                     preference.course.pk
                 )
-        self.initial["avoid_courses"] = avoided
+        self.initial["taken_courses"] = taken
 
     def picks(self) -> list[Course | None]:
         """The three choices in rank order, with gaps kept as None."""
@@ -525,12 +518,12 @@ class ClassPreferenceStepForm(RegistrationStepForm):
                     "Please fill your choices in order, starting from the first."
                 )
 
-        avoided = set(cleaned.get("avoid_courses") or ())
-        clash = [course.name for course in chosen if course in avoided]
+        taken = set(cleaned.get("taken_courses") or ())
+        clash = [course.name for course in chosen if course in taken]
         if clash:
             raise forms.ValidationError(
-                f"You picked {', '.join(clash)} as a choice and also as a class "
-                "you'd rather not take."
+                f"You picked {', '.join(clash)} as a choice and also said you "
+                "have already taken it."
             )
         return cleaned
 
@@ -549,9 +542,9 @@ class ClassPreferenceStepForm(RegistrationStepForm):
             ]
             + [
                 CoursePreference(
-                    registration=registration, course=course, excluded=True
+                    registration=registration, course=course, already_taken=True
                 )
-                for course in self.cleaned_data.get("avoid_courses") or ()
+                for course in self.cleaned_data.get("taken_courses") or ()
                 if course not in chosen
             ]
         )
