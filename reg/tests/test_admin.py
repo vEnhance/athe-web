@@ -108,3 +108,45 @@ def test_student_admin_create_invite():
     invite = StudentInviteLink.objects.get(name="New Student Invite")
     assert invite is not None
     assert invite.semester == semester
+
+
+@pytest.mark.django_db
+def test_admin_add_and_change_pages_render():
+    """Both invite admins render their add and change forms with fieldsets."""
+    client = Client()
+    User.objects.create_superuser(
+        username="admin", password="admin123", email="admin@example.com"
+    )
+    client.login(username="admin", password="admin123")
+
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fall-2025",
+        start_date=timezone.now().date(),
+        end_date=timezone.now().date() + timedelta(days=30),
+    )
+    staff_invite = StaffInviteLink.objects.create(
+        name="Staff invite", expiration_date=timezone.now() + timedelta(days=5)
+    )
+    student_invite = StudentInviteLink.objects.create(
+        name="Student invite",
+        semester=semester,
+        expiration_date=timezone.now() + timedelta(days=5),
+    )
+
+    for model, invite in (
+        ("staffinvitelink", staff_invite),
+        ("studentinvitelink", student_invite),
+    ):
+        assert client.get(reverse(f"admin:reg_{model}_add")).status_code == 200
+        response = client.get(reverse(f"admin:reg_{model}_change", args=[invite.pk]))
+        assert response.status_code == 200
+        body = response.content.decode()
+        assert "Link Information" in body
+        assert invite.get_absolute_url() in body
+
+    # The student admin adds semester to the editable fieldset
+    response = client.get(
+        reverse("admin:reg_studentinvitelink_change", args=[student_invite.pk])
+    )
+    assert "Semester" in response.content.decode()
