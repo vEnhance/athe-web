@@ -333,3 +333,42 @@ def test_existing_user_login_flow(student_invite_view_setup):
     # Check student is linked
     student_invite_view_setup["student1"].refresh_from_db()
     assert student_invite_view_setup["student1"].user == user
+
+
+@pytest.mark.django_db
+def test_post_student_selection_invalid_id(student_invite_view_setup):
+    """A non-numeric or unknown student id falls through to form validation."""
+    client = Client()
+    User.objects.create_user(username="newuser", password="testpass123")
+    client.login(username="newuser", password="testpass123")
+
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["valid_invite"].id},
+    )
+    for bad in ("not-a-number", "999999", ""):
+        response = client.post(url, {"student": bad})
+        assert response.status_code == 200
+        assert response.context["form"].errors
+
+
+@pytest.mark.django_db
+def test_post_student_selection_other_semester(student_invite_view_setup):
+    """A student from another semester is rejected by form validation."""
+    client = Client()
+    User.objects.create_user(username="newuser", password="testpass123")
+    client.login(username="newuser", password="testpass123")
+
+    outsider = Student.objects.create(
+        airtable_name="Carol Elsewhere",
+        semester=student_invite_view_setup["ended_semester"],
+    )
+    url = reverse(
+        "reg:add-student",
+        kwargs={"invite_id": student_invite_view_setup["valid_invite"].id},
+    )
+    response = client.post(url, {"student": outsider.pk})
+    assert response.status_code == 200
+    assert response.context["form"].errors
+    outsider.refresh_from_db()
+    assert outsider.user is None

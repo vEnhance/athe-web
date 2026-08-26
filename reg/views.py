@@ -269,31 +269,6 @@ class StudentInviteView(View):
                 },
             )
 
-        # Check if we have a selected student in session
-        if "student_id" in request.session:
-            student_id = request.session["student_id"]
-            student = get_object_or_404(Student, id=student_id)
-
-            # Verify this student is from the correct semester and doesn't have a user
-            if student.semester != invite.semester:
-                del request.session["student_id"]
-                messages.error(request, "Invalid student selection.")
-                return redirect("reg:add-student", invite_id=invite.id)
-
-            if student.user is not None:
-                # Someone else took this student
-                del request.session["student_id"]
-                return render(
-                    request,
-                    "reg/student_already_taken.html",
-                    {
-                        "student": student,
-                    },
-                )
-
-            # Show confirmation (this shouldn't happen in normal flow, but just in case)
-            return redirect("reg:add-student", invite_id=invite.id)
-
         # Show student selection form
         selection_form = StudentSelectionForm(semester=invite.semester)
 
@@ -418,46 +393,21 @@ class StudentInviteView(View):
                 },
             )
 
-        # Check if a student was posted and if it's already taken
-        # We need to do this before form validation because the form queryset
-        # excludes students with users, so validation would fail
-        if "student" in request.POST:
-            try:
-                student_id = int(request.POST["student"])
-                student = Student.objects.filter(
-                    id=student_id, semester=invite.semester
-                ).first()
-                if student and student.user is not None:
-                    return render(
-                        request,
-                        "reg/student_already_taken.html",
-                        {
-                            "student": student,
-                        },
-                    )
-            except ValueError, TypeError:
-                # Invalid student_id, let form validation handle it
-                pass
-
         form = StudentSelectionForm(invite.semester, request.POST)
 
         if form.is_valid():
             student = form.cleaned_data["student"]
 
-            # Double-check the student doesn't have a user yet
+            # The roster lists everyone, so the name may already be claimed
             if student.user is not None:
                 return render(
                     request,
                     "reg/student_already_taken.html",
-                    {
-                        "student": student,
-                    },
+                    {"student": student},
                 )
 
-            # Link the user to the student atomically
-            with transaction.atomic():
-                student.user = request.user
-                student.save()
+            student.user = request.user
+            student.save()
 
             # Show success message
             messages.success(
