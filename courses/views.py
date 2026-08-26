@@ -21,14 +21,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, UpdateView, View
+from django.views.generic import DetailView, UpdateView
 
 from atheweb.decorators import staff_required, superuser_required
 from courses.forms import (
     BulkStudentCreationForm,
     CourseMeetingForm,
     CourseUpdateForm,
-    SortingHatForm,
 )
 from courses.models import (
     CalendarToken,
@@ -463,100 +462,37 @@ def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
 
 @superuser_required()
 def bulk_create_students(request: HttpRequest) -> HttpResponse:
-    """Bulk create students and enroll them in courses. Only accessible to superusers."""
+    """Bulk create students for a semester. Only accessible to superusers.
+
+    Names only: the students themselves supply everything else through the
+    registration link, and their classes and houses arrive later from the
+    computed matching.
+    """
     form = BulkStudentCreationForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
         semester = form.cleaned_data["semester"]
-        parsed = form.cleaned_data["students"]
+        names = form.cleaned_data["students"]
 
         Student.objects.bulk_create(
             [
                 Student(airtable_name=airtable_name, semester=semester)
-                for airtable_name, _ in parsed
+                for airtable_name in names
             ],
             ignore_conflicts=True,
         )
 
-        # Re-read so students that already existed are picked up too
-        students = {
-            student.airtable_name: student.pk
-            for student in Student.objects.filter(
-                airtable_name__in=[name for name, _ in parsed], semester=semester
-            )
-        }
-        courses = {
-            course.name: course.pk
-            for course in Course.objects.filter(semester=semester)
-        }
-
-        enrollments = [
-            Course.students.through(
-                student_id=students[airtable_name], course_id=courses[course_name]
-            )
-            for airtable_name, course_names in parsed
-            for course_name in course_names
-        ]
-        Course.students.through.objects.bulk_create(enrollments, ignore_conflicts=True)
-
+        created = Student.objects.filter(
+            airtable_name__in=names, semester=semester
+        ).count()
         messages.success(
             request,
-            f"Successfully processed {len(parsed)} students "
-            f"with {len(enrollments)} enrollments.",
+            f"Successfully processed {len(names)} names; "
+            f"{created} students now exist for {semester}.",
         )
         return redirect("courses:bulk_create_students")
 
     return render(request, "courses/bulk_create_students.html", {"form": form})
-
-
-class SortingHatView(UserPassesTestMixin, View):
-    """Superuser-only view for bulk house assignment."""
-
-    def test_func(self) -> bool:
-        """Only superusers can access this view."""
-        return self.request.user.is_superuser  # type: ignore[attr-defined]
-
-    def get(self, request: HttpRequest) -> HttpResponse:
-        """Display the sorting hat form."""
-        form = SortingHatForm()
-        return render(request, "courses/sorting_hat.html", {"form": form})
-
-    def post(self, request: HttpRequest) -> HttpResponse:
-        """Process bulk house assignment."""
-        form = SortingHatForm(request.POST)
-        if not form.is_valid():
-            return render(request, "courses/sorting_hat.html", {"form": form})
-
-        semester = form.cleaned_data["semester"]
-        assignments = form.house_assignments()
-
-        students = Student.objects.filter(
-            airtable_name__in=assignments, semester=semester
-        )
-        student_map = {student.airtable_name: student for student in students}
-
-        results: dict[str, list[str]] = {"assigned": [], "not_found": []}
-        students_to_update = []
-        for airtable_name, house in assignments.items():
-            student = student_map.get(airtable_name)
-            if student is None:
-                results["not_found"].append(
-                    f"{airtable_name} (not found in {semester})"
-                )
-                continue
-            student.house = house
-            students_to_update.append(student)
-            results["assigned"].append(f"{airtable_name} \u2192 {house.label}")
-
-        # Bulk update all students in one query (O(1) queries)
-        if students_to_update:
-            Student.objects.bulk_update(students_to_update, ["house"])
-
-        return render(
-            request,
-            "courses/sorting_hat.html",
-            {"form": form, "results": results},
-        )
 
 
 def _requested_month(request: HttpRequest, today: date) -> tuple[int, int]:

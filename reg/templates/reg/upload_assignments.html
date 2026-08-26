@@ -1,0 +1,98 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}
+    Upload Class Assignments - Athemath
+{% endblock title %}
+{% block content %}
+    <div id="content">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Upload Class Assignments</h1>
+                <p class="text-muted">
+                    The other end of the matching problem: paste the classes and houses you
+                    computed and they are applied to the roster. Only available to superusers.
+                </p>
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {% bootstrap_form form %}
+                            <button type="submit" class="btn btn-primary btn-lg">Apply Assignments</button>
+                        </form>
+                    </div>
+                </div>
+                {% if applied %}
+                    <div class="card border-success mt-4">
+                        <div class="card-header bg-success text-white">Applied ({{ applied|length }})</div>
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Student</th>
+                                    <th scope="col">Classes</th>
+                                    <th scope="col">House</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in applied %}
+                                    <tr>
+                                        <td>{{ row.student }}</td>
+                                        <td>
+                                            {% if row.courses_changed %}
+                                                {{ row.courses|join:", "|default:"(none)" }}
+                                            {% else %}
+                                                <span class="text-muted">unchanged</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if row.house %}
+                                                {{ row.house }}
+                                            {% else %}
+                                                <span class="text-muted">unchanged</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Download the responses</strong>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for semester in semesters %}
+                            <li class="list-group-item">
+                                <a href="{% url 'reg:responses' semester.slug %}">{{ semester.name }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <strong>Format</strong>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0 ps-3">
+                            <li>
+                                Name each student by <code>airtable_name</code>, or by the
+                                <code>id</code> from the download.
+                            </li>
+                            <li>
+                                <code>courses</code> replaces the student's classes; clubs they
+                                joined themselves are left alone.
+                            </li>
+                            <li>
+                                <code>house</code> is one of the house keys listed in the download.
+                            </li>
+                            <li>Leave either key out to keep what the student already has.</li>
+                            <li>Nothing is applied unless the whole file checks out.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

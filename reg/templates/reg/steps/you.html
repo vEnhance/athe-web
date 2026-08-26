@@ -1,0 +1,16 @@
+{% extends "reg/student_step_base.html" %}
+{% load reg_questions %}
+{% block step_intro %}
+    <p>
+        Welcome to <strong>{{ invite.semester }}</strong>!
+        Here is the registration setup page for this semester.
+    </p>
+{% endblock step_intro %}
+{% block step_fields %}
+    {% if form.student %}
+        {% question form.student %}
+    {% endif %}
+    {% question form.email %}
+    {% question form.parent_email %}
+    {% question form.discord_username %}
+{% endblock step_fields %}

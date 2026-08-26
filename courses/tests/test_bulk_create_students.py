@@ -6,7 +6,7 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
-from courses.models import Course, Semester, Student
+from courses.models import Semester, Student
 
 URL = reverse("courses:bulk_create_students")
 
@@ -20,14 +20,6 @@ def semester():
         start_date=today - timedelta(days=10),
         end_date=today + timedelta(days=30),
     )
-
-
-@pytest.fixture
-def courses(semester):
-    return [
-        Course.objects.create(name=name, description=name, semester=semester)
-        for name in ("Algebra", "Geometry")
-    ]
 
 
 @pytest.fixture
@@ -51,85 +43,75 @@ def test_requires_superuser():
 
 
 @pytest.mark.django_db
-def test_creates_students_and_enrollments(superuser_client, semester, courses):
-    algebra, geometry = courses
+def test_creates_students(superuser_client, semester):
     response = superuser_client.post(
         URL,
-        {
-            "semester": semester.pk,
-            "student_data": "Alice\tAlgebra,Geometry\nBob\tCalculus",
-        },
-    )
-    # "Calculus" does not exist, so nothing at all is written
-    assert response.status_code == 200
-    assert not Student.objects.exists()
-
-    response = superuser_client.post(
-        URL,
-        {
-            "semester": semester.pk,
-            "student_data": "Alice\tAlgebra,Geometry\nBob\tAlgebra",
-        },
+        {"semester": semester.pk, "student_data": "Alice Anderson\nBob Brown"},
     )
     assert response.status_code == 302
     assert set(Student.objects.values_list("airtable_name", flat=True)) == {
-        "Alice",
-        "Bob",
+        "Alice Anderson",
+        "Bob Brown",
     }
-    assert set(algebra.students.values_list("airtable_name", flat=True)) == {
-        "Alice",
-        "Bob",
-    }
-    assert set(geometry.students.values_list("airtable_name", flat=True)) == {"Alice"}
+    # Classes and houses are left for the uploaded matching.
+    assert not Student.objects.exclude(house="").exists()
+    assert not Student.objects.filter(enrolled_courses__isnull=False).exists()
 
 
 @pytest.mark.django_db
-def test_colon_separator_and_blank_lines(superuser_client, semester, courses):
+def test_blank_lines_and_surrounding_space(superuser_client, semester):
     response = superuser_client.post(
         URL,
-        {"semester": semester.pk, "student_data": "\nAlice: Algebra\n\n"},
+        {"semester": semester.pk, "student_data": "\n  Alice Anderson  \n\n"},
     )
     assert response.status_code == 302
-    assert list(courses[0].students.values_list("airtable_name", flat=True)) == [
-        "Alice"
+    assert list(Student.objects.values_list("airtable_name", flat=True)) == [
+        "Alice Anderson"
     ]
 
 
 @pytest.mark.django_db
-def test_rerunning_is_idempotent(superuser_client, semester, courses):
-    data = {"semester": semester.pk, "student_data": "Alice\tAlgebra"}
+def test_rerunning_is_idempotent(superuser_client, semester):
+    data = {"semester": semester.pk, "student_data": "Alice Anderson"}
     superuser_client.post(URL, data)
     superuser_client.post(URL, data)
-    assert Student.objects.filter(airtable_name="Alice").count() == 1
-    assert courses[0].students.count() == 1
+    assert Student.objects.filter(airtable_name="Alice Anderson").count() == 1
 
 
 @pytest.mark.django_db
-def test_reports_malformed_lines(superuser_client, semester, courses):
+def test_rejects_duplicate_and_overlong_names(superuser_client, semester):
     response = superuser_client.post(
         URL,
         {
             "semester": semester.pk,
-            "student_data": "Alice\tAlgebra\tGeometry\n: Algebra\nCarol\tCalculus",
+            "student_data": "Alice\nAlice\n" + "x" * (Student.NAME_MAX_LENGTH + 1),
         },
     )
     assert response.status_code == 200
     errors = response.context["form"].errors["__all__"]
-    assert "Line 1: Expected tab-separated values (got 3 parts)" in errors
-    assert "Line 2: Missing airtable_name" in errors
-    assert "Line 3: Invalid course names: Calculus" in errors
+    assert "Line 2: 'Alice' is listed twice." in errors
+    assert "too long" in errors[1]
     assert not Student.objects.exists()
 
 
 @pytest.mark.django_db
-def test_rejects_ended_semester(superuser_client, semester, courses):
+def test_rejects_empty_list(superuser_client, semester):
+    response = superuser_client.post(
+        URL, {"semester": semester.pk, "student_data": " \n "}
+    )
+    assert response.status_code == 200
+    assert response.context["form"].errors["student_data"]
+
+
+@pytest.mark.django_db
+def test_rejects_ended_semester(superuser_client, semester):
     today = timezone.now().date()
     semester.start_date = today - timedelta(days=60)
     semester.end_date = today - timedelta(days=1)
     semester.save()
 
     response = superuser_client.post(
-        URL, {"semester": semester.pk, "student_data": "Alice\tAlgebra"}
+        URL, {"semester": semester.pk, "student_data": "Alice"}
     )
     assert response.status_code == 200
     assert "semester has ended" in str(response.context["form"].errors)

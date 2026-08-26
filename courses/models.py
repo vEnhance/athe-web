@@ -206,6 +206,9 @@ class Course(models.Model):
 
 
 class Student(models.Model):
+    #: Length of airtable_name; named so forms can check it without _meta.
+    NAME_MAX_LENGTH = 80
+
     class House(models.TextChoices):
         BLOB = "blob", "Blobs"
         BUNNY = "bunny", "Bunnies"
@@ -221,7 +224,7 @@ class Student(models.Model):
         related_name="students",
     )
     airtable_name = models.CharField(
-        max_length=80,
+        max_length=NAME_MAX_LENGTH,
         help_text="A unique name for the student, as listed in Airtable. "
         "This is used to disambiguate students during the registration process "
         "and when awarding house points, but generally doesn't appear to students.",

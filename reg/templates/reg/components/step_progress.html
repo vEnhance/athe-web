@@ -1,0 +1,17 @@
+<ol class="reg-progress list-unstyled">
+    {% for step in steps %}
+        <li class="reg-progress-step {% if step.current %}reg-progress-current{% elif step.done %}reg-progress-done{% endif %}">
+            {% if step.url and not step.current %}
+                <a href="{{ step.url }}">
+                    <span class="reg-progress-number">{% if step.done %}✓{% else %}{{ step.number }}{% endif %}</span>
+                    <span class="reg-progress-title">{{ step.title }}</span>
+                </a>
+            {% else %}
+                <span aria-current="{% if step.current %}step{% else %}false{% endif %}">
+                    <span class="reg-progress-number">{% if step.done and not step.current %}✓{% else %}{{ step.number }}{% endif %}</span>
+                    <span class="reg-progress-title">{{ step.title }}</span>
+                </span>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ol>

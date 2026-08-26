@@ -1,0 +1,14 @@
+{% extends "reg/student_step_base.html" %}
+{% load reg_questions %}
+{% block step_intro %}
+    <p>
+        Answer these about yourself so the sorting hat can work its magic;
+        these will be for our Athemath houses!
+    </p>
+{% endblock step_intro %}
+{% block step_fields %}
+    {% for field in form.quiz_fields %}
+        {% question field %}
+    {% endfor %}
+    {% question form.house_request %}
+{% endblock step_fields %}

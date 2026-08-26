@@ -1,0 +1,66 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% block extra_css %}
+    {# Tom Select from cdnjs, same arrangement as Bootstrap itself. To move #}
+    {# version, update both URLs and both integrity hashes together. #}
+    <link type="text/css"
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.6.2/css/tom-select.bootstrap5.min.css"
+          integrity="sha384-qNqaCnsmyTrYVwmqv4/4PcwMK8ZFAQnYPpVjWor+6cX6rKsPhebzu8vO2J3s+VZg"
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
+    <link type="text/css" rel="stylesheet" href="{% static "css/reg.css" %}" />
+{% endblock extra_css %}
+{% block title %}
+    {{ form.title }} - Student Registration
+{% endblock title %}
+{% block content %}
+    <div id="content">
+        <div class="row justify-content-center">
+            <div class="col-12 reg-page">
+                <h1>Student Registration</h1>
+                <p class="text-muted">
+                    {{ invite.semester }}
+                    {% if student %}&middot; {{ student.airtable_name }}{% endif %}
+                </p>
+                {% include "reg/components/step_progress.html" %}
+                {% if complete %}
+                    <div class="alert alert-success">
+                        You're all set: we have everything we need from you. You can still
+                        change any of your answers here until registration closes.
+                    </div>
+                {% endif %}
+                <h2>{{ form.title }}</h2>
+                {% block step_intro %}
+                {% endblock step_intro %}
+                {% bootstrap_form_errors form type="non_fields" %}
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% block step_fields %}
+                    {% endblock step_fields %}
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            {% if complete %}
+                                Save changes
+                            {% elif last_step %}
+                                Finish registration
+                            {% else %}
+                                Save and continue
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.6.2/js/tom-select.complete.min.js"
+            integrity="sha384-1mYKSrq1Nu5YJmWrIU9cvwWQlUyyukJJM9XMkAxY03nb/T69CK+Sn7rjFxVU3SSM"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+    <script src="{% static "js/tom-select-init.js" %}"></script>
+    {% block step_js %}
+    {% endblock step_js %}
+{% endblock extra_js %}

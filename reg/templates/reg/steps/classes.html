@@ -1,0 +1,29 @@
+{% extends "reg/student_step_base.html" %}
+{% load django_bootstrap5 %}
+{% load reg_questions %}
+{% block step_intro %}
+    <p>
+        The class times and who is in each class will be determined
+        based on teacher availability, student availability,
+        and which students are interested in which classes!
+    </p>
+    {% if invite.semester.visible %}
+        <p>
+            See <a href="{% url 'courses:course_list' invite.semester.slug %}">the
+            {{ invite.semester }} catalog</a> for a list of classes offered this semester.
+        </p>
+    {% endif %}
+{% endblock step_intro %}
+{% block step_fields %}
+    {% question form.subject_interest %}
+    {% question form.difficulty_levels %}
+    <div class="reg-question">
+        <h3 class="mb-1">Which classes would you most like to take?</h3>
+        <p class="form-text mt-0 mb-2">Choose up to three top choices.</p>
+        {% bootstrap_field form.first_choice %}
+        {% bootstrap_field form.second_choice %}
+        {% bootstrap_field form.third_choice %}
+    </div>
+    {% question form.taken_courses %}
+    {% question form.course_comments %}
+{% endblock step_fields %}

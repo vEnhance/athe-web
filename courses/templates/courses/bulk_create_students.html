@@ -38,8 +38,8 @@
             <div class="bulk-create-form">
                 <h1>Bulk Create Students</h1>
                 <p class="text-muted">
-                    Create multiple students and enroll them in courses at once.
-                    Meant to be used only once per semester, right after rostering is done.
+                    Create the roster for a new semester from a list of names.
+                    Meant to be used only once per semester, right after admissions.
                     Only available to superusers.
                 </p>
                 <div class="form-instructions">
@@ -47,11 +47,15 @@
                     <ul>
                         <li>Select a semester that has not yet ended</li>
                         <li>
-                            Each line should contain: <code>airtable_name</code> <strong>[TAB]</strong> <code>course1,course2,course3</code>
+                            Paste one <code>airtable_name</code> per line, exactly as it appears in Airtable
                         </li>
-                        <li>You can also use ": " as a separator instead of tab.</li>
-                        <li>Course names must match exactly with courses in the selected semester</li>
-                        <li>Students will be created if they don't exist, and enrolled in the specified courses</li>
+                        <li>
+                            Classes and houses are <strong>not</strong> set here. Students choose their
+                            name and fill in the registration questionnaire from the student invite link,
+                            and their classes and houses are applied later from
+                            <a href="{% url 'reg:upload-assignments' %}">Upload Class Assignments</a>.
+                        </li>
+                        <li>Names that already exist for the semester are left alone</li>
                         <li>All validation happens before any data is saved - errors will abort the entire operation</li>
                     </ul>
                 </div>

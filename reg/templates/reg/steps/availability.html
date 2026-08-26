@@ -1,0 +1,23 @@
+{% extends "reg/student_step_base.html" %}
+{% load static %}
+{% load reg_questions %}
+{% block step_intro %}
+    <p>
+        Please indicate all hours during which you don't have a regular conflict.
+        Try to put as many hours as possible,
+        because the more hours you put, the easier it will be to schedule your class!
+    </p>
+    <p>
+        <b>ALL TIMES ARE IN U.S. EASTERN TIME SO MAKE SURE TO CONVERT IF NEEDED,
+        TAKING DAYLIGHT SAVINGS INTO ACCOUNT!</b>
+        For comparison, it is <b>{% now "g:i A" %}</b> right now in US Eastern time
+        ({% now "l, F j" %}).
+    </p>
+{% endblock step_intro %}
+{% block step_fields %}
+    {% question form.availability %}
+    {% question form.availability_comments %}
+{% endblock step_fields %}
+{% block step_js %}
+    <script src="{% static "js/availability-grid.js" %}"></script>
+{% endblock step_js %}

@@ -1,0 +1,197 @@
+/* Styles for the student registration questionnaire. */
+
+/* --- Progress bar across the four pages --- */
+
+.reg-progress {
+  display: flex;
+  list-style: none;
+  padding-left: 0;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.reg-progress-step a,
+.reg-progress-step > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #6c757d;
+  text-decoration: none;
+}
+
+.reg-progress-step a:hover .reg-progress-title {
+  text-decoration: underline;
+}
+
+.reg-progress-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid currentcolor;
+  border-radius: 50%;
+  font-size: 0.8rem;
+}
+
+/* Brand red throughout rather than Bootstrap's stock green and blue, which
+   fight with the site's red and black. */
+.reg-progress-done a,
+.reg-progress-done > span {
+  color: var(--bs-primary, #a02828);
+}
+
+.reg-progress-current > span,
+.reg-progress-current a {
+  color: var(--bs-primary, #a02828);
+  font-weight: 600;
+}
+
+.reg-progress-current .reg-progress-number {
+  background-color: var(--bs-primary, #a02828);
+  border-color: var(--bs-primary, #a02828);
+  color: #fff;
+}
+
+/* Wide enough for a line of about 80 characters at the site's 18px body text,
+   and no wider, however big the window is. */
+.reg-page {
+  max-width: 48rem;
+}
+
+/* --- One question and its answer --- */
+
+.reg-question {
+  margin-bottom: 1.75rem;
+}
+
+/* #content gives headings generous padding, which is too much between a
+   question and the note under it. */
+.reg-question h3 {
+  padding-bottom: 0;
+}
+
+/* The widget brings its own bottom margin; the question owns the spacing. */
+.reg-question .mb-3:last-child {
+  margin-bottom: 0 !important;
+}
+
+.reg-required {
+  color: #dc3545;
+  font-weight: normal;
+}
+
+/* --- Availability grid --- */
+
+.availability-grid {
+  overflow-x: auto;
+  /* Painting a range should not leave the table text half-selected. */
+  user-select: none;
+  margin-bottom: 0.5rem;
+}
+
+.availability-grid table {
+  border-collapse: collapse;
+  width: auto;
+  min-width: 18rem;
+  max-width: 26rem;
+}
+
+.availability-grid th {
+  font-weight: normal;
+  font-size: 0.8rem;
+  line-height: 1.35rem;
+  padding: 0 0.5rem;
+  white-space: nowrap;
+}
+
+.availability-grid th.availability-time {
+  width: 6rem;
+  text-align: right;
+  color: #6c757d;
+}
+
+.availability-grid th.availability-day {
+  text-align: center;
+  font-weight: 600;
+}
+
+.availability-grid .availability-day-toggle {
+  cursor: pointer;
+}
+
+.availability-grid td.availability-cell {
+  padding: 0;
+  border: 1px solid #dee2e6;
+}
+
+/* A firmer line on the hour, so half hours read as halves of something. */
+.availability-grid tr.availability-hour td.availability-cell {
+  border-top-color: #adb5bd;
+}
+
+/* The checkbox _is_ the cell: no padding, no gaps, the whole rectangle fills
+   in when it is checked. */
+input.availability-slot {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  width: 100%;
+  height: 1.35rem;
+  cursor: pointer;
+  background-color: #fff;
+  /* Stop a touch drag from being read as a gesture on the checkbox. */
+  touch-action: manipulation;
+}
+
+/* The one place green beats the site's red: painting a cell means "I am free
+   then", and when2meet has taught everyone that green is the good one. A hat
+   tip, and cheap insurance against anyone reading red as "blocked". */
+input.availability-slot:hover {
+  background-color: #c8e6c9;
+}
+
+input.availability-slot:checked {
+  background-color: #2e7d32;
+}
+
+input.availability-slot:checked:hover {
+  background-color: #1b5e20;
+}
+
+/* Near-black rather than either brand color, so the focus ring is visible on a
+   painted cell and an empty one alike. */
+input.availability-slot:focus-visible {
+  outline: 2px solid #212529;
+  outline-offset: -2px;
+}
+
+/* --- Subject interest grid --- */
+
+.subject-interest {
+  overflow-x: auto;
+}
+
+.subject-interest table {
+  max-width: 34rem;
+}
+
+.subject-interest th[scope="col"] {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* --- Tom Select --- */
+
+/* Bootstrap gives the underlying <select> a fixed height that the wrapper
+   inherits; multi-selects need to grow with their contents instead. */
+.ts-wrapper.form-select {
+  height: auto;
+  padding: 0;
+}
