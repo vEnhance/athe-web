@@ -36,7 +36,7 @@ def test_dashboard_house_links_for_student(semester: Semester):
     )
 
     client.login(username="user", password="password")
-    response = client.get(reverse("home:index"))
+    response = client.get(reverse("index"))
 
     content = response.content.decode()
     assert "Bunnies" in content
@@ -55,12 +55,12 @@ def test_dashboard_bulk_award_link_for_staff():
 
     # Regular user should not see Award Points link
     client.login(username="user", password="password")
-    response = client.get(reverse("home:index"))
+    response = client.get(reverse("index"))
     content = response.content.decode()
     assert "Award Points" not in content
 
     # Staff should see Award Points link
     client.login(username="staff", password="password")
-    response = client.get(reverse("home:index"))
+    response = client.get(reverse("index"))
     content = response.content.decode()
     assert "Award Points" in content

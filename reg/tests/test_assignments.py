@@ -111,7 +111,7 @@ def test_endpoints_require_superuser(url_name, responses_url):
     client.login(username="ta", password="password")
     response = client.get(url)
     assert response.status_code == 302
-    assert response.url == reverse("home:index")
+    assert response.url == reverse("index")
 
 
 @pytest.mark.django_db

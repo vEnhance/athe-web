@@ -22,6 +22,8 @@ from django.contrib.auth import views as auth_views
 from django.urls import include, path
 from django.views.generic.base import RedirectView
 
+from atheweb.views import index
+
 urlpatterns = [
     path(
         "favicon.ico",
@@ -51,6 +53,7 @@ urlpatterns = [
         auth_views.LogoutView.as_view(next_page="/"),
         name="logout",
     ),
+    path("", index, name="index"),
     path("", include("home.urls")),
 ]
 

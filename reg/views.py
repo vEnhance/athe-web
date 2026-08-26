@@ -170,7 +170,7 @@ class StaffInviteView(View):
             f"Welcome, {user.get_full_name() or user.username}! "
             "Your staff account has been created successfully.",
         )
-        return redirect("home:index")
+        return redirect("index")
 
 
 class StudentInviteBaseView(View):
@@ -372,7 +372,7 @@ class StudentRegistrationStepView(StudentInviteBaseView):
                 f"for {self.invite.semester}. We'll be in touch with your classes "
                 "once the schedule is worked out.",
             )
-        return redirect("home:index")
+        return redirect("index")
 
     def prepare(self, request: HttpRequest) -> HttpResponse | None:
         """Load the student's progress, and send them back if they skipped ahead."""

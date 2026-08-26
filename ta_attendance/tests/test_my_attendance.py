@@ -33,7 +33,7 @@ def test_my_attendance_requires_staff():
 
     # Should redirect with error message
     assert response.status_code == 302
-    assert response.url == reverse("home:index")
+    assert response.url == reverse("index")
 
 
 @pytest.mark.django_db

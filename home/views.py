@@ -10,16 +10,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView, UpdateView
 
-from dashboard.views import dashboard
-
 from .models import ApplyPSet, StaffPhotoListing
-
-
-def index(request: HttpRequest) -> HttpResponse:
-    """The site root: the dashboard once logged in, the public splash page if not."""
-    if request.user.is_authenticated:
-        return dashboard(request)
-    return render(request, "home/index.html")
 
 
 class UserProfileForm(forms.ModelForm):

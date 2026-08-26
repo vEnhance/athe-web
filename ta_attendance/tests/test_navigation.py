@@ -17,7 +17,7 @@ def test_navigation_link_visible_to_staff():
     User.objects.create_user(username="staff", password="password", is_staff=True)
 
     client.login(username="staff", password="password")
-    response = client.get(reverse("home:index"))
+    response = client.get(reverse("index"))
 
     content = response.content.decode()
     assert "TA Sign-in Sheet" in content

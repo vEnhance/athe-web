@@ -54,7 +54,7 @@ def client_for():
 @pytest.mark.django_db
 def test_root_shows_splash_when_logged_out():
     """Anonymous visitors still get the public homepage at /."""
-    response = Client().get(reverse("home:index"))
+    response = Client().get(reverse("index"))
     content = response.content.decode()
 
     assert response.status_code == 200
@@ -65,7 +65,7 @@ def test_root_shows_splash_when_logged_out():
 @pytest.mark.django_db
 def test_root_shows_dashboard_when_logged_in(student: Student, client_for):
     """Logged-in users get the dashboard at / instead of the splash page."""
-    response = client_for("lucy").get(reverse("home:index"))
+    response = client_for("lucy").get(reverse("index"))
     content = response.content.decode()
 
     assert response.status_code == 200
@@ -98,7 +98,7 @@ def test_dashboard_lists_classes_and_clubs_with_next_meeting(
         course=klass, start_time=now + timedelta(days=8), title="Later lesson"
     )
 
-    content = client_for("lucy").get(reverse("home:index")).content.decode()
+    content = client_for("lucy").get(reverse("index")).content.decode()
 
     assert "Intro to Olympiad" in content
     assert "Origami Club" in content
@@ -129,7 +129,7 @@ def test_dashboard_omits_courses_from_inactive_semesters(
     )
     old_course.students.add(old_student)
 
-    content = client_for("lucy").get(reverse("home:index")).content.decode()
+    content = client_for("lucy").get(reverse("index")).content.decode()
 
     assert "Ancient History of Numbers" not in content
 
@@ -154,7 +154,7 @@ def test_dashboard_house_squares(semester: Semester, student: Student, client_fo
     )
 
     client = client_for("lucy")
-    content = client.get(reverse("home:index")).content.decode()
+    content = client.get(reverse("index")).content.decode()
 
     # Each tile is just its label and its number.
     assert "Owls 10" in visible_text(content)
@@ -176,7 +176,7 @@ def test_dashboard_prompts_for_missing_yearbook_entry(
     semester: Semester, student: Student, client_for
 ):
     """Without an entry, the yearbook square names the semester and invites one."""
-    content = client_for("lucy").get(reverse("home:index")).content.decode()
+    content = client_for("lucy").get(reverse("index")).content.decode()
 
     text = visible_text(content)
     assert "You don't have an entry yet for Fall 2025." in text
@@ -193,7 +193,7 @@ def test_dashboard_previews_existing_yearbook_entry(
         student=student, display_name="Lucy L.", bio="I like combinatorics."
     )
 
-    content = client_for("lucy").get(reverse("home:index")).content.decode()
+    content = client_for("lucy").get(reverse("index")).content.decode()
 
     # The dashboard shows the same card the yearbook listing does.
     assert "Lucy L." in content
@@ -213,16 +213,16 @@ def test_dashboard_staff_section_is_staff_only(client_for):
         username="boss", password="password", is_staff=True, is_superuser=True
     )
 
-    pupil = client_for("pupil").get(reverse("home:index")).content.decode()
+    pupil = client_for("pupil").get(reverse("index")).content.decode()
     assert "TA Sign-in Sheet" not in pupil
     assert "Bulk Create Students" not in pupil
 
-    teacher = client_for("teacher").get(reverse("home:index")).content.decode()
+    teacher = client_for("teacher").get(reverse("index")).content.decode()
     assert "TA Sign-in Sheet" in teacher
     assert reverse("courses:staff_schedule") in teacher
     assert "Bulk Create Students" not in teacher
 
-    boss = client_for("boss").get(reverse("home:index")).content.decode()
+    boss = client_for("boss").get(reverse("index")).content.decode()
     assert "TA Sign-in Sheet" in boss
     assert "Bulk Create Students" in boss
     assert reverse("reg:upload-assignments") in boss
@@ -234,7 +234,7 @@ def test_dashboard_works_for_staff_without_student_record(client_for):
     """Staff have no Student row, so they get the generic house/yearbook squares."""
     User.objects.create_user(username="teacher", password="password", is_staff=True)
 
-    response = client_for("teacher").get(reverse("home:index"))
+    response = client_for("teacher").get(reverse("index"))
     content = response.content.decode()
 
     assert response.status_code == 200
@@ -248,7 +248,7 @@ def test_dashboard_works_for_staff_without_student_record(client_for):
 @pytest.mark.django_db
 def test_navbar_dropdown_is_trimmed(student: Student, client_for):
     """The user dropdown keeps the dashboard, blog and account entries only."""
-    content = client_for("lucy").get(reverse("home:index")).content.decode()
+    content = client_for("lucy").get(reverse("index")).content.decode()
 
     assert '<a class="dropdown-item" href="/">Dashboard</a>' in content
     assert "My Blog Posts" in content
@@ -264,7 +264,7 @@ def test_section_headings_carry_a_badge_to_the_full_page(
     semester: Semester, student: Student, client_for
 ):
     """Each heading is plain text; the badge beside it is what links onward."""
-    content = client_for("lucy").get(reverse("home:index")).content.decode()
+    content = client_for("lucy").get(reverse("index")).content.decode()
     text = visible_text(content)
 
     assert "Classes See all" in text
@@ -296,7 +296,7 @@ def test_dashboard_summarises_global_events(
         semester=semester, title="Closing Party", start_time=now + timedelta(days=40)
     )
 
-    content = client_for("lucy").get(reverse("home:index")).content.decode()
+    content = client_for("lucy").get(reverse("index")).content.decode()
     text = visible_text(content)
 
     # The count covers the whole semester; "next" looks only forwards.
@@ -318,7 +318,7 @@ def test_dashboard_global_events_all_in_the_past(
         start_time=timezone.now() - timedelta(days=3),
     )
 
-    text = visible_text(client_for("lucy").get(reverse("home:index")).content.decode())
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
 
     assert "There was 1 global event this semester" in text
     assert "There are no future global events scheduled." in text
@@ -329,7 +329,7 @@ def test_dashboard_says_nothing_without_global_events(
     semester: Semester, student: Student, client_for
 ):
     """No events at all means no sentence about them."""
-    text = visible_text(client_for("lucy").get(reverse("home:index")).content.decode())
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
 
     assert "global event" not in text
 
@@ -354,7 +354,7 @@ def test_dashboard_ignores_events_from_other_semesters(
         start_time=timezone.now() - timedelta(days=150),
     )
 
-    text = visible_text(client_for("lucy").get(reverse("home:index")).content.decode())
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
 
     assert "global event" not in text
     assert "Last Year's Picnic" not in text
