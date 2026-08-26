@@ -1,9 +1,32 @@
+from typing import ClassVar
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Sum
 from django.utils import timezone
 
 from courses.models import Semester, Student
+
+
+class AwardQuerySet(models.QuerySet["Award"]):
+    def for_semester(
+        self, semester: Semester, *, respect_freeze: bool = True
+    ) -> "AwardQuerySet":
+        """Awards in a semester, optionally cut off at its leaderboard freeze."""
+        qs = self.filter(semester=semester)
+        if respect_freeze and semester.house_points_freeze_date:
+            qs = qs.filter(awarded_at__lte=semester.house_points_freeze_date)
+        return qs
+
+    def totals_by_house(self) -> dict[str, int]:
+        """Points per house, including houses that have not scored."""
+        scored = {
+            entry["house"]: entry["total_points"] or 0
+            for entry in self.values("house").annotate(total_points=Sum("points"))
+            if entry["house"]
+        }
+        return {house.value: scored.get(house.value, 0) for house in Student.House}
 
 
 class Award(models.Model):
@@ -84,6 +107,8 @@ class Award(models.Model):
         help_text="Staff member who awarded these points.",
     )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects: ClassVar[AwardQuerySet] = AwardQuerySet.as_manager()  # type: ignore[assignment]
 
     def __str__(self) -> str:
         if self.student:

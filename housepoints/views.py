@@ -42,32 +42,13 @@ def leaderboard(request: HttpRequest, slug: str | None = None) -> HttpResponse:
     else:
         student = None
 
-    # Calculate total points per house, respecting freeze date
-    awards_query = Award.objects.filter(semester=semester)
-
-    # Apply freeze date if set
-    if semester.house_points_freeze_date:
-        awards_query = awards_query.filter(
-            awarded_at__lte=semester.house_points_freeze_date
-        )
-
-    # Aggregate points by house
-    house_totals = (
-        awards_query.values("house")
-        .annotate(total_points=Sum("points"))
-        .order_by("-total_points")
-    )
-
-    # Every house appears, including those yet to score
-    totals_by_house = {
-        entry["house"]: entry["total_points"] or 0 for entry in house_totals
-    }
+    totals_by_house = Award.objects.for_semester(semester).totals_by_house()
     leaderboard_data = sorted(
         (
             {
                 "house": house.value,
                 "house_display": house.label,
-                "total_points": totals_by_house.get(house.value, 0),
+                "total_points": totals_by_house[house.value],
             }
             for house in Student.House
         ),
@@ -443,12 +424,7 @@ def house_detail(request: HttpRequest, slug: str, house: str) -> HttpResponse:
             )
             return redirect("housepoints:leaderboard_semester", slug=slug)
 
-    # Get awards for this house, respecting freeze date
-    awards_query = Award.objects.filter(semester=semester, house=house)
-    if semester.house_points_freeze_date:
-        awards_query = awards_query.filter(
-            awarded_at__lte=semester.house_points_freeze_date
-        )
+    awards_query = Award.objects.for_semester(semester).filter(house=house)
 
     # Aggregate points by category
     category_totals = (
@@ -498,8 +474,9 @@ def house_detail_staff(request: HttpRequest, slug: str, house: str) -> HttpRespo
         messages.error(request, "Invalid house specified.")
         return redirect("housepoints:leaderboard_semester", slug=slug)
 
-    # Get awards for this house, NOT respecting freeze date
-    awards_query = Award.objects.filter(semester=semester, house=house)
+    awards_query = Award.objects.for_semester(semester, respect_freeze=False).filter(
+        house=house
+    )
 
     # Get all students in this house for the semester
     students = (
