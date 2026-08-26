@@ -3,21 +3,18 @@
 {% load reg_questions %}
 {% block step_intro %}
     <p>
-        Class times and who is in each class are worked out from teacher availability,
-        student availability, and which classes students are interested in. Nothing here
-        is a promise, but we use all of it.
+        The class times and who is in each class will be determined
+        based on teacher availability, student availability,
+        and which students are interested in which classes!
     </p>
+    <p>See [TODO: LINK TO CATALOG] for a list of classes offered this semester.</p>
 {% endblock step_intro %}
 {% block step_fields %}
     {% question form.subject_interest %}
     {% question form.difficulty_levels %}
     <div class="reg-question">
         <h3 class="mb-1">Which classes would you most like to take?</h3>
-        <p class="form-text mt-0 mb-2">
-            Only your top three: below that, choices tend to be much of a muchness.
-            Fill in as many or as few as you like -- naming a second and third just
-            gives us more room to fit you in.
-        </p>
+        <p class="form-text mt-0 mb-2">Choose up to three top choices.</p>
         {% bootstrap_field form.first_choice %}
         {% bootstrap_field form.second_choice %}
         {% bootstrap_field form.third_choice %}

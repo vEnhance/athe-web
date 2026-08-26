@@ -192,13 +192,7 @@ class AvailabilityField(forms.MultipleChoiceField):
 
     def __init__(self, **kwargs: Any) -> None:
         kwargs.setdefault("choices", availability.slot_choices())
-        kwargs.setdefault("label", "When are you available?")
-        kwargs.setdefault(
-            "help_text",
-            "All times are Eastern. Click and drag to paint the times you could "
-            "attend a class. Mark everything you could make, not just your "
-            "favorites: the more you mark, the easier you are to schedule.",
-        )
+        kwargs.setdefault("label", "When are you available? (US Eastern time)")
         super().__init__(**kwargs)
 
 
@@ -273,11 +267,6 @@ class SubjectInterestField(forms.Field):
 
     def __init__(self, **kwargs: Any) -> None:
         kwargs.setdefault("label", "How interested are you in each subject?")
-        kwargs.setdefault(
-            "help_text",
-            "So we can make sure you get put in a class on a subject you're "
-            "interested in.",
-        )
         super().__init__(**kwargs)
 
     def clean(self, value: Any) -> dict[str, str]:
@@ -465,11 +454,9 @@ class ClassPreferenceStepForm(RegistrationStepForm):
             queryset=classes,
             required=False,
             widget=SearchableSelectMultiple(
-                attrs={"data-placeholder": "Usually none - leave empty if so"}
+                attrs={"data-placeholder": "Leave empty if none"}
             ),
             label="Have you already taken any of these classes?",
-            help_text="Classes you took in an earlier semester, so we don't put "
-            "you through them twice. Leave empty if this is all new to you.",
         )
         self.order_fields(
             [

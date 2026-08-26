@@ -37,8 +37,7 @@ DIFFICULTY_HELP = (
     "If you're not familiar with the U.S. system: AMC means computational "
     "problems done quickly (25 problems in 75 minutes), AIME means "
     "computational problems that are harder and more involved (15 problems in "
-    "3 hours), and Olympiad means proof problems. Tick every band you would be "
-    "happy in."
+    "3 hours), and Olympiad means proof problems."
 )
 
 SUBJECT_KEYS = frozenset(key for key, _ in SUBJECTS)
