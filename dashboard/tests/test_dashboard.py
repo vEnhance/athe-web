@@ -59,7 +59,7 @@ def test_root_shows_splash_when_logged_out():
 
     assert response.status_code == 200
     assert "Bringing extraordinary young women together" in content
-    assert "Welcome back" not in content
+    assert "Hi," not in content
 
 
 @pytest.mark.django_db
@@ -69,7 +69,7 @@ def test_root_shows_dashboard_when_logged_in(student: Student, client_for):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Welcome back, Lucy" in content
+    assert "Hi, Lucy" in content
     assert "Bringing extraordinary young women together" not in content
 
 
@@ -320,8 +320,8 @@ def test_dashboard_global_events_all_in_the_past(
 
     text = visible_text(client_for("lucy").get(reverse("home:index")).content.decode())
 
-    assert "There are 1 global event this semester" in text
-    assert "There are none in the future." in text
+    assert "There was 1 global event this semester" in text
+    assert "There are no future global events scheduled." in text
 
 
 @pytest.mark.django_db
