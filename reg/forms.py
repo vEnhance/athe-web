@@ -195,6 +195,9 @@ class AvailabilityField(forms.MultipleChoiceField):
     def __init__(self, **kwargs: Any) -> None:
         kwargs.setdefault("choices", availability.slot_choices())
         kwargs.setdefault("label", "When are you available? (US Eastern time)")
+        kwargs.setdefault(
+            "help_text", "Click individual cells or drag-to-paint like when2meet."
+        )
         super().__init__(**kwargs)
 
 
@@ -458,7 +461,8 @@ class ClassPreferenceStepForm(RegistrationStepForm):
             widget=SearchableSelectMultiple(
                 attrs={"data-placeholder": "Leave empty if none"}
             ),
-            label="Have you already taken any of these classes?",
+            label="Have you already taken any of the classes offered this semester?",
+            help_text="To ensure you don't end up in a repeated class. Leave blank if none.",
         )
         self.order_fields(
             [

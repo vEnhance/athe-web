@@ -4,17 +4,14 @@
 {% block step_intro %}
     <p>
         Please indicate all hours during which you don't have a regular conflict.
-        You can click individual cells or drag-to-paint like in when2meet.
+        Try to put as many hours as possible,
+        because the more hours you put, the easier it will be to schedule your class!
     </p>
     <p>
         <b>ALL TIMES ARE IN U.S. EASTERN TIME SO MAKE SURE TO CONVERT IF NEEDED,
         TAKING DAYLIGHT SAVINGS INTO ACCOUNT!</b>
         For comparison, it is <b>{% now "g:i A" %}</b> right now in US Eastern time
         ({% now "l, F j" %}).
-    </p>
-    <p>
-        Please try to put as many hours as possible,
-        because the more hours you put, the easier it will be to schedule your class!
     </p>
 {% endblock step_intro %}
 {% block step_fields %}
