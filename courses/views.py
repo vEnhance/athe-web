@@ -11,7 +11,6 @@ from django.db.models import (
     Exists,
     ExpressionWrapper,
     OuterRef,
-    Prefetch,
     Q,
 )
 from django.forms import modelformset_factory
@@ -110,132 +109,39 @@ def my_courses(request: HttpRequest) -> HttpResponse:
 @login_required
 def my_clubs(request: HttpRequest) -> HttpResponse:
     """Show clubs in active semesters, split by enrollment status. Includes led clubs."""
-    # Get user's student records for active semesters
-    today = timezone.now().date()
-    active_student_records = (
-        Student.objects.filter(
-            user=request.user,
-            semester__start_date__lte=today,
-            semester__end_date__gte=today,
-        )
-        .select_related("semester")
-        .prefetch_related(
-            Prefetch(
-                "enrolled_courses",
-                queryset=Course.objects.filter(is_club=True).select_related(
-                    "semester", "instructor"
-                ),
-                to_attr="enrolled_club_list",
-            )
-        )
-    )
-
-    # Get all clubs where user is a leader (in active semesters)
-    led_clubs = Course.objects.filter(
-        leaders=request.user,
-        is_club=True,
-        semester__start_date__lte=today,
-        semester__end_date__gte=today,
-    ).select_related("semester", "instructor")
-
-    # Convert to list for easier manipulation
-    active_student_records_list = list(active_student_records)
-    led_clubs_list = list(led_clubs)
-
     assert isinstance(request.user, User)
 
-    # Get GlobalEvents for active semesters
+    active_clubs = Course.objects.filter(is_club=True).active()
+    global_events = GlobalEvent.objects.visible_to(request.user).order_by("start_time")
+
     if request.user.is_staff:
-        # Staff see all global events in visible active semesters
-        global_events = (
-            GlobalEvent.objects.filter(
-                semester__start_date__lte=today,
-                semester__end_date__gte=today,
-                semester__visible=True,
-            )
-            .select_related("semester")
-            .order_by("start_time")
-        )
+        # Staff are never enrolled, so "enrolled" means "leads" and every other
+        # active club is on offer regardless of semester membership.
+        enrolled_clubs = active_clubs.filter(leaders=request.user)
+        available_clubs = active_clubs.exclude(leaders=request.user)
+        global_events = global_events.filter(semester__in=Semester.objects.active())
+        has_active_semester = True
     else:
-        # Students see global events from semesters they're enrolled in
-        student_semester_ids = [s.semester_id for s in active_student_records_list]  # type: ignore[attr-defined]
-        global_events = (
-            GlobalEvent.objects.filter(
-                semester_id__in=student_semester_ids,
-                semester__visible=True,
-            )
-            .select_related("semester")
-            .order_by("start_time")
+        enrolled_clubs = active_clubs.for_user(request.user)
+        # Students may only join clubs in a semester they are enrolled in.
+        available_clubs = active_clubs.filter(
+            semester__students__user=request.user
+        ).exclude(pk__in=enrolled_clubs)
+        has_active_semester = (
+            enrolled_clubs.exists()
+            or Student.objects.filter(
+                user=request.user, semester__in=Semester.objects.active()
+            ).exists()
         )
-
-    if request.user.is_staff:
-        return render(
-            request,
-            "courses/my_clubs.html",
-            {
-                "enrolled_clubs": led_clubs_list,
-                "available_clubs": Course.objects.filter(
-                    is_club=True,
-                    semester__start_date__lte=today,
-                    semester__end_date__gte=today,
-                ).exclude(pk__in=led_clubs.values_list("pk", flat=True)),
-                "global_events": global_events,
-                "has_active_semester": True,
-            },
-        )
-
-    if not active_student_records_list and not led_clubs_list:
-        return render(
-            request,
-            "courses/my_clubs.html",
-            {
-                "enrolled_clubs": [],
-                "available_clubs": [],
-                "global_events": [],
-                "has_active_semester": False,
-            },
-        )
-
-    # Get all clubs from active semesters where user has student access
-    active_semesters = [s.semester for s in active_student_records_list]
-    all_active_clubs = Course.objects.filter(
-        semester__in=active_semesters, is_club=True
-    ).select_related("semester", "instructor")
-
-    # Build set of enrolled club IDs
-    enrolled_club_ids = set()
-    for student in active_student_records_list:
-        for course in student.enrolled_club_list:  # type: ignore[attr-defined]
-            enrolled_club_ids.add(course.id)  # type: ignore[attr-defined]
-
-    # Add led clubs to enrolled list
-    for club in led_clubs_list:
-        enrolled_club_ids.add(club.id)  # type: ignore[attr-defined]
-
-    # Split into enrolled and available
-    enrolled_clubs_dict = {}
-    available_clubs = []
-    for club in all_active_clubs:
-        if club.id in enrolled_club_ids:  # type: ignore[attr-defined]
-            enrolled_clubs_dict[club.id] = club  # type: ignore[attr-defined]
-        else:
-            available_clubs.append(club)
-
-    # Also include led clubs that might not be in active_semesters
-    for club in led_clubs_list:
-        if club.id not in enrolled_clubs_dict:  # type: ignore[attr-defined]
-            enrolled_clubs_dict[club.id] = club  # type: ignore[attr-defined]
-
-    enrolled_clubs = list(enrolled_clubs_dict.values())
 
     return render(
         request,
         "courses/my_clubs.html",
         {
-            "enrolled_clubs": enrolled_clubs,
-            "available_clubs": available_clubs,
+            "enrolled_clubs": enrolled_clubs.select_related("semester", "instructor"),
+            "available_clubs": available_clubs.select_related("semester", "instructor"),
             "global_events": global_events,
-            "has_active_semester": True,
+            "has_active_semester": has_active_semester,
         },
     )
 
