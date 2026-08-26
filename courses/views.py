@@ -21,6 +21,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, View
 
+from atheweb.decorators import staff_required, superuser_required
 from courses.forms import (
     BulkStudentCreationForm,
     CourseMeetingForm,
@@ -223,17 +224,15 @@ def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect("courses:my_clubs")
 
 
-@login_required
+@staff_required(
+    message="You don't have permission to view the staff schedule.",
+    redirect_to="courses:catalog_root",
+)
 def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpResponse:
     """Staff-only master schedule: all course meetings for a semester.
 
     If no slug is given, defaults to the current active semester.
     """
-    assert isinstance(request.user, User)
-    if not request.user.is_staff:
-        messages.error(request, "You don't have permission to view the staff schedule.")
-        return redirect("courses:catalog_root")
-
     all_semesters = list(Semester.objects.order_by("-start_date"))
 
     if slug is not None:
@@ -333,17 +332,12 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
 
         course = self.get_object()
 
-        # Staff users have access to everything
-        if self.request.user.is_staff:
+        if course.is_managed_by(self.request.user):
             return True
 
         # Non-staff users cannot access courses in invisible semesters
         if not course.semester.visible:
             return False
-
-        # Leaders always have access
-        if course.leaders.filter(pk=self.request.user.pk).exists():
-            return True
 
         if course.is_club:
             # For clubs: any student with access to this semester
@@ -372,11 +366,7 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
         # Add member list
         context["members"] = self.object.students.select_related("user")
 
-        # Check if user is a leader
-        context["is_leader"] = (
-            self.request.user.is_staff
-            or self.object.leaders.filter(pk=self.request.user.pk).exists()
-        )
+        context["is_leader"] = self.object.is_managed_by(self.request.user)
 
         # For clubs in active semesters, check if user can join/drop
         if self.object.is_club and self.object.semester.is_active():
@@ -411,14 +401,7 @@ class CourseUpdateView(UserPassesTestMixin, UpdateView):
 
     def test_func(self) -> bool:
         """Check if user is staff or a leader of this course."""
-        if not self.request.user.is_authenticated:
-            return False
-        assert isinstance(self.request.user, User)
-        if self.request.user.is_staff:
-            return True
-
-        course = self.get_object()
-        return course.leaders.filter(pk=self.request.user.pk).exists()
+        return self.get_object().is_managed_by(self.request.user)
 
     def get_success_url(self) -> str:
         """Redirect back to the course detail page after successful update."""
@@ -436,13 +419,7 @@ class CourseUpdateView(UserPassesTestMixin, UpdateView):
 def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
     """Manage meetings for a course using inline formsets. Only accessible to staff and course leaders."""
     course = get_object_or_404(Course, pk=pk)
-    assert isinstance(request.user, User)
-
-    # Check if user is staff or a leader
-    is_leader = (
-        request.user.is_staff or course.leaders.filter(pk=request.user.pk).exists()
-    )
-    if not is_leader:
+    if not course.is_managed_by(request.user):
         messages.error(request, "You don't have permission to manage this course.")
         return redirect("courses:course_detail", pk=course.pk)
 
@@ -482,15 +459,9 @@ def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
-@login_required
+@superuser_required()
 def bulk_create_students(request: HttpRequest) -> HttpResponse:
     """Bulk create students and enroll them in courses. Only accessible to superusers."""
-    assert isinstance(request.user, User)
-    # Check if user is a superuser
-    if not request.user.is_superuser:
-        messages.error(request, "You must be a superuser to access this page.")
-        return redirect("home:index")
-
     if request.method == "POST":
         form = BulkStudentCreationForm(request.POST)
         if form.is_valid():

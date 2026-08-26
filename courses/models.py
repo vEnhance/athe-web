@@ -172,6 +172,14 @@ class Course(models.Model):
     def get_absolute_url(self) -> str:
         return reverse("courses:course_detail", kwargs={"pk": self.pk})
 
+    def is_managed_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
+        """Whether the user may edit this course and manage its meetings."""
+        if not user.is_authenticated:
+            return False
+        return bool(
+            getattr(user, "is_staff", False) or self.leaders.filter(pk=user.pk).exists()
+        )
+
     def save(self, *args, **kwargs) -> None:  # type: ignore[override]
         """Override save to auto-add instructor as a leader."""
         super().save(*args, **kwargs)

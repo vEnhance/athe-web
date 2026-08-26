@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.views import View
 from django.views.generic import CreateView
 
+from atheweb.decorators import staff_required
 from courses.models import Course, Semester, Student
 from housepoints.models import Award
 
@@ -505,15 +506,12 @@ def house_detail(request: HttpRequest, slug: str, house: str) -> HttpResponse:
     )
 
 
-@login_required
+@staff_required(
+    message="This view is only available to staff members.",
+    redirect_to="housepoints:leaderboard",
+)
 def house_detail_staff(request: HttpRequest, slug: str, house: str) -> HttpResponse:
     """Show detailed student x category breakdown for a house (staff view)."""
-    # Staff only
-    assert isinstance(request.user, User)
-    if not request.user.is_staff:
-        messages.error(request, "This view is only available to staff members.")
-        return redirect("housepoints:leaderboard_semester", slug=slug)
-
     semester = get_object_or_404(Semester, slug=slug)
 
     # Validate house code
