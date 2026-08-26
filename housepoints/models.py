@@ -1,4 +1,5 @@
-from typing import ClassVar
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, ClassVar
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -7,6 +8,9 @@ from django.db.models import Sum
 from django.utils import timezone
 
 from courses.models import Semester, Student
+
+if TYPE_CHECKING:
+    from courses.models import Course
 
 
 class AwardQuerySet(models.QuerySet["Award"]):
@@ -122,6 +126,34 @@ class Award(models.Model):
                 f"{self.get_house_display()} - {self.get_award_type_display()} "  # type: ignore[attr-defined]
                 f"({self.points} pts)"
             )
+
+    @classmethod
+    def class_attendance_points(
+        cls, course: "Course", students: Iterable[Student]
+    ) -> dict[int, tuple[int, int]]:
+        """Map student pk -> (attendance points already earned, points for the next award).
+
+        A student is worth 5 points per class until they have banked the
+        semester's threshold, and 3 points after that. Totals are used rather
+        than a count so that legacy imports with odd point values still work.
+        """
+        threshold = 5 * course.semester.house_points_class_threshold
+        earned = dict(
+            cls.objects.filter(
+                semester=course.semester,
+                student__in=students,
+                award_type=cls.AwardType.CLASS_ATTENDANCE,
+            )
+            .values_list("student")
+            .annotate(total=Sum("points"))
+        )
+        return {
+            student.pk: (
+                total := earned.get(student.pk) or 0,
+                5 if total < threshold else 3,
+            )
+            for student in students
+        }
 
     def clean(self) -> None:
         """Validate the award."""

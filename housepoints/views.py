@@ -1,3 +1,6 @@
+from collections import defaultdict
+from typing import Any
+
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -337,36 +340,35 @@ class SingleAwardView(UserPassesTestMixin, CreateView):
 @login_required
 def my_awards(request: HttpRequest) -> HttpResponse:
     """Show all awards earned by the current user across semesters."""
-    # Get all student records for this user
-    student_records = Student.objects.filter(user=request.user).select_related(
-        "semester"
+    student_records = (
+        Student.objects.filter(user=request.user)
+        .select_related("semester")
+        .annotate(total_points=Sum("awards__points"))
     )
 
-    # Get all awards for these students
     awards = (
         Award.objects.filter(student__in=student_records)
         .select_related("student__semester")
         .order_by("-awarded_at")
     )
 
-    # Calculate total points per semester
-    semester_totals = {}
-    for student in student_records:
-        total = Award.objects.filter(student=student).aggregate(total=Sum("points"))[
-            "total"
-        ]
-        semester_totals[student.semester.id] = {  # type: ignore[attr-defined]
+    semester_totals = [
+        {
             "semester": student.semester,
-            "house": student.get_house_display() if student.house else "Unassigned",  # type: ignore[attr-defined]
-            "total": total or 0,
+            "house": Student.House(student.house).label
+            if student.house
+            else "Unassigned",
+            "total": student.total_points or 0,  # type: ignore[attr-defined]
         }
+        for student in student_records
+    ]
 
     return render(
         request,
         "housepoints/my_awards.html",
         {
             "awards": awards,
-            "semester_totals": list(semester_totals.values()),
+            "semester_totals": semester_totals,
         },
     )
 
@@ -492,65 +494,32 @@ def house_detail_staff(request: HttpRequest, slug: str, house: str) -> HttpRespo
     # Build header row with short names for compact display
     headers = [Award.SHORT_NAMES.get(at, at) for at in used_award_types]
 
-    # Build student rows
-    student_rows = []
-    column_totals = {at: 0 for at in used_award_types}
+    # One grouped query gives every cell of the student x category grid
+    points_by_row: dict[int | None, dict[str, int]] = defaultdict(dict)
+    for entry in awards_query.values("student", "award_type").annotate(
+        total=Sum("points")
+    ):
+        points_by_row[entry["student"]][entry["award_type"]] = entry["total"] or 0
 
-    for student in students:
-        # Get points per category for this student, NOT following freeze date
-        student_awards = awards_query.filter(student=student)
+    def build_row(
+        key: int | None, name: str, student: Student | None
+    ) -> dict[str, Any]:
+        points = [points_by_row[key].get(at, 0) for at in used_award_types]
+        return {
+            "student": student,
+            "name": name,
+            "points": points,
+            "total": sum(points),
+        }
 
-        category_points = dict(
-            student_awards.values("award_type")
-            .annotate(total=Sum("points"))
-            .values_list("award_type", "total")
-        )
+    student_rows = [build_row(s.pk, s.airtable_name, s) for s in students]
+    if None in points_by_row:
+        student_rows.append(build_row(None, "(House-level awards)", None))
 
-        row_data = []
-        row_total = 0
-        for award_type in used_award_types:
-            points = category_points.get(award_type, 0) or 0
-            row_data.append(points)
-            row_total += points
-            column_totals[award_type] += points
-
-        student_rows.append(
-            {
-                "student": student,
-                "name": student.airtable_name,
-                "points": row_data,
-                "total": row_total,
-            }
-        )
-
-    # Also include house-level awards (no student)
-    house_awards = awards_query.filter(student__isnull=True)
-    if house_awards.exists():
-        house_category_points = dict(
-            house_awards.values("award_type")
-            .annotate(total=Sum("points"))
-            .values_list("award_type", "total")
-        )
-
-        row_data = []
-        row_total = 0
-        for award_type in used_award_types:
-            points = house_category_points.get(award_type, 0) or 0
-            row_data.append(points)
-            row_total += points
-            column_totals[award_type] += points
-
-        student_rows.append(
-            {
-                "student": None,
-                "name": "(House-level awards)",
-                "points": row_data,
-                "total": row_total,
-            }
-        )
-
-    # Build column totals row
-    column_totals_list = [column_totals[at] for at in used_award_types]
+    column_totals_list = [
+        sum(row["points"][i] for row in student_rows)
+        for i in range(len(used_award_types))
+    ]
     grand_total = sum(column_totals_list)
 
     house_display = Student.House(house).label
@@ -628,28 +597,15 @@ class AttendanceBulkView(UserPassesTestMixin, View):
                 form_data["description"] = default_description
             updated_form = AttendanceBulkForm(form_data, user=request.user)  # type: ignore[arg-type]
 
-            # Calculate attendance points for each student
-            # Use total points instead of count to handle legacy imports
-            threshold = course.semester.house_points_class_threshold
-            points_threshold = 5 * threshold
-            students_with_counts = []
-            for student in students:
-                total_points = (
-                    Award.objects.filter(
-                        semester=course.semester,
-                        student=student,
-                        award_type=Award.AwardType.CLASS_ATTENDANCE,
-                    ).aggregate(total=Sum("points"))["total"]
-                    or 0
-                )
-                points = 5 if total_points < points_threshold else 3
-                students_with_counts.append(
-                    {
-                        "student": student,
-                        "total_points": total_points,
-                        "points": points,
-                    }
-                )
+            points = Award.class_attendance_points(course, students)
+            students_with_counts = [
+                {
+                    "student": student,
+                    "total_points": points[student.pk][0],
+                    "points": points[student.pk][1],
+                }
+                for student in students
+            ]
 
             return render(
                 request,
@@ -659,7 +615,9 @@ class AttendanceBulkView(UserPassesTestMixin, View):
                     "results": None,
                     "students": students_with_counts,
                     "selected_course": course,
-                    "points_threshold": points_threshold,
+                    "points_threshold": (
+                        5 * course.semester.house_points_class_threshold
+                    ),
                 },
             )
 
@@ -683,8 +641,6 @@ class AttendanceBulkView(UserPassesTestMixin, View):
         if form.is_valid():
             course = form.cleaned_data["course"]
             description = form.cleaned_data.get("description") or ""
-            threshold = course.semester.house_points_class_threshold
-            points_threshold = 5 * threshold
 
             # Get selected student IDs from the checkboxes
             selected_student_ids = request.POST.getlist("students")
@@ -696,6 +652,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
                 students = Student.objects.filter(
                     pk__in=selected_student_ids, enrolled_courses=course
                 ).select_related("user")
+                attendance_points = Award.class_attendance_points(course, students)
 
                 for student in students:
                     try:
@@ -705,17 +662,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
                             )
                             continue
 
-                        # Calculate points based on total attendance points
-                        # Use total points instead of count to handle legacy imports
-                        total_points = (
-                            Award.objects.filter(
-                                semester=course.semester,
-                                student=student,
-                                award_type=Award.AwardType.CLASS_ATTENDANCE,
-                            ).aggregate(total=Sum("points"))["total"]
-                            or 0
-                        )
-                        points = 5 if total_points < points_threshold else 3
+                        _, points = attendance_points[student.pk]
 
                         # Create the attendance award
                         Award.objects.create(
