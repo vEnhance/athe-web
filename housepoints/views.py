@@ -77,6 +77,28 @@ def leaderboard(request: HttpRequest, slug: str | None = None) -> HttpResponse:
     )
 
 
+class AwardResults:
+    """Per-row outcomes of a bulk award run, and the summary messages for them."""
+
+    def __init__(self) -> None:
+        self.success: list[str] = []
+        self.errors: list[str] = []
+
+    def record(self, name: str, points: int, house: Student.House) -> None:
+        self.success.append(f"{name}: +{points} pts ({house.label})")
+
+    def fail(self, message: str) -> None:
+        self.errors.append(message)
+
+    def report(self, request: HttpRequest) -> None:
+        if self.success:
+            messages.success(
+                request, f"Successfully created {len(self.success)} awards."
+            )
+        if self.errors:
+            messages.warning(request, f"{len(self.errors)} awards failed to create.")
+
+
 class BulkAwardForm(forms.Form):
     """Form for bulk awarding points to multiple students."""
 
@@ -148,7 +170,7 @@ class BulkAwardView(UserPassesTestMixin, View):
             return redirect("home:index")
 
         form = BulkAwardForm(request.POST)
-        results = {"success": [], "errors": []}
+        results = AwardResults()
 
         if form.is_valid():
             award_type = form.cleaned_data["award_type"]
@@ -169,13 +191,13 @@ class BulkAwardView(UserPassesTestMixin, View):
 
                     # Check for duplicate airtable_names (should be impossible but validate)
                     if students.count() > 1:
-                        results["errors"].append(
+                        results.fail(
                             f"{airtable_name}: Multiple students found with this airtable name"
                         )
                         continue
 
                     if students.count() == 0:
-                        results["errors"].append(
+                        results.fail(
                             f"{airtable_name}: Not enrolled in {semester.name}"
                         )
                         continue
@@ -184,7 +206,7 @@ class BulkAwardView(UserPassesTestMixin, View):
                     assert student is not None
 
                     if not student.house:
-                        results["errors"].append(f"{airtable_name}: No house assigned")
+                        results.fail(f"{airtable_name}: No house assigned")
                         continue
 
                     # Create the award
@@ -197,21 +219,12 @@ class BulkAwardView(UserPassesTestMixin, View):
                         description=description,
                         awarded_by=request.user,
                     )
-                    results["success"].append(
-                        f"{airtable_name}: +{points} pts ({student.get_house_display()})"  # type: ignore[attr-defined]
-                    )
+                    results.record(airtable_name, points, Student.House(student.house))
                 # One bad row must not abort the rest of the bulk award
                 except Exception as e:  # noqa: BLE001
-                    results["errors"].append(f"{airtable_name}: {e!s}")
+                    results.fail(f"{airtable_name}: {e!s}")
 
-            if results["success"]:
-                messages.success(
-                    request, f"Successfully created {len(results['success'])} awards."
-                )
-            if results["errors"]:
-                messages.warning(
-                    request, f"{len(results['errors'])} awards failed to create."
-                )
+            results.report(request)
 
         # Get students data for re-rendering
         students_data = self._get_students_data(semester)
@@ -636,7 +649,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
         self, request: HttpRequest, form: AttendanceBulkForm
     ) -> HttpResponse:
         """Handle the final award submission."""
-        results = {"success": [], "errors": []}
+        results = AwardResults()
 
         if form.is_valid():
             course = form.cleaned_data["course"]
@@ -646,7 +659,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
             selected_student_ids = request.POST.getlist("students")
 
             if not selected_student_ids:
-                results["errors"].append("No students selected for attendance.")
+                results.fail("No students selected for attendance.")
             else:
                 # Get the students who were checked
                 students = Student.objects.filter(
@@ -657,9 +670,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
                 for student in students:
                     try:
                         if not student.house:
-                            results["errors"].append(
-                                f"{student.airtable_name}: No house assigned"
-                            )
+                            results.fail(f"{student.airtable_name}: No house assigned")
                             continue
 
                         _, points = attendance_points[student.pk]
@@ -674,22 +685,16 @@ class AttendanceBulkView(UserPassesTestMixin, View):
                             description=description,
                             awarded_by=request.user,
                         )
-                        results["success"].append(
-                            f"{student.airtable_name}: +{points} pts "
-                            f"({student.get_house_display()})"  # type: ignore[attr-defined]
+                        results.record(
+                            student.airtable_name,
+                            points,
+                            Student.House(student.house),
                         )
                     # One bad row must not abort the rest of the bulk award
                     except Exception as e:  # noqa: BLE001
-                        results["errors"].append(f"{student.airtable_name}: {e!s}")
+                        results.fail(f"{student.airtable_name}: {e!s}")
 
-            if results["success"]:
-                messages.success(
-                    request, f"Successfully created {len(results['success'])} awards."
-                )
-            if results["errors"]:
-                messages.warning(
-                    request, f"{len(results['errors'])} awards failed to create."
-                )
+            results.report(request)
 
         # Re-render with results but without students list
         # (they should select class again for next batch)
