@@ -1,8 +1,8 @@
 /*
  * Turns the <select>s marked by SearchableSelect into type-to-filter dropdowns.
  *
- * Purely an enhancement: if the vendored library fails to load, the selects
- * stay ordinary dropdowns and the form still works.
+ * Purely an enhancement: if the CDN is unreachable or the script is blocked,
+ * the selects stay ordinary dropdowns and the form still works.
  */
 (function () {
   "use strict";

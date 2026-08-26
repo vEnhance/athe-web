@@ -2,9 +2,14 @@
 {% load static %}
 {% load django_bootstrap5 %}
 {% block extra_css %}
+    {# Tom Select from cdnjs, same arrangement as Bootstrap itself. To move #}
+    {# version, update both URLs and both integrity hashes together. #}
     <link type="text/css"
           rel="stylesheet"
-          href="{% static "vendor/tom-select/tom-select.bootstrap5.min.css" %}" />
+          href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.6.2/css/tom-select.bootstrap5.min.css"
+          integrity="sha384-qNqaCnsmyTrYVwmqv4/4PcwMK8ZFAQnYPpVjWor+6cX6rKsPhebzu8vO2J3s+VZg"
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
     <link type="text/css" rel="stylesheet" href="{% static "css/reg.css" %}" />
 {% endblock extra_css %}
 {% block title %}
@@ -57,7 +62,10 @@
     </div>
 {% endblock content %}
 {% block extra_js %}
-    <script src="{% static "vendor/tom-select/tom-select.complete.min.js" %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.6.2/js/tom-select.complete.min.js"
+            integrity="sha384-1mYKSrq1Nu5YJmWrIU9cvwWQlUyyukJJM9XMkAxY03nb/T69CK+Sn7rjFxVU3SSM"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
     <script src="{% static "js/tom-select-init.js" %}"></script>
     {% block step_js %}
     {% endblock step_js %}

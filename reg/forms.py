@@ -203,7 +203,7 @@ class AvailabilityField(forms.MultipleChoiceField):
 
 
 class SearchableSelect(forms.Select):
-    """A <select> the vendored Tom Select turns into a type-to-filter dropdown.
+    """A <select> that Tom Select turns into a type-to-filter dropdown.
 
     Falls back to an ordinary dropdown if the script does not load, which is
     why the roster is a select at all: a hundred radio buttons is a hundred
