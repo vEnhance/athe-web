@@ -1,0 +1,20 @@
+{% load local_time %}
+{% if rows %}
+    <ul class="dash-course-list">
+        {% for row in rows %}
+            <li>
+                <a href="{% url 'courses:course_detail' pk=row.course.pk %}">{{ row.course.name }}</a>
+                <span class="dash-course-when">
+                    {% if row.next_meeting %}
+                        {{ row.next_meeting.start_time|local_datetime:"D M j, g:i A e" }}
+                        {% if row.next_meeting.title %}&mdash; {{ row.next_meeting.title }}{% endif %}
+                    {% else %}
+                        No meetings scheduled
+                    {% endif %}
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p class="text-muted">{{ empty_text }}</p>
+{% endif %}

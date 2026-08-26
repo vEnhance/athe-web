@@ -143,7 +143,7 @@ class BulkAwardView(UserPassesTestMixin, View):
             semester = Semester.get_current_semester()
         except ValueError as e:
             messages.error(request, str(e))
-            return redirect("home:index")
+            return redirect("index")
 
         form = BulkAwardForm()
 
@@ -167,7 +167,7 @@ class BulkAwardView(UserPassesTestMixin, View):
             semester = Semester.get_current_semester()
         except ValueError as e:
             messages.error(request, str(e))
-            return redirect("home:index")
+            return redirect("index")
 
         form = BulkAwardForm(request.POST)
         results = AwardResults()
@@ -329,7 +329,7 @@ class SingleAwardView(UserPassesTestMixin, CreateView):
             semester = Semester.get_current_semester()
         except ValueError as e:
             messages.error(self.request, str(e))
-            return redirect("home:index")
+            return redirect("index")
 
         # Set the semester and awarded_by
         form.instance.semester = semester

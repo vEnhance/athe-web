@@ -28,7 +28,7 @@
     <body>
         <nav class="navbar fixed-top navbar-expand-lg">
             <div class="container">
-                <a class="navbar-brand" href="{% url 'home:index' %}">
+                <a class="navbar-brand" href="{% url 'index' %}">
                     <span class="athered">Athe</span><span style="color: #000">math</span>
                 </a>
                 <button class="navbar-toggler"
@@ -108,7 +108,7 @@
                                    role="button"
                                    data-bs-toggle="dropdown"
                                    aria-expanded="false">{{ user.first_name|default:user.username }}</a>
-                                {% include "home/components/main_dropdown.html" with user=user %}
+                                {% include "home/components/main_dropdown.html" %}
                             </li>
                         {% else %}
                             <li class="nav-item">

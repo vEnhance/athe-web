@@ -428,3 +428,79 @@ class TestGlobalEventInAdmin:
         response = client.get("/admin/courses/globalevent/")
         assert response.status_code == 200
         assert "Admin Test Event" in response.content.decode()
+
+
+@pytest.mark.django_db
+class TestGlobalEventListView:
+    def _semester(self, name="Fall 2025", slug="fa25", offset=0):
+        today = timezone.now().date()
+        return Semester.objects.create(
+            name=name,
+            slug=slug,
+            start_date=today - timedelta(days=10 + offset),
+            end_date=today + timedelta(days=90 - offset),
+        )
+
+    def test_requires_login(self):
+        """Test that the global events list requires authentication."""
+        response = Client().get(reverse("courses:global_events"))
+        assert response.status_code == 302
+        assert "/login/" in response.url
+
+    def test_lists_this_semester_including_past_events(self):
+        """Test that the page shows the semester's events, past ones included."""
+        client = Client()
+        user = User.objects.create_user(username="student", password="password")
+        semester = self._semester()
+        Student.objects.create(user=user, semester=semester, airtable_name="Student")
+        GlobalEvent.objects.create(
+            semester=semester,
+            title="Opening Social",
+            start_time=timezone.now() - timedelta(days=3),
+        )
+        GlobalEvent.objects.create(
+            semester=semester,
+            title="Guest Lecture",
+            start_time=timezone.now() + timedelta(days=3),
+        )
+
+        client.login(username="student", password="password")
+        content = client.get(reverse("courses:global_events")).content.decode()
+
+        assert "Opening Social" in content
+        assert "Guest Lecture" in content
+
+    def test_excludes_semesters_the_student_is_not_in(self):
+        """Test that a student sees nothing from a semester they never joined."""
+        client = Client()
+        user = User.objects.create_user(username="student", password="password")
+        mine = self._semester()
+        theirs = self._semester(name="Fall 2025 B", slug="fa25b")
+        Student.objects.create(user=user, semester=mine, airtable_name="Student")
+        GlobalEvent.objects.create(
+            semester=theirs,
+            title="Someone Else's Event",
+            start_time=timezone.now() + timedelta(days=1),
+        )
+
+        client.login(username="student", password="password")
+        content = client.get(reverse("courses:global_events")).content.decode()
+
+        assert "Someone Else's Event" not in content
+        assert "No global events are scheduled this semester." in content
+
+    def test_staff_see_every_active_semester(self):
+        """Test that staff, who join no semester, see all the active ones."""
+        client = Client()
+        User.objects.create_user(username="staff", password="password", is_staff=True)
+        semester = self._semester()
+        GlobalEvent.objects.create(
+            semester=semester,
+            title="Staff Visible Event",
+            start_time=timezone.now() + timedelta(days=1),
+        )
+
+        client.login(username="staff", password="password")
+        content = client.get(reverse("courses:global_events")).content.decode()
+
+        assert "Staff Visible Event" in content

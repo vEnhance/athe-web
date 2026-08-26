@@ -12,7 +12,6 @@ def T(name: str):
 
 
 urlpatterns = [
-    path("", T("home/index.html"), name="index"),
     path("about/", T("home/about.html"), name="about"),
     path("donors/", T("home/donors.html"), name="donors"),
     path("virtual-program/", T("home/virtual_program.html"), name="virtual_program"),

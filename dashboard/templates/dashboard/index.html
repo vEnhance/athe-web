@@ -1,0 +1,149 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block title %}
+    Dashboard - Athemath
+{% endblock title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
+    {# The yearbook entry card is reused verbatim, so it needs its own assets. #}
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/yearbook.css' %}">
+{% endblock extra_css %}
+{% block content %}
+    <div id="content">
+        <h1>Hi, {{ user.first_name|default:user.username }}!</h1>
+        <p>
+            You can see the
+            <a href="{% url 'courses:calendar' %}">full calendar</a>
+            and a list of
+            <a href="{% url 'courses:upcoming' %}">upcoming meetings</a>.
+            It's currently {% now "g:i A e" %}.
+        </p>
+        <p>
+            {% if global_event_count %}
+                There
+                {% if next_global_event and global_event_count == 1 %}
+                    is
+                {% elif next_global_event and global_event_count > 1 %}
+                    are
+                {% elif not next_global_event and global_event_count == 1 %}
+                    was
+                {% elif not next_global_event and global_event_count > 1 %}
+                    were
+                {% endif %}
+                <a href="{% url 'courses:global_events' %}">{{ global_event_count }} global event{{ global_event_count|pluralize }} this semester</a>.
+                {% if next_global_event %}
+                    The next one is
+                    <a href="{{ next_global_event.get_absolute_url }}">{{ next_global_event.title }} at {{ next_global_event.start_time|date:"D M j, g:i A e" }}</a>.
+                {% else %}
+                    There are no future global events scheduled.
+                {% endif %}
+            {% endif %}
+        </p>
+        <div class="row">
+            <div class="col-md-6">
+                <h2>
+                    Classes
+                    <a class="badge bg-secondary dash-see-all"
+                       href="{% url 'courses:my_courses' %}">See all</a>
+                </h2>
+                {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="You are not enrolled in any classes this semester." %}
+            </div>
+            <div class="col-md-6">
+                <h2>
+                    Clubs
+                    <a class="badge bg-secondary dash-see-all"
+                       href="{% url 'courses:my_clubs' %}">See all</a>
+                </h2>
+                {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="You have not joined any clubs this semester." %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h2>
+                    House Points
+                    <a class="badge bg-secondary dash-see-all" href="{{ house_url }}">See all</a>
+                </h2>
+                {% if house_display %}
+                    <div class="row gx-3">
+                        <div class="col-6">
+                            <a class="dash-square" href="{{ house_detail_url }}">
+                                <span class="dash-square-label">{{ house_display }}</span>
+                                <span class="dash-square-value">{{ house_points }}</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a class="dash-square" href="{% url 'housepoints:my_awards' %}">
+                                <span class="dash-square-label">Your Points</span>
+                                <span class="dash-square-value">{{ my_points }}</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h2>
+                    Yearbook
+                    <a class="badge bg-secondary dash-see-all" href="{{ yearbook_url }}">See all</a>
+                </h2>
+                {% if yearbook_entry %}
+                    {% include "yearbook/components/entry_card.html" with entry=yearbook_entry %}
+                    {% if yearbook_open %}
+                        <a class="btn btn-outline-dark btn-sm mt-3"
+                           href="{% url 'yearbook:edit' pk=yearbook_entry.pk %}">Edit entry</a>
+                    {% endif %}
+                {% elif student and yearbook_open %}
+                    <p class="text-muted">You don't have an entry yet for {{ student.semester.name }}.</p>
+                    <a class="btn btn-primary"
+                       href="{% url 'yearbook:create' student_pk=student.pk %}">Add entry</a>
+                {% elif student %}
+                    <p class="text-muted">Entries for {{ student.semester.name }} are closed.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% if user.is_staff %}
+            <h2>Staff</h2>
+            <ul class="dash-links">
+                <li>
+                    <a href="{% url 'housepoints:attendance_bulk' %}">Class Attendance</a>:
+                    Instructors should use this to take attendance at each class.
+                    (Also used for house points.)
+                </li>
+                <li>
+                    <a href="{% url 'ta_attendance:my_attendance' %}">TA Sign-in Sheet</a>:
+                    TA's should use this to record their hours of running activities.
+                </li>
+                <li>
+                    <a href="{% url 'housepoints:bulk_award' %}">Award Points</a>:
+                    Awarding house points to students.
+                </li>
+                <li>
+                    <a href="{% url 'home:staff_edit' %}">Update Bio</a>:
+                    Update your staff listing on the public site.
+                </li>
+                <li>
+                    <a href="{% url 'courses:staff_schedule' %}">Staff Schedule</a>:
+                    Master calendar of courses.
+                </li>
+            </ul>
+        {% endif %}
+        {% if user.is_superuser %}
+            <h2>Admin</h2>
+            <ul class="dash-links">
+                <li>
+                    <a href="{% url 'admin:index' %}">Django Admin</a>
+                </li>
+                <li>
+                    <a href="{% url 'home:manual' %}">Admin Manual</a>
+                </li>
+                <li>
+                    <a href="{% url 'courses:bulk_create_students' %}">Bulk Create Students</a>
+                </li>
+                <li>
+                    <a href="{% url 'reg:upload-assignments' %}">Class Assignments</a>
+                </li>
+            </ul>
+        {% endif %}
+    </div>
+{% endblock content %}

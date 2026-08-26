@@ -27,6 +27,7 @@ urlpatterns = [
     path("course/<int:pk>/meetings/", views.manage_meetings, name="manage_meetings"),
     path("club/<int:pk>/join/", views.join_club, name="join_club"),
     path("club/<int:pk>/drop/", views.drop_club, name="drop_club"),
+    path("events/", views.global_events, name="global_events"),
     path(
         "event/<int:pk>/",
         views.GlobalEventDetailView.as_view(),

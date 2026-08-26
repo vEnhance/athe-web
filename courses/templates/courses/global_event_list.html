@@ -1,0 +1,40 @@
+{% extends "home/base.html" %}
+{% load local_time %}
+{% block title %}
+    Global Events - Athemath
+{% endblock title %}
+{% block content %}
+    <div id="content">
+        <h1>Global Events</h1>
+        <p class="text-muted">
+            All-student events for this semester, which belong to no particular class or club.
+            See also the <a href="{% url 'courses:calendar' %}">calendar</a>
+            and your <a href="{% url 'courses:upcoming' %}">upcoming meetings</a>.
+        </p>
+        {% if events %}
+            <table class="table table-striped">
+                <thead>
+                    <tr class="table-dark">
+                        <th>Event</th>
+                        <th>Date/Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                        <tr {% if event.start_time < now %}class="text-muted"{% endif %}>
+                            <td>
+                                <a href="{{ event.get_absolute_url }}">{{ event.title }}</a>
+                                {% if event.start_time < now %}<span class="badge bg-secondary ms-1">Past</span>{% endif %}
+                                <br>
+                                <small class="text-muted">{{ event.semester }}</small>
+                            </td>
+                            <td>{{ event.start_time|local_datetime }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No global events are scheduled this semester.</p>
+        {% endif %}
+    </div>
+{% endblock content %}

@@ -379,7 +379,7 @@ def test_walking_all_four_pages_saves_everything(
     student_invite_view_setup, logged_in_client
 ):
     response = register_fully(logged_in_client, student_invite_view_setup)
-    assert response.url == reverse("home:index")
+    assert response.url == reverse("index")
 
     registration = StudentRegistration.objects.get(
         student=student_invite_view_setup["student1"]
@@ -606,7 +606,7 @@ def test_a_registered_student_can_come_back_and_edit(student_invite_view_setup):
         availability_post(setup, availability=["sun-2000"]),
     )
     assert response.status_code == 302
-    assert response.url == reverse("home:index")
+    assert response.url == reverse("index")
 
     registration = StudentRegistration.objects.get(student=setup["student2"])
     assert registration.availability == ["sun-2000"]

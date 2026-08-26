@@ -36,49 +36,7 @@
                 <div class="row">
                     {% for entry in house.list %}
                         <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card h-100 yearbook-card">
-                                <div class="card-body">
-                                    <h4 class="card-title">
-                                        <a href="{% url 'yearbook:entry_detail' pk=entry.pk %}"
-                                           class="stretched-link text-decoration-none text-reset">{{ entry.display_name }}</a>
-                                    </h4>
-                                    <p class="card-text text-muted">{{ entry.bio|truncatechars:100 }}</p>
-                                    {% if entry.discord_username or entry.instagram_username or entry.github_username or entry.website_url %}
-                                        <div class="social-icons d-flex gap-3 mt-2">
-                                            {% if entry.discord_username %}
-                                                <a href="{% url 'yearbook:entry_detail' pk=entry.pk %}"
-                                                   title="Discord: {{ entry.discord_username }}">
-                                                    <i class="bi bi-discord"></i>
-                                                </a>
-                                            {% endif %}
-                                            {% if entry.instagram_username %}
-                                                <a href="https://instagram.com/{{ entry.instagram_username }}"
-                                                   target="_blank"
-                                                   rel="noopener noreferrer"
-                                                   title="Instagram: @{{ entry.instagram_username }}">
-                                                    <i class="bi bi-instagram"></i>
-                                                </a>
-                                            {% endif %}
-                                            {% if entry.github_username %}
-                                                <a href="https://github.com/{{ entry.github_username }}"
-                                                   target="_blank"
-                                                   rel="noopener noreferrer"
-                                                   title="GitHub: {{ entry.github_username }}">
-                                                    <i class="bi bi-github"></i>
-                                                </a>
-                                            {% endif %}
-                                            {% if entry.website_url %}
-                                                <a href="{{ entry.website_url }}"
-                                                   target="_blank"
-                                                   rel="noopener noreferrer"
-                                                   title="Website">
-                                                    <i class="bi bi-globe"></i>
-                                                </a>
-                                            {% endif %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
+                            {% include "yearbook/components/entry_card.html" with entry=entry card_link=entry.get_absolute_url stretch=True %}
                         </div>
                     {% endfor %}
                 </div>

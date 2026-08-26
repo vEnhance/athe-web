@@ -23,9 +23,7 @@ def _permission_required(
 ) -> Callable[..., Decorator]:
     """Build a decorator factory gating a view on a property of request.user."""
 
-    def factory(
-        message: str | None = None, redirect_to: str = "home:index"
-    ) -> Decorator:
+    def factory(message: str | None = None, redirect_to: str = "index") -> Decorator:
         def decorate(view: View) -> View:
             @wraps(view)
             @login_required

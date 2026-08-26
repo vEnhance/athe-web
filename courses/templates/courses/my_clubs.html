@@ -28,12 +28,13 @@
                     </div>
                 </div>
             {% endif %}
-            {% include "courses/components/global_events_section.html" %}
-            {% if not enrolled_clubs and not available_clubs and not global_events %}
-                <p>No clubs or events are available in active semesters.</p>
+            {% if not enrolled_clubs and not available_clubs %}
+                <p>No clubs are available in active semesters.</p>
             {% endif %}
         {% endif %}
+        <h2>Global Events</h2>
+        <a href="{% url 'courses:global_events' %}">All-student events are listed separately.</a>
         <h2>Past Clubs and Events</h2>
-        <a class="dropdown-item" href="{% url 'courses:past_clubs' %}">Past clubs and events are listed separately.</a>
+        <a href="{% url 'courses:past_clubs' %}">Past clubs and events are listed separately.</a>
     </div>
 {% endblock content %}

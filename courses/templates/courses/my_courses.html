@@ -15,6 +15,7 @@
         {% else %}
             <p>You are not currently enrolled in any courses.</p>
         {% endif %}
-        {% include "courses/components/global_events_section.html" %}
+        <h2>Global Events</h2>
+        <a href="{% url 'courses:global_events' %}">All-student events are listed separately.</a>
     </div>
 {% endblock content %}

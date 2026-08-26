@@ -39,7 +39,7 @@ def test_requires_superuser():
     client.login(username="staff", password="password")
     response = client.get(URL)
     assert response.status_code == 302
-    assert response.url == reverse("home:index")
+    assert response.url == reverse("index")
 
 
 @pytest.mark.django_db
