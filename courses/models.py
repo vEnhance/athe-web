@@ -288,6 +288,16 @@ class GlobalEventQuerySet(models.QuerySet["GlobalEvent"]):
             return qs
         return qs.filter(semester__students__user=user).distinct()
 
+    def current_for(self, user: User) -> GlobalEventQuerySet:
+        """The events of this semester, chronologically: what "this semester"
+        means to a student is the semester they are enrolled in right now, and
+        to staff every semester running right now."""
+        return (
+            self.visible_to(user)
+            .filter(semester__in=Semester.objects.active())
+            .order_by("start_time")
+        )
+
 
 class GlobalEvent(models.Model):
     """All-student events not attached to any particular club/course."""

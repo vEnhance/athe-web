@@ -7,7 +7,7 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
-from courses.models import Course, CourseMeeting, Semester, Student
+from courses.models import Course, CourseMeeting, GlobalEvent, Semester, Student
 from housepoints.models import Award
 from yearbook.models import YearbookEntry
 
@@ -278,3 +278,83 @@ def test_section_headings_carry_a_badge_to_the_full_page(
         reverse("yearbook:entry_list", kwargs={"slug": semester.slug}),
     ):
         assert f'href="{url}">' in content
+
+
+@pytest.mark.django_db
+def test_dashboard_summarises_global_events(
+    semester: Semester, student: Student, client_for
+):
+    """The intro paragraph counts the semester's events and names the next one."""
+    now = timezone.now()
+    GlobalEvent.objects.create(
+        semester=semester, title="Opening Social", start_time=now - timedelta(days=3)
+    )
+    soonest = GlobalEvent.objects.create(
+        semester=semester, title="Guest Lecture", start_time=now + timedelta(days=2)
+    )
+    GlobalEvent.objects.create(
+        semester=semester, title="Closing Party", start_time=now + timedelta(days=40)
+    )
+
+    content = client_for("lucy").get(reverse("home:index")).content.decode()
+    text = visible_text(content)
+
+    # The count covers the whole semester; "next" looks only forwards.
+    assert "There are 3 global events this semester" in text
+    assert "The next one is Guest Lecture at" in text
+    assert "Closing Party" not in text
+    assert reverse("courses:global_events") in content
+    assert soonest.get_absolute_url() in content
+
+
+@pytest.mark.django_db
+def test_dashboard_global_events_all_in_the_past(
+    semester: Semester, student: Student, client_for
+):
+    """With nothing left to come, the second sentence says so."""
+    GlobalEvent.objects.create(
+        semester=semester,
+        title="Opening Social",
+        start_time=timezone.now() - timedelta(days=3),
+    )
+
+    text = visible_text(client_for("lucy").get(reverse("home:index")).content.decode())
+
+    assert "There are 1 global event this semester" in text
+    assert "There are none in the future." in text
+
+
+@pytest.mark.django_db
+def test_dashboard_says_nothing_without_global_events(
+    semester: Semester, student: Student, client_for
+):
+    """No events at all means no sentence about them."""
+    text = visible_text(client_for("lucy").get(reverse("home:index")).content.decode())
+
+    assert "global event" not in text
+
+
+@pytest.mark.django_db
+def test_dashboard_ignores_events_from_other_semesters(
+    semester: Semester, student: Student, client_for
+):
+    """ "This semester" excludes a semester the student is no longer in."""
+    old_semester = Semester.objects.create(
+        name="Spring 2025",
+        slug="sp25",
+        start_date=timezone.localdate() - timedelta(days=200),
+        end_date=timezone.localdate() - timedelta(days=100),
+    )
+    Student.objects.create(
+        user=student.user, semester=old_semester, airtable_name="Lucy"
+    )
+    GlobalEvent.objects.create(
+        semester=old_semester,
+        title="Last Year's Picnic",
+        start_time=timezone.now() - timedelta(days=150),
+    )
+
+    text = visible_text(client_for("lucy").get(reverse("home:index")).content.decode())
+
+    assert "global event" not in text
+    assert "Last Year's Picnic" not in text

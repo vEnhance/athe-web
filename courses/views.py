@@ -93,18 +93,10 @@ def my_courses(request: HttpRequest) -> HttpResponse:
         .select_related("semester", "instructor")
     )
 
-    global_events = GlobalEvent.objects.visible_to(request.user).order_by("start_time")
-    if request.user.is_staff:
-        # Staff have no semester of their own, so scope them to active semesters.
-        global_events = global_events.filter(semester__in=Semester.objects.active())
-
     return render(
         request,
         "courses/my_courses.html",
-        {
-            "enrolled_courses": enrolled_courses,
-            "global_events": global_events,
-        },
+        {"enrolled_courses": enrolled_courses},
     )
 
 
@@ -114,14 +106,12 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
     assert isinstance(request.user, User)
 
     active_clubs = Course.objects.filter(is_club=True).active()
-    global_events = GlobalEvent.objects.visible_to(request.user).order_by("start_time")
 
     if request.user.is_staff:
         # Staff are never enrolled, so "enrolled" means "leads" and every other
         # active club is on offer regardless of semester membership.
         enrolled_clubs = active_clubs.filter(leaders=request.user)
         available_clubs = active_clubs.exclude(leaders=request.user)
-        global_events = global_events.filter(semester__in=Semester.objects.active())
         has_active_semester = True
     else:
         enrolled_clubs = active_clubs.for_user(request.user)
@@ -142,7 +132,6 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
         {
             "enrolled_clubs": enrolled_clubs.select_related("semester", "instructor"),
             "available_clubs": available_clubs.select_related("semester", "instructor"),
-            "global_events": global_events,
             "has_active_semester": has_active_semester,
         },
     )
@@ -709,6 +698,18 @@ def calendar_feed(request: HttpRequest, token: str) -> HttpResponse:
     return HttpResponse(
         cal.to_ical(),
         content_type="text/calendar; charset=utf-8",
+    )
+
+
+@login_required
+def global_events(request: HttpRequest) -> HttpResponse:
+    """Every all-student event of this semester, past ones included."""
+    assert isinstance(request.user, User)
+    events = GlobalEvent.objects.current_for(request.user)
+    return render(
+        request,
+        "courses/global_event_list.html",
+        {"events": events, "now": timezone.now()},
     )
 
 

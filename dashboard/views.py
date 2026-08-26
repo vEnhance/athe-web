@@ -17,7 +17,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 
-from courses.models import Course, CourseMeeting, Semester, Student
+from courses.models import Course, CourseMeeting, GlobalEvent, Semester, Student
 from housepoints.models import Award
 from yearbook.models import YearbookEntry
 
@@ -96,10 +96,13 @@ def dashboard(request: HttpRequest) -> HttpResponse:
         .first()
     )
 
+    events = GlobalEvent.objects.current_for(request.user)
     context: dict[str, Any] = {
         "dash_classes": classes,
         "dash_clubs": clubs,
         "student": student,
+        "global_event_count": events.count(),
+        "next_global_event": events.filter(start_time__gte=timezone.now()).first(),
         # The two section headings are links. Someone with a semester of their
         # own lands in it; everyone else (staff, alumnae) gets the default view.
         "house_url": reverse("housepoints:leaderboard"),
