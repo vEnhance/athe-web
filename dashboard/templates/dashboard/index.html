@@ -12,7 +12,7 @@
 {% endblock extra_css %}
 {% block content %}
     <div id="content">
-        <h1>Welcome back, {{ user.first_name|default:user.username }}!</h1>
+        <h1>Hi, {{ user.first_name|default:user.username }}!</h1>
         <p>
             You can see the
             <a href="{% url 'courses:calendar' %}">full calendar</a>
@@ -22,17 +22,22 @@
         </p>
         <p>
             {% if global_event_count %}
-                There are
-                <a href="{% url 'courses:global_events' %}">
-                    {{ global_event_count }} global event{{ global_event_count|pluralize }} this semester
-                </a>.
+                There
+                {% if next_global_event and global_event_count == 1 %}
+                    is
+                {% elif next_global_event and global_event_count > 1 %}
+                    are
+                {% elif not next_global_event and global_event_count == 1 %}
+                    was
+                {% elif not next_global_event and global_event_count > 1 %}
+                    were
+                {% endif %}
+                <a href="{% url 'courses:global_events' %}">{{ global_event_count }} global event{{ global_event_count|pluralize }} this semester</a>.
                 {% if next_global_event %}
                     The next one is
-                    <a href="{{ next_global_event.get_absolute_url }}">
-                        {{ next_global_event.title }} at {{ next_global_event.start_time|date:"D M j, g:i A e" }}
-                    </a>.
+                    <a href="{{ next_global_event.get_absolute_url }}">{{ next_global_event.title }} at {{ next_global_event.start_time|date:"D M j, g:i A e" }}</a>.
                 {% else %}
-                    There are none in the future.
+                    There are no future global events scheduled.
                 {% endif %}
             {% endif %}
         </p>
@@ -125,7 +130,7 @@
         {% endif %}
         {% if user.is_superuser %}
             <h2>Admin</h2>
-            <ul class="dash-links mt-3">
+            <ul class="dash-links">
                 <li>
                     <a href="{% url 'admin:index' %}">Django Admin</a>
                 </li>
