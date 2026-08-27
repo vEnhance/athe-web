@@ -118,10 +118,15 @@
                        href="{% url 'yearbook:create' student_pk=yearbook_student.pk %}">Add entry</a>
                 {% elif yearbook_student %}
                     <p class="text-muted">Entries for {{ yearbook_student.semester.name }} are closed.</p>
-                {% else %}
+                {% elif semester_running %}
                     <p>
                         You're not registered yet this semester, but
                         you can browse <a href="{{ yearbook_url }}">past yearbook entries</a>.
+                    </p>
+                {% else %}
+                    <p>
+                        There is no active semester, but you can browse
+                        <a href="{{ yearbook_url }}">yearbook entries from all sessions</a>.
                     </p>
                 {% endif %}
             </div>

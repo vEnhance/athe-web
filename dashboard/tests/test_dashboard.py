@@ -753,9 +753,12 @@ def test_empty_sections_say_so_when_nothing_is_running(
     assert "any classes this semester" not in text
     assert "any clubs this semester" not in text
     assert "a house this semester" not in text
-    assert "There is no active semester, but you can browse" in text
+    assert text.count("There is no active semester, but you can browse") == 2
     assert "leaderboards from all sessions" in text
+    assert "yearbook entries from all sessions" in text
+    assert "registered yet this semester" not in text
     assert reverse("housepoints:leaderboard") in content
+    assert reverse("yearbook:index") in content
 
 
 @pytest.mark.django_db
