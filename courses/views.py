@@ -567,7 +567,7 @@ def _calendar_events(
     ]
 
     # CourseMeetings: fetch all in range for visible semesters, annotated with
-    # is_mine (enrolled student, or staff who run the course). Non-enrolled
+    # is_mine (enrolled as a student, or following it as staff). Non-enrolled
     # classes are skipped; clubs are shown either way.
     is_enrolled = Exists(
         Course.students.through.objects.filter(
@@ -575,7 +575,7 @@ def _calendar_events(
             student__user=request.user,
         )
     )
-    is_mine_to_run = Exists(
+    is_following = Exists(
         Course.objects.followed_by(request.user).filter(pk=OuterRef("course_id"))
     )
     meetings = (
@@ -584,7 +584,7 @@ def _calendar_events(
             course__semester__visible=True,
         )
         .select_related("course", "course__semester")
-        .annotate(is_mine=is_enrolled | is_mine_to_run)
+        .annotate(is_mine=is_enrolled | is_following)
     )
 
     for meeting in meetings:
