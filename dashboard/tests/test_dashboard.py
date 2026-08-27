@@ -546,13 +546,36 @@ def test_notice_hides_semesters_the_user_may_not_see(semester: Semester, client_
 
 
 @pytest.mark.django_db
-def test_notice_never_shows_for_staff(semester: Semester, client_for):
-    """Staff have no Student row by design, so the banner is not about them."""
+def test_notice_spares_staff_the_enrolment_messages(semester: Semester, client_for):
+    """Staff have no Student row by design, so that is not news to report."""
     User.objects.create_user(username="teacher", password="password", is_staff=True)
 
     text = visible_text(client_for("teacher").get(reverse("index")).content.decode())
 
     assert "You don't seem to be enrolled" not in text
+    assert "registration" not in text.lower()
+
+
+@pytest.mark.django_db
+def test_notice_warns_staff_that_the_semester_has_not_opened(
+    next_semester: Semester, client_for
+):
+    """A course an instructor is about to teach is as invisible as a student's,
+    since the class lists only carry the running semester either way."""
+    teacher = User.objects.create_user(
+        username="teacher", password="password", is_staff=True
+    )
+    course = Course.objects.create(
+        name="Intro to Olympiad", description="", semester=next_semester
+    )
+    course.leaders.add(teacher)
+
+    content = client_for("teacher").get(reverse("index")).content.decode()
+    text = visible_text(content)
+
+    assert "The session Spring 2026 hasn't started yet!" in text
+    # Which is the point: the class they lead is nowhere on the page.
+    assert "Intro to Olympiad" not in text
 
 
 @pytest.mark.django_db

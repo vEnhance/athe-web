@@ -81,18 +81,21 @@ def _dashboard_notice(user: User) -> DashboardNotice | None:
     are in rather than let them worry. The order matters: the two that are
     about this student's own paperwork come first, since they are the only
     ones they can do anything about.
-    """
-    # Staff have no Student row by design; none of these messages are for them.
-    if user.is_staff:
-        return None
 
+    Staff get the one about a semester that has not opened, and only that one.
+    They have no Student row to have paperwork outstanding on, but the class
+    lists are built from the running semester for them too, so a course they
+    are about to teach is just as invisible.
+    """
     today = timezone.localdate()
     running = Semester.objects.filter(end_date__gte=today).order_by("start_date")
-    students = list(
-        Student.objects.filter(user=user, semester__in=running)
-        .select_related("semester")
-        .order_by("semester__start_date")
-    )
+    students: list[Student] = []
+    if not user.is_staff:
+        students = list(
+            Student.objects.filter(user=user, semester__in=running)
+            .select_related("semester")
+            .order_by("semester__start_date")
+        )
     for student in students:
         if (notice := _student_notice(student, today)) is not None:
             return notice
@@ -104,7 +107,7 @@ def _dashboard_notice(user: User) -> DashboardNotice | None:
         upcoming = running.visible_to(user).filter(start_date__gt=today).first()
         return None if upcoming is None else DashboardNotice("not_started", upcoming)
 
-    if students:
+    if user.is_staff or students:
         return None
 
     # Nothing to be waiting on, so point them at the semester they have missed.
