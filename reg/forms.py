@@ -48,9 +48,7 @@ class StaffSelectionForm(forms.Form):
     """Form for selecting which StaffPhotoListing the user corresponds to."""
 
     staff_listing = forms.ModelChoiceField(
-        queryset=StaffPhotoListing.objects.exclude(
-            category=StaffPhotoListing.Category.XSTAFF
-        ),
+        queryset=StaffPhotoListing.objects.active(),
         widget=forms.RadioSelect,
         label="Who are you?",
         help_text="Please select which staff member you are from the list below.",

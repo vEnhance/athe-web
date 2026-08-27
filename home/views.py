@@ -4,11 +4,14 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView, UpdateView
+
+from courses.models import Course
 
 from .models import ApplyPSet, StaffPhotoListing
 
@@ -124,7 +127,13 @@ class StaffDetailView(DetailView):
     def get_context_data(self, **kwargs):  # type: ignore
         """Add courses taught by this staff member."""
         context = super().get_context_data(**kwargs)
-        context["courses_taught"] = self.object.courses.select_related("semester").all()
+        context["courses_taught"] = (
+            Course.objects.filter(
+                Q(instructor=self.object) | Q(co_instructors=self.object)
+            )
+            .select_related("semester")
+            .distinct()
+        )
         return context
 
 

@@ -1,4 +1,7 @@
-from django.contrib.auth.models import User
+from typing import ClassVar
+
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import AnonymousUser, User
 from django.db import models
 from django.urls import reverse
 from markdownfield.models import MarkdownField, RenderedMarkdownField
@@ -55,6 +58,16 @@ class ApplyPSet(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class StaffPhotoListingQuerySet(models.QuerySet["StaffPhotoListing"]):
+    def active(self) -> StaffPhotoListingQuerySet:
+        """Listings for staff who are still on the team.
+
+        Past staff keep their listing so their name survives on the site, but
+        they are no longer staff for any purpose that grants them something.
+        """
+        return self.exclude(category=StaffPhotoListing.Category.XSTAFF)
 
 
 class StaffPhotoListing(models.Model):
@@ -123,6 +136,10 @@ class StaffPhotoListing(models.Model):
         help_text="GitHub username",
     )
 
+    objects: ClassVar[StaffPhotoListingQuerySet] = (
+        StaffPhotoListingQuerySet.as_manager()
+    )  # type: ignore[assignment]
+
     class Meta:
         ordering = ["category", "-ordering", "display_name"]
         verbose_name = "Staff Photo Listing"
@@ -130,6 +147,13 @@ class StaffPhotoListing(models.Model):
 
     def __str__(self) -> str:
         return self.display_name
+
+    @classmethod
+    def is_current_staff(cls, user: AbstractBaseUser | AnonymousUser) -> bool:
+        """Whether this user has a listing that says they are staff right now."""
+        if not user.is_authenticated:
+            return False
+        return cls.objects.active().filter(user=user).exists()
 
     def get_absolute_url(self) -> str:
         """Return the absolute URL for this staff member."""

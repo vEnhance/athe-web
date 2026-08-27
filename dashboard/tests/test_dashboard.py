@@ -557,7 +557,9 @@ def test_notice_spares_staff_the_enrolment_messages(semester: Semester, client_f
 
 
 @pytest.mark.django_db
-def test_start_date_is_stated_to_staff_too(next_semester: Semester, client_for):
+def test_start_date_is_stated_to_staff_too(
+    next_semester: Semester, client_for, staff_listing_for
+):
     """Staff get the start date too, alongside the class they are preparing."""
     teacher = User.objects.create_user(
         username="teacher", password="password", is_staff=True
@@ -565,7 +567,8 @@ def test_start_date_is_stated_to_staff_too(next_semester: Semester, client_for):
     course = Course.objects.create(
         name="Intro to Olympiad", description="", semester=next_semester
     )
-    course.leaders.add(teacher)
+    course.instructor = staff_listing_for(teacher)
+    course.save()
 
     content = client_for("teacher").get(reverse("index")).content.decode()
     text = visible_text(content)
@@ -818,16 +821,17 @@ def test_dashboard_lists_courses_from_a_semester_about_to_open(
 
 @pytest.mark.django_db
 def test_dashboard_lists_courses_an_instructor_is_preparing(
-    next_semester: Semester, client_for
+    next_semester: Semester, client_for, staff_listing_for
 ):
-    """Same for a class someone leads, which is the point of showing it early."""
+    """Same for a class someone teaches, which is the point of showing it early."""
     teacher = User.objects.create_user(
         username="teacher", password="password", is_staff=True
     )
     klass = Course.objects.create(
         name="Intro to Olympiad", description="", semester=next_semester
     )
-    klass.leaders.add(teacher)
+    klass.instructor = staff_listing_for(teacher)
+    klass.save()
 
     text = visible_text(client_for("teacher").get(reverse("index")).content.decode())
 

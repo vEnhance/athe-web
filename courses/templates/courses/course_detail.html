@@ -43,6 +43,15 @@
                                 <a class="course-teach" href="{{ course.instructor.get_absolute_url }}">{{ course.instructor.display_name }}</a>
                             </p>
                         {% endif %}
+                        {% if course.co_instructors.all %}
+                            <p>
+                                <strong>Also Running This:</strong>
+                                {% for staff in course.co_instructors.all %}
+                                    <a class="course-teach" href="{{ staff.get_absolute_url }}">{{ staff.display_name }}</a>
+                                    {% if not forloop.last %}&middot;{% endif %}
+                                {% endfor %}
+                            </p>
+                        {% endif %}
                         {% if course.regular_meeting_time %}
                             <p>
                                 <strong>Regular Meeting Time:</strong> {{ course.regular_meeting_time }}

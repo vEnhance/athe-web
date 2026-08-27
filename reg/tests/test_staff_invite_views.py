@@ -192,8 +192,12 @@ def test_post_registration_creates_user(staff_invite_setup):
 
 
 @pytest.mark.django_db
-def test_post_registration_adds_user_to_course_leaders(staff_invite_setup):
-    """Test that registration adds user to course leaders when they are instructor."""
+def test_post_registration_gives_the_user_their_courses(staff_invite_setup):
+    """Registering against a staff listing hands the user the courses it runs.
+
+    Nothing is copied across at registration: the course points at the staff
+    listing, so binding a user to that listing is what makes the course theirs.
+    """
     client = Client()
     # Set session
     session = client.session
@@ -216,10 +220,12 @@ def test_post_registration_adds_user_to_course_leaders(staff_invite_setup):
     )
     assert response.status_code == 302
 
-    # Check user was added to course leaders
     user = User.objects.get(username="johndoe")
-    staff_invite_setup["course"].refresh_from_db()
-    assert user in staff_invite_setup["course"].leaders.all()
+    course = staff_invite_setup["course"]
+    course.refresh_from_db()
+    assert course.is_run_by(user)
+    assert course.is_managed_by(user)
+    assert list(Course.objects.run_by(user)) == [course]
 
 
 @pytest.mark.django_db
@@ -272,7 +278,7 @@ def test_session_cleared_when_accessing_already_registered_staff(staff_invite_se
 
 @pytest.mark.django_db
 def test_multiple_courses_with_same_instructor(staff_invite_setup):
-    """Test that user is added to all courses where they are instructor."""
+    """Every course run by the claimed listing becomes the user's at once."""
     # Create another course with the same instructor
     course2 = Course.objects.create(
         name="Test Course 2",
@@ -303,9 +309,6 @@ def test_multiple_courses_with_same_instructor(staff_invite_setup):
     )
     assert response.status_code == 302
 
-    # Check user was added to both courses
+    # Both courses point at the listing the user just claimed.
     user = User.objects.get(username="johndoe")
-    staff_invite_setup["course"].refresh_from_db()
-    course2.refresh_from_db()
-    assert user in staff_invite_setup["course"].leaders.all()
-    assert user in course2.leaders.all()
+    assert set(Course.objects.run_by(user)) == {staff_invite_setup["course"], course2}

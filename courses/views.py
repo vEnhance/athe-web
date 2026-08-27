@@ -8,13 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.db.models import (
-    BooleanField,
-    Exists,
-    ExpressionWrapper,
-    OuterRef,
-    Q,
-)
+from django.db.models import Exists, OuterRef
 from django.forms import modelformset_factory
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -113,10 +107,12 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
     )
 
     if request.user.is_staff:
-        # Staff are never enrolled, so "enrolled" means "leads" and every other
-        # club is on offer regardless of semester membership.
-        enrolled_clubs = current_clubs.filter(leaders=request.user)
-        available_clubs = current_clubs.exclude(leaders=request.user)
+        # Staff have no Student row, so they cannot join a club at all: the
+        # clubs that are theirs are the ones they run, and offering the rest
+        # under a Join button that can only fail would just mislead. Editing
+        # any of them does not depend on this page anyway.
+        enrolled_clubs = current_clubs.run_by(request.user)
+        available_clubs = Course.objects.none()
         has_current_semester = True
     else:
         enrolled_clubs = current_clubs.for_user(request.user)
@@ -136,6 +132,9 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
             "enrolled_clubs": enrolled_clubs.select_related("semester", "instructor"),
             "available_clubs": available_clubs.select_related("semester", "instructor"),
             "has_current_semester": has_current_semester,
+            "enrolled_heading": "Clubs You Run"
+            if request.user.is_staff
+            else "Enrolled Clubs",
         },
     )
 
@@ -323,7 +322,9 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
 
         course = self.get_object()
 
-        if course.is_managed_by(self.request.user):
+        # Reading a course and editing it are different questions: any staff
+        # member may look at any course, while ``is_managed_by`` is narrower.
+        if self.request.user.is_staff or course.is_managed_by(self.request.user):
             return True
 
         # Non-staff users cannot access courses in invisible semesters
@@ -382,7 +383,7 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
 class CourseUpdateView(UserPassesTestMixin, UpdateView):
     """
     Update view for editing course details.
-    Only accessible to staff or course leaders.
+    Only accessible to superusers, the instructor, or staff on an active club.
     """
 
     model = Course
@@ -391,7 +392,7 @@ class CourseUpdateView(UserPassesTestMixin, UpdateView):
     context_object_name = "course"
 
     def test_func(self) -> bool:
-        """Check if user is staff or a leader of this course."""
+        """Check whether this user may edit the course."""
         return self.get_object().is_managed_by(self.request.user)
 
     def get_success_url(self) -> str:
@@ -408,7 +409,7 @@ class CourseUpdateView(UserPassesTestMixin, UpdateView):
 
 @login_required
 def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
-    """Manage meetings for a course using inline formsets. Only accessible to staff and course leaders."""
+    """Manage meetings for a course using inline formsets, for whoever runs it."""
     course = get_object_or_404(Course, pk=pk)
     if not course.is_managed_by(request.user):
         messages.error(request, "You don't have permission to manage this course.")
@@ -516,23 +517,16 @@ def _calendar_events(
     ]
 
     # CourseMeetings: fetch all in range for visible semesters, annotated with
-    # is_mine (enrolled student, leader or instructor). Non-enrolled classes
-    # are skipped; clubs are shown either way.
+    # is_mine (enrolled student, or staff who run the course). Non-enrolled
+    # classes are skipped; clubs are shown either way.
     is_enrolled = Exists(
         Course.students.through.objects.filter(
             course_id=OuterRef("course_id"),
             student__user=request.user,
         )
     )
-    is_leader = Exists(
-        Course.leaders.through.objects.filter(
-            course_id=OuterRef("course_id"),
-            user=request.user,
-        )
-    )
-    is_instructor = ExpressionWrapper(
-        Q(course__instructor__user=request.user),
-        output_field=BooleanField(),
+    is_mine_to_run = Exists(
+        Course.objects.run_by(request.user).filter(pk=OuterRef("course_id"))
     )
     meetings = (
         CourseMeeting.objects.filter(
@@ -540,7 +534,7 @@ def _calendar_events(
             course__semester__visible=True,
         )
         .select_related("course", "course__semester")
-        .annotate(is_mine=is_enrolled | is_leader | is_instructor)
+        .annotate(is_mine=is_enrolled | is_mine_to_run)
     )
 
     for meeting in meetings:

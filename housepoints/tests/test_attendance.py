@@ -119,7 +119,7 @@ def test_attendance_bulk_excludes_clubs():
 
 
 @pytest.mark.django_db
-def test_attendance_bulk_default_course_for_leader():
+def test_attendance_bulk_default_course_for_leader(staff_listing_for):
     """Test that the default course is one the staff member leads."""
     client = Client()
     staff = User.objects.create_user(
@@ -142,7 +142,8 @@ def test_attendance_bulk_default_course_for_leader():
         description="Led by staff",
         semester=semester,
     )
-    led_course.leaders.add(staff)
+    led_course.instructor = staff_listing_for(staff)
+    led_course.save()
 
     client.login(username="staff", password="password")
     url = reverse("housepoints:attendance_bulk")

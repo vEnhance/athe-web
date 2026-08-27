@@ -133,9 +133,21 @@ class Semester(models.Model):
 
 
 class CourseQuerySet(models.QuerySet["Course"]):
+    def run_by(self, user: AbstractBaseUser | AnonymousUser) -> CourseQuerySet:
+        """Courses this user is listed as running, leading or helping to run."""
+        if not user.is_authenticated:
+            return self.none()
+        return self.filter(
+            Q(instructor__user=user) | Q(co_instructors__user=user)
+        ).distinct()
+
     def for_user(self, user: User) -> CourseQuerySet:
-        """Courses the user is enrolled in as a student or leads."""
-        return self.filter(Q(students__user=user) | Q(leaders=user)).distinct()
+        """Courses the user is enrolled in as a student or helps run."""
+        return self.filter(
+            Q(students__user=user)
+            | Q(instructor__user=user)
+            | Q(co_instructors__user=user)
+        ).distinct()
 
     def unfinished(self) -> CourseQuerySet:
         """Courses in a semester that has not ended, the ones yet to start
@@ -167,11 +179,13 @@ class Course(models.Model):
         related_name="courses",
         help_text="Link to the instructor for this course.",
     )
-    leaders = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,
-        related_name="led_courses",
+    co_instructors = models.ManyToManyField(
+        StaffPhotoListing,
+        related_name="co_instructed_courses",
         blank=True,
-        help_text="Users who can manage this course and its meetings.",
+        help_text="Other staff who run this course alongside the instructor. "
+        "Credits them on the course page and lists it among their own courses; "
+        "editing rights come from being staff, not from this field.",
     )
     students = models.ManyToManyField(
         "Student",
@@ -218,34 +232,34 @@ class Course(models.Model):
     def get_absolute_url(self) -> str:
         return reverse("courses:course_detail", kwargs={"pk": self.pk})
 
-    def is_managed_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
-        """Whether the user may edit this course and manage its meetings."""
+    def is_run_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
+        """Whether this user is credited with running the course."""
         if not user.is_authenticated:
             return False
-        return bool(
-            getattr(user, "is_staff", False) or self.leaders.filter(pk=user.pk).exists()
-        )
+        return (
+            self.instructor is not None and self.instructor.user_id == user.pk
+        ) or self.co_instructors.filter(user=user).exists()
 
-    def ensure_instructor_is_leader(self) -> bool:
-        """Put the instructor's user among the leaders, and say if that was needed.
+    def is_managed_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
+        """Whether the user may edit this course and manage its meetings.
 
-        Whoever is teaching a course should always be able to manage it, but
-        ``leaders`` is an ordinary editable field, so anything that writes the
-        whole set -- the admin form's leaders box above all -- can leave the
-        instructor out. Keeping the repair in one place lets both the save path
-        and the admin action for fixing courses after the fact use it.
+        Superusers can edit anything. Past that a class belongs to whoever
+        teaches it, while a club in a semester that has not ended is open to
+        any current staff member: clubs are collaborative and short lived, and
+        keeping a per-club list of who was allowed to touch one cost more
+        upkeep than it ever bought.
         """
-        if self.instructor is None or self.instructor.user is None:
+        if not user.is_authenticated:
             return False
-        if self.leaders.filter(pk=self.instructor.user.pk).exists():
-            return False
-        self.leaders.add(self.instructor.user)
-        return True
-
-    def save(self, *args, **kwargs) -> None:  # type: ignore[override]
-        """Override save to auto-add instructor as a leader."""
-        super().save(*args, **kwargs)
-        self.ensure_instructor_is_leader()
+        if getattr(user, "is_superuser", False):
+            return True
+        if self.is_run_by(user):
+            return True
+        return (
+            self.is_club
+            and self.semester.end_date >= timezone.localdate()
+            and StaffPhotoListing.is_current_staff(user)
+        )
 
     def clean(self) -> None:
         """Validate that all students belong to the course's semester."""

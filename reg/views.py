@@ -157,10 +157,6 @@ class StaffInviteView(View):
             staff_listing.user = user
             staff_listing.save()
 
-            # Anyone listed as instructor of a course also leads it
-            for course in Course.objects.filter(instructor=staff_listing):
-                course.leaders.add(user)
-
         del request.session["staff_listing_id"]
 
         # Log the user in (specify backend since multiple are configured)

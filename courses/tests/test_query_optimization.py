@@ -12,7 +12,7 @@ from courses.models import Course, Semester, Student
 
 
 @pytest.mark.django_db
-def test_my_courses_query_count():
+def test_my_courses_query_count(staff_listing_for):
     """Test that my_courses uses O(1) queries regardless of data size."""
     client = Client()
     user = User.objects.create_user(username="student", password="password")
@@ -52,8 +52,9 @@ def test_my_courses_query_count():
     student2 = Student.objects.create(user=user, semester=spring)
     course3.students.add(student2)
 
-    # User is also a leader of one course
-    course4.leaders.add(user)
+    # User also teaches one course
+    course4.instructor = staff_listing_for(user)
+    course4.save()
 
     client.login(username="student", password="password")
 
@@ -82,7 +83,7 @@ def test_my_courses_query_count():
 
 
 @pytest.mark.django_db
-def test_my_courses_functionality():
+def test_my_courses_functionality(staff_listing_for):
     """Test that my_courses correctly shows enrolled and led courses."""
     client = Client()
     user = User.objects.create_user(username="student", password="password")
@@ -111,8 +112,9 @@ def test_my_courses_functionality():
     course1.students.add(student)
     club1.students.add(student)
 
-    # User is a leader of another course
-    course2.leaders.add(user)
+    # User teaches another course
+    course2.instructor = staff_listing_for(user)
+    course2.save()
 
     client.login(username="student", password="password")
     url = reverse("courses:my_courses")
@@ -126,7 +128,7 @@ def test_my_courses_functionality():
 
 
 @pytest.mark.django_db
-def test_my_clubs_query_count():
+def test_my_clubs_query_count(staff_listing_for):
     """Test that my_clubs uses O(1) queries regardless of data size."""
     client = Client()
     user = User.objects.create_user(username="student", password="password")
@@ -158,8 +160,9 @@ def test_my_clubs_query_count():
     club1.students.add(student)
     club2.students.add(student)
 
-    # User is a leader of one club
-    club3.leaders.add(user)
+    # User runs one club
+    club3.instructor = staff_listing_for(user)
+    club3.save()
 
     client.login(username="student", password="password")
 
@@ -184,7 +187,7 @@ def test_my_clubs_query_count():
 
 
 @pytest.mark.django_db
-def test_my_clubs_functionality():
+def test_my_clubs_functionality(staff_listing_for):
     """Test that my_clubs correctly splits enrolled and available clubs."""
     client = Client()
     user = User.objects.create_user(username="student", password="password")
@@ -215,8 +218,9 @@ def test_my_clubs_functionality():
     student = Student.objects.create(user=user, semester=active_semester)
     enrolled_club.students.add(student)
 
-    # User is a leader of another club
-    led_club.leaders.add(user)
+    # User runs another club
+    led_club.instructor = staff_listing_for(user)
+    led_club.save()
 
     client.login(username="student", password="password")
     url = reverse("courses:my_clubs")
