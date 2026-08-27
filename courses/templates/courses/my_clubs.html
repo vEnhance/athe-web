@@ -36,12 +36,8 @@
                     </div>
                 </div>
             {% endif %}
-            {% if not enrolled_clubs and not available_clubs %}
-                <p>No clubs are available in active semesters.</p>
-            {% endif %}
+            {% if not enrolled_clubs and not available_clubs %}<p>No clubs are available in active semesters.</p>{% endif %}
         {% endif %}
-        <h2>Global Events</h2>
-        <a href="{% url 'courses:global_events' %}">All-student events are listed separately.</a>
         <h2>Past Clubs and Events</h2>
         <a href="{% url 'courses:past_clubs' %}">Past clubs and events are listed separately.</a>
     </div>
