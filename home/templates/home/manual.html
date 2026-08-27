@@ -85,23 +85,16 @@
                 <p>
                     For classes or clubs with one obvious in-charge staff member,
                     you should set the instructor field to that person's <tt>StaffPhotoListing</tt>.
-                    Staff do not get added to a course by hand beyond that:
-                    they subscribe to one themselves from its page,
-                    which puts it on their own calendar and lists
-                    and is not shown to anybody else.
-                    That covers a club a few staff run together
-                    as much as one somebody just wants to keep an eye on.
-                    Editing a class is for its instructor (and you);
-                    editing a club is open to anyone with a current
-                    <tt>StaffPhotoListing</tt> as long as the semester has not ended yet.
+                    You could also subscribe staff members to a club if it makes sense,
+                    e.g. for office-hours co-hosted by several staff,
+                    you may as well subscribe them all (they can always unsubscribe).
+                    Subscriptions control whether the club shows up
+                    on their dashboard and calendar.
                 </p>
                 <p>
-                    For the rare club that students run themselves,
-                    put their <tt>Student</tt> objects in the student organizers field.
-                    That lets them edit that one club and schedule its meetings.
-                    Do not give a student a <tt>StaffPhotoListing</tt> to achieve this:
-                    that would list them as staff on the website
-                    and let them register a staff account.
+                    On rare occasions, students will run clubs too.
+                    You can put their <tt>Student</tt> objects in the student organizers field,
+                    which gives them edit privileges for that club and its meetings.
                 </p>
             </li>
             <li>
