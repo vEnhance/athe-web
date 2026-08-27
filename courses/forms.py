@@ -39,7 +39,7 @@ class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
 
 
 class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
-    """Form for updating course details by leaders."""
+    """Form for updating course details, for whoever runs the course."""
 
     class Meta:
         model = Course

@@ -10,10 +10,14 @@
         {% else %}
             {% if enrolled_clubs %}
                 <div class="mb-4">
-                    <h2>Enrolled Clubs</h2>
+                    <h2>{{ enrolled_heading }}</h2>
                     <div class="list-group">
                         {% for club in enrolled_clubs %}
-                            {% include "courses/components/course_list_item.html" with course=club action="drop" %}
+                            {% if is_staff_view %}
+                                {% include "courses/components/course_list_item.html" with course=club action="unsubscribe" %}
+                            {% else %}
+                                {% include "courses/components/course_list_item.html" with course=club action="drop" %}
+                            {% endif %}
                         {% endfor %}
                     </div>
                 </div>
@@ -23,7 +27,11 @@
                     <h2>Available Clubs</h2>
                     <div class="list-group">
                         {% for club in available_clubs %}
-                            {% include "courses/components/course_list_item.html" with course=club action="join" %}
+                            {% if is_staff_view %}
+                                {% include "courses/components/course_list_item.html" with course=club action="subscribe" %}
+                            {% else %}
+                                {% include "courses/components/course_list_item.html" with course=club action="join" %}
+                            {% endif %}
                         {% endfor %}
                     </div>
                 </div>

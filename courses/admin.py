@@ -70,13 +70,13 @@ class CourseAdmin(admin.ModelAdmin):
     )
     list_filter = ("is_club", "semester", "difficulty")
     search_fields = ("name", "description")
-    autocomplete_fields = ("instructor",)
-    filter_horizontal = ("leaders", "students")
+    autocomplete_fields = ("instructor", "subscribed_staff")
+    filter_horizontal = ("students", "student_organizers")
     inlines = [CourseMeetingInline]
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):  # type: ignore
         """Filter students to only show students from the course's semester."""
-        if db_field.name == "students":
+        if db_field.name in ("students", "student_organizers"):
             # Get the course instance being edited
             course_id = request.resolver_match.kwargs.get("object_id")  # type: ignore[attr-defined]
             if course_id:

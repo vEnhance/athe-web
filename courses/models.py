@@ -133,9 +133,31 @@ class Semester(models.Model):
 
 
 class CourseQuerySet(models.QuerySet["Course"]):
+    def taught_by(self, user: AbstractBaseUser | AnonymousUser) -> CourseQuerySet:
+        """Courses this user is the instructor of."""
+        if not user.is_authenticated:
+            return self.none()
+        return self.filter(instructor__user=user)
+
+    def followed_by(self, user: AbstractBaseUser | AnonymousUser) -> CourseQuerySet:
+        """Courses a staff member keeps an eye on: taught, or subscribed to.
+
+        Subscribing is a private choice rather than a claim to run something,
+        so this is only ever about what shows up on someone's own pages.
+        """
+        if not user.is_authenticated:
+            return self.none()
+        return self.filter(
+            Q(instructor__user=user) | Q(subscribed_staff__user=user)
+        ).distinct()
+
     def for_user(self, user: User) -> CourseQuerySet:
-        """Courses the user is enrolled in as a student or leads."""
-        return self.filter(Q(students__user=user) | Q(leaders=user)).distinct()
+        """Courses the user is enrolled in as a student, teaches, or follows."""
+        return self.filter(
+            Q(students__user=user)
+            | Q(instructor__user=user)
+            | Q(subscribed_staff__user=user)
+        ).distinct()
 
     def unfinished(self) -> CourseQuerySet:
         """Courses in a semester that has not ended, the ones yet to start
@@ -167,17 +189,30 @@ class Course(models.Model):
         related_name="courses",
         help_text="Link to the instructor for this course.",
     )
-    leaders = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,
-        related_name="led_courses",
+    subscribed_staff = models.ManyToManyField(
+        StaffPhotoListing,
+        related_name="subscribed_courses",
         blank=True,
-        help_text="Users who can manage this course and its meetings.",
+        help_text="Staff who follow this course, whether they run it, help with "
+        "it or just want it on their calendar. Staff subscribe themselves from "
+        "the course page; it puts the course on their own pages and is not "
+        "shown to anyone else. It grants nothing: staff editing rights come "
+        "from being staff.",
     )
     students = models.ManyToManyField(
         "Student",
         related_name="enrolled_courses",
         blank=True,
         help_text="Students enrolled in this course.",
+    )
+    student_organizers = models.ManyToManyField(
+        "Student",
+        related_name="organized_courses",
+        blank=True,
+        help_text="Students who run this course themselves, for the handful of "
+        "student-led clubs. They may edit it and schedule its meetings, and are "
+        "credited on its page. Staff do not belong here: their editing rights "
+        "come from being staff.",
     )
     difficulty = models.CharField(
         blank=True,
@@ -218,34 +253,68 @@ class Course(models.Model):
     def get_absolute_url(self) -> str:
         return reverse("courses:course_detail", kwargs={"pk": self.pk})
 
-    def is_managed_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
-        """Whether the user may edit this course and manage its meetings."""
+    def is_run_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
+        """Whether this user is the staff member listed as running the course."""
         if not user.is_authenticated:
             return False
-        return bool(
-            getattr(user, "is_staff", False) or self.leaders.filter(pk=user.pk).exists()
+        return self.instructor is not None and self.instructor.user_id == user.pk
+
+    def is_followed_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
+        """Whether this user has subscribed to the course as staff."""
+        if not user.is_authenticated:
+            return False
+        return self.subscribed_staff.filter(user=user).exists()
+
+    def is_organized_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
+        """Whether this user is a student who runs the course themselves.
+
+        Named apart from ``is_run_by`` because it is the exception rather than
+        the pattern: a student-led club is rare, and a student has no staff
+        listing to be recognised by, so they have to be pointed at one course
+        at a time.
+        """
+        if not user.is_authenticated:
+            return False
+        return self.student_organizers.filter(user=user).exists()
+
+    def is_managed_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
+        """Whether the user may edit this course and manage its meetings.
+
+        Superusers can edit anything, and whoever runs a course keeps it for
+        good. Past that a class belongs to whoever teaches it, while a club in
+        a semester that has not ended is open to any current staff member:
+        clubs are collaborative and short lived, and keeping a per-club list of
+        who was allowed to touch one cost more upkeep than it ever bought.
+        """
+        if not user.is_authenticated:
+            return False
+        if getattr(user, "is_superuser", False):
+            return True
+        if self.is_run_by(user) or self.is_organized_by(user):
+            return True
+        return (
+            self.is_club
+            and self.semester.end_date >= timezone.localdate()
+            and StaffPhotoListing.is_current_staff(user)
         )
 
-    def save(self, *args, **kwargs) -> None:  # type: ignore[override]
-        """Override save to auto-add instructor as a leader."""
-        super().save(*args, **kwargs)
-        # Add instructor's user as a leader if instructor is set and has a user
-        if self.instructor and self.instructor.user:
-            self.leaders.add(self.instructor.user)
-
     def clean(self) -> None:
-        """Validate that all students belong to the course's semester."""
+        """Validate that everyone attached as a student is in this semester."""
         super().clean()
         # Only validate if the instance has been saved (has a pk)
         if self.pk:
-            wrong_semester_students = self.students.exclude(semester=self.semester)
-            if wrong_semester_students.exists():
-                student_names = ", ".join(
-                    str(student) for student in wrong_semester_students
+            for field in ("students", "student_organizers"):
+                wrong_semester_students = getattr(self, field).exclude(
+                    semester=self.semester
                 )
-                raise ValidationError(
-                    f"The following students are not in {self.semester}: {student_names}"
-                )
+                if wrong_semester_students.exists():
+                    student_names = ", ".join(
+                        str(student) for student in wrong_semester_students
+                    )
+                    raise ValidationError(
+                        f"The following students are not in {self.semester}: "
+                        f"{student_names}"
+                    )
 
     class Meta:
         ordering = ("-semester__start_date", "is_club", "name")
