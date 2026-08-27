@@ -81,7 +81,7 @@ def test_join_club_fails_for_non_student():
 
 @pytest.mark.django_db
 def test_join_club_inactive_semester():
-    """Test that a student cannot join a club in an inactive semester."""
+    """A club in a semester that has ended is closed to joining."""
     client = Client()
     user = User.objects.create_user(username="student", password="password")
 
@@ -109,7 +109,7 @@ def test_join_club_inactive_semester():
     assert response.status_code == 200
     messages = list(response.context["messages"])
     assert len(messages) == 1
-    assert "not currently active" in str(messages[0])
+    assert "not in the current semester" in str(messages[0])
 
     # Verify student is not enrolled
     assert (
@@ -120,43 +120,59 @@ def test_join_club_inactive_semester():
 
 
 @pytest.mark.django_db
-def test_join_club_future_semester():
-    """Test that a student cannot join a club in a future semester."""
+def test_join_club_before_the_semester_starts():
+    """A semester yet to open is still the current one, so its clubs can be
+    joined ahead of time -- only a Student row gates that, and those exist
+    only once an invite link has been sent."""
     client = Client()
     user = User.objects.create_user(username="student", password="password")
 
-    # Create a future semester (starts 30 days from now)
     future_semester = Semester.objects.create(
         name="Future Semester",
         slug="future",
         start_date=(timezone.now() + timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=120)).date(),
     )
-
-    # Create a club in the future semester
     club = Course.objects.create(
         name="Future Club",
         description="A club from the future",
         semester=future_semester,
         is_club=True,
     )
+    student = Student.objects.create(user=user, semester=future_semester)
 
     client.login(username="student", password="password")
     url = reverse("courses:join_club", kwargs={"pk": club.pk})
     response = client.post(url, follow=True)
 
-    # Should redirect with error message
     assert response.status_code == 200
-    messages = list(response.context["messages"])
-    assert len(messages) == 1
-    assert "not currently active" in str(messages[0])
+    assert club in student.enrolled_courses.all()
 
-    # Verify student is not enrolled
-    assert (
-        not Student.objects.filter(user=user, semester=future_semester)
-        .filter(enrolled_courses=club)
-        .exists()
+
+@pytest.mark.django_db
+def test_join_club_without_a_student_row_is_refused():
+    """Someone who was never registered for the semester still cannot join."""
+    client = Client()
+    User.objects.create_user(username="outsider", password="password")
+
+    future_semester = Semester.objects.create(
+        name="Future Semester",
+        slug="future",
+        start_date=(timezone.now() + timedelta(days=30)).date(),
+        end_date=(timezone.now() + timedelta(days=120)).date(),
     )
+    club = Course.objects.create(
+        name="Future Club", description="", semester=future_semester, is_club=True
+    )
+
+    client.login(username="outsider", password="password")
+    response = client.post(
+        reverse("courses:join_club", kwargs={"pk": club.pk}), follow=True
+    )
+
+    messages = list(response.context["messages"])
+    assert "not a student in this semester" in str(messages[0])
+    assert club.students.count() == 0
 
 
 @pytest.mark.django_db
@@ -268,7 +284,7 @@ def test_drop_club_active_semester():
 
 @pytest.mark.django_db
 def test_drop_club_inactive_semester():
-    """Test that a student cannot drop a club in an inactive semester."""
+    """A club in a semester that has ended is closed to dropping too."""
     client = Client()
     user = User.objects.create_user(username="student", password="password")
 
@@ -298,7 +314,7 @@ def test_drop_club_inactive_semester():
     assert response.status_code == 200
     messages = list(response.context["messages"])
     assert len(messages) == 1
-    assert "not currently active" in str(messages[0])
+    assert "not in the current semester" in str(messages[0])
 
     # Verify student is still enrolled (cannot drop from past semester)
     student.refresh_from_db()

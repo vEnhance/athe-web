@@ -71,14 +71,14 @@ def test_staff_can_access(staff_client):
 
 
 @pytest.mark.django_db
-def test_no_active_semester_shows_error(staff_client):
-    # Create a past semester so there is something in the DB but no active one
+def test_no_current_semester_shows_error(staff_client):
+    # Only a semester that has ended, so there is no current one to default to
     make_semester(active=False)
     client, _ = staff_client
     url = reverse("courses:staff_schedule")
     response = client.get(url)
     assert response.status_code == 200
-    assert b"no currently active semester" in response.content.lower()
+    assert b"no current semester" in response.content.lower()
 
 
 # ── slug-based URL ────────────────────────────────────────────────────────────

@@ -557,11 +557,8 @@ def test_notice_spares_staff_the_enrolment_messages(semester: Semester, client_f
 
 
 @pytest.mark.django_db
-def test_notice_warns_staff_that_the_semester_has_not_opened(
-    next_semester: Semester, client_for
-):
-    """The class lists carry the coming semester, but the rest of the page is
-    still about a semester that is not there, so the banner says which."""
+def test_start_date_is_stated_to_staff_too(next_semester: Semester, client_for):
+    """Staff get the start date too, alongside the class they are preparing."""
     teacher = User.objects.create_user(
         username="teacher", password="password", is_staff=True
     )
@@ -573,7 +570,7 @@ def test_notice_warns_staff_that_the_semester_has_not_opened(
     content = client_for("teacher").get(reverse("index")).content.decode()
     text = visible_text(content)
 
-    assert "The session Spring 2026 hasn't started yet!" in text
+    assert "The official start date for Spring 2026 is" in text
     assert "Intro to Olympiad" in text
 
 
@@ -601,27 +598,27 @@ def test_notice_prefers_the_semester_with_something_outstanding(
 
 
 @pytest.mark.django_db
-def test_notice_announces_a_semester_that_has_not_opened(
+def test_start_date_is_stated_before_the_semester_opens(
     next_semester: Semester, client_for
 ):
-    """Between semesters there is nothing to be enrolled in, so say what's next."""
+    """The start date is a fact about the current semester, printed alongside
+    whatever else the page has to say rather than instead of it."""
     User.objects.create_user(username="stranger", password="password")
 
     text = visible_text(client_for("stranger").get(reverse("index")).content.decode())
 
     start = date_filter(next_semester.start_date, "F j, Y")
-    assert "The session Spring 2026 hasn't started yet!" in text
-    assert f"It is scheduled to start on {start}." in text
-    # "the current session" would be a lie while none is running.
-    assert "You don't seem to be enrolled" not in text
+    assert f"The official start date for Spring 2026 is {start}." in text
+    # A semester that has not opened is still the current one, so the banner
+    # about not being enrolled in it is accurate and no longer suppressed.
+    assert "You don't seem to be enrolled in the current session, Spring 2026." in text
 
 
 @pytest.mark.django_db
-def test_notice_announces_the_opening_to_an_assigned_student_too(
+def test_start_date_is_stated_to_a_fully_sorted_student(
     next_semester: Semester, client_for
 ):
-    """Classes exist but the course lists only carry the running semester, so a
-    fully sorted student still faces a blank dashboard until it opens."""
+    """A student with nothing outstanding still gets told when it all begins."""
     user = User.objects.create_user(username="lucy", password="password")
     student = Student.objects.create(
         user=user, semester=next_semester, airtable_name="Lucy"
@@ -634,7 +631,7 @@ def test_notice_announces_the_opening_to_an_assigned_student_too(
 
     text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
 
-    assert "The session Spring 2026 hasn't started yet!" in text
+    assert "The official start date for Spring 2026 is" in text
 
 
 @pytest.mark.django_db
@@ -646,7 +643,7 @@ def test_notice_stays_quiet_while_a_semester_is_running(
 
     text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
 
-    assert "hasn't started yet" not in text
+    assert "The official start date" not in text
 
 
 @pytest.mark.django_db
@@ -737,23 +734,41 @@ def test_yearbook_follows_the_most_recent_semester(
 
 
 @pytest.mark.django_db
-def test_empty_sections_say_so_when_nothing_is_running(
-    next_semester: Semester, client_for
-):
-    """Between semesters "this semester" names nothing, so House Points and
-    the Yearbook say what is actually true instead."""
+def test_empty_sections_say_so_when_no_semester_is_left(client_for):
+    """Only a site with nothing unfinished on the books has no semester for
+    these sections to be about."""
+    today = timezone.localdate()
+    Semester.objects.create(
+        name="Spring 2025",
+        slug="sp25",
+        start_date=today - timedelta(days=200),
+        end_date=today - timedelta(days=100),
+    )
     User.objects.create_user(username="stranger", password="password")
 
     content = client_for("stranger").get(reverse("index")).content.decode()
     text = visible_text(content)
 
-    assert "a house this semester" not in text
     assert text.count("There is no active semester, but you can browse") == 2
     assert "leaderboards from all sessions" in text
     assert "yearbook entries from all sessions" in text
-    assert "registered yet this semester" not in text
+    assert "a house this semester" not in text
     assert reverse("housepoints:leaderboard") in content
     assert reverse("yearbook:index") in content
+
+
+@pytest.mark.django_db
+def test_empty_sections_speak_of_a_semester_yet_to_open(
+    next_semester: Semester, client_for
+):
+    """A semester waiting to start is still one to talk about, so these keep
+    their ordinary wording rather than claiming there is nothing."""
+    User.objects.create_user(username="stranger", password="password")
+
+    text = visible_text(client_for("stranger").get(reverse("index")).content.decode())
+
+    assert "no active semester" not in text
+    assert "You're not assigned a house this semester yet" in text
 
 
 @pytest.mark.django_db
@@ -798,8 +813,7 @@ def test_dashboard_lists_courses_from_a_semester_about_to_open(
     assert "Intro to Olympiad" in text
     assert "Origami Club" in text
     assert "First lesson" in text
-    # The banner still explains why the rest of the page is quiet.
-    assert "The session Spring 2026 hasn't started yet!" in text
+    assert "The official start date for Spring 2026 is" in text
 
 
 @pytest.mark.django_db

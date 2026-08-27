@@ -171,23 +171,20 @@ def test_semester_visible_by_default():
 
 
 @pytest.mark.django_db
-def test_get_current_semester():
-    """Test that get_current_semester returns the active semester."""
-    # Create a current semester
+def test_current_semester_is_the_one_running():
+    """With a semester underway, that is the one everything is about."""
     current = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
         start_date=(timezone.now() - timedelta(days=10)).date(),
         end_date=(timezone.now() + timedelta(days=80)).date(),
     )
-    # Create a past semester
     Semester.objects.create(
         name="Spring 2025",
         slug="sp25",
         start_date=(timezone.now() - timedelta(days=200)).date(),
         end_date=(timezone.now() - timedelta(days=100)).date(),
     )
-    # Create a future semester
     Semester.objects.create(
         name="Spring 2026",
         slug="sp26",
@@ -195,14 +192,53 @@ def test_get_current_semester():
         end_date=(timezone.now() + timedelta(days=200)).date(),
     )
 
-    result = Semester.get_current_semester()
-    assert result == current
+    assert Semester.current() == current
+    assert Semester.latest_started() == current
 
 
 @pytest.mark.django_db
-def test_get_current_semester_no_active():
-    """Test that get_current_semester raises ValueError when no active semester."""
-    # Create only past semesters
+def test_current_semester_between_semesters_is_the_next_one():
+    """The gap between semesters is not a gap in what the site is about: the
+    semester being prepared is the current one, start date notwithstanding."""
+    Semester.objects.create(
+        name="Spring 2026",
+        slug="sp26",
+        start_date=(timezone.now() - timedelta(days=200)).date(),
+        end_date=(timezone.now() - timedelta(days=100)).date(),
+    )
+    upcoming = Semester.objects.create(
+        name="Fall 2026",
+        slug="fa26",
+        start_date=(timezone.now() + timedelta(days=30)).date(),
+        end_date=(timezone.now() + timedelta(days=140)).date(),
+    )
+
+    assert Semester.current() == upcoming
+
+
+@pytest.mark.django_db
+def test_latest_started_looks_backwards_between_semesters():
+    """Its counterpart stays with what has happened, for pages that report on
+    it: the standings just earned, not the empty slate ahead."""
+    finished = Semester.objects.create(
+        name="Spring 2026",
+        slug="sp26",
+        start_date=(timezone.now() - timedelta(days=200)).date(),
+        end_date=(timezone.now() - timedelta(days=100)).date(),
+    )
+    Semester.objects.create(
+        name="Fall 2026",
+        slug="fa26",
+        start_date=(timezone.now() + timedelta(days=30)).date(),
+        end_date=(timezone.now() + timedelta(days=140)).date(),
+    )
+
+    assert Semester.latest_started() == finished
+
+
+@pytest.mark.django_db
+def test_current_semester_is_none_when_nothing_is_left():
+    """Only a site with nothing unfinished on the books has no current one."""
     Semester.objects.create(
         name="Spring 2025",
         slug="sp25",
@@ -210,26 +246,52 @@ def test_get_current_semester_no_active():
         end_date=(timezone.now() - timedelta(days=100)).date(),
     )
 
-    with pytest.raises(ValueError, match="No active semester found"):
-        Semester.get_current_semester()
+    assert Semester.current() is None
 
 
 @pytest.mark.django_db
-def test_get_current_semester_multiple_overlapping():
-    """Test that get_current_semester raises ValueError with overlapping semesters."""
-    # Create two overlapping semesters
+def test_overlapping_semesters_are_rejected_on_the_way_in():
+    """The overlap everything else assumes away is caught at write time now,
+    rather than blowing up in whichever view happened to read next."""
     Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
         start_date=(timezone.now() - timedelta(days=10)).date(),
         end_date=(timezone.now() + timedelta(days=80)).date(),
     )
-    Semester.objects.create(
+    clash = Semester(
         name="Winter 2025",
         slug="wi25",
         start_date=(timezone.now() - timedelta(days=5)).date(),
         end_date=(timezone.now() + timedelta(days=85)).date(),
     )
 
-    with pytest.raises(ValueError, match="Multiple active semesters found"):
-        Semester.get_current_semester()
+    with pytest.raises(ValidationError, match="overlap"):
+        clash.full_clean()
+
+
+@pytest.mark.django_db
+def test_a_semester_may_not_end_before_it_starts():
+    backwards = Semester(
+        name="Backwards",
+        slug="back",
+        start_date=(timezone.now() + timedelta(days=10)).date(),
+        end_date=(timezone.now() - timedelta(days=10)).date(),
+    )
+
+    with pytest.raises(ValidationError, match="cannot end before it starts"):
+        backwards.full_clean()
+
+
+@pytest.mark.django_db
+def test_editing_a_semester_does_not_clash_with_itself():
+    """The overlap check has to skip the row being saved."""
+    semester = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=(timezone.now() - timedelta(days=10)).date(),
+        end_date=(timezone.now() + timedelta(days=80)).date(),
+    )
+
+    semester.name = "Fall 2025 (renamed)"
+    semester.full_clean()

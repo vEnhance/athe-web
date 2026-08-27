@@ -41,6 +41,12 @@
                 {% endif %}
             {% endif %}
         </p>
+        {% if upcoming_semester %}
+            <p>
+                The official start date for {{ upcoming_semester.name }} is
+                {{ upcoming_semester.start_date|date:"F j, Y" }}.
+            </p>
+        {% endif %}
         {% include "dashboard/components/notice.html" %}
         <div class="row">
             <div class="col-md-6">
@@ -81,7 +87,7 @@
                             </a>
                         </div>
                     </div>
-                {% elif semester_running %}
+                {% elif has_current_semester %}
                     <p>
                         You're not assigned a house this semester yet,
                         but you can browse <a href="{{ house_url }}">the leaderboard anyway</a>.
@@ -110,7 +116,7 @@
                        href="{% url 'yearbook:create' student_pk=yearbook_student.pk %}">Add entry</a>
                 {% elif yearbook_student %}
                     <p class="text-muted">Entries for {{ yearbook_student.semester.name }} are closed.</p>
-                {% elif semester_running %}
+                {% elif has_current_semester %}
                     <p>
                         You're not registered yet this semester, but
                         you can browse <a href="{{ yearbook_url }}">past yearbook entries</a>.

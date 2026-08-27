@@ -20,10 +20,13 @@ class SemesterQuerySet(models.QuerySet["Semester"]):
             return self
         return self.filter(visible=True)
 
-    def active(self) -> SemesterQuerySet:
-        """Semesters that today falls inside of."""
-        today = timezone.now().date()
-        return self.filter(start_date__lte=today, end_date__gte=today)
+    def unfinished(self) -> SemesterQuerySet:
+        """Semesters that have not ended, the nearest one first.
+
+        Ordering matters here: semesters do not overlap, so the first row is
+        the one the site is working on and the rest are still to come.
+        """
+        return self.filter(end_date__gte=timezone.localdate()).order_by("start_date")
 
 
 class Semester(models.Model):
@@ -59,11 +62,6 @@ class Semester(models.Model):
     def get_absolute_url(self) -> str:
         return reverse("courses:course_list", kwargs={"slug": self.slug})
 
-    def is_active(self) -> bool:
-        """Check if the semester is currently active."""
-        today = timezone.now().date()
-        return self.start_date <= today <= self.end_date
-
     @classmethod
     def get_enrolled_semesters(cls, user: User) -> QuerySet[Semester]:
         return Semester.objects.filter(
@@ -71,29 +69,67 @@ class Semester(models.Model):
         )
 
     @classmethod
-    def get_current_semester(cls) -> Semester:
-        """Get the current active semester based on today's date.
+    def current(cls) -> Semester | None:
+        """The semester the site is working on: the earliest one not yet ended.
 
-        Returns the semester where today's date falls between start_date and end_date.
+        This is forward looking, and deliberately does not ask whether the
+        semester has started. In the weeks between one semester finishing and
+        the next opening there is still exactly one semester everything is
+        being got ready for, and saying so beats making every caller invent an
+        answer for a gap that has an obvious one. Only ``None`` when nothing
+        unfinished is on the books at all.
 
-        Raises:
-            ValueError: If no active semester is found or multiple overlapping semesters exist.
+        The start date is display and ordering, not a gate: use ``visible`` to
+        decide whether a semester has been published to students.
         """
-        current_semesters = cls.objects.active()
+        return cls.objects.unfinished().first()
 
-        count = current_semesters.count()
-        if count == 0:
-            raise ValueError("No active semester found for the current date.")
-        if count > 1:
-            raise ValueError(
-                "Multiple active semesters found for the current date. "
-                "Please ensure semester dates do not overlap."
+    @classmethod
+    def latest_started(cls) -> Semester | None:
+        """The most recent semester that has actually begun.
+
+        The backward-looking counterpart to ``current``, for pages that report
+        on what has happened rather than what is being prepared. The house
+        points leaderboard wants this one: in the gap between semesters it
+        should still show the standings people just finished earning, not the
+        empty slate of the semester ahead.
+        """
+        today = timezone.localdate()
+        return (
+            cls.objects.filter(start_date__lte=today).order_by("-start_date").first()
+            or cls.objects.order_by("start_date").first()
+        )
+
+    def clean(self) -> None:
+        """Keep semesters from overlapping, which everything else assumes.
+
+        Enforced on the way in so that reads can just take the first unfinished
+        semester and trust it, rather than each caller discovering a clash.
+        """
+        super().clean()
+        if self.start_date is None or self.end_date is None:
+            return
+        if self.start_date > self.end_date:
+            raise ValidationError("A semester cannot end before it starts.")
+        clash = (
+            Semester.objects.exclude(pk=self.pk)
+            .filter(start_date__lte=self.end_date, end_date__gte=self.start_date)
+            .first()
+        )
+        if clash is not None:
+            raise ValidationError(
+                f"These dates overlap {clash}, which runs "
+                f"{clash.start_date} to {clash.end_date}."
             )
-
-        return current_semesters.first()  # type: ignore[return-value]
 
     class Meta:
         ordering = ("-start_date",)
+        constraints = (
+            models.CheckConstraint(
+                condition=Q(start_date__lte=models.F("end_date")),
+                name="semester_starts_before_it_ends",
+            ),
+        )
 
 
 class CourseQuerySet(models.QuerySet["Course"]):
@@ -101,15 +137,8 @@ class CourseQuerySet(models.QuerySet["Course"]):
         """Courses the user is enrolled in as a student or leads."""
         return self.filter(Q(students__user=user) | Q(leaders=user)).distinct()
 
-    def active(self) -> CourseQuerySet:
-        """Courses belonging to a semester that today falls inside of."""
-        today = timezone.now().date()
-        return self.filter(
-            semester__start_date__lte=today, semester__end_date__gte=today
-        )
-
-    def not_ended(self) -> CourseQuerySet:
-        """Courses in a semester that has not finished, the ones yet to start
+    def unfinished(self) -> CourseQuerySet:
+        """Courses in a semester that has not ended, the ones yet to start
         included.
 
         A class is worth showing as soon as it exists: instructors fill theirs
@@ -117,7 +146,7 @@ class CourseQuerySet(models.QuerySet["Course"]):
         too, so waiting for the start date hides a class from the very people
         getting ready for it.
         """
-        return self.filter(semester__end_date__gte=timezone.now().date())
+        return self.filter(semester__end_date__gte=timezone.localdate())
 
 
 class Course(models.Model):
@@ -306,14 +335,11 @@ class GlobalEventQuerySet(models.QuerySet["GlobalEvent"]):
         return qs.filter(semester__students__user=user).distinct()
 
     def current_for(self, user: User) -> GlobalEventQuerySet:
-        """The events of this semester, chronologically: what "this semester"
-        means to a student is the semester they are enrolled in right now, and
-        to staff every semester running right now."""
-        return (
-            self.visible_to(user)
-            .filter(semester__in=Semester.objects.active())
-            .order_by("start_time")
-        )
+        """The events of the current semester, chronologically."""
+        current = Semester.current()
+        if current is None:
+            return self.none()
+        return self.visible_to(user).filter(semester=current).order_by("start_time")
 
 
 class GlobalEvent(models.Model):

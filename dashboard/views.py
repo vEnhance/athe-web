@@ -71,48 +71,41 @@ def _student_notice(student: Student, today: date) -> DashboardNotice | None:
     return DashboardNotice("assignments", student.semester)
 
 
-def _dashboard_notice(user: User, semester_running: bool) -> DashboardNotice | None:
+def _dashboard_notice(user: User, current: Semester | None) -> DashboardNotice | None:
     """The banner above the class lists: why the dashboard looks so empty.
 
-    A student around the start of a semester can be stuck in four different
-    places -- a questionnaire they never finished, a matching that has not been
-    run yet, a semester that has not opened, or no registration at all -- and
-    every one of them leaves the same blank page behind, so name the one they
-    are in rather than let them worry. The order matters: the two that are
-    about this student's own paperwork come first, since they are the only
+    A student can be stuck in three different places -- a questionnaire they
+    never finished, a matching that has not been run yet, or no registration at
+    all -- and every one of them leaves the same blank page behind, so name the
+    one they are in rather than let them worry. The order matters: the two that
+    are about this student's own paperwork come first, since they are the only
     ones they can do anything about.
 
-    Staff get the one about a semester that has not opened, and only that one.
-    They have no Student row to have paperwork outstanding on, but the class
-    lists are built from the running semester for them too, so a course they
-    are about to teach is just as invisible.
+    Whether the semester has opened is not one of these. The current semester
+    is the current semester before its start date as much as after, so that is
+    a plain fact stated elsewhere on the page, not a state to be stuck in.
+
+    ``current`` is the semester as this user sees it, so a semester still kept
+    back from students is not one they get told about. Staff have no Student
+    row by design, so none of this is theirs.
     """
+    if user.is_staff:
+        return None
+
     today = timezone.localdate()
-    running = Semester.objects.filter(end_date__gte=today).order_by("start_date")
-    students: list[Student] = []
-    if not user.is_staff:
-        students = list(
-            Student.objects.filter(user=user, semester__in=running)
-            .select_related("semester")
-            .order_by("semester__start_date")
-        )
+    students = list(
+        Student.objects.filter(user=user, semester__end_date__gte=today)
+        .select_related("semester")
+        .order_by("semester__start_date")
+    )
     for student in students:
         if (notice := _student_notice(student, today)) is not None:
             return notice
-
-    # Between semesters there is no "current session" to be enrolled in, and
-    # the course lists are empty for everyone, since they only ever carry the
-    # running semester. Say what is coming instead.
-    if not semester_running:
-        upcoming = running.visible_to(user).filter(start_date__gt=today).first()
-        return None if upcoming is None else DashboardNotice("not_started", upcoming)
-
-    if user.is_staff or students:
+    if students or current is None:
         return None
 
     # Nothing to be waiting on, so point them at the semester they have missed.
-    semester = running.visible_to(user).first()
-    return None if semester is None else DashboardNotice("not_enrolled", semester)
+    return DashboardNotice("not_enrolled", current)
 
 
 def _dashboard_courses(
@@ -121,7 +114,7 @@ def _dashboard_courses(
     """The user's current classes and clubs, each with the next meeting on it."""
     courses = list(
         Course.objects.for_user(user)
-        .not_ended()
+        .unfinished()
         .select_related("semester")
         # A semester about to open sorts after the one still running, on the
         # chance someone is enrolled in both across the turn of the year.
@@ -176,11 +169,13 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     assert isinstance(request.user, User)
 
     classes, clubs = _dashboard_courses(request.user)
-    semester_running = Semester.objects.active().visible_to(request.user).exists()
+    # The semester this user is allowed to know about: a semester held back
+    # from students is not the current one as far as they are concerned.
+    current = Semester.objects.visible_to(request.user).unfinished().first()
     student = (
-        Student.objects.filter(
-            user=request.user, semester__in=Semester.objects.active()
-        )
+        None
+        if current is None
+        else Student.objects.filter(user=request.user, semester=current)
         .select_related("semester")
         .first()
     )
@@ -199,8 +194,15 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     context: dict[str, Any] = {
         "dash_classes": classes,
         "dash_clubs": clubs,
-        "notice": _dashboard_notice(request.user, semester_running),
-        "semester_running": semester_running,
+        "notice": _dashboard_notice(request.user, current),
+        "has_current_semester": current is not None,
+        # Stated plainly rather than folded into the banner: a semester that
+        # has not opened yet is still the one everything else is about.
+        "upcoming_semester": (
+            current
+            if current is not None and current.start_date > timezone.localdate()
+            else None
+        ),
         "global_event_count": events.count(),
         "next_global_event": events.filter(start_time__gte=timezone.now()).first(),
         "yearbook_student": yearbook_student,

@@ -5,7 +5,7 @@
 {% block content %}
     <div id="content">
         <h1>My Clubs and Events</h1>
-        {% if not has_active_semester %}
+        {% if not has_current_semester %}
             <p class="text-muted">You don't have access to any active semesters.</p>
         {% else %}
             {% if enrolled_clubs %}
