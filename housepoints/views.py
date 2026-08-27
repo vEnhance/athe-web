@@ -408,7 +408,9 @@ class AttendanceBulkForm(forms.Form):
 
         # Set default to a course the user leads, if any
         if user is not None:
-            led_courses = Course.objects.run_by(user).filter(is_club=False).unfinished()
+            led_courses = (
+                Course.objects.taught_by(user).filter(is_club=False).unfinished()
+            )
             if led_courses.exists():
                 self.fields["course"].initial = led_courses.first()
 

@@ -9,9 +9,10 @@ def split_up_leaders(apps, schema_editor):
 
     Leaders were doing two unrelated jobs: saying who could edit a course, and
     saying whose course it was. Editing now follows from what someone is, so
-    what needs carrying over is only who is on a course, and that is recorded
-    differently for staff and for students. A leader who is neither has
-    nowhere to go, so they are named in the output rather than dropped quietly.
+    what needs carrying over is only whose pages a course shows up on, and
+    that is recorded differently for staff and for students. A leader who is
+    neither has nowhere to go, so they are named in the output rather than
+    dropped quietly.
     """
     Course = apps.get_model("courses", "Course")
     StaffPhotoListing = apps.get_model("home", "StaffPhotoListing")
@@ -29,7 +30,7 @@ def split_up_leaders(apps, schema_editor):
                 continue  # already the instructor, nothing to record
             listing = StaffPhotoListing.objects.filter(user=user).first()
             if listing is not None:
-                course.co_instructors.add(listing)
+                course.subscribed_staff.add(listing)
                 continue
             student = Student.objects.filter(
                 user=user, semester=course.semester_id
@@ -47,14 +48,14 @@ def split_up_leaders(apps, schema_editor):
 
 
 def rebuild_leaders(apps, schema_editor):
-    """Put everyone credited with running a course back into leaders."""
+    """Put everyone attached to a course back into leaders."""
     Course = apps.get_model("courses", "Course")
     for course in Course.objects.prefetch_related(
-        "co_instructors", "student_organizers"
+        "subscribed_staff", "student_organizers"
     ).select_related("instructor"):
         users = [
             listing.user_id
-            for listing in course.co_instructors.all()
+            for listing in course.subscribed_staff.all()
             if listing.user_id is not None
         ]
         users += [
@@ -76,11 +77,11 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="course",
-            name="co_instructors",
+            name="subscribed_staff",
             field=models.ManyToManyField(
                 blank=True,
-                help_text="Other staff who run this course alongside the instructor. Credits them on the course page and lists it among their own courses; editing rights come from being staff, not from this field.",
-                related_name="co_instructed_courses",
+                help_text="Staff who follow this course, whether they run it, help with it or just want it on their calendar. Staff subscribe themselves from the course page; it puts the course on their own pages and is not shown to anyone else. It grants nothing: staff editing rights come from being staff.",
+                related_name="subscribed_courses",
                 to="home.staffphotolisting",
             ),
         ),

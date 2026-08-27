@@ -74,14 +74,16 @@ def test_other_staff_cannot_edit_a_class_they_do_not_teach(semester, staff_user)
 
 
 @pytest.mark.django_db
-def test_co_instructor_manages_the_class(semester, staff_user):
+def test_subscribing_to_a_class_does_not_grant_editing(semester, staff_user):
+    """Following is about someone's own pages; it is not a claim to the course."""
     teacher = staff_user("teacher")
-    helper = staff_user("helper")
+    follower = staff_user("follower")
     course = make_course(semester, instructor=teacher.staffphotolisting)
-    course.co_instructors.add(helper.staffphotolisting)
+    course.subscribed_staff.add(follower.staffphotolisting)
 
-    assert course.is_run_by(helper)
-    assert course.is_managed_by(helper)
+    assert course.is_followed_by(follower)
+    assert not course.is_run_by(follower)
+    assert not course.is_managed_by(follower)
 
 
 @pytest.mark.django_db
@@ -171,18 +173,21 @@ def test_anonymous_users_manage_nothing(semester):
 
 
 @pytest.mark.django_db
-def test_run_by_covers_instructors_and_co_instructors(semester, staff_user):
+def test_followed_by_covers_teaching_and_subscribing(semester, staff_user):
     teacher = staff_user("teacher")
-    helper = staff_user("helper")
+    follower = staff_user("follower")
     bystander = staff_user("bystander")
     taught = make_course(semester, instructor=teacher.staffphotolisting)
-    helped = make_course(semester, name="Number Theory")
-    helped.co_instructors.add(helper.staffphotolisting)
+    followed = make_course(semester, name="Number Theory")
+    followed.subscribed_staff.add(follower.staffphotolisting)
 
-    assert list(Course.objects.run_by(teacher)) == [taught]
-    assert list(Course.objects.run_by(helper)) == [helped]
-    assert list(Course.objects.run_by(bystander)) == []
-    assert list(Course.objects.run_by(AnonymousUser())) == []
+    assert list(Course.objects.followed_by(teacher)) == [taught]
+    assert list(Course.objects.followed_by(follower)) == [followed]
+    assert list(Course.objects.followed_by(bystander)) == []
+    assert list(Course.objects.followed_by(AnonymousUser())) == []
+    # Teaching is the narrower question, and a subscription is not an answer.
+    assert list(Course.objects.taught_by(teacher)) == [taught]
+    assert list(Course.objects.taught_by(follower)) == []
 
 
 @pytest.mark.django_db
@@ -196,40 +201,41 @@ def test_for_user_covers_enrolment_and_running_without_duplicates(semester, staf
 
 
 @pytest.mark.django_db
-def test_a_co_instructed_course_is_listed_on_the_staff_page(semester, staff_user):
-    helper = staff_user("helper")
+def test_a_subscription_is_not_published_on_the_staff_page(semester, staff_user):
+    """Following a club is a private choice, not a credit anyone else sees."""
+    follower = staff_user("follower")
     club = make_course(semester, name="Japanese Club", is_club=True)
-    club.co_instructors.add(helper.staffphotolisting)
+    club.subscribed_staff.add(follower.staffphotolisting)
 
     client = Client()
-    response = client.get(helper.staffphotolisting.get_absolute_url())
+    response = client.get(follower.staffphotolisting.get_absolute_url())
 
     assert response.status_code == 200
-    assert "Japanese Club" in response.text
+    assert "Japanese Club" not in response.text
 
 
 # --- the club page a staff member sees -------------------------------------
 
 
 @pytest.mark.django_db
-def test_my_clubs_shows_staff_the_clubs_they_run_and_no_join_buttons(
-    semester, staff_user
-):
-    """Staff have no Student row, so a Join button could only ever fail."""
-    helper = staff_user("helper")
+def test_my_clubs_offers_staff_subscribing_rather_than_joining(semester, staff_user):
+    """Joining means a Student row, which is a different thing staff may have."""
+    follower = staff_user("follower")
     mine = make_course(semester, name="Japanese Club", is_club=True)
-    mine.co_instructors.add(helper.staffphotolisting)
-    make_course(semester, name="Chess Club", is_club=True)
+    mine.subscribed_staff.add(follower.staffphotolisting)
+    other = make_course(semester, name="Chess Club", is_club=True)
 
     client = Client()
-    client.force_login(helper)
+    client.force_login(follower)
     response = client.get(reverse("courses:my_clubs"))
 
     assert response.status_code == 200
-    assert "Clubs You Run" in response.text
-    assert "Japanese Club" in response.text
-    assert "Chess Club" not in response.text
-    assert reverse("courses:join_club", kwargs={"pk": mine.pk}) not in response.text
+    assert "Clubs You Follow" in response.text
+    assert (
+        reverse("courses:unsubscribe_course", kwargs={"pk": mine.pk}) in response.text
+    )
+    assert reverse("courses:subscribe_course", kwargs={"pk": other.pk}) in response.text
+    assert reverse("courses:join_club", kwargs={"pk": other.pk}) not in response.text
 
 
 @pytest.mark.django_db
@@ -261,7 +267,7 @@ def club_run_by_three(semester, staff_user):
         is_club=True,
         instructor=lead.staffphotolisting,
     )
-    club.co_instructors.add(second.staffphotolisting, third.staffphotolisting)
+    club.subscribed_staff.add(second.staffphotolisting, third.staffphotolisting)
     CourseMeeting.objects.create(
         course=club,
         start_time=timezone.now() + timedelta(days=1),
@@ -271,7 +277,7 @@ def club_run_by_three(semester, staff_user):
 
 
 @pytest.mark.django_db
-def test_every_staff_member_running_a_club_gets_it_on_my_clubs(club_run_by_three):
+def test_every_staff_member_following_a_club_gets_it_on_my_clubs(club_run_by_three):
     club, runners = club_run_by_three
 
     for user in runners:
@@ -282,7 +288,9 @@ def test_every_staff_member_running_a_club_gets_it_on_my_clubs(club_run_by_three
 
 
 @pytest.mark.django_db
-def test_every_staff_member_running_a_club_gets_it_on_the_dashboard(club_run_by_three):
+def test_every_staff_member_following_a_club_gets_it_on_the_dashboard(
+    club_run_by_three,
+):
     club, runners = club_run_by_three
 
     for user in runners:
@@ -293,7 +301,7 @@ def test_every_staff_member_running_a_club_gets_it_on_the_dashboard(club_run_by_
 
 
 @pytest.mark.django_db
-def test_every_staff_member_running_a_club_gets_its_meetings_on_the_calendar(
+def test_every_staff_member_following_a_club_gets_its_meetings_on_the_calendar(
     club_run_by_three,
 ):
     club, runners = club_run_by_three
@@ -316,7 +324,7 @@ def test_every_staff_member_running_a_club_gets_its_meetings_on_the_calendar(
 
 
 @pytest.mark.django_db
-def test_every_staff_member_running_a_club_gets_it_in_their_ical_feed(
+def test_every_staff_member_following_a_club_gets_it_in_their_ical_feed(
     club_run_by_three,
 ):
     club, runners = club_run_by_three
@@ -410,3 +418,136 @@ def test_organizers_from_another_semester_are_rejected(semester, finished_semest
 
     with pytest.raises(ValidationError, match="are not in Fall 2025"):
         club.full_clean()
+
+
+# --- subscribing and unsubscribing -----------------------------------------
+
+
+@pytest.mark.django_db
+def test_staff_can_subscribe_and_unsubscribe_from_the_course_page(semester, staff_user):
+    follower = staff_user("follower")
+    club = make_course(semester, name="Japanese Club", is_club=True)
+
+    client = Client()
+    client.force_login(follower)
+    client.post(reverse("courses:subscribe_course", kwargs={"pk": club.pk}))
+    assert club.is_followed_by(follower)
+
+    client.post(reverse("courses:unsubscribe_course", kwargs={"pk": club.pk}))
+    assert not club.is_followed_by(follower)
+
+
+@pytest.mark.django_db
+def test_staff_can_subscribe_to_a_class_too(semester, staff_user):
+    """Uncommon, but nothing about following is club-specific."""
+    follower = staff_user("follower")
+    klass = make_course(semester, instructor=staff_user("teacher").staffphotolisting)
+
+    client = Client()
+    client.force_login(follower)
+    response = client.post(
+        reverse("courses:subscribe_course", kwargs={"pk": klass.pk}), follow=True
+    )
+
+    assert response.status_code == 200
+    assert klass.is_followed_by(follower)
+    assert list(Course.objects.for_user(follower)) == [klass]
+
+
+@pytest.mark.django_db
+def test_subscribing_twice_is_harmless(semester, staff_user):
+    follower = staff_user("follower")
+    club = make_course(semester, name="Japanese Club", is_club=True)
+
+    client = Client()
+    client.force_login(follower)
+    for _ in range(2):
+        client.post(reverse("courses:subscribe_course", kwargs={"pk": club.pk}))
+
+    assert club.subscribed_staff.count() == 1
+
+
+@pytest.mark.django_db
+def test_a_student_cannot_subscribe(semester):
+    """Following is the staff-side counterpart of joining, not an extra way in."""
+    kid = User.objects.create_user(username="kid", password="password")
+    Student.objects.create(user=kid, semester=semester)
+    club = make_course(semester, name="Japanese Club", is_club=True)
+
+    client = Client()
+    client.force_login(kid)
+    response = client.post(
+        reverse("courses:subscribe_course", kwargs={"pk": club.pk}), follow=True
+    )
+
+    assert club.subscribed_staff.count() == 0
+    assert "Only current staff can follow a course." in response.text
+
+
+@pytest.mark.django_db
+def test_past_staff_cannot_subscribe(semester, staff_user):
+    alum = staff_user("alum", category=StaffPhotoListing.Category.XSTAFF)
+    club = make_course(semester, name="Japanese Club", is_club=True)
+
+    client = Client()
+    client.force_login(alum)
+    client.post(reverse("courses:subscribe_course", kwargs={"pk": club.pk}))
+
+    assert club.subscribed_staff.count() == 0
+
+
+@pytest.mark.django_db
+def test_subscribing_needs_a_post(semester, staff_user):
+    follower = staff_user("follower")
+    club = make_course(semester, name="Japanese Club", is_club=True)
+
+    client = Client()
+    client.force_login(follower)
+    response = client.get(reverse("courses:subscribe_course", kwargs={"pk": club.pk}))
+
+    assert response.status_code == 405
+
+
+@pytest.mark.django_db
+def test_a_staff_members_dummy_student_row_is_left_alone(semester, staff_user):
+    """Some staff keep a Student row for testing; following must not touch it."""
+    follower = staff_user("follower")
+    dummy = Student.objects.create(user=follower, semester=semester)
+    club = make_course(semester, name="Japanese Club", is_club=True)
+    club.students.add(dummy)
+
+    client = Client()
+    client.force_login(follower)
+    client.post(reverse("courses:subscribe_course", kwargs={"pk": club.pk}))
+    client.post(reverse("courses:unsubscribe_course", kwargs={"pk": club.pk}))
+
+    assert list(club.students.all()) == [dummy]
+    assert not club.is_followed_by(follower)
+
+
+@pytest.mark.django_db
+def test_the_course_page_offers_staff_the_right_button(semester, staff_user):
+    follower = staff_user("follower")
+    club = make_course(semester, name="Japanese Club", is_club=True)
+
+    client = Client()
+    client.force_login(follower)
+    assert "Subscribe to this club" in client.get(club.get_absolute_url()).text
+
+    club.subscribed_staff.add(follower.staffphotolisting)
+    assert "Unsubscribe from this club" in client.get(club.get_absolute_url()).text
+
+
+@pytest.mark.django_db
+def test_the_course_page_offers_students_join_by_post(semester):
+    """The Join and Drop controls must post: both views require it."""
+    kid = User.objects.create_user(username="kid", password="password")
+    Student.objects.create(user=kid, semester=semester)
+    club = make_course(semester, name="Japanese Club", is_club=True)
+
+    client = Client()
+    client.force_login(kid)
+    page = client.get(club.get_absolute_url()).text
+
+    assert f'action="{reverse("courses:join_club", kwargs={"pk": club.pk})}"' in page
+    assert "Subscribe to this club" not in page

@@ -25,6 +25,12 @@ urlpatterns = [
         "course/<int:pk>/edit/", views.CourseUpdateView.as_view(), name="course_update"
     ),
     path("course/<int:pk>/meetings/", views.manage_meetings, name="manage_meetings"),
+    path("course/<int:pk>/subscribe/", views.subscribe_course, name="subscribe_course"),
+    path(
+        "course/<int:pk>/unsubscribe/",
+        views.unsubscribe_course,
+        name="unsubscribe_course",
+    ),
     path("club/<int:pk>/join/", views.join_club, name="join_club"),
     path("club/<int:pk>/drop/", views.drop_club, name="drop_club"),
     path("events/", views.global_events, name="global_events"),

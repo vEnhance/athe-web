@@ -31,6 +31,7 @@ from courses.models import (
     Semester,
     Student,
 )
+from home.models import StaffPhotoListing
 
 
 def catalog_root(request: HttpRequest) -> HttpResponse:
@@ -107,12 +108,12 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
     )
 
     if request.user.is_staff:
-        # Staff have no Student row, so they cannot join a club at all: the
-        # clubs that are theirs are the ones they run, and offering the rest
-        # under a Join button that can only fail would just mislead. Editing
-        # any of them does not depend on this page anyway.
-        enrolled_clubs = current_clubs.run_by(request.user)
-        available_clubs = Course.objects.none()
+        # Staff follow clubs instead of joining them: enrolment is a Student
+        # row, and some staff keep a dummy one for testing, so the two must not
+        # be read as the same thing. Following is also not a claim to run a
+        # club -- it is just what someone wants on their own calendar.
+        enrolled_clubs = current_clubs.followed_by(request.user)
+        available_clubs = current_clubs.exclude(pk__in=enrolled_clubs)
         has_current_semester = True
     else:
         enrolled_clubs = current_clubs.for_user(request.user)
@@ -132,7 +133,8 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
             "enrolled_clubs": enrolled_clubs.select_related("semester", "instructor"),
             "available_clubs": available_clubs.select_related("semester", "instructor"),
             "has_current_semester": has_current_semester,
-            "enrolled_heading": "Clubs You Run"
+            "is_staff_view": request.user.is_staff,
+            "enrolled_heading": "Clubs You Follow"
             if request.user.is_staff
             else "Enrolled Clubs",
         },
@@ -162,6 +164,49 @@ def past_clubs(request: HttpRequest) -> HttpResponse:
         "courses/past_clubs.html",
         {"past_clubs": past_clubs_list},
     )
+
+
+def _staff_listing(request: HttpRequest) -> StaffPhotoListing | None:
+    """The current staff listing for this user, if they have one."""
+    return StaffPhotoListing.objects.active().filter(user=request.user).first()
+
+
+@login_required
+@require_POST
+def subscribe_course(request: HttpRequest, pk: int) -> HttpResponse:
+    """Put a course on this staff member's own pages.
+
+    Deliberately nothing to do with joining: enrolment means a Student row,
+    which some staff keep a dummy of for testing, and following a club says
+    nothing about who runs or may edit it.
+    """
+    course = get_object_or_404(Course, pk=pk)
+    listing = _staff_listing(request)
+    if listing is None:
+        messages.error(request, "Only current staff can follow a course.")
+    else:
+        course.subscribed_staff.add(listing)
+        messages.success(request, f"{course.name} is now on your calendar.")
+    return _back_to(course)
+
+
+@login_required
+@require_POST
+def unsubscribe_course(request: HttpRequest, pk: int) -> HttpResponse:
+    """Take a course back off this staff member's own pages."""
+    course = get_object_or_404(Course, pk=pk)
+    listing = _staff_listing(request)
+    if listing is not None:
+        course.subscribed_staff.remove(listing)
+    messages.success(request, f"{course.name} is no longer on your calendar.")
+    return _back_to(course)
+
+
+def _back_to(course: Course) -> HttpResponse:
+    """Where join, drop and the subscribe pair all send someone afterwards."""
+    if course.is_club:
+        return redirect("courses:my_clubs")
+    return redirect("courses:course_detail", pk=course.pk)
 
 
 @login_required
@@ -360,6 +405,11 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
 
         context["is_leader"] = self.object.is_managed_by(self.request.user)
 
+        # Staff follow a course instead of joining it, on any course and for
+        # as long as it exists: it only ever affects their own pages.
+        context["can_subscribe"] = _staff_listing(self.request) is not None
+        context["is_subscribed"] = self.object.is_followed_by(self.request.user)
+
         # For clubs in active semesters, check if user can join/drop
         if self.object.is_club and self.object.semester == Semester.current():
             try:
@@ -526,7 +576,7 @@ def _calendar_events(
         )
     )
     is_mine_to_run = Exists(
-        Course.objects.run_by(request.user).filter(pk=OuterRef("course_id"))
+        Course.objects.followed_by(request.user).filter(pk=OuterRef("course_id"))
     )
     meetings = (
         CourseMeeting.objects.filter(

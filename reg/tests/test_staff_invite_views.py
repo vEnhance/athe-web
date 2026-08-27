@@ -225,7 +225,7 @@ def test_post_registration_gives_the_user_their_courses(staff_invite_setup):
     course.refresh_from_db()
     assert course.is_run_by(user)
     assert course.is_managed_by(user)
-    assert list(Course.objects.run_by(user)) == [course]
+    assert list(Course.objects.taught_by(user)) == [course]
 
 
 @pytest.mark.django_db
@@ -311,4 +311,7 @@ def test_multiple_courses_with_same_instructor(staff_invite_setup):
 
     # Both courses point at the listing the user just claimed.
     user = User.objects.get(username="johndoe")
-    assert set(Course.objects.run_by(user)) == {staff_invite_setup["course"], course2}
+    assert set(Course.objects.taught_by(user)) == {
+        staff_invite_setup["course"],
+        course2,
+    }

@@ -43,15 +43,6 @@
                                 <a class="course-teach" href="{{ course.instructor.get_absolute_url }}">{{ course.instructor.display_name }}</a>
                             </p>
                         {% endif %}
-                        {% if course.co_instructors.all %}
-                            <p>
-                                <strong>Also Running This:</strong>
-                                {% for staff in course.co_instructors.all %}
-                                    <a class="course-teach" href="{{ staff.get_absolute_url }}">{{ staff.display_name }}</a>
-                                    {% if not forloop.last %}&middot;{% endif %}
-                                {% endfor %}
-                            </p>
-                        {% endif %}
                         {% if course.student_organizers.all %}
                             <p>
                                 <strong>Student Organizers:</strong>
@@ -68,14 +59,40 @@
                         {% endif %}
                         {% if can_join_drop %}
                             <div class="opt-link">
-                                <strong>
-                                    {% if is_enrolled %}
-                                        <a href="{% url 'courses:drop_club' pk=course.pk %}"
-                                           onclick="return confirm('Are you sure you want to drop this club/event?');">Drop</a>
-                                    {% else %}
-                                        <a href="{% url 'courses:join_club' pk=course.pk %}">Join</a>
-                                    {% endif %}
-                                </strong>
+                                {% if is_enrolled %}
+                                    <form method="post"
+                                          action="{% url 'courses:drop_club' pk=course.pk %}"
+                                          onsubmit="return confirm('Are you sure you want to drop this club/event?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link p-0 fw-bold">Drop</button>
+                                    </form>
+                                {% else %}
+                                    <form method="post" action="{% url 'courses:join_club' pk=course.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link p-0 fw-bold">Join</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        {% if can_subscribe %}
+                            <div class="opt-link">
+                                {% if is_subscribed %}
+                                    <form method="post"
+                                          action="{% url 'courses:unsubscribe_course' pk=course.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link p-0 fw-bold">
+                                            Unsubscribe from this {% if course.is_club %}club{% else %}class{% endif %}
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form method="post"
+                                          action="{% url 'courses:subscribe_course' pk=course.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link p-0 fw-bold">
+                                            Subscribe to this {% if course.is_club %}club{% else %}class{% endif %}
+                                        </button>
+                                    </form>
+                                {% endif %}
                             </div>
                         {% endif %}
                         {% if course.google_classroom_direct_link %}

@@ -133,20 +133,30 @@ class Semester(models.Model):
 
 
 class CourseQuerySet(models.QuerySet["Course"]):
-    def run_by(self, user: AbstractBaseUser | AnonymousUser) -> CourseQuerySet:
-        """Courses this user is listed as running, leading or helping to run."""
+    def taught_by(self, user: AbstractBaseUser | AnonymousUser) -> CourseQuerySet:
+        """Courses this user is the instructor of."""
+        if not user.is_authenticated:
+            return self.none()
+        return self.filter(instructor__user=user)
+
+    def followed_by(self, user: AbstractBaseUser | AnonymousUser) -> CourseQuerySet:
+        """Courses a staff member keeps an eye on: taught, or subscribed to.
+
+        Subscribing is a private choice rather than a claim to run something,
+        so this is only ever about what shows up on someone's own pages.
+        """
         if not user.is_authenticated:
             return self.none()
         return self.filter(
-            Q(instructor__user=user) | Q(co_instructors__user=user)
+            Q(instructor__user=user) | Q(subscribed_staff__user=user)
         ).distinct()
 
     def for_user(self, user: User) -> CourseQuerySet:
-        """Courses the user is enrolled in as a student or helps run."""
+        """Courses the user is enrolled in as a student, teaches, or follows."""
         return self.filter(
             Q(students__user=user)
             | Q(instructor__user=user)
-            | Q(co_instructors__user=user)
+            | Q(subscribed_staff__user=user)
         ).distinct()
 
     def unfinished(self) -> CourseQuerySet:
@@ -179,13 +189,15 @@ class Course(models.Model):
         related_name="courses",
         help_text="Link to the instructor for this course.",
     )
-    co_instructors = models.ManyToManyField(
+    subscribed_staff = models.ManyToManyField(
         StaffPhotoListing,
-        related_name="co_instructed_courses",
+        related_name="subscribed_courses",
         blank=True,
-        help_text="Other staff who run this course alongside the instructor. "
-        "Credits them on the course page and lists it among their own courses; "
-        "editing rights come from being staff, not from this field.",
+        help_text="Staff who follow this course, whether they run it, help with "
+        "it or just want it on their calendar. Staff subscribe themselves from "
+        "the course page; it puts the course on their own pages and is not "
+        "shown to anyone else. It grants nothing: staff editing rights come "
+        "from being staff.",
     )
     students = models.ManyToManyField(
         "Student",
@@ -242,12 +254,16 @@ class Course(models.Model):
         return reverse("courses:course_detail", kwargs={"pk": self.pk})
 
     def is_run_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
-        """Whether this user is credited with running the course."""
+        """Whether this user is the staff member listed as running the course."""
         if not user.is_authenticated:
             return False
-        return (
-            self.instructor is not None and self.instructor.user_id == user.pk
-        ) or self.co_instructors.filter(user=user).exists()
+        return self.instructor is not None and self.instructor.user_id == user.pk
+
+    def is_followed_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
+        """Whether this user has subscribed to the course as staff."""
+        if not user.is_authenticated:
+            return False
+        return self.subscribed_staff.filter(user=user).exists()
 
     def is_organized_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
         """Whether this user is a student who runs the course themselves.

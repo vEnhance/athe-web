@@ -27,6 +27,18 @@
                     {% csrf_token %}
                     <button type="submit" class="btn btn-link p-0">Join</button>
                 </form>
+            {% elif action == "unsubscribe" %}
+                <form method="post"
+                      action="{% url 'courses:unsubscribe_course' pk=course.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link p-0">Unsubscribe</button>
+                </form>
+            {% elif action == "subscribe" %}
+                <form method="post"
+                      action="{% url 'courses:subscribe_course' pk=course.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link p-0">Subscribe</button>
+                </form>
             {% endif %}
         </div>
     </div>

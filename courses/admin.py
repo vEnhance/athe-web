@@ -70,7 +70,7 @@ class CourseAdmin(admin.ModelAdmin):
     )
     list_filter = ("is_club", "semester", "difficulty")
     search_fields = ("name", "description")
-    autocomplete_fields = ("instructor", "co_instructors")
+    autocomplete_fields = ("instructor", "subscribed_staff")
     filter_horizontal = ("students", "student_organizers")
     inlines = [CourseMeetingInline]
 
