@@ -31,9 +31,9 @@ def test_discord_house_updates_missing_env_var():
 
 
 @pytest.mark.django_db
-def test_discord_house_updates_no_active_semester():
-    """Test that no active semester causes exit 1."""
-    # Create a semester that's not active (in the past)
+def test_discord_house_updates_no_current_semester():
+    """With nothing unfinished on the books there is nothing to report on."""
+    # Only a semester that has ended
     Semester.objects.create(
         name="Past Semester",
         slug="past",
@@ -49,41 +49,7 @@ def test_discord_house_updates_no_active_semester():
     ):
         call_command("send_discord_house_updates", stdout=out, stderr=err)
 
-    assert "No active semester" in err.getvalue()
-
-
-@pytest.mark.django_db
-def test_discord_house_updates_multiple_active_semesters():
-    """Test that multiple active semesters cause exit 1."""
-    today = timezone.now().date()
-
-    # Create two overlapping active semesters
-    Semester.objects.create(
-        name="Semester 1",
-        slug="sem1",
-        start_date=today - timedelta(days=30),
-        end_date=today + timedelta(days=30),
-    )
-    Semester.objects.create(
-        name="Semester 2",
-        slug="sem2",
-        start_date=today - timedelta(days=15),
-        end_date=today + timedelta(days=45),
-    )
-
-    out = StringIO()
-    err = StringIO()
-
-    with (
-        patch.dict(
-            "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
-        ),
-        pytest.raises(SystemExit) as exc_info,
-    ):
-        call_command("send_discord_house_updates", stdout=out, stderr=err)
-
-    assert exc_info.value.code == 1
-    assert "Multiple active semesters" in err.getvalue()
+    assert "No current semester" in err.getvalue()
 
 
 @pytest.mark.django_db

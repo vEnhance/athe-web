@@ -170,7 +170,7 @@ def test_my_clubs_query_count():
 
     # Should use a constant number of queries regardless of how many clubs
     # exist: session/auth, then one query each for enrolled clubs, available
-    # clubs, global events and the has_active_semester check.
+    # clubs, global events and the has_current_semester check.
     assert response.status_code == 200
     assert len(context.captured_queries) <= 7, (
         f"Expected ≤7 queries, got {len(context.captured_queries)}"
@@ -239,8 +239,8 @@ def test_my_clubs_functionality():
 
 
 @pytest.mark.django_db
-def test_my_clubs_no_active_semester():
-    """Test that my_clubs handles users with no active semester."""
+def test_my_clubs_no_current_semester():
+    """With nothing unfinished on the books, my_clubs has nothing to offer."""
     client = Client()
     User.objects.create_user(username="student", password="password")
 
@@ -262,7 +262,7 @@ def test_my_clubs_no_active_semester():
     response = client.get(url)
 
     assert response.status_code == 200
-    assert response.context["has_active_semester"] is False
+    assert response.context["has_current_semester"] is False
     assert len(response.context["enrolled_clubs"]) == 0
     assert len(response.context["available_clubs"]) == 0
 

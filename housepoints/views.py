@@ -18,6 +18,9 @@ from atheweb.decorators import staff_required
 from courses.models import Course, Semester, Student
 from housepoints.models import Award
 
+#: Shown when there is nothing on the books to award points against.
+NO_SEMESTER = "There is no current semester to award points for."
+
 
 def leaderboard(request: HttpRequest, slug: str | None = None) -> HttpResponse:
     """Show the house points leaderboard for a semester."""
@@ -25,17 +28,15 @@ def leaderboard(request: HttpRequest, slug: str | None = None) -> HttpResponse:
     if slug:
         semester = get_object_or_404(Semester, slug=slug)
     else:
-        try:
-            semester = Semester.get_current_semester()
-        except ValueError:
-            # No current semester, fall back to latest by start_date
-            semester = Semester.objects.order_by("-start_date").first()
-            if not semester:
-                return render(
-                    request,
-                    "housepoints/leaderboard.html",
-                    {"semester": None, "leaderboard_data": []},
-                )
+        # Not Semester.current(): between semesters the standings people just
+        # finished earning are the ones worth showing, not an empty new slate.
+        semester = Semester.latest_started()
+        if semester is None:
+            return render(
+                request,
+                "housepoints/leaderboard.html",
+                {"semester": None, "leaderboard_data": []},
+            )
 
     if request.user.is_authenticated:
         try:
@@ -139,10 +140,9 @@ class BulkAwardView(UserPassesTestMixin, View):
 
     def get(self, request: HttpRequest) -> HttpResponse:
         """Display the bulk award form."""
-        try:
-            semester = Semester.get_current_semester()
-        except ValueError as e:
-            messages.error(request, str(e))
+        semester = Semester.current()
+        if semester is None:
+            messages.error(request, NO_SEMESTER)
             return redirect("index")
 
         form = BulkAwardForm()
@@ -163,10 +163,9 @@ class BulkAwardView(UserPassesTestMixin, View):
 
     def post(self, request: HttpRequest) -> HttpResponse:
         """Process bulk award creation."""
-        try:
-            semester = Semester.get_current_semester()
-        except ValueError as e:
-            messages.error(request, str(e))
+        semester = Semester.current()
+        if semester is None:
+            messages.error(request, NO_SEMESTER)
             return redirect("index")
 
         form = BulkAwardForm(request.POST)
@@ -315,20 +314,18 @@ class SingleAwardView(UserPassesTestMixin, CreateView):
     def get_context_data(self, **kwargs):  # type: ignore[no-untyped-def]
         """Add semester and default points to context."""
         context = super().get_context_data(**kwargs)
-        try:
-            context["semester"] = Semester.get_current_semester()
+        context["semester"] = Semester.current()
+        if context["semester"] is None:
+            messages.error(self.request, NO_SEMESTER)
+        else:
             context["default_points"] = Award.DEFAULT_POINTS
-        except ValueError as e:
-            messages.error(self.request, str(e))
-            context["semester"] = None
         return context
 
     def form_valid(self, form):  # type: ignore[no-untyped-def]
         """Set semester, awarded_by, and default points if needed."""
-        try:
-            semester = Semester.get_current_semester()
-        except ValueError as e:
-            messages.error(self.request, str(e))
+        semester = Semester.current()
+        if semester is None:
+            messages.error(self.request, NO_SEMESTER)
             return redirect("index")
 
         # Set the semester and awarded_by
@@ -401,19 +398,19 @@ class AttendanceBulkForm(forms.Form):
 
     def __init__(self, *args, user=None, **kwargs):  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
-        today = timezone.now().date()
-        # Filter courses to those in semesters that haven't ended
-        self.fields["course"].queryset = Course.objects.filter(  # type: ignore[attr-defined]
-            semester__start_date__lte=today,
-            semester__end_date__gte=today,
-            is_club=False,
-        ).select_related("semester")
+        # Courses in a semester that has not ended. The default below picked
+        # from exactly this set already, so anything narrower left the dropdown
+        # empty while still preselecting a course.
+        courses = Course.objects.filter(is_club=False).unfinished()
+        self.fields["course"].queryset = courses.select_related(  # type: ignore[attr-defined]
+            "semester"
+        )
 
         # Set default to a course the user leads, if any
         if user is not None:
             led_courses = Course.objects.filter(
-                leaders=user, semester__end_date__gte=today, is_club=False
-            )
+                leaders=user, is_club=False
+            ).unfinished()
             if led_courses.exists():
                 self.fields["course"].initial = led_courses.first()
 

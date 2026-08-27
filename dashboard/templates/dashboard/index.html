@@ -41,6 +41,12 @@
                 {% endif %}
             {% endif %}
         </p>
+        {% if upcoming_semester %}
+            <p>
+                The official start date for {{ upcoming_semester.name }} is
+                {{ upcoming_semester.start_date|date:"F j, Y" }}.
+            </p>
+        {% endif %}
         {% include "dashboard/components/notice.html" %}
         <div class="row">
             <div class="col-md-6">
@@ -49,11 +55,7 @@
                     <a class="badge bg-secondary dash-see-all"
                        href="{% url 'courses:my_courses' %}">See all</a>
                 </h2>
-                {% if semester_running %}
-                    {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="You are not enrolled in any classes this semester yet." %}
-                {% else %}
-                    {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="There is no active semester right now." %}
-                {% endif %}
+                {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="You are not enrolled in any classes this semester yet." %}
             </div>
             <div class="col-md-6">
                 <h2>
@@ -61,11 +63,7 @@
                     <a class="badge bg-secondary dash-see-all"
                        href="{% url 'courses:my_clubs' %}">See all</a>
                 </h2>
-                {% if semester_running %}
-                    {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="You have not joined any clubs this semester." %}
-                {% else %}
-                    {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="There is no active semester right now." %}
-                {% endif %}
+                {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="You have not joined any clubs this semester." %}
             </div>
         </div>
         <div class="row">
@@ -89,7 +87,7 @@
                             </a>
                         </div>
                     </div>
-                {% elif semester_running %}
+                {% elif has_current_semester %}
                     <p>
                         You're not assigned a house this semester yet,
                         but you can browse <a href="{{ house_url }}">the leaderboard anyway</a>.
@@ -118,7 +116,7 @@
                        href="{% url 'yearbook:create' student_pk=yearbook_student.pk %}">Add entry</a>
                 {% elif yearbook_student %}
                     <p class="text-muted">Entries for {{ yearbook_student.semester.name }} are closed.</p>
-                {% elif semester_running %}
+                {% elif has_current_semester %}
                     <p>
                         You're not registered yet this semester, but
                         you can browse <a href="{{ yearbook_url }}">past yearbook entries</a>.

@@ -557,11 +557,8 @@ def test_notice_spares_staff_the_enrolment_messages(semester: Semester, client_f
 
 
 @pytest.mark.django_db
-def test_notice_warns_staff_that_the_semester_has_not_opened(
-    next_semester: Semester, client_for
-):
-    """A course an instructor is about to teach is as invisible as a student's,
-    since the class lists only carry the running semester either way."""
+def test_start_date_is_stated_to_staff_too(next_semester: Semester, client_for):
+    """Staff get the start date too, alongside the class they are preparing."""
     teacher = User.objects.create_user(
         username="teacher", password="password", is_staff=True
     )
@@ -573,9 +570,8 @@ def test_notice_warns_staff_that_the_semester_has_not_opened(
     content = client_for("teacher").get(reverse("index")).content.decode()
     text = visible_text(content)
 
-    assert "The session Spring 2026 hasn't started yet!" in text
-    # Which is the point: the class they lead is nowhere on the page.
-    assert "Intro to Olympiad" not in text
+    assert "The official start date for Spring 2026 is" in text
+    assert "Intro to Olympiad" in text
 
 
 @pytest.mark.django_db
@@ -602,27 +598,27 @@ def test_notice_prefers_the_semester_with_something_outstanding(
 
 
 @pytest.mark.django_db
-def test_notice_announces_a_semester_that_has_not_opened(
+def test_start_date_is_stated_before_the_semester_opens(
     next_semester: Semester, client_for
 ):
-    """Between semesters there is nothing to be enrolled in, so say what's next."""
+    """The start date is a fact about the current semester, printed alongside
+    whatever else the page has to say rather than instead of it."""
     User.objects.create_user(username="stranger", password="password")
 
     text = visible_text(client_for("stranger").get(reverse("index")).content.decode())
 
     start = date_filter(next_semester.start_date, "F j, Y")
-    assert "The session Spring 2026 hasn't started yet!" in text
-    assert f"It is scheduled to start on {start}." in text
-    # "the current session" would be a lie while none is running.
-    assert "You don't seem to be enrolled" not in text
+    assert f"The official start date for Spring 2026 is {start}." in text
+    # A semester that has not opened is still the current one, so the banner
+    # about not being enrolled in it is accurate and no longer suppressed.
+    assert "You don't seem to be enrolled in the current session, Spring 2026." in text
 
 
 @pytest.mark.django_db
-def test_notice_announces_the_opening_to_an_assigned_student_too(
+def test_start_date_is_stated_to_a_fully_sorted_student(
     next_semester: Semester, client_for
 ):
-    """Classes exist but the course lists only carry the running semester, so a
-    fully sorted student still faces a blank dashboard until it opens."""
+    """A student with nothing outstanding still gets told when it all begins."""
     user = User.objects.create_user(username="lucy", password="password")
     student = Student.objects.create(
         user=user, semester=next_semester, airtable_name="Lucy"
@@ -635,7 +631,7 @@ def test_notice_announces_the_opening_to_an_assigned_student_too(
 
     text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
 
-    assert "The session Spring 2026 hasn't started yet!" in text
+    assert "The official start date for Spring 2026 is" in text
 
 
 @pytest.mark.django_db
@@ -647,7 +643,7 @@ def test_notice_stays_quiet_while_a_semester_is_running(
 
     text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
 
-    assert "hasn't started yet" not in text
+    assert "The official start date" not in text
 
 
 @pytest.mark.django_db
@@ -738,27 +734,41 @@ def test_yearbook_follows_the_most_recent_semester(
 
 
 @pytest.mark.django_db
-def test_empty_sections_say_so_when_nothing_is_running(
-    next_semester: Semester, client_for
-):
-    """Between semesters "this semester" names nothing, so the three empty
-    sections say what is actually true instead."""
+def test_empty_sections_say_so_when_no_semester_is_left(client_for):
+    """Only a site with nothing unfinished on the books has no semester for
+    these sections to be about."""
+    today = timezone.localdate()
+    Semester.objects.create(
+        name="Spring 2025",
+        slug="sp25",
+        start_date=today - timedelta(days=200),
+        end_date=today - timedelta(days=100),
+    )
     User.objects.create_user(username="stranger", password="password")
 
     content = client_for("stranger").get(reverse("index")).content.decode()
     text = visible_text(content)
 
-    # Classes and Clubs share the line, so it lands twice.
-    assert text.count("There is no active semester right now.") == 2
-    assert "any classes this semester" not in text
-    assert "any clubs this semester" not in text
-    assert "a house this semester" not in text
     assert text.count("There is no active semester, but you can browse") == 2
     assert "leaderboards from all sessions" in text
     assert "yearbook entries from all sessions" in text
-    assert "registered yet this semester" not in text
+    assert "a house this semester" not in text
     assert reverse("housepoints:leaderboard") in content
     assert reverse("yearbook:index") in content
+
+
+@pytest.mark.django_db
+def test_empty_sections_speak_of_a_semester_yet_to_open(
+    next_semester: Semester, client_for
+):
+    """A semester waiting to start is still one to talk about, so these keep
+    their ordinary wording rather than claiming there is nothing."""
+    User.objects.create_user(username="stranger", password="password")
+
+    text = visible_text(client_for("stranger").get(reverse("index")).content.decode())
+
+    assert "no active semester" not in text
+    assert "You're not assigned a house this semester yet" in text
 
 
 @pytest.mark.django_db
@@ -771,3 +781,77 @@ def test_empty_sections_keep_their_wording_mid_semester(
     assert "You are not enrolled in any classes this semester yet." in text
     assert "You have not joined any clubs this semester." in text
     assert "no active semester" not in text
+
+
+@pytest.mark.django_db
+def test_dashboard_lists_courses_from_a_semester_about_to_open(
+    next_semester: Semester, client_for
+):
+    """A class is on the dashboard as soon as it exists, so a student enrolled
+    ahead of the semester can find it instead of staring at an empty list."""
+    user = User.objects.create_user(username="lucy", password="password")
+    student = Student.objects.create(
+        user=user, semester=next_semester, airtable_name="Lucy"
+    )
+    complete_registration(student)
+    klass = Course.objects.create(
+        name="Intro to Olympiad", description="", semester=next_semester
+    )
+    club = Course.objects.create(
+        name="Origami Club", description="", semester=next_semester, is_club=True
+    )
+    klass.students.add(student)
+    club.students.add(student)
+    CourseMeeting.objects.create(
+        course=klass,
+        start_time=timezone.now() + timedelta(days=31),
+        title="First lesson",
+    )
+
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
+
+    assert "Intro to Olympiad" in text
+    assert "Origami Club" in text
+    assert "First lesson" in text
+    assert "The official start date for Spring 2026 is" in text
+
+
+@pytest.mark.django_db
+def test_dashboard_lists_courses_an_instructor_is_preparing(
+    next_semester: Semester, client_for
+):
+    """Same for a class someone leads, which is the point of showing it early."""
+    teacher = User.objects.create_user(
+        username="teacher", password="password", is_staff=True
+    )
+    klass = Course.objects.create(
+        name="Intro to Olympiad", description="", semester=next_semester
+    )
+    klass.leaders.add(teacher)
+
+    text = visible_text(client_for("teacher").get(reverse("index")).content.decode())
+
+    assert "Intro to Olympiad" in text
+
+
+@pytest.mark.django_db
+def test_dashboard_orders_a_coming_semester_after_the_running_one(
+    semester: Semester, student: Student, next_semester: Semester, client_for
+):
+    """Enrolled either side of the turn, the class in progress comes first."""
+    now_course = Course.objects.create(
+        name="Zebra Theory", description="", semester=semester
+    )
+    now_course.students.add(student)
+    later = Student.objects.create(
+        user=student.user, semester=next_semester, airtable_name="Lucy"
+    )
+    later_course = Course.objects.create(
+        name="Aardvark Theory", description="", semester=next_semester
+    )
+    later_course.students.add(later)
+
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
+
+    # Alphabetically Aardvark would win; the running semester outranks it.
+    assert text.index("Zebra Theory") < text.index("Aardvark Theory")

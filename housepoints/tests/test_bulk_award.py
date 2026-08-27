@@ -223,8 +223,8 @@ def test_bulk_award_handles_student_without_house():
 
 
 @pytest.mark.django_db
-def test_bulk_award_no_active_semester():
-    """Test that bulk award fails gracefully when no active semester exists."""
+def test_bulk_award_no_current_semester():
+    """Bulk award has nowhere to put points with no current semester."""
     client = Client()
     User.objects.create_user(username="staff", password="password", is_staff=True)
     # Create a past semester
@@ -245,28 +245,20 @@ def test_bulk_award_no_active_semester():
 
 
 @pytest.mark.django_db
-def test_bulk_award_multiple_active_semesters():
-    """Test that bulk award fails when multiple overlapping semesters exist."""
+def test_bulk_award_uses_a_semester_that_has_not_opened():
+    """Points can be set up against the semester being prepared: it is the
+    current one whether or not its start date has arrived."""
     client = Client()
     User.objects.create_user(username="staff", password="password", is_staff=True)
-    # Create two overlapping semesters
-    Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=(timezone.now() - timedelta(days=10)).date(),
-        end_date=(timezone.now() + timedelta(days=80)).date(),
-    )
-    Semester.objects.create(
-        name="Winter 2025",
-        slug="wi25",
-        start_date=(timezone.now() - timedelta(days=5)).date(),
-        end_date=(timezone.now() + timedelta(days=85)).date(),
+    upcoming = Semester.objects.create(
+        name="Fall 2026",
+        slug="fa26",
+        start_date=(timezone.now() + timedelta(days=30)).date(),
+        end_date=(timezone.now() + timedelta(days=140)).date(),
     )
 
     client.login(username="staff", password="password")
-    url = reverse("housepoints:bulk_award")
-    response = client.get(url)
+    response = client.get(reverse("housepoints:bulk_award"))
 
-    # Should redirect to home with error message
-    assert response.status_code == 302
-    assert response.url == reverse("index")
+    assert response.status_code == 200
+    assert response.context["semester"] == upcoming

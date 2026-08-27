@@ -102,28 +102,31 @@ def my_courses(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def my_clubs(request: HttpRequest) -> HttpResponse:
-    """Show clubs in active semesters, split by enrollment status. Includes led clubs."""
+    """Show the current semester's clubs, split by enrollment. Includes led clubs."""
     assert isinstance(request.user, User)
 
-    active_clubs = Course.objects.filter(is_club=True).active()
+    current = Semester.current()
+    current_clubs = (
+        Course.objects.none()
+        if current is None
+        else Course.objects.filter(is_club=True, semester=current)
+    )
 
     if request.user.is_staff:
         # Staff are never enrolled, so "enrolled" means "leads" and every other
-        # active club is on offer regardless of semester membership.
-        enrolled_clubs = active_clubs.filter(leaders=request.user)
-        available_clubs = active_clubs.exclude(leaders=request.user)
-        has_active_semester = True
+        # club is on offer regardless of semester membership.
+        enrolled_clubs = current_clubs.filter(leaders=request.user)
+        available_clubs = current_clubs.exclude(leaders=request.user)
+        has_current_semester = True
     else:
-        enrolled_clubs = active_clubs.for_user(request.user)
+        enrolled_clubs = current_clubs.for_user(request.user)
         # Students may only join clubs in a semester they are enrolled in.
-        available_clubs = active_clubs.filter(
+        available_clubs = current_clubs.filter(
             semester__students__user=request.user
         ).exclude(pk__in=enrolled_clubs)
-        has_active_semester = (
+        has_current_semester = current is not None and (
             enrolled_clubs.exists()
-            or Student.objects.filter(
-                user=request.user, semester__in=Semester.objects.active()
-            ).exists()
+            or Student.objects.filter(user=request.user, semester=current).exists()
         )
 
     return render(
@@ -132,7 +135,7 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
         {
             "enrolled_clubs": enrolled_clubs.select_related("semester", "instructor"),
             "available_clubs": available_clubs.select_related("semester", "instructor"),
-            "has_active_semester": has_active_semester,
+            "has_current_semester": has_current_semester,
         },
     )
 
@@ -168,9 +171,8 @@ def join_club(request: HttpRequest, pk: int) -> HttpResponse:
     """Join a club if the user has student access to that semester."""
     club = get_object_or_404(Course, pk=pk, is_club=True)
 
-    # Check if semester is active
-    if not club.semester.is_active():
-        messages.error(request, "This club's semester is not currently active.")
+    if club.semester != Semester.current():
+        messages.error(request, "This club is not in the current semester.")
         return redirect("courses:my_clubs")
 
     # Get student record for this semester
@@ -193,12 +195,11 @@ def join_club(request: HttpRequest, pk: int) -> HttpResponse:
 @login_required
 @require_POST
 def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
-    """Drop a club if the semester is still active."""
+    """Drop a club, as long as it is in the current semester."""
     club = get_object_or_404(Course, pk=pk, is_club=True)
 
-    # Check if semester is active
-    if not club.semester.is_active():
-        messages.error(request, "This club's semester is not currently active.")
+    if club.semester != Semester.current():
+        messages.error(request, "This club is not in the current semester.")
         return redirect("courses:my_clubs")
 
     try:
@@ -221,24 +222,24 @@ def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
 def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpResponse:
     """Staff-only master schedule: all course meetings for a semester.
 
-    If no slug is given, defaults to the current active semester.
+    If no slug is given, defaults to the current semester.
     """
     all_semesters = list(Semester.objects.order_by("-start_date"))
 
     if slug is not None:
         semester = get_object_or_404(Semester, slug=slug)
     else:
-        try:
-            semester = Semester.get_current_semester()
-        except ValueError:
+        current = Semester.current()
+        if current is None:
             return render(
                 request,
                 "courses/staff_schedule.html",
                 {
-                    "error": "There is no currently active semester to show.",
+                    "error": "There is no current semester to show.",
                     "all_semesters": all_semesters,
                 },
             )
+        semester = current
 
     sort = request.GET.get("sort", "course")
 
@@ -359,7 +360,7 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
         context["is_leader"] = self.object.is_managed_by(self.request.user)
 
         # For clubs in active semesters, check if user can join/drop
-        if self.object.is_club and self.object.semester.is_active():
+        if self.object.is_club and self.object.semester == Semester.current():
             try:
                 student = Student.objects.get(
                     user=self.request.user, semester=self.object.semester
