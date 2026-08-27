@@ -118,12 +118,14 @@ def _dashboard_notice(user: User, semester_running: bool) -> DashboardNotice | N
 def _dashboard_courses(
     user: User,
 ) -> tuple[list[DashboardCourse], list[DashboardCourse]]:
-    """The user's active classes and clubs, each with the next meeting on it."""
+    """The user's current classes and clubs, each with the next meeting on it."""
     courses = list(
         Course.objects.for_user(user)
-        .active()
+        .not_ended()
         .select_related("semester")
-        .order_by("name")
+        # A semester about to open sorts after the one still running, on the
+        # chance someone is enrolled in both across the turn of the year.
+        .order_by("semester__start_date", "name")
     )
     # A meeting counts as "next" until an hour after it starts, so a class does
     # not disappear from the dashboard while it is in session.

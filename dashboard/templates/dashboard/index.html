@@ -49,11 +49,7 @@
                     <a class="badge bg-secondary dash-see-all"
                        href="{% url 'courses:my_courses' %}">See all</a>
                 </h2>
-                {% if semester_running %}
-                    {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="You are not enrolled in any classes this semester yet." %}
-                {% else %}
-                    {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="There is no active semester right now." %}
-                {% endif %}
+                {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="You are not enrolled in any classes this semester yet." %}
             </div>
             <div class="col-md-6">
                 <h2>
@@ -61,11 +57,7 @@
                     <a class="badge bg-secondary dash-see-all"
                        href="{% url 'courses:my_clubs' %}">See all</a>
                 </h2>
-                {% if semester_running %}
-                    {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="You have not joined any clubs this semester." %}
-                {% else %}
-                    {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="There is no active semester right now." %}
-                {% endif %}
+                {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="You have not joined any clubs this semester." %}
             </div>
         </div>
         <div class="row">

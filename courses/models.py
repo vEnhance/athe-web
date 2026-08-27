@@ -108,6 +108,17 @@ class CourseQuerySet(models.QuerySet["Course"]):
             semester__start_date__lte=today, semester__end_date__gte=today
         )
 
+    def not_ended(self) -> CourseQuerySet:
+        """Courses in a semester that has not finished, the ones yet to start
+        included.
+
+        A class is worth showing as soon as it exists: instructors fill theirs
+        in before the semester opens, and students are enrolled ahead of it
+        too, so waiting for the start date hides a class from the very people
+        getting ready for it.
+        """
+        return self.filter(semester__end_date__gte=timezone.now().date())
+
 
 class Course(models.Model):
     name = models.CharField(max_length=200)
