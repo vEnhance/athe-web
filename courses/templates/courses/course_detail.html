@@ -16,9 +16,6 @@
                 <p class="text-muted">
                     {% if course.is_club %}<span class="badge bg-dark">Club/Event</span>{% endif %}
                     <a href="{% url 'courses:course_list' course.semester.slug %}">{{ course.semester }}</a>
-                    {% if is_leader %}
-                        | <a href="{% url 'courses:course_update' pk=course.pk %}">Edit Course</a>
-                    {% endif %}
                 </p>
             </div>
             <div class="course-text">
@@ -30,87 +27,21 @@
                                  class="course-detail-instructor-photo">
                         </div>
                     {% endif %}
-                    <span class="course-description">
-                        {% if course.instructor %}
-                            <p>
-                                <strong>
-                                    {% if course.is_club %}
-                                        Club/Event Leader:
-                                    {% else %}
-                                        Instructor:
-                                    {% endif %}
-                                </strong>
-                                <a class="course-teach" href="{{ course.instructor.get_absolute_url }}">{{ course.instructor.display_name }}</a>
-                            </p>
-                        {% endif %}
-                        {% if course.student_organizers.all %}
-                            <p>
-                                <strong>Student Organizers:</strong>
-                                {% for student in course.student_organizers.all %}
-                                    {{ student }}
-                                    {% if not forloop.last %}&middot;{% endif %}
-                                {% endfor %}
-                            </p>
-                        {% endif %}
-                        {% if course.regular_meeting_time %}
-                            <p>
-                                <strong>Regular Meeting Time:</strong> {{ course.regular_meeting_time }}
-                            </p>
-                        {% endif %}
-                        {% if can_join_drop %}
-                            <div class="opt-link">
-                                {% if is_enrolled %}
-                                    <form method="post"
-                                          action="{% url 'courses:drop_club' pk=course.pk %}"
-                                          onsubmit="return confirm('Are you sure you want to drop this club/event?');">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-link p-0 fw-bold">Drop</button>
-                                    </form>
-                                {% else %}
-                                    <form method="post" action="{% url 'courses:join_club' pk=course.pk %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-link p-0 fw-bold">Join</button>
-                                    </form>
-                                {% endif %}
-                            </div>
-                        {% endif %}
-                        {% if can_subscribe %}
-                            <div class="opt-link">
-                                {% if is_subscribed %}
-                                    <form method="post"
-                                          action="{% url 'courses:unsubscribe_course' pk=course.pk %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-link p-0">
-                                            Unsubscribe from this {% if course.is_club %}club{% else %}class{% endif %} (as staff)
-                                        </button>
-                                    </form>
-                                {% else %}
-                                    <form method="post"
-                                          action="{% url 'courses:subscribe_course' pk=course.pk %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-link p-0">
-                                            Subscribe to this {% if course.is_club %}club{% else %}class{% endif %} (as staff)
-                                        </button>
-                                    </form>
-                                {% endif %}
-                            </div>
-                        {% endif %}
-                        {% if course.google_classroom_direct_link %}
-                            <div class="opt-link">
-                                <a href="{{ course.google_classroom_direct_link }}" target="_blank">Open Google Classroom</a>
-                            </div>
-                        {% endif %}
-                        {% if course.zoom_meeting_link %}
-                            <div class="opt-link">
-                                <a href="{{ course.zoom_meeting_link }}" target="_blank">Join Zoom Meeting</a>
-                            </div>
-                        {% endif %}
-                    </span>
+                    {% include "courses/components/course_metadata_and_links.html" %}
                 </div>
                 {% include "courses/components/lesson_plan.html" %}
             </div>
             <h2>Description</h2>
             <div>{{ course.description|linebreaks }}</div>
+            {% if is_leader %}
+                <p class="fs-6">
+                    <a href="{% url 'courses:course_update' pk=course.pk %}">Edit Course</a>
+                    {% if request.user.is_superuser %}
+                        •
+                        <a href="{% url 'admin:courses_course_change' course.pk %}">Open in Django Admin</a>
+                    {% endif %}
+                </p>
+            {% endif %}
             <hr />
             <h2>
                 Schedule

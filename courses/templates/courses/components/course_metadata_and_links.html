@@ -1,0 +1,84 @@
+<span class="course-description">
+    {% if course.instructor %}
+        <p>
+            <strong>
+                {% if course.is_club %}
+                    Club/Event Leader:
+                {% else %}
+                    Instructor:
+                {% endif %}
+            </strong>
+            <a class="course-teach" href="{{ course.instructor.get_absolute_url }}">{{ course.instructor.display_name }}</a>
+        </p>
+    {% endif %}
+    {% if course.student_organizers.all %}
+        <p>
+            <strong>Student Organizers:</strong>
+            {% for student in course.student_organizers.all %}
+                {{ student }}
+                {% if not forloop.last %}&middot;{% endif %}
+            {% endfor %}
+        </p>
+    {% endif %}
+    {% if course.regular_meeting_time %}
+        <p>
+            <strong>Regular Meeting Time:</strong> {{ course.regular_meeting_time }}
+        </p>
+    {% endif %}
+    {% if can_join_drop %}
+        <div class="opt-link">
+            {% if is_enrolled %}
+                <form method="post"
+                      action="{% url 'courses:drop_club' pk=course.pk %}"
+                      onsubmit=" return confirm('Are you sure you want to drop this club/event?'); ">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link p-0 fw-bold">Drop</button>
+                </form>
+            {% else %}
+                <form method="post" action="{% url 'courses:join_club' pk=course.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link p-0 fw-bold">Join</button>
+                </form>
+            {% endif %}
+        </div>
+    {% endif %}
+    {% if course.google_classroom_direct_link %}
+        <div class="opt-link">
+            <a href="{{ course.google_classroom_direct_link }}" target="_blank">Open Google Classroom</a>
+        </div>
+    {% endif %}
+    {% if course.zoom_meeting_link %}
+        <div class="opt-link">
+            <a href="{{ course.zoom_meeting_link }}" target="_blank">Join Zoom Meeting</a>
+        </div>
+    {% endif %}
+    {% if can_subscribe and is_subscribed %}
+        <form method="post"
+              action="{% url 'courses:unsubscribe_course' pk=course.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-link p-0">
+                ★ Unsubscribe from this
+                {% if course.is_club %}
+                    club
+                {% else %}
+                    class
+                {% endif %}
+                (as staff)
+            </button>
+        </form>
+    {% elif can_subscribe and not is_subscribed %}
+        <form method="post"
+              action="{% url 'courses:subscribe_course' pk=course.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-link p-0">
+                ★ Subscribe to this
+                {% if course.is_club %}
+                    club
+                {% else %}
+                    class
+                {% endif %}
+                (as staff)
+            </button>
+        </form>
+    {% endif %}
+</span>

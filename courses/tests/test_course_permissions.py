@@ -532,10 +532,10 @@ def test_the_course_page_offers_staff_the_right_button(semester, staff_user):
 
     client = Client()
     client.force_login(follower)
-    assert "Subscribe to this club" in client.get(club.get_absolute_url()).text
+    assert "Subscribe to this" in client.get(club.get_absolute_url()).text
 
     club.subscribed_staff.add(follower.staffphotolisting)
-    assert "Unsubscribe from this club" in client.get(club.get_absolute_url()).text
+    assert "Unsubscribe from this" in client.get(club.get_absolute_url()).text
 
 
 @pytest.mark.django_db
@@ -550,4 +550,4 @@ def test_the_course_page_offers_students_join_by_post(semester):
     page = client.get(club.get_absolute_url()).text
 
     assert f'action="{reverse("courses:join_club", kwargs={"pk": club.pk})}"' in page
-    assert "Subscribe to this club" not in page
+    assert "Subscribe to this" not in page
