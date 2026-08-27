@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 
 from courses.models import Course, CourseMeeting, GlobalEvent, Semester, Student
 
@@ -41,6 +41,31 @@ def assign_to_bunny(modeladmin, request, queryset):  # type: ignore
     modeladmin.message_user(request, f"{updated} student(s) assigned to Bunny house.")
 
 
+@admin.action(description="Add instructor to leaders for selected courses")
+def add_instructor_to_leaders(modeladmin, request, queryset):  # type: ignore
+    """Repair courses whose leaders are missing their instructor."""
+    repaired = 0
+    unlinked = []
+    for course in queryset.select_related("instructor__user"):
+        if course.ensure_instructor_is_leader():
+            repaired += 1
+        elif course.instructor is None or course.instructor.user is None:
+            unlinked.append(course)
+    modeladmin.message_user(
+        request,
+        f"Added the instructor as a leader on {repaired} course(s); "
+        "the rest already had theirs.",
+    )
+    if unlinked:
+        names = ", ".join(str(course) for course in unlinked)
+        modeladmin.message_user(
+            request,
+            f"No instructor account to add for: {names}. Set an instructor on the "
+            "course, and a user on that staff photo listing, then run this again.",
+            level=messages.WARNING,
+        )
+
+
 @admin.register(Semester)
 class SemesterAdmin(admin.ModelAdmin):
     list_display = (
@@ -73,6 +98,19 @@ class CourseAdmin(admin.ModelAdmin):
     autocomplete_fields = ("instructor",)
     filter_horizontal = ("leaders", "students")
     inlines = [CourseMeetingInline]
+    actions = [add_instructor_to_leaders]
+
+    def save_related(self, request, form, formsets, change) -> None:  # type: ignore
+        """Re-add the instructor as a leader once the form's own m2m data lands.
+
+        ``Course.save`` adds the instructor, but the admin writes the leaders
+        widget afterwards and that write replaces the whole set. Saving a course
+        without picking the instructor in the leaders box therefore dropped them
+        straight back out again, which is how courses ended up needing the
+        ``add_instructor_to_leaders`` action above.
+        """
+        super().save_related(request, form, formsets, change)
+        form.instance.ensure_instructor_is_leader()
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):  # type: ignore
         """Filter students to only show students from the course's semester."""

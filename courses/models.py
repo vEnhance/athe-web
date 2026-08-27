@@ -226,12 +226,26 @@ class Course(models.Model):
             getattr(user, "is_staff", False) or self.leaders.filter(pk=user.pk).exists()
         )
 
+    def ensure_instructor_is_leader(self) -> bool:
+        """Put the instructor's user among the leaders, and say if that was needed.
+
+        Whoever is teaching a course should always be able to manage it, but
+        ``leaders`` is an ordinary editable field, so anything that writes the
+        whole set -- the admin form's leaders box above all -- can leave the
+        instructor out. Keeping the repair in one place lets both the save path
+        and the admin action for fixing courses after the fact use it.
+        """
+        if self.instructor is None or self.instructor.user is None:
+            return False
+        if self.leaders.filter(pk=self.instructor.user.pk).exists():
+            return False
+        self.leaders.add(self.instructor.user)
+        return True
+
     def save(self, *args, **kwargs) -> None:  # type: ignore[override]
         """Override save to auto-add instructor as a leader."""
         super().save(*args, **kwargs)
-        # Add instructor's user as a leader if instructor is set and has a user
-        if self.instructor and self.instructor.user:
-            self.leaders.add(self.instructor.user)
+        self.ensure_instructor_is_leader()
 
     def clean(self) -> None:
         """Validate that all students belong to the course's semester."""
