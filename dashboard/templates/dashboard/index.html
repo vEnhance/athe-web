@@ -41,6 +41,7 @@
                 {% endif %}
             {% endif %}
         </p>
+        {% include "dashboard/components/notice.html" %}
         <div class="row">
             <div class="col-md-6">
                 <h2>
@@ -48,7 +49,11 @@
                     <a class="badge bg-secondary dash-see-all"
                        href="{% url 'courses:my_courses' %}">See all</a>
                 </h2>
-                {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="You are not enrolled in any classes this semester yet." %}
+                {% if semester_running %}
+                    {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="You are not enrolled in any classes this semester yet." %}
+                {% else %}
+                    {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="There is no active semester right now." %}
+                {% endif %}
             </div>
             <div class="col-md-6">
                 <h2>
@@ -56,7 +61,11 @@
                     <a class="badge bg-secondary dash-see-all"
                        href="{% url 'courses:my_clubs' %}">See all</a>
                 </h2>
-                {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="You have not joined any clubs this semester." %}
+                {% if semester_running %}
+                    {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="You have not joined any clubs this semester." %}
+                {% else %}
+                    {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="There is no active semester right now." %}
+                {% endif %}
             </div>
         </div>
         <div class="row">
@@ -80,10 +89,15 @@
                             </a>
                         </div>
                     </div>
-                {% else %}
+                {% elif semester_running %}
                     <p>
                         You're not assigned a house this semester yet,
                         but you can browse <a href="{{ house_url }}">the leaderboard anyway</a>.
+                    </p>
+                {% else %}
+                    <p>
+                        There is no active semester, but you can browse
+                        <a href="{% url 'housepoints:leaderboard' %}">leaderboards from all sessions</a>.
                     </p>
                 {% endif %}
             </div>
@@ -98,16 +112,21 @@
                         <a class="btn btn-outline-dark btn-sm mt-3"
                            href="{% url 'yearbook:edit' pk=yearbook_entry.pk %}">Edit entry</a>
                     {% endif %}
-                {% elif student and yearbook_open %}
-                    <p>You don't have an entry yet for {{ student.semester.name }}.</p>
+                {% elif yearbook_student and yearbook_open %}
+                    <p>You don't have an entry yet for {{ yearbook_student.semester.name }}.</p>
                     <a class="btn btn-primary"
-                       href="{% url 'yearbook:create' student_pk=student.pk %}">Add entry</a>
-                {% elif student %}
-                    <p class="text-muted">Entries for {{ student.semester.name }} are closed.</p>
-                {% else %}
+                       href="{% url 'yearbook:create' student_pk=yearbook_student.pk %}">Add entry</a>
+                {% elif yearbook_student %}
+                    <p class="text-muted">Entries for {{ yearbook_student.semester.name }} are closed.</p>
+                {% elif semester_running %}
                     <p>
                         You're not registered yet this semester, but
                         you can browse <a href="{{ yearbook_url }}">past yearbook entries</a>.
+                    </p>
+                {% else %}
+                    <p>
+                        There is no active semester, but you can browse
+                        <a href="{{ yearbook_url }}">yearbook entries from all sessions</a>.
                     </p>
                 {% endif %}
             </div>
