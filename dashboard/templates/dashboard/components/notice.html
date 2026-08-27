@@ -1,0 +1,33 @@
+{% comment %}
+    Why the class lists below may be empty. Each branch is a different point in
+    getting set up for a semester; see _dashboard_notice in dashboard/views.py.
+{% endcomment %}
+{% if notice.kind == "registration" %}
+    <div class="alert alert-warning" role="alert">
+        Your registration for {{ notice.semester.name }} isn't done yet &mdash;
+        please <a href="{{ notice.url }}">finish it when you get a chance</a>!
+    </div>
+{% elif notice.kind == "assignments" %}
+    <div class="alert alert-info" role="alert">
+        {% if notice.semester.president_name %}
+            Our glorious queen {{ notice.semester.president_name }} is still working on
+            course and house assignments!
+        {% else %}
+            We're still working on course and house assignments!
+        {% endif %}
+        You'll get an email once that's done.
+        Let us know if you have any questions about that.
+        In the meantime, feel free to look around other parts of the website.
+    </div>
+{% elif notice.kind == "not_enrolled" %}
+    <div class="alert alert-info" role="alert">
+        You don't seem to be enrolled in the current session, {{ notice.semester.name }}.
+        {% if notice.semester.president_name %}
+            If you think you should be, please look for the registration link from
+            {{ notice.semester.president_name }} to register, or contact her for details.
+        {% else %}
+            If you think you should be, please look for the registration link to
+            register, or contact us for details.
+        {% endif %}
+    </div>
+{% endif %}

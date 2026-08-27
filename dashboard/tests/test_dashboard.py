@@ -9,6 +9,8 @@ from django.utils import timezone
 
 from courses.models import Course, CourseMeeting, GlobalEvent, Semester, Student
 from housepoints.models import Award
+from reg import wizard
+from reg.models import StudentInviteLink, StudentRegistration
 from yearbook.models import YearbookEntry
 
 
@@ -358,3 +360,215 @@ def test_dashboard_ignores_events_from_other_semesters(
 
     assert "global event" not in text
     assert "Last Year's Picnic" not in text
+
+
+@pytest.fixture
+def invite(semester: Semester) -> StudentInviteLink:
+    return StudentInviteLink.objects.create(
+        name="Fall 2025",
+        semester=semester,
+        expiration_date=timezone.now() + timedelta(days=30),
+    )
+
+
+def complete_registration(student: Student) -> StudentRegistration:
+    """A registration with every questionnaire page saved."""
+    return StudentRegistration.objects.create(
+        student=student,
+        completed_steps=[step.slug for step in wizard.STEPS],
+    )
+
+
+@pytest.fixture
+def next_semester() -> Semester:
+    """A semester that has been set up but has not opened yet."""
+    today = timezone.localdate()
+    return Semester.objects.create(
+        name="Spring 2026",
+        slug="sp26",
+        start_date=today + timedelta(days=30),
+        end_date=today + timedelta(days=120),
+        president_name="Greta",
+    )
+
+
+@pytest.mark.django_db
+def test_notice_links_an_unfinished_registration(
+    student: Student, invite: StudentInviteLink, client_for
+):
+    """A half-filled questionnaire is the first thing the dashboard asks for."""
+    StudentRegistration.objects.create(
+        student=student, completed_steps=[wizard.FIRST_STEP.slug]
+    )
+
+    content = client_for("lucy").get(reverse("index")).content.decode()
+
+    assert "Your registration for Fall 2025 isn't done yet" in visible_text(content)
+    assert invite.get_absolute_url() in content
+
+
+@pytest.mark.django_db
+def test_notice_skips_registration_without_a_live_invite_link(
+    semester: Semester, student: Student, client_for
+):
+    """The questionnaire only opens off an invite link, so an expired one has
+    nothing to offer and the banner stays away."""
+    StudentInviteLink.objects.create(
+        name="Fall 2025",
+        semester=semester,
+        expiration_date=timezone.now() - timedelta(days=1),
+    )
+    StudentRegistration.objects.create(student=student, completed_steps=[])
+
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
+
+    assert "isn't done yet" not in text
+
+
+@pytest.mark.django_db
+def test_notice_explains_pending_assignments(next_semester: Semester, client_for):
+    """Registered, semester not open, no classes yet: the matching is pending."""
+    user = User.objects.create_user(
+        username="lucy", password="password", first_name="Lucy"
+    )
+    student = Student.objects.create(
+        user=user, semester=next_semester, airtable_name="Lucy"
+    )
+    complete_registration(student)
+
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
+
+    assert "Our glorious queen Greta is still working on course and house" in text
+    assert "You'll get an email once that's done." in text
+
+
+@pytest.mark.django_db
+def test_notice_omits_the_president_when_the_semester_has_no_name_for_one(
+    next_semester: Semester, client_for
+):
+    """Without a president_name the same message drops the name rather than
+    leaving a gap in the sentence."""
+    next_semester.president_name = ""
+    next_semester.save()
+    user = User.objects.create_user(username="lucy", password="password")
+    complete_registration(
+        Student.objects.create(user=user, semester=next_semester, airtable_name="Lucy")
+    )
+
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
+
+    assert "We're still working on course and house assignments!" in text
+    assert "glorious queen" not in text
+
+
+@pytest.mark.django_db
+def test_notice_goes_away_once_classes_are_assigned(
+    next_semester: Semester, client_for
+):
+    """A class on the books means the matching has run for this student."""
+    user = User.objects.create_user(username="lucy", password="password")
+    student = Student.objects.create(
+        user=user, semester=next_semester, airtable_name="Lucy"
+    )
+    complete_registration(student)
+    course = Course.objects.create(
+        name="Intro to Olympiad", description="", semester=next_semester
+    )
+    course.students.add(student)
+
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
+
+    assert "glorious queen" not in text
+
+
+@pytest.mark.django_db
+def test_notice_ignores_clubs_when_looking_for_assignments(
+    next_semester: Semester, client_for
+):
+    """Clubs are joined, not assigned, so one does not answer the question."""
+    user = User.objects.create_user(username="lucy", password="password")
+    student = Student.objects.create(
+        user=user, semester=next_semester, airtable_name="Lucy"
+    )
+    complete_registration(student)
+    club = Course.objects.create(
+        name="Origami Club", description="", semester=next_semester, is_club=True
+    )
+    club.students.add(student)
+
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
+
+    assert "Our glorious queen Greta is still working" in text
+
+
+@pytest.mark.django_db
+def test_notice_stops_once_the_semester_has_started(
+    semester: Semester, student: Student, client_for
+):
+    """Once classes are running, the empty course list speaks for itself."""
+    complete_registration(student)
+
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
+
+    assert "glorious queen" not in text
+    assert "You are not enrolled in any classes this semester yet." in text
+
+
+@pytest.mark.django_db
+def test_notice_points_an_unenrolled_user_at_the_current_semester(
+    semester: Semester, client_for
+):
+    """Someone with no Student row at all is told which session they missed."""
+    semester.president_name = "Greta"
+    semester.save()
+    User.objects.create_user(username="stranger", password="password")
+
+    text = visible_text(client_for("stranger").get(reverse("index")).content.decode())
+
+    assert "You don't seem to be enrolled in the current session, Fall 2025." in text
+    assert "please look for the registration link from Greta to register" in text
+
+
+@pytest.mark.django_db
+def test_notice_hides_semesters_the_user_may_not_see(semester: Semester, client_for):
+    """An invisible semester is not one to send an unenrolled student after."""
+    semester.visible = False
+    semester.save()
+    User.objects.create_user(username="stranger", password="password")
+
+    text = visible_text(client_for("stranger").get(reverse("index")).content.decode())
+
+    assert "You don't seem to be enrolled" not in text
+
+
+@pytest.mark.django_db
+def test_notice_never_shows_for_staff(semester: Semester, client_for):
+    """Staff have no Student row by design, so the banner is not about them."""
+    User.objects.create_user(username="teacher", password="password", is_staff=True)
+
+    text = visible_text(client_for("teacher").get(reverse("index")).content.decode())
+
+    assert "You don't seem to be enrolled" not in text
+
+
+@pytest.mark.django_db
+def test_notice_prefers_the_semester_with_something_outstanding(
+    semester: Semester, student: Student, next_semester: Semester, client_for
+):
+    """A settled current semester does not hide next semester's paperwork."""
+    complete_registration(student)
+    StudentInviteLink.objects.create(
+        name="Spring 2026",
+        semester=next_semester,
+        expiration_date=timezone.now() + timedelta(days=60),
+    )
+    StudentRegistration.objects.create(
+        student=Student.objects.create(
+            user=student.user, semester=next_semester, airtable_name="Lucy"
+        ),
+        completed_steps=[],
+    )
+
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
+
+    assert "Your registration for Spring 2026 isn't done yet" in text

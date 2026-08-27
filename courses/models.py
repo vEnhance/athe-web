@@ -44,6 +44,12 @@ class Semester(models.Model):
         default=True,
         help_text="If unchecked, this semester will be hidden from non-staff users",
     )
+    president_name = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Name of the student president running this semester. Shown to "
+        "students on the dashboard while they wait on class and house assignments.",
+    )
 
     objects: ClassVar[SemesterQuerySet] = SemesterQuerySet.as_manager()  # type: ignore[assignment]
 
