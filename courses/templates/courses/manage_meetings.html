@@ -45,6 +45,23 @@
         .empty-form-section h3 {
             margin-bottom: 20px;
         }
+        .recurring-panel {
+            background-color: #fff;
+            border: 1px dashed #adb5bd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .recurring-panel h4 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        .recurring-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
         input[type="datetime-local"] {
             padding: 0.375rem 0.75rem;
         }
@@ -128,6 +145,58 @@
                 {# Add new meetings section #}
                 <div class="empty-form-section" id="new-meetings-section">
                     <h3>Add New Meetings</h3>
+                    {% comment %}
+                    Client-side only: fills in rows below, exactly like the "add another" button.
+                    Deliberately free of min/max/required, since these inputs sit inside the form
+                    and browser validation on them would block submitting the formset.
+                    {% endcomment %}
+                    <div class="recurring-panel"
+                         id="recurring-panel"
+                         data-semester-end="{{ course.semester.end_date|date:"Y-m-d" }}"
+                         data-max-meetings="52">
+                        <h4>Quick fill: recurring schedule</h4>
+                        <p class="text-muted small">
+                            Adds evenly spaced meetings below, which you can then edit or delete individually.
+                            Nothing is saved until you press &ldquo;Save All Changes&rdquo;.
+                            {{ course.semester }} runs {{ course.semester.start_date|date:"M j, Y" }} through {{ course.semester.end_date|date:"M j, Y" }}.
+                        </p>
+                        <div class="recurring-grid">
+                            <div class="form-field">
+                                <label for="recurring-start">First meeting</label>
+                                <input type="datetime-local" id="recurring-start" class="form-control" />
+                            </div>
+                            <div class="form-field">
+                                <label for="recurring-interval">Repeats</label>
+                                <select id="recurring-interval" class="form-select">
+                                    <option value="7" selected>Weekly</option>
+                                    <option value="14">Every 2 weeks</option>
+                                    <option value="21">Every 3 weeks</option>
+                                    <option value="28">Every 4 weeks</option>
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label for="recurring-count">How many</label>
+                                <input type="number"
+                                       id="recurring-count"
+                                       class="form-control"
+                                       step="1"
+                                       value="12" />
+                            </div>
+                            <div class="form-field">
+                                <label for="recurring-title">Title (optional)</label>
+                                <input type="text"
+                                       id="recurring-title"
+                                       class="form-control"
+                                       placeholder="e.g. Week {n}" />
+                            </div>
+                            <div class="form-field">
+                                <button type="button"
+                                        id="recurring-generate-btn"
+                                        class="btn btn-outline-primary">Generate</button>
+                            </div>
+                        </div>
+                        <div id="recurring-feedback" role="status" aria-live="polite"></div>
+                    </div>
                     <button type="button" id="add-form-btn" class="btn btn-outline-secondary">+ Add another meeting</button>
                 </div>
                 <div class="mt-4">
@@ -138,64 +207,7 @@
             </form>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // === Delete checkbox visual feedback ===
-            function setupDeleteCheckbox(checkbox) {
-                if (!checkbox) return;
-                checkbox.addEventListener('change', function() {
-                    const row = this.closest('.formset-row');
-                    if (this.checked) {
-                        row.classList.add('to-delete');
-                    } else {
-                        row.classList.remove('to-delete');
-                    }
-                });
-                // Set initial state if already checked
-                if (checkbox.checked) {
-                    checkbox.closest('.formset-row').classList.add('to-delete');
-                }
-            }
-
-            // Setup existing delete checkboxes
-            document.querySelectorAll('input[name$="-DELETE"]').forEach(setupDeleteCheckbox);
-
-            // === Add form functionality ===
-            const addButton = document.getElementById('add-form-btn');
-            const template = document.getElementById('empty-form-template');
-            const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
-            const container = document.getElementById('new-meetings-section');
-
-            addButton.addEventListener('click', function() {
-                const formCount = parseInt(totalFormsInput.value, 10);
-                const newForm = template.content.cloneNode(true);
-
-                // Replace __prefix__ with form index in all attributes
-                newForm.querySelectorAll('*').forEach(el => {
-                    ['name', 'id', 'for'].forEach(attr => {
-                        const value = el.getAttribute(attr);
-                        if (value && value.includes('__prefix__')) {
-                            el.setAttribute(attr, value.replace(/__prefix__/g, formCount));
-                        }
-                    });
-                });
-
-                // Update data-form-index
-                const formRow = newForm.querySelector('.formset-row');
-                formRow.dataset.formIndex = formCount;
-
-                // Insert before button
-                container.insertBefore(newForm, addButton);
-
-                // Update the total forms count
-                totalFormsInput.value = formCount + 1;
-
-                // Setup delete checkbox for the new form
-                const newDeleteCheckbox = container.querySelector(
-                    '[data-form-index="' + formCount + '"] input[name$="-DELETE"]'
-                );
-                setupDeleteCheckbox(newDeleteCheckbox);
-            });
-        });
-    </script>
 {% endblock content %}
+{% block extra_js %}
+    <script src="{% static "js/manage_meetings.js" %}"></script>
+{% endblock extra_js %}
