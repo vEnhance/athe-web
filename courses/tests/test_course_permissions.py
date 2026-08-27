@@ -4,6 +4,7 @@ from datetime import timedelta
 
 import pytest
 from django.contrib.auth.models import AnonymousUser, User
+from django.core.exceptions import ValidationError
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
@@ -328,3 +329,84 @@ def test_every_staff_member_running_a_club_gets_it_in_their_ical_feed(
         assert response.status_code == 200
         feed = response.content.decode()
         assert f"{club.name}: Kanji practice" in feed, f"missing for {user.username}"
+
+
+# --- the rare student-led club ---------------------------------------------
+
+
+@pytest.fixture
+def student_led_club(semester):
+    """A club a student runs, with no staff attached to it at all."""
+    kid = User.objects.create_user(username="kid", password="password")
+    student = Student.objects.create(user=kid, semester=semester)
+    club = make_course(semester, name="Japanese Club", is_club=True)
+    club.students.add(student)
+    club.student_organizers.add(student)
+    return club, kid
+
+
+@pytest.mark.django_db
+def test_a_student_organizer_may_edit_their_own_club(student_led_club):
+    club, kid = student_led_club
+
+    assert club.is_organized_by(kid)
+    assert club.is_managed_by(kid)
+
+
+@pytest.mark.django_db
+def test_a_student_organizer_gets_no_reach_beyond_that_club(student_led_club, semester):
+    """The grant is one club wide, unlike the blanket one staff get."""
+    _, kid = student_led_club
+    other_club = make_course(semester, name="Chess Club", is_club=True)
+    other_class = make_course(semester, name="Combo Heuristics")
+
+    assert not other_club.is_managed_by(kid)
+    assert not other_class.is_managed_by(kid)
+
+
+@pytest.mark.django_db
+def test_a_student_organizer_is_not_staff(student_led_club):
+    """Organising a club must not turn into a staff account or a staff listing."""
+    _, kid = student_led_club
+
+    assert not kid.is_staff
+    assert not StaffPhotoListing.objects.filter(user=kid).exists()
+    assert not StaffPhotoListing.is_current_staff(kid)
+
+
+@pytest.mark.django_db
+def test_a_student_organizer_may_manage_the_club_meetings(student_led_club):
+    club, kid = student_led_club
+
+    client = Client()
+    client.force_login(kid)
+    response = client.get(reverse("courses:manage_meetings", kwargs={"pk": club.pk}))
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_a_student_organizer_is_credited_on_the_club_page(student_led_club):
+    club, kid = student_led_club
+    kid.first_name, kid.last_name = "Kid", "Ohtani"
+    kid.save()
+
+    client = Client()
+    client.force_login(kid)
+    response = client.get(club.get_absolute_url())
+
+    assert "Student Organizers:" in response.text
+    assert "Kid Ohtani" in response.text
+
+
+@pytest.mark.django_db
+def test_organizers_from_another_semester_are_rejected(semester, finished_semester):
+    """Same rule the enrolled students already follow."""
+    kid = User.objects.create_user(username="kid", password="password")
+    club = make_course(semester, name="Japanese Club", is_club=True)
+    club.student_organizers.add(
+        Student.objects.create(user=kid, semester=finished_semester)
+    )
+
+    with pytest.raises(ValidationError, match="are not in Fall 2025"):
+        club.full_clean()

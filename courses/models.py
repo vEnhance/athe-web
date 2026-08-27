@@ -193,6 +193,15 @@ class Course(models.Model):
         blank=True,
         help_text="Students enrolled in this course.",
     )
+    student_organizers = models.ManyToManyField(
+        "Student",
+        related_name="organized_courses",
+        blank=True,
+        help_text="Students who run this course themselves, for the handful of "
+        "student-led clubs. They may edit it and schedule its meetings, and are "
+        "credited on its page. Staff do not belong here: their editing rights "
+        "come from being staff.",
+    )
     difficulty = models.CharField(
         blank=True,
         max_length=80,
@@ -240,20 +249,32 @@ class Course(models.Model):
             self.instructor is not None and self.instructor.user_id == user.pk
         ) or self.co_instructors.filter(user=user).exists()
 
+    def is_organized_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
+        """Whether this user is a student who runs the course themselves.
+
+        Named apart from ``is_run_by`` because it is the exception rather than
+        the pattern: a student-led club is rare, and a student has no staff
+        listing to be recognised by, so they have to be pointed at one course
+        at a time.
+        """
+        if not user.is_authenticated:
+            return False
+        return self.student_organizers.filter(user=user).exists()
+
     def is_managed_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
         """Whether the user may edit this course and manage its meetings.
 
-        Superusers can edit anything. Past that a class belongs to whoever
-        teaches it, while a club in a semester that has not ended is open to
-        any current staff member: clubs are collaborative and short lived, and
-        keeping a per-club list of who was allowed to touch one cost more
-        upkeep than it ever bought.
+        Superusers can edit anything, and whoever runs a course keeps it for
+        good. Past that a class belongs to whoever teaches it, while a club in
+        a semester that has not ended is open to any current staff member:
+        clubs are collaborative and short lived, and keeping a per-club list of
+        who was allowed to touch one cost more upkeep than it ever bought.
         """
         if not user.is_authenticated:
             return False
         if getattr(user, "is_superuser", False):
             return True
-        if self.is_run_by(user):
+        if self.is_run_by(user) or self.is_organized_by(user):
             return True
         return (
             self.is_club
@@ -262,18 +283,22 @@ class Course(models.Model):
         )
 
     def clean(self) -> None:
-        """Validate that all students belong to the course's semester."""
+        """Validate that everyone attached as a student is in this semester."""
         super().clean()
         # Only validate if the instance has been saved (has a pk)
         if self.pk:
-            wrong_semester_students = self.students.exclude(semester=self.semester)
-            if wrong_semester_students.exists():
-                student_names = ", ".join(
-                    str(student) for student in wrong_semester_students
+            for field in ("students", "student_organizers"):
+                wrong_semester_students = getattr(self, field).exclude(
+                    semester=self.semester
                 )
-                raise ValidationError(
-                    f"The following students are not in {self.semester}: {student_names}"
-                )
+                if wrong_semester_students.exists():
+                    student_names = ", ".join(
+                        str(student) for student in wrong_semester_students
+                    )
+                    raise ValidationError(
+                        f"The following students are not in {self.semester}: "
+                        f"{student_names}"
+                    )
 
     class Meta:
         ordering = ("-semester__start_date", "is_club", "name")

@@ -52,6 +52,15 @@
                                 {% endfor %}
                             </p>
                         {% endif %}
+                        {% if course.student_organizers.all %}
+                            <p>
+                                <strong>Student Organizers:</strong>
+                                {% for student in course.student_organizers.all %}
+                                    {{ student }}
+                                    {% if not forloop.last %}&middot;{% endif %}
+                                {% endfor %}
+                            </p>
+                        {% endif %}
                         {% if course.regular_meeting_time %}
                             <p>
                                 <strong>Regular Meeting Time:</strong> {{ course.regular_meeting_time }}
