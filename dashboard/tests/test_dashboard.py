@@ -527,7 +527,10 @@ def test_notice_points_an_unenrolled_user_at_the_current_semester(
     text = visible_text(client_for("stranger").get(reverse("index")).content.decode())
 
     assert "You don't seem to be enrolled in the current session, Fall 2025." in text
-    assert "please look for the registration link from Greta to register" in text
+    assert (
+        "please look for the registration link from Greta to register, "
+        "or contact Greta for details." in text
+    )
 
 
 @pytest.mark.django_db
