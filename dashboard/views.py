@@ -74,10 +74,13 @@ def _student_notice(student: Student, today: date) -> DashboardNotice | None:
 def _dashboard_notice(user: User) -> DashboardNotice | None:
     """The banner above the class lists: why the dashboard looks so empty.
 
-    A student at the start of a semester can be stuck in three different
+    A student around the start of a semester can be stuck in four different
     places -- a questionnaire they never finished, a matching that has not been
-    run yet, or no registration at all -- and all three leave the same blank
-    page behind, so name the one they are in rather than let them worry.
+    run yet, a semester that has not opened, or no registration at all -- and
+    every one of them leaves the same blank page behind, so name the one they
+    are in rather than let them worry. The order matters: the two that are
+    about this student's own paperwork come first, since they are the only
+    ones they can do anything about.
     """
     # Staff have no Student row by design; none of these messages are for them.
     if user.is_staff:
@@ -93,6 +96,14 @@ def _dashboard_notice(user: User) -> DashboardNotice | None:
     for student in students:
         if (notice := _student_notice(student, today)) is not None:
             return notice
+
+    # Between semesters there is no "current session" to be enrolled in, and
+    # the course lists are empty for everyone, since they only ever carry the
+    # running semester. Say what is coming instead.
+    if not Semester.objects.active().visible_to(user).exists():
+        upcoming = running.visible_to(user).filter(start_date__gt=today).first()
+        return None if upcoming is None else DashboardNotice("not_started", upcoming)
+
     if students:
         return None
 
@@ -168,16 +179,26 @@ def dashboard(request: HttpRequest) -> HttpResponse:
         .first()
     )
 
+    # The yearbook stays with the student's latest semester rather than the
+    # running one, so alumnae keep reaching their old entry and an incoming
+    # student can write theirs before the semester opens.
+    yearbook_student = (
+        Student.objects.filter(user=request.user)
+        .select_related("semester")
+        .order_by("-semester__start_date")
+        .first()
+    )
+
     events = GlobalEvent.objects.current_for(request.user)
     context: dict[str, Any] = {
         "dash_classes": classes,
         "dash_clubs": clubs,
-        "student": student,
         "notice": _dashboard_notice(request.user),
         "global_event_count": events.count(),
         "next_global_event": events.filter(start_time__gte=timezone.now()).first(),
-        # The two section headings are links. Someone with a semester of their
-        # own lands in it; everyone else (staff, alumnae) gets the default view.
+        "yearbook_student": yearbook_student,
+        # The two section headings are links into a semester of the user's own;
+        # anyone who has never enrolled gets the default view instead.
         "house_url": reverse("housepoints:leaderboard"),
         "yearbook_url": reverse("yearbook:index"),
     }
@@ -186,12 +207,14 @@ def dashboard(request: HttpRequest) -> HttpResponse:
         context["house_url"] = reverse(
             "housepoints:leaderboard_semester", kwargs={"slug": student.semester.slug}
         )
+    if yearbook_student is not None:
+        semester = yearbook_student.semester
         context["yearbook_url"] = reverse(
-            "yearbook:entry_list", kwargs={"slug": student.semester.slug}
+            "yearbook:entry_list", kwargs={"slug": semester.slug}
         )
         context["yearbook_entry"] = YearbookEntry.objects.filter(
-            student=student
+            student=yearbook_student
         ).first()
-        context["yearbook_open"] = timezone.localdate() <= student.semester.end_date
+        context["yearbook_open"] = timezone.localdate() <= semester.end_date
 
     return render(request, "dashboard/index.html", context)

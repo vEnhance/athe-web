@@ -19,6 +19,11 @@
         Let us know if you have any questions about that.
         In the meantime, feel free to look around other parts of the website.
     </div>
+{% elif notice.kind == "not_started" %}
+    <div class="alert alert-info" role="alert">
+        The session {{ notice.semester.name }} hasn't started yet!
+        It is scheduled to start on {{ notice.semester.start_date|date:"F j, Y" }}.
+    </div>
 {% elif notice.kind == "not_enrolled" %}
     <div class="alert alert-info" role="alert">
         You don't seem to be enrolled in the current session, {{ notice.semester.name }}.

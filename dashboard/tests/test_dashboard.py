@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import pytest
 from django.contrib.auth.models import User
+from django.template.defaultfilters import date as date_filter
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
@@ -572,3 +573,139 @@ def test_notice_prefers_the_semester_with_something_outstanding(
     text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
 
     assert "Your registration for Spring 2026 isn't done yet" in text
+
+
+@pytest.mark.django_db
+def test_notice_announces_a_semester_that_has_not_opened(
+    next_semester: Semester, client_for
+):
+    """Between semesters there is nothing to be enrolled in, so say what's next."""
+    User.objects.create_user(username="stranger", password="password")
+
+    text = visible_text(client_for("stranger").get(reverse("index")).content.decode())
+
+    start = date_filter(next_semester.start_date, "F j, Y")
+    assert "The session Spring 2026 hasn't started yet!" in text
+    assert f"It is scheduled to start on {start}." in text
+    # "the current session" would be a lie while none is running.
+    assert "You don't seem to be enrolled" not in text
+
+
+@pytest.mark.django_db
+def test_notice_announces_the_opening_to_an_assigned_student_too(
+    next_semester: Semester, client_for
+):
+    """Classes exist but the course lists only carry the running semester, so a
+    fully sorted student still faces a blank dashboard until it opens."""
+    user = User.objects.create_user(username="lucy", password="password")
+    student = Student.objects.create(
+        user=user, semester=next_semester, airtable_name="Lucy"
+    )
+    complete_registration(student)
+    course = Course.objects.create(
+        name="Intro to Olympiad", description="", semester=next_semester
+    )
+    course.students.add(student)
+
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
+
+    assert "The session Spring 2026 hasn't started yet!" in text
+
+
+@pytest.mark.django_db
+def test_notice_stays_quiet_while_a_semester_is_running(
+    semester: Semester, student: Student, next_semester: Semester, client_for
+):
+    """A semester already underway is not something to announce."""
+    complete_registration(student)
+
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
+
+    assert "hasn't started yet" not in text
+
+
+@pytest.mark.django_db
+def test_yearbook_keeps_showing_an_alumna_her_last_entry(client_for):
+    """A student whose only semester has ended still reaches her own entry."""
+    today = timezone.localdate()
+    old_semester = Semester.objects.create(
+        name="Spring 2025",
+        slug="sp25",
+        start_date=today - timedelta(days=200),
+        end_date=today - timedelta(days=100),
+    )
+    user = User.objects.create_user(username="alum", password="password")
+    old_student = Student.objects.create(
+        user=user, semester=old_semester, airtable_name="Alum"
+    )
+    YearbookEntry.objects.create(
+        student=old_student, display_name="Alum A.", bio="I liked combinatorics."
+    )
+
+    content = client_for("alum").get(reverse("index")).content.decode()
+    text = visible_text(content)
+
+    assert "Alum A." in text
+    assert "I liked combinatorics." in text
+    # Closed, so no edit button, and the heading lands in her own semester.
+    assert reverse("yearbook:entry_list", kwargs={"slug": "sp25"}) in content
+    assert "Edit entry" not in text
+
+
+@pytest.mark.django_db
+def test_yearbook_says_an_ended_semester_is_closed(client_for):
+    """An alumna with no entry is told the window has shut, not invited to add."""
+    today = timezone.localdate()
+    old_semester = Semester.objects.create(
+        name="Spring 2025",
+        slug="sp25",
+        start_date=today - timedelta(days=200),
+        end_date=today - timedelta(days=100),
+    )
+    user = User.objects.create_user(username="alum", password="password")
+    Student.objects.create(user=user, semester=old_semester, airtable_name="Alum")
+
+    text = visible_text(client_for("alum").get(reverse("index")).content.decode())
+
+    assert "Entries for Spring 2025 are closed." in text
+    assert "Add entry" not in text
+
+
+@pytest.mark.django_db
+def test_yearbook_opens_before_the_semester_starts(next_semester: Semester, client_for):
+    """An incoming student can write her entry ahead of the semester opening."""
+    user = User.objects.create_user(username="lucy", password="password")
+    student = Student.objects.create(
+        user=user, semester=next_semester, airtable_name="Lucy"
+    )
+
+    client = client_for("lucy")
+    content = client.get(reverse("index")).content.decode()
+
+    assert "You don't have an entry yet for Spring 2026." in visible_text(content)
+    create_url = reverse("yearbook:create", kwargs={"student_pk": student.pk})
+    assert create_url in content
+    # The button has to actually go somewhere she is allowed.
+    assert client.get(create_url).status_code == 200
+
+
+@pytest.mark.django_db
+def test_yearbook_follows_the_most_recent_semester(
+    semester: Semester, student: Student, next_semester: Semester, client_for
+):
+    """With rows in two semesters, the yearbook square tracks the later one."""
+    Student.objects.create(
+        user=student.user, semester=next_semester, airtable_name="Lucy"
+    )
+    YearbookEntry.objects.create(
+        student=student, display_name="Old Lucy", bio="Last semester."
+    )
+
+    content = client_for("lucy").get(reverse("index")).content.decode()
+
+    # The Fall 2025 entry belongs to the older row, so it is not the one shown.
+    assert "Old Lucy" not in visible_text(content)
+    assert "You don't have an entry yet for Spring 2026." in visible_text(content)
+    assert (
+        reverse("yearbook:entry_list", kwargs={"slug": next_semester.slug}) in content
+    )
