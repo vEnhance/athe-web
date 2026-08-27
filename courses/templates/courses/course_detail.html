@@ -80,16 +80,16 @@
                                     <form method="post"
                                           action="{% url 'courses:unsubscribe_course' pk=course.pk %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-link p-0 fw-bold">
-                                            Unsubscribe from this {% if course.is_club %}club{% else %}class{% endif %}
+                                        <button type="submit" class="btn btn-link p-0">
+                                            Unsubscribe from this {% if course.is_club %}club{% else %}class{% endif %} (as staff)
                                         </button>
                                     </form>
                                 {% else %}
                                     <form method="post"
                                           action="{% url 'courses:subscribe_course' pk=course.pk %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-link p-0 fw-bold">
-                                            Subscribe to this {% if course.is_club %}club{% else %}class{% endif %}
+                                        <button type="submit" class="btn btn-link p-0">
+                                            Subscribe to this {% if course.is_club %}club{% else %}class{% endif %} (as staff)
                                         </button>
                                     </form>
                                 {% endif %}
