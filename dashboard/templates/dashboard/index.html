@@ -49,7 +49,11 @@
                     <a class="badge bg-secondary dash-see-all"
                        href="{% url 'courses:my_courses' %}">See all</a>
                 </h2>
-                {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="You are not enrolled in any classes this semester yet." %}
+                {% if semester_running %}
+                    {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="You are not enrolled in any classes this semester yet." %}
+                {% else %}
+                    {% include "dashboard/components/course_list.html" with rows=dash_classes empty_text="There is no active semester right now." %}
+                {% endif %}
             </div>
             <div class="col-md-6">
                 <h2>
@@ -57,7 +61,11 @@
                     <a class="badge bg-secondary dash-see-all"
                        href="{% url 'courses:my_clubs' %}">See all</a>
                 </h2>
-                {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="You have not joined any clubs this semester." %}
+                {% if semester_running %}
+                    {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="You have not joined any clubs this semester." %}
+                {% else %}
+                    {% include "dashboard/components/course_list.html" with rows=dash_clubs empty_text="There is no active semester right now." %}
+                {% endif %}
             </div>
         </div>
         <div class="row">
@@ -81,10 +89,15 @@
                             </a>
                         </div>
                     </div>
-                {% else %}
+                {% elif semester_running %}
                     <p>
                         You're not assigned a house this semester yet,
                         but you can browse <a href="{{ house_url }}">the leaderboard anyway</a>.
+                    </p>
+                {% else %}
+                    <p>
+                        There is no active semester, but you can browse
+                        <a href="{% url 'housepoints:leaderboard' %}">leaderboards from all sessions</a>.
                     </p>
                 {% endif %}
             </div>

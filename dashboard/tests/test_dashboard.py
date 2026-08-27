@@ -735,3 +735,36 @@ def test_yearbook_follows_the_most_recent_semester(
     assert (
         reverse("yearbook:entry_list", kwargs={"slug": next_semester.slug}) in content
     )
+
+
+@pytest.mark.django_db
+def test_empty_sections_say_so_when_nothing_is_running(
+    next_semester: Semester, client_for
+):
+    """Between semesters "this semester" names nothing, so the three empty
+    sections say what is actually true instead."""
+    User.objects.create_user(username="stranger", password="password")
+
+    content = client_for("stranger").get(reverse("index")).content.decode()
+    text = visible_text(content)
+
+    # Classes and Clubs share the line, so it lands twice.
+    assert text.count("There is no active semester right now.") == 2
+    assert "any classes this semester" not in text
+    assert "any clubs this semester" not in text
+    assert "a house this semester" not in text
+    assert "There is no active semester, but you can browse" in text
+    assert "leaderboards from all sessions" in text
+    assert reverse("housepoints:leaderboard") in content
+
+
+@pytest.mark.django_db
+def test_empty_sections_keep_their_wording_mid_semester(
+    semester: Semester, student: Student, client_for
+):
+    """With a semester underway, the sections still speak about it."""
+    text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
+
+    assert "You are not enrolled in any classes this semester yet." in text
+    assert "You have not joined any clubs this semester." in text
+    assert "no active semester" not in text

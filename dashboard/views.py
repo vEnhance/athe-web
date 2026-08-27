@@ -71,7 +71,7 @@ def _student_notice(student: Student, today: date) -> DashboardNotice | None:
     return DashboardNotice("assignments", student.semester)
 
 
-def _dashboard_notice(user: User) -> DashboardNotice | None:
+def _dashboard_notice(user: User, semester_running: bool) -> DashboardNotice | None:
     """The banner above the class lists: why the dashboard looks so empty.
 
     A student around the start of a semester can be stuck in four different
@@ -103,7 +103,7 @@ def _dashboard_notice(user: User) -> DashboardNotice | None:
     # Between semesters there is no "current session" to be enrolled in, and
     # the course lists are empty for everyone, since they only ever carry the
     # running semester. Say what is coming instead.
-    if not Semester.objects.active().visible_to(user).exists():
+    if not semester_running:
         upcoming = running.visible_to(user).filter(start_date__gt=today).first()
         return None if upcoming is None else DashboardNotice("not_started", upcoming)
 
@@ -174,6 +174,7 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     assert isinstance(request.user, User)
 
     classes, clubs = _dashboard_courses(request.user)
+    semester_running = Semester.objects.active().visible_to(request.user).exists()
     student = (
         Student.objects.filter(
             user=request.user, semester__in=Semester.objects.active()
@@ -196,7 +197,8 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     context: dict[str, Any] = {
         "dash_classes": classes,
         "dash_clubs": clubs,
-        "notice": _dashboard_notice(request.user),
+        "notice": _dashboard_notice(request.user, semester_running),
+        "semester_running": semester_running,
         "global_event_count": events.count(),
         "next_global_event": events.filter(start_time__gte=timezone.now()).first(),
         "yearbook_student": yearbook_student,
