@@ -41,6 +41,22 @@ class Command(BaseCommand):
             self.stderr.write(self.style.ERROR("No current semester found"))
             return
 
+        # Semester.current() looks forward, so it hands us the coming semester
+        # during the run-up to it, which is right for the pages getting ready
+        # for it but wrong for a broadcast: nobody wants a ping telling them
+        # every house is on zero points weeks before there is anything to earn.
+        # Once the term is under way this is the semester the leaderboard shows
+        # too, so the message and the scoreboard it links to always agree.
+        today = timezone.localdate()
+        if semester.start_date > today:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"{semester.name} does not start until {semester.start_date}. "
+                    "No update sent."
+                )
+            )
+            return
+
         # Check if leaderboard is frozen
         if semester.house_points_freeze_date is not None:
             self.stdout.write(

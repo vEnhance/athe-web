@@ -53,6 +53,66 @@ def test_discord_house_updates_no_current_semester():
 
 
 @pytest.mark.django_db
+def test_discord_house_updates_before_the_term_begins():
+    """No pings in the run-up to a semester, when every house is still on zero.
+
+    Semester.current() is forward looking, so it names the coming semester well
+    before it opens; the broadcast has to check the start date itself.
+    """
+    today = timezone.now().date()
+
+    Semester.objects.create(
+        name="Fall 2026",
+        slug="fa26",
+        start_date=today + timedelta(days=14),
+        end_date=today + timedelta(days=120),
+    )
+
+    out = StringIO()
+    err = StringIO()
+
+    with (
+        patch.dict(
+            "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+        ),
+        patch("requests.post") as mock_post,
+    ):
+        call_command("send_discord_house_updates", stdout=out, stderr=err)
+
+    assert not mock_post.called
+    assert "does not start until" in out.getvalue()
+    assert "No update sent" in out.getvalue()
+
+
+@pytest.mark.django_db
+def test_discord_house_updates_on_the_first_day_of_term():
+    """The gate is on starting, not on having started: day one still sends."""
+    today = timezone.now().date()
+
+    Semester.objects.create(
+        name="Fall 2026",
+        slug="fa26",
+        start_date=today,
+        end_date=today + timedelta(days=120),
+    )
+
+    out = StringIO()
+    mock_response = MagicMock()
+    mock_response.raise_for_status = MagicMock()
+
+    with (
+        patch.dict(
+            "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+        ),
+        patch("requests.post", return_value=mock_response) as mock_post,
+    ):
+        call_command("send_discord_house_updates", stdout=out)
+
+    assert mock_post.called
+    assert "Successfully sent" in out.getvalue()
+
+
+@pytest.mark.django_db
 def test_discord_house_updates_frozen_leaderboard():
     """Test that frozen leaderboard prints warning and exits 0."""
     today = timezone.now().date()
