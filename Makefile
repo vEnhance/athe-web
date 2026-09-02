@@ -1,4 +1,4 @@
-.PHONY: help install runserver migrate migrations fmt check test ci copier
+.PHONY: help install runserver migrate migrations fmt check test ci
 
 help:
 	@echo "Available commands:"
@@ -10,7 +10,6 @@ help:
 	@echo "  make check            - Run Django checks and type checking"
 	@echo "  make test             - Run tests"
 	@echo "  make ci               - Short for fmt + check + test"
-	@echo "  make copier           - Run copier update with past answers"
 
 install:
 	uv sync

@@ -5,8 +5,15 @@
 3. `make install` (or `uv sync`)
 4. `make migrate` (or `uv run python manage.py migrate`)
 5. Use `uv run python manage.py createsuperuser` and create an admin username and password
-6. Maybe try `uv run python manage.py loaddata fixtures/example.json`
-   - This command will probably break later once we add more fields
+6. Maybe try loading the sample data:
+
+   ```bash
+   uv run python manage.py loaddata fixtures/staff-snapshot-fa25.json \
+     fixtures/course-snapshot-fa25.json fixtures/history-snapshot-fa25.json
+   ```
+
+   - Load them in one command rather than three: courses point at staff listings, so
+     they have to be deserialized together.
 7. `make runserver` (or `uv run python manage.py runserver_plus`)
 8. See if `http://127.0.0.1:8000/` shows a course listing now
 9. Go to `http://127.0.0.1:8000/admin/` and login with the admin user you made.

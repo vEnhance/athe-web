@@ -100,6 +100,11 @@ stages:
 Commit messages must start with one of the types listed in `prek.toml`; alongside the
 conventional ones we also use `drop`, `edit`, `polish`, `root`, and `temp`.
 
+## Pull Requests
+
+Open pull requests with a title only — no description body. Descriptions get rewritten by
+hand anyway, so anything generated is wasted effort.
+
 ## CI/CD
 
 `.github/workflows/ci.yml` runs on push/PR to main and does `make fmt`, `make check`, then
