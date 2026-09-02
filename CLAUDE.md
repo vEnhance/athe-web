@@ -1,79 +1,79 @@
 # Development Notes
 
-This document contains development notes and decisions for the athe-web project.
+Notes and decisions for the athe-web project. See [README.md](README.md) for first-time
+setup, [OAUTH_SETUP.md](OAUTH_SETUP.md) for OAuth credentials, and [NFS.md](NFS.md) for
+deployment.
 
 ## Project Setup
 
-This is a Django web application (not a library/package), managed with **uv** for dependency management.
+This is a Django web application (not a library/package), managed with **uv**. There is
+deliberately no `[build-system]` in `pyproject.toml` — we are not building a package.
+
+Python 3.14+ is required (`.python-version`, `requires-python`). The database is SQLite in
+development and MySQL in production.
 
 ## Development Workflow
 
-### Quick Start
-
-```bash
-# Install dependencies
-make install
-# Run migrations
-make migrate
-# Start development server
-make runserver
-```
-
-### Common Commands
-
 Run `make help` to see all available commands:
 
-- `make install` - Install dependencies with uv and set up pre-commit hooks
-- `make runserver` - Run Django development server (runserver_plus)
-- `make migrate` - Apply database migrations
-- `make migrations` - Create new migrations
-- `make fmt` - Run code formatters and linters (via prek)
-- `make check` - Run Django checks, template validation, migration check, and type checking
-- `make test` - Run tests with pytest (parallel execution)
-- `make ci` - Run fmt + check + test
+- `make install` - `uv sync` plus `prek install` to set up the git hooks
+- `make runserver` - Development server (`runserver_plus`)
+- `make migrate` / `make migrations` - Apply / create migrations
+- `make fmt` - Run every prek hook over all files
+- `make check` - Django checks, template validation, missing-migration check, pyright
+- `make test` - `pytest -n auto`
+- `make ci` - fmt + check + test
 
-You can also use `uv run python manage.py <command>` directly for any Django command.
+`make migrations` pipes the new migration files back through prek, so generated migrations
+land already formatted.
+
+Anything not covered by a target is `uv run python manage.py <command>`. Use
+`uv run python manage.py shell_plus` for a shell with models auto-imported.
+
+## Apps
+
+Local apps in `INSTALLED_APPS`:
+
+| App             | Purpose                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| `atheweb`       | Project package: settings, urls, and the views/decorators/validators that belong to no single app |
+| `courses`       | Semesters, courses, clubs, meetings, students, global events, calendar tokens                     |
+| `dashboard`     | The logged-in landing page; owns no models, reads from the apps that do                           |
+| `home`          | Public splash page, staff photo listings, pset application forms                                  |
+| `housepoints`   | House point awards and Discord house updates                                                      |
+| `misc`          | One-off static pages                                                                              |
+| `reg`           | Registration wizard, invite links, course preferences                                             |
+| `ta_attendance` | Staff attendance records for club sessions                                                        |
+| `weblog`        | Blog posts, with custom markdown extensions                                                       |
+| `yearbook`      | Student yearbook entries                                                                          |
+
+`courses.models` imports `home.models`, so anything that needs both belongs above them
+(`dashboard` or `atheweb`) rather than inside either.
 
 ## Dependencies
 
-### Production Dependencies
+Production dependencies live in `dependencies` in `pyproject.toml`, with the extra
+production-only server bits (gunicorn, mysqlclient) under `[project.optional-dependencies]`
+as the `prod` extra. Development dependencies are in `[dependency-groups]` under `dev`.
+After editing either, run `uv lock` and then `make install`.
 
-- **Django 5.2**: Web framework
-- **django-allauth**: Social authentication (Google, GitHub, Discord OAuth)
-- **django-bootstrap5**: Bootstrap integration
-- **django-extensions**: Useful Django extensions
-- **django-hijack**: User impersonation for admins
-- **django-markdownfield**: Markdown support for model fields
-- **pillow**: Image processing
-- **requests**: HTTP library
-- **dotenv**: Environment variable management
-- **ipython**: Enhanced Python shell
-- **gunicorn**: Production WSGI server (prod extra)
-- **mysqlclient**: MySQL database adapter (prod extra)
-
-### Development Dependencies
-
-- **pytest** + **pytest-django** + **pytest-xdist**: Testing framework with parallel support
-- **pyright**: Static type checker
-- **django-stubs**: Type stubs for Django
-- **werkzeug**: WSGI utilities (for runserver_plus)
-- **prek**: Pre-commit helper utilities
-
-The linters and formatters (**ruff**, **djlint**, **codespell**, **prettier**, ...) are
-deliberately *not* dev dependencies. prek pins their versions in `prek.toml` and runs them
-in its own isolated environments, so listing them in `pyproject.toml` too would just drift
-out of sync. Run them via `make fmt`, not `uv run`. Their configuration still lives in
-`pyproject.toml` (`[tool.ruff]`, `[tool.djlint]`, `[tool.codespell]`), which the hooks read.
+The linters and formatters (**ruff**, **djlint**, **codespell**, **prettier**, **rumdl**,
+**zizmor**, **shellcheck**, **shfmt**) are deliberately *not* dev dependencies. prek pins
+their versions in `prek.toml` and runs them in its own isolated environments, so listing
+them in `pyproject.toml` too would just drift out of sync. Run them via `make fmt`, not
+`uv run`. Their configuration still lives in `pyproject.toml` (`[tool.ruff]`,
+`[tool.djlint]`, `[tool.codespell]`) and `rumdl.toml`, which the hooks read.
 
 ## Code Quality
 
 ### Type Checking
 
-We use pyright with basic type checking configured in `pyproject.toml`. Migrations, tests, and `apps.py` are excluded.
+pyright in basic mode, configured in `pyproject.toml`. Migrations, tests, and `apps.py` are
+excluded. Add type hints to new code and run `make check` to verify.
 
 ### Linting and Formatting
 
-We use ruff for both linting and formatting, via the prek hook:
+ruff handles both linting and formatting:
 
 - Line length: 88 characters
 - Migrations and `manage.py` excluded from linting
@@ -82,87 +82,48 @@ We use ruff for both linting and formatting, via the prek hook:
 
 ### Testing
 
-Run `make test` or `uv run pytest`. Tests use pytest-django and are configured via `pytest.ini`.
+`make test` (or `uv run pytest`). pytest is configured via `[tool.pytest.ini_options]` in
+`pyproject.toml`. Most apps keep a `tests/` package of `test_*.py` files; shared fixtures
+live in the root `conftest.py`.
+
+## Git Hooks
+
+Hooks are configured in `prek.toml` and installed by `make install`. They run at three
+stages:
+
+- **pre-commit**: JSON/TOML/YAML validation, merge conflict and private key checks,
+  whitespace and EOF fixers, ruff format/lint, djlint, prettier, rumdl, codespell, zizmor,
+  shellcheck, shfmt, `uv lock`
+- **commit-msg**: conventional commit message format
+- **pre-push**: `make fmt`, `make check`, `make test`
+
+Commit messages must start with one of the types listed in `prek.toml`; alongside the
+conventional ones we also use `drop`, `edit`, `polish`, `root`, and `temp`.
+
+## Pull Requests
+
+Open pull requests with a title only — no description body. Descriptions get rewritten by
+hand anyway, so anything generated is wasted effort.
 
 ## CI/CD
 
-GitHub Actions workflow (`.github/workflows/ci.yml`) runs on push/PR to main:
-
-1. `make fmt` - Formatting and linting
-2. `make check` - Django checks, template validation, migration check, type checking
-3. `make test` - Test suite (pytest)
-
-## Project Structure
-
-```text
-athe-web/
-├── atheweb/          # Main Django project
-├── courses/          # Courses app
-├── home/             # Home page app
-├── housepoints/      # House points tracking app
-├── reg/              # Registration app
-├── weblog/           # Blog/weblog app
-├── fixtures/         # Database fixtures
-├── .github/          # GitHub Actions CI
-├── manage.py         # Django management script
-├── pyproject.toml    # Project metadata and dependencies
-├── uv.lock           # Locked dependencies
-├── Makefile          # Development commands
-├── pytest.ini        # Pytest configuration
-├── .pre-commit-config.yaml  # Pre-commit hook configuration
-├── gunicorn.sh       # Production server startup script
-├── sync-static.sh    # Static files sync script
-├── OAUTH_SETUP.md    # OAuth authentication setup guide
-└── NFS.md            # NearlyFreeSpeech deployment notes
-```
-
-## Authentication
-
-The application supports multiple authentication methods:
-
-- **Google OAuth** (primary method, emphasized in UI)
-- **GitHub OAuth** (primary method, emphasized in UI)
-- **Discord OAuth** (primary method, emphasized in UI)
-- **Username/Password** (fallback method, de-emphasized in UI)
-
-For OAuth setup instructions, see [OAUTH_SETUP.md](OAUTH_SETUP.md).
-
-## Tips for Development
-
-1. **Always use `uv run`** for running Python commands to ensure you're using the project's virtual environment.
-2. **Update dependencies**:
-
-- Add to `dependencies` in `pyproject.toml` for production deps
-- Add to `dev` in `[project.optional-dependencies]` for dev deps
-- Run `uv lock` to update the lockfile
-- Run `make install` to install
-
-3. **Type hints**: Add type hints to new code. Run `make check` to verify types.
-4. **Before committing**: Run `make ci` (or `make fmt`, `make check`, and `make test` individually) to verify everything works.
-5. **Django shell**: Use `uv run python manage.py shell_plus` (from django-extensions) for an enhanced shell with models auto-imported.
-
-## Pre-commit Hooks
-
-Pre-commit hooks are configured in `.pre-commit-config.yaml`. They are installed automatically by `make install`.
-
-Hooks run at different stages:
-
-- **pre-commit**: JSON/YAML/TOML validation, merge conflict check, trailing whitespace, end-of-file fixer, ruff format/lint, djlint, prettier, codespell
-- **commit-msg**: Conventional commit message format enforcement
-- **pre-push**: `make fmt`, `make check`, `make test`
+`.github/workflows/ci.yml` runs on push/PR to main and does `make fmt`, `make check`, then
+`make test`.
 
 ## Deployment
 
-The application is deployed to NearlyFreeSpeech. See [NFS.md](NFS.md) for deployment details.
+Deployed to NearlyFreeSpeech; see [NFS.md](NFS.md).
 
-### Deployment Scripts
+- `deploy.sh` - Pushes main to the `production` remote (refuses unless local main matches
+  origin/main)
+- `gunicorn.sh` - Production entry point: migrates, starts gunicorn, re-migrates and
+  reloads workers on SIGHUP
+- `sync-static.sh` - `collectstatic` plus rsync to the production static directory
+- `run-discord-remind.sh` / `run-discord-house.sh` - Cron entry points for the
+  `send_discord_reminders` and `send_discord_house_updates` management commands
 
-- `gunicorn.sh` - Starts the production server (syncs deps, runs migrations, starts gunicorn)
-- `run-discord.sh` - Runs the Discord reminder management command
-- `sync-static.sh` - Collects static files and syncs them to the production server
+## Authentication
 
-## Notes
-
-- Python 3.14+ required (specified in `pyproject.toml` and `.python-version`)
-- Database: SQLite (development), MySQL (production)
-- No `[build-system]` in pyproject.toml - this is intentional as we're not building a package
+Google, GitHub, and Discord OAuth are the primary methods and are emphasized in the UI;
+username/password is a de-emphasized fallback. Admins can impersonate users through
+django-hijack.

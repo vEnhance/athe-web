@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "name": "Fall 2021",
-      "deadline": "2021-09-01T00:00:00Z",
+      "deadline": "2021-09-01",
       "status": "completed",
       "file": "apply_psets/fall21.pdf",
       "instructions": "",
@@ -16,7 +16,7 @@
     "pk": 2,
     "fields": {
       "name": "Fall 2022",
-      "deadline": "2022-09-01T00:00:00Z",
+      "deadline": "2022-09-01",
       "status": "completed",
       "file": "apply_psets/fall22.pdf",
       "instructions": "",
@@ -28,7 +28,7 @@
     "pk": 3,
     "fields": {
       "name": "Fall 2023",
-      "deadline": "2023-09-01T00:00:00Z",
+      "deadline": "2023-09-01",
       "status": "completed",
       "file": "apply_psets/fall23.pdf",
       "instructions": "",
@@ -40,7 +40,7 @@
     "pk": 4,
     "fields": {
       "name": "Fall 2024",
-      "deadline": "2024-09-01T00:00:00Z",
+      "deadline": "2024-09-01",
       "status": "completed",
       "file": "apply_psets/fall24.pdf",
       "instructions": "",
@@ -52,7 +52,7 @@
     "pk": 5,
     "fields": {
       "name": "Fall 2025",
-      "deadline": "2025-09-01T00:00:00Z",
+      "deadline": "2025-09-01",
       "status": "completed",
       "file": "apply_psets/fall25.pdf",
       "instructions": "",
@@ -64,7 +64,7 @@
     "pk": 6,
     "fields": {
       "name": "Spring 2021",
-      "deadline": "2021-01-01T00:00:00Z",
+      "deadline": "2021-01-01",
       "status": "completed",
       "file": "apply_psets/spr21.pdf",
       "instructions": "",
@@ -76,7 +76,7 @@
     "pk": 7,
     "fields": {
       "name": "Spring 2022",
-      "deadline": "2022-01-01T00:00:00Z",
+      "deadline": "2022-01-01",
       "status": "completed",
       "file": "apply_psets/spr22.pdf",
       "instructions": "",
@@ -88,7 +88,7 @@
     "pk": 8,
     "fields": {
       "name": "Spring 2023",
-      "deadline": "2023-01-01T00:00:00Z",
+      "deadline": "2023-01-01",
       "status": "completed",
       "file": "apply_psets/spr23.pdf",
       "instructions": "",
@@ -100,7 +100,7 @@
     "pk": 9,
     "fields": {
       "name": "Spring 2024",
-      "deadline": "2024-01-01T00:00:00Z",
+      "deadline": "2024-01-01",
       "status": "completed",
       "file": "apply_psets/spr24.pdf",
       "instructions": "",
@@ -112,7 +112,7 @@
     "pk": 10,
     "fields": {
       "name": "Spring 2025",
-      "deadline": "2025-01-01T00:00:00Z",
+      "deadline": "2025-01-01",
       "status": "completed",
       "file": "apply_psets/spr25.pdf",
       "instructions": "",
@@ -124,7 +124,7 @@
     "pk": 11,
     "fields": {
       "name": "Winter 2021",
-      "deadline": "2021-11-01T00:00:00Z",
+      "deadline": "2021-11-01",
       "status": "completed",
       "file": "apply_psets/winter21.pdf",
       "instructions": "",
