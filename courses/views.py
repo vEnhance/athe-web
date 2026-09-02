@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.db.models import Exists, OuterRef
+from django.db.models import Count, Exists, OuterRef, Q
 from django.forms import modelformset_factory
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -43,8 +43,15 @@ def catalog_root(request: HttpRequest) -> HttpResponse:
 
 
 def semester_list(request: HttpRequest) -> HttpResponse:
-    """Show all semesters in chronological order."""
-    semesters = Semester.objects.visible_to(request.user)
+    """Show all semesters in chronological order.
+
+    The count next to each semester has to match what clicking through to it
+    shows, and the catalog is classes only, so clubs are left out of it here
+    too.
+    """
+    semesters = Semester.objects.visible_to(request.user).annotate(
+        class_count=Count("courses", filter=Q(courses__is_club=False))
+    )
     return render(request, "courses/semester_list.html", {"semesters": semesters})
 
 
