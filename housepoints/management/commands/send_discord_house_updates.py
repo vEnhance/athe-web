@@ -40,15 +40,13 @@ class Command(BaseCommand):
         if semester is None:
             self.stderr.write(self.style.ERROR("No current semester found"))
             return
+        elif semester.start_date > timezone.localdate():
+            self.stdout.write(self.style.WARNING(f"{semester.name} not started yet."))
+            return
 
         # Check if leaderboard is frozen
         if semester.house_points_freeze_date is not None:
-            self.stdout.write(
-                self.style.WARNING(
-                    f"Leaderboard is frozen as of {semester.house_points_freeze_date}. "
-                    "No update sent."
-                )
-            )
+            self.stdout.write(self.style.WARNING(f"{semester.name} frozen."))
             return
 
         # The freeze check above means this always reflects live standings
