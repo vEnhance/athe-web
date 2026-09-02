@@ -80,8 +80,7 @@ def test_discord_house_updates_before_the_term_begins():
         call_command("send_discord_house_updates", stdout=out, stderr=err)
 
     assert not mock_post.called
-    assert "does not start until" in out.getvalue()
-    assert "No update sent" in out.getvalue()
+    assert "not started yet" in out.getvalue()
 
 
 @pytest.mark.django_db
@@ -129,14 +128,17 @@ def test_discord_house_updates_frozen_leaderboard():
     out = StringIO()
     err = StringIO()
 
-    with patch.dict(
-        "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+    with (
+        patch.dict(
+            "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+        ),
+        patch("requests.post") as mock_post,
     ):
         # Should not raise - exit 0
         call_command("send_discord_house_updates", stdout=out, stderr=err)
 
+    assert not mock_post.called
     assert "frozen" in out.getvalue().lower()
-    assert "No update sent" in out.getvalue()
 
 
 @pytest.mark.django_db
