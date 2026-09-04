@@ -17,6 +17,7 @@ The part where you plug in all the wires and pray.
 set -euo pipefail
 
 export OPENSSL_DIR=/usr
+export CARGO_BUILD_JOBS=1
 TARGET=/home/protected/atheweb/
 mkdir -p "$TARGET"
 cd "$TARGET" || exit 1
@@ -45,6 +46,26 @@ nfsn signal-daemon django hup
 FreeBSD might pick up an ancient version of OpenSSL (like 1.x)
 which will cause `cryptography` build with `maturin` to fail.
 That's why we have `export OPENSSL_DIR=/usr` above.
+
+## Gotcha: nh3 and other Rust extensions
+
+`nh3` (pulled in by `django-markdownfield`) publishes wheels for Linux, macOS and
+Windows only, so on FreeBSD `uv sync` always compiles it from source with cargo.
+Cargo defaults to one build job per core, and several of the crates in that tree
+(`icu_properties_data`, `syn`) are memory-hungry, so the parallel `rustc` processes
+blow past the jail's per-process memory cap and get SIGKILLed:
+
+```text
+error: could not compile `syn` (lib)
+  process didn't exit successfully: `rustc ...` (signal: 9, SIGKILL: kill)
+```
+
+That's why we have `export CARGO_BUILD_JOBS=1` above. The build takes a few minutes
+but only happens once per `nh3` version: uv caches the wheel it produces, so later
+deploys reuse it. If a deploy fails this way after a dependency bump, run
+`CARGO_BUILD_JOBS=1 uv sync --all-extras --no-dev` by hand as the `atheweb` user to
+warm the cache, then re-run the hook. Don't `uv cache clean`; it throws away the
+built wheels.
 
 ## Gotchas: permission issues on protected/
 
