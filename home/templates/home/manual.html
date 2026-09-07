@@ -190,11 +190,12 @@
         </p>
         <p>
             Once they have, download every response as JSON from
-            <a href="{% url 'reg:upload-assignments' %}">Upload Class Assignments</a>,
+            <a href="{% url 'reg:download-responses' %}">Download Questionnaire Responses</a>,
             work out the matching however you like
             (a linear program, an AI, a whiteboard and a lot of coffee),
-            and paste the result back into the same page to enroll everyone
-            in their classes and sort them into houses.
+            and paste the result into
+            <a href="{% url 'reg:upload-assignments' %}">Upload Class Assignments</a>
+            to enroll everyone in their classes and sort them into houses.
         </p>
         <h2>Workflow for the President (start of semester)</h2>
         <p>
@@ -242,7 +243,7 @@
             <li>Wait for the questionnaires to come in, chasing up whoever is missing.</li>
             <li>
                 Download the responses as JSON from
-                <a href="{% url 'reg:upload-assignments' %}">Upload Class Assignments</a> and
+                <a href="{% url 'reg:download-responses' %}">Download Questionnaire Responses</a> and
                 figure out the matching problem of assigning kids to classes and scheduling.
                 (Tough job. Good luck!)
             </li>
