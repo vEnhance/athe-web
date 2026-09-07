@@ -532,6 +532,20 @@ def _responses_payload(semester: Semester) -> dict[str, Any]:
 
 
 @superuser_required()
+def download_responses(request: HttpRequest) -> HttpResponse:
+    """List the questionnaire downloads, the semester being prepared first."""
+    current = Semester.current()
+    past = Semester.objects.all()
+    if current is not None:
+        past = past.exclude(pk=current.pk)
+    return render(
+        request,
+        "reg/download_responses.html",
+        {"current": current, "past": past},
+    )
+
+
+@superuser_required()
 def student_responses(request: HttpRequest, slug: str) -> HttpResponse:
     """Download every questionnaire response for a semester as JSON."""
     semester = get_object_or_404(Semester, slug=slug)
@@ -600,9 +614,5 @@ def upload_assignments(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "reg/upload_assignments.html",
-        {
-            "form": form,
-            "applied": applied,
-            "semesters": Semester.objects.all(),
-        },
+        {"form": form, "applied": applied},
     )

@@ -1,0 +1,40 @@
+{% extends "home/base.html" %}
+{% block title %}
+    Download Questionnaire Responses - Athemath
+{% endblock title %}
+{% block content %}
+    <div id="content">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Download Questionnaire Responses</h1>
+                <p class="text-muted">
+                    Every registration answer for a semester in one JSON file, which is
+                    the input to the matching problem. Only available to superusers.
+                </p>
+                {% if current %}
+                    <a href="{% url 'reg:responses' current.slug %}"
+                       class="btn btn-primary btn-lg">Download {{ current.name }}</a>
+                {% else %}
+                    <div class="alert alert-warning">
+                        There is no semester on the books that hasn't ended yet, so there is
+                        nothing to download. Create one first.
+                    </div>
+                {% endif %}
+                {% if past %}
+                    <h2 class="mt-4">Download past responses</h2>
+                    <ul class="list-group">
+                        {% for semester in past %}
+                            <li class="list-group-item">
+                                <a href="{% url 'reg:responses' semester.slug %}">{{ semester.name }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <p class="mt-4">
+                    Once you have worked the matching out, apply it from
+                    <a href="{% url 'reg:upload-assignments' %}">Upload Class Assignments</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

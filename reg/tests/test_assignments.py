@@ -91,6 +91,7 @@ def responses_url(semester):
 
 
 UPLOAD_URL = reverse("reg:upload-assignments")
+DOWNLOAD_URL = reverse("reg:download-responses")
 
 
 def upload(client, semester, payload, **extra):
@@ -101,9 +102,13 @@ def upload(client, semester, payload, **extra):
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("url_name", ["responses", "upload"])
+@pytest.mark.parametrize("url_name", ["responses", "download", "upload"])
 def test_endpoints_require_superuser(url_name, responses_url):
-    url = responses_url if url_name == "responses" else UPLOAD_URL
+    url = {
+        "responses": responses_url,
+        "download": DOWNLOAD_URL,
+        "upload": UPLOAD_URL,
+    }[url_name]
     assert Client().get(url).status_code == 302
 
     User.objects.create_user(username="ta", password="password", is_staff=True)
@@ -153,6 +158,35 @@ def test_responses_download(
 
     # Students who have not answered are listed too, so gaps are obvious.
     assert by_name["Bob Brown"]["registration"] is None
+
+
+@pytest.mark.django_db
+def test_download_page_offers_the_current_semester_and_the_rest(
+    superuser_client, semester
+):
+    today = timezone.now().date()
+    old_semester = Semester.objects.create(
+        name="Spring 2025",
+        slug="spring-2025",
+        start_date=today - timedelta(days=200),
+        end_date=today - timedelta(days=100),
+    )
+
+    response = superuser_client.get(DOWNLOAD_URL)
+    assert response.status_code == 200
+    assert response.context["current"] == semester
+    assert list(response.context["past"]) == [old_semester]
+
+    page = response.content.decode()
+    assert "Download Fall 2025" in page
+    assert reverse("reg:responses", kwargs={"slug": "spring-2025"}) in page
+
+
+@pytest.mark.django_db
+def test_download_page_without_a_current_semester(superuser_client):
+    response = superuser_client.get(DOWNLOAD_URL)
+    assert response.context["current"] is None
+    assert "nothing to download" in response.content.decode()
 
 
 @pytest.mark.django_db

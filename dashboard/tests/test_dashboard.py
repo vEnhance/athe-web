@@ -229,6 +229,7 @@ def test_dashboard_staff_section_is_staff_only(client_for):
     assert "TA Sign-in Sheet" in boss
     assert "Bulk Create Students" in boss
     assert reverse("reg:upload-assignments") in boss
+    assert reverse("reg:download-responses") in boss
     assert reverse("admin:index") in boss
 
 
