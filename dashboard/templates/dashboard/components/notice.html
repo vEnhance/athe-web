@@ -4,7 +4,7 @@
 {% endcomment %}
 {% if notice.kind == "registration" %}
     <div class="alert alert-warning" role="alert">
-        Your registration for {{ notice.semester.name }} isn't done yet &mdash;
+        Your registration for {{ notice.semester.name }} isn't done yet —
         please <a href="{{ notice.url }}">finish it when you get a chance</a>!
     </div>
 {% elif notice.kind == "assignments" %}

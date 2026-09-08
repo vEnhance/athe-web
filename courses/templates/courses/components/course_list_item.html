@@ -8,7 +8,8 @@
                 <p>
                     {% if course.regular_meeting_time %}{{ course.regular_meeting_time }}.{% endif %}
                     {% if course.instructor %}
-                        <a class="fst-italic" href="{{ course.instructor.get_absolute_url }}">{{ course.instructor }}</a>
+                        <a class="fst-italic"
+                           href="{{ course.instructor.get_absolute_url }}">{{ course.instructor }}</a>
                     {% endif %}
                 </p>
             {% endif %}

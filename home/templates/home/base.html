@@ -122,7 +122,7 @@
         {% if messages %}
             <div class="container" style="margin-top: 80px;">
                 {% for message in messages %}
-                    {% if message.tags == 'error' %}
+                    {% if message.tags == "error" %}
                         {% with alert_class="danger" %}
                             <div class="alert alert-{{ alert_class }} alert-dismissible fade show"
                                  role="alert">
@@ -133,7 +133,7 @@
                                         aria-label="Close"></button>
                             </div>
                         {% endwith %}
-                    {% elif message.tags == 'debug' %}
+                    {% elif message.tags == "debug" %}
                         {% with alert_class="info" %}
                             <div class="alert alert-{{ alert_class }} alert-dismissible fade show"
                                  role="alert">

@@ -13,7 +13,8 @@
                     <div class="card-body">
                         <h2 class="card-title text-center mb-4">Login</h2>
                         {% if form.errors %}
-                            <div class="alert alert-danger" role="alert">Your username and password didn't match. Please try again.</div>
+                            <div class="alert alert-danger"
+                                 role="alert">Your username and password didn't match. Please try again.</div>
                         {% endif %}
                         {% if next %}
                             {% if user.is_authenticated %}
@@ -27,19 +28,19 @@
                         {% endif %}
                         <div class="d-grid gap-2 mb-4">
                             {% for provider in socialaccount_providers %}
-                                {% if provider.id == 'google' %}
+                                {% if provider.id == "google" %}
                                     <a href="{% provider_login_url 'google' %}"
                                        class="btn btn-outline-danger btn-lg">
                                         {% include "icons/google.svg" %}
                                         Continue with Google
                                     </a>
-                                {% elif provider.id == 'github' %}
+                                {% elif provider.id == "github" %}
                                     <a href="{% provider_login_url 'github' %}"
                                        class="btn btn-outline-dark btn-lg">
                                         {% include "icons/github.svg" %}
                                         Continue with GitHub
                                     </a>
-                                {% elif provider.id == 'discord' %}
+                                {% elif provider.id == "discord" %}
                                     <a href="{% provider_login_url 'discord' %}"
                                        class="btn btn-outline-primary btn-lg">
                                         {% include "icons/discord.svg" %}

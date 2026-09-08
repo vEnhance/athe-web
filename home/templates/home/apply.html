@@ -25,7 +25,9 @@
                 <div class="instructions">{{ pset.instructions_rendered|safe }}</div>
                 {% if pset.file %}
                     <p>
-                        <a href="{{ pset.file.url }}" class="btn btn-primary" target="_blank">Download Problem Set (PDF)</a>
+                        <a href="{{ pset.file.url }}"
+                           class="btn btn-primary"
+                           target="_blank">Download Problem Set (PDF)</a>
                     </p>
                 {% endif %}
             </div>

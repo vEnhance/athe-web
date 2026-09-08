@@ -23,7 +23,9 @@
                             {% bootstrap_field form.course %}
                             {% if not students %}
                                 <div class="d-grid gap-2">
-                                    <button type="submit" name="load_students" class="btn btn-secondary btn-lg">Load Students</button>
+                                    <button type="submit"
+                                            name="load_students"
+                                            class="btn btn-secondary btn-lg">Load Students</button>
                                 </div>
                             {% else %}
                                 {% bootstrap_field form.description %}
@@ -60,7 +62,8 @@
                                     {% endfor %}
                                 </div>
                                 <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary btn-lg">Award Attendance Points</button>
+                                    <button type="submit"
+                                            class="btn btn-primary btn-lg">Award Attendance Points</button>
                                 </div>
                             {% endif %}
                         </form>

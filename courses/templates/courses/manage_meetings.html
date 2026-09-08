@@ -1,9 +1,7 @@
 {% extends "home/base.html" %}
 {% load static %}
 {% block extra_css %}
-    <link type="text/css"
-          rel="stylesheet"
-          href="{% static "css/courses.css" %}" />
+    <link rel="stylesheet" href="{% static "css/courses.css" %}" />
     <style>
         .formset-row {
             background-color: #f8f9fa;
@@ -157,7 +155,7 @@
                         <h4>Quick fill: recurring schedule</h4>
                         <p class="text-muted small">
                             Adds evenly spaced meetings below, which you can then edit or delete individually.
-                            Nothing is saved until you press &ldquo;Save All Changes&rdquo;.
+                            Nothing is saved until you press “Save All Changes”.
                             {{ course.semester }} runs {{ course.semester.start_date|date:"M j, Y" }} through {{ course.semester.end_date|date:"M j, Y" }}.
                         </p>
                         <div class="recurring-grid">
@@ -197,7 +195,9 @@
                         </div>
                         <div id="recurring-feedback" role="status" aria-live="polite"></div>
                     </div>
-                    <button type="button" id="add-form-btn" class="btn btn-outline-secondary">+ Add another meeting</button>
+                    <button type="button"
+                            id="add-form-btn"
+                            class="btn btn-outline-secondary">+ Add another meeting</button>
                 </div>
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">Save All Changes</button>
