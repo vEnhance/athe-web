@@ -1,9 +1,7 @@
 {% extends "home/base.html" %}
 {% load static %}
 {% block extra_css %}
-    <link type="text/css"
-          rel="stylesheet"
-          href="{% static "css/courses.css" %}" />
+    <link rel="stylesheet" href="{% static "css/courses.css" %}" />
 {% endblock extra_css %}
 {% block content %}
     <div id="content">
@@ -31,64 +29,63 @@
                 </div>
             {% endif %}
         </div>
-        <div id="content">
-            <div class="session-time">
-                <i>Held {{ semester.start_date|date:"F jS, Y" }}—{{ semester.end_date|date:"F jS, Y" }}</i>
-                <p>
-                    <a href="{% url 'courses:semester_list' %}">View all semesters</a>
-                </p>
-                {% if not next_semester %}
-                    Course list still being updated!
-                {% endif %}
-            </div>
-            {% for course in courses %}
-                <div class="course">
-                    <div class="course-title-wrap">
-                        {% if course.instructor %}
-                            <img src="{{ course.instructor.photo.url }}"
-                                 alt="{{ course.instructor.display_name }}"
-                                 class="course-instructor-photo">
-                        {% endif %}
-                        <div class="course-title-text">
-                            <h2 class="course-title">
-                                {{ course.name }}
-                                {% if user.is_staff %}
-                                    <a href="{% url 'courses:course_detail' pk=course.pk %}"
-                                       style="font-size: 0.6em;
-                                              margin-left: 10px">[View]</a>
-                                {% endif %}
-                                {% if request.user.is_superuser %}
-                                    <a href="{% url 'admin:courses_course_change' course.pk %}"
-                                       style="font-size: 0.6em;
-                                              margin-left: 5px">[Edit]</a>
-                                {% endif %}
-                            </h2>
-                            {% if course.instructor %}
-                                <p>
-                                    Instructor:
-                                    <a class="course-teach" href="{{ course.instructor.get_absolute_url }}">{{ course.instructor.display_name }}</a>
-                                </p>
+        <div class="session-time">
+            <i>Held {{ semester.start_date|date:"F jS, Y" }}—{{ semester.end_date|date:"F jS, Y" }}</i>
+            <p>
+                <a href="{% url 'courses:semester_list' %}">View all semesters</a>
+            </p>
+            {% if not next_semester %}
+                Course list still being updated!
+            {% endif %}
+        </div>
+        {% for course in courses %}
+            <div class="course">
+                <div class="course-title-wrap">
+                    {% if course.instructor %}
+                        <img src="{{ course.instructor.photo.url }}"
+                             alt="{{ course.instructor.display_name }}"
+                             class="course-instructor-photo">
+                    {% endif %}
+                    <div class="course-title-text">
+                        <h2 class="course-title">
+                            {{ course.name }}
+                            {% if user.is_staff %}
+                                <a href="{% url 'courses:course_detail' pk=course.pk %}"
+                                   style="font-size: 0.6em;
+                                          margin-left: 10px">[View]</a>
                             {% endif %}
-                        </div>
-                    </div>
-                    <div class="course-text">
-                        <div class="course-ds">
-                            <span class="course-description">{{ course.description|linebreaks }}
-                                {% if course.difficulty %}
-                                    <p>
-                                        <i>Difficulty: {{ course.difficulty }}</i>
-                                    </p>
-                                {% endif %}
-                            </span>
-                        </div>
-                        {% include "courses/components/lesson_plan.html" %}
+                            {% if request.user.is_superuser %}
+                                <a href="{% url 'admin:courses_course_change' course.pk %}"
+                                   style="font-size: 0.6em;
+                                          margin-left: 5px">[Edit]</a>
+                            {% endif %}
+                        </h2>
+                        {% if course.instructor %}
+                            <p>
+                                Instructor:
+                                <a class="course-teach"
+                                   href="{{ course.instructor.get_absolute_url }}">{{ course.instructor.display_name }}</a>
+                            </p>
+                        {% endif %}
                     </div>
                 </div>
-            {% empty %}
-                <p>
-                    <i>No classes yet.</i>
-                </p>
-            {% endfor %}
-        </div>
+                <div class="course-text">
+                    <div class="course-ds">
+                        <span class="course-description">{{ course.description|linebreaks }}
+                            {% if course.difficulty %}
+                                <p>
+                                    <i>Difficulty: {{ course.difficulty }}</i>
+                                </p>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% include "courses/components/lesson_plan.html" %}
+                </div>
+            </div>
+        {% empty %}
+            <p>
+                <i>No classes yet.</i>
+            </p>
+        {% endfor %}
     </div>
 {% endblock content %}

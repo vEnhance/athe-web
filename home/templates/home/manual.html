@@ -33,7 +33,7 @@
         </p>
         <h3>Authentication and Authorization: Users</h3>
         <p>
-            On this website, a <tt>User</tt> represents a single human being,
+            On this website, a <code>User</code> represents a single human being,
             with a name, username, and password.
             Staff and students identify themselves with this.
         </p>
@@ -46,9 +46,9 @@
         <p>When kids forgot their password, you can set it for them here.</p>
         <h3>Home</h3>
         <p>
-            The <tt>ApplyPSet</tt> controls
+            The <code>ApplyPSet</code> controls
             the problem sets and application instructions published to the web,
-            while the <tt>StaffPhotoListing</tt> shows our staff members.
+            while the <code>StaffPhotoListing</code> shows our staff members.
             These are pretty self-explanatory.
             You should create new ones when you're publishing the registration
             instructions for a new semester, or adding new staff members.
@@ -67,7 +67,7 @@
         <ul>
             <li>
                 <p>
-                    The <tt>Semester</tt> model represents a term of Athemath.
+                    The <code>Semester</code> model represents a term of Athemath.
                     It should be pretty self-explanatory, and this is where you would go to start off a new semester.
                     If you are planning for a future semester, you can still  create the object on the live website,
                     Just uncheck the visible box so that it's not visible to them public until it's ready, and recheck it once you're ready to publish.
@@ -75,7 +75,7 @@
             </li>
             <li>
                 <p>
-                    Each semester has one or more <tt>Course</tt> objects attached to it.
+                    Each semester has one or more <code>Course</code> objects attached to it.
                     Confusingly, this model can refer to either an actual class (think "Combo Heuristics")
                     or to a club or event such as Japanese Club or office hours.
                     That is, on the backend they are actually stored in the same data structure.
@@ -84,7 +84,7 @@
                 </p>
                 <p>
                     For classes or clubs with one obvious in-charge staff member,
-                    you should set the instructor field to that person's <tt>StaffPhotoListing</tt>.
+                    you should set the instructor field to that person's <code>StaffPhotoListing</code>.
                     You could also subscribe staff members to a club if it makes sense,
                     e.g. for office-hours co-hosted by several staff,
                     you may as well subscribe them all (they can always unsubscribe).
@@ -93,39 +93,39 @@
                 </p>
                 <p>
                     On rare occasions, students will run clubs too.
-                    You can put their <tt>Student</tt> objects in the student organizers field,
+                    You can put their <code>Student</code> objects in the student organizers field,
                     which gives them edit privileges for that club and its meetings.
                 </p>
             </li>
             <li>
                 <p>
-                    Then there is <tt>Student</tt>.
-                    This model represents an enrollment of a <tt>User</tt>
-                    into a <tt>Semester</tt>
+                    Then there is <code>Student</code>.
+                    This model represents an enrollment of a <code>User</code>
+                    into a <code>Semester</code>
                     and can be enrolled in any class or club from the same semester.
                     In other words, this represents our enrollment data.
                 </p>
                 <p>
-                    When a <tt>Student</tt> is first created,
-                    they do not have a <tt>User</tt> associated to them yet.
+                    When a <code>Student</code> is first created,
+                    they do not have a <code>User</code> associated to them yet.
                     This means that we can do things like enrolling the student into a course or house
                     even before the student has completed registration and signed up on the website.
-                    The binding of a <tt>User</tt> to a <tt>Student</tt> is done when
+                    The binding of a <code>User</code> to a <code>Student</code> is done when
                     with invite links, as described later.
                 </p>
                 <p>
                     Kids are generally pretty bad at consistently writing
                     the same name in multiple places.
-                    So, we uniquely identify <tt>Student</tt> each semester by a field
-                    called <tt>airtable_name</tt>: whatever name they write in AirTable
+                    So, we uniquely identify <code>Student</code> each semester by a field
+                    called <code>airtable_name</code>: whatever name they write in AirTable
                     when they actually fill out Greta's registration form.
                     This name is what's shown to staff and is unchangeable by the kid,
                     but is mostly invisible to the kid when they navigate the website.
                 </p>
                 <p>
                     Note that when a human enrolls in multiple semesters of Athemath,
-                    while they should only have one <tt>User</tt>,
-                    they get a <tt>Student</tt> object for every semester they join.
+                    while they should only have one <code>User</code>,
+                    they get a <code>Student</code> object for every semester they join.
                 </p>
             </li>
         </ul>
@@ -136,7 +136,7 @@
         </p>
         <p>
             When you want to onboard staff, you make a staff invite link and send it to them.
-            This MUST be done <strong>after</strong> you have created their <tt>StaffPhotoListing</tt>,
+            This MUST be done <strong>after</strong> you have created their <code>StaffPhotoListing</code>,
             because the staff invite link requires them to identify themselves
             among the listed staff.
         </p>
@@ -144,8 +144,8 @@
             Similarly, you should generate a student invite link
             and send it to all the kids.
             This link enables anyone holding it to register a
-            <tt>User</tt> (if they don't have one already)
-            and then bind it to one of the <tt>Student</tt>.
+            <code>User</code> (if they don't have one already)
+            and then bind it to one of the <code>Student</code>.
             This MUST be done <strong>after</strong> creating students.
         </p>
         <h3>Weblog</h3>
@@ -155,9 +155,9 @@
             The posts are all in Markdown format.
         </p>
         <p>
-            If you need images, then you can upload them by creating a <tt>Photo</tt>.
+            If you need images, then you can upload them by creating a <code>Photo</code>.
             This uploads the image directly to a special folder in the server,
-            making it accessible at <tt>athemath.org/media/photos/FILENAME</tt>.
+            making it accessible at <code>athemath.org/media/photos/FILENAME</code>.
             Then you can include it in your history entry.
         </p>
         <p>
@@ -204,24 +204,24 @@
         </p>
         <ol>
             <li>
-                Create new <tt>Semester</tt>.
+                Create new <code>Semester</code>.
             </li>
             <li>
-                Retire old <tt>StaffPhotoListing</tt> objects by making them into Past Staff.
+                Retire old <code>StaffPhotoListing</code> objects by making them into Past Staff.
             </li>
             <li>
-                Create new <tt>StaffPhotoListing</tt> objects for new staff.
+                Create new <code>StaffPhotoListing</code> objects for new staff.
             </li>
             <li>
-                Create new <tt>Course</tt> objects for classes and clubs for that semester,
-                attaching the relevant <tt>StaffPhotoListing</tt> to assign instructors to classes.
+                Create new <code>Course</code> objects for classes and clubs for that semester,
+                attaching the relevant <code>StaffPhotoListing</code> to assign instructors to classes.
             </li>
             <li>
-                Make a staff invite link and give it to new staff so they can create a new <tt>User</tt>
-                and bind it to their <tt>StaffPhotoListing</tt>.
+                Make a staff invite link and give it to new staff so they can create a new <code>User</code>
+                and bind it to their <code>StaffPhotoListing</code>.
             </li>
             <li>
-                Upload application instructions and problem set to <tt>ApplyPSet</tt>.
+                Upload application instructions and problem set to <code>ApplyPSet</code>.
             </li>
             <li>Wait for applications to roll in.</li>
             <li>
@@ -230,7 +230,7 @@
             </li>
             <li>
                 Use the special <a href="{% url 'courses:bulk_create_students' %}">Bulk Create Students</a>
-                to mass-create <tt>Student</tt> objects for the new semester,
+                to mass-create <code>Student</code> objects for the new semester,
                 pasting one Airtable name per line.
                 No classes or houses yet: those come out of the matching later.
             </li>
@@ -254,13 +254,13 @@
             </li>
             <li>
                 Make sure every instructor and club leader
-                updates their <tt>Course</tt> with their meeting times,
+                updates their <code>Course</code> with their meeting times,
                 Google classroom link, and Zoom link.
             </li>
             <li>
                 After configuring a Discord role and webhook for each class
                 (and optionally club),
-                plug the role ID and webhook URL into the <tt>Course</tt> object on Django admin.
+                plug the role ID and webhook URL into the <code>Course</code> object on Django admin.
                 This will set up auto-reminders.
             </li>
             <li>
