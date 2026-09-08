@@ -24,8 +24,9 @@
                                rel="noopener noreferrer"
                                class="social-link">Website</a>
                         {% endif %}
-                        {% if staff_member.email %}<a href="mailto:{{ staff_member.email }}"
-   class="social-link">Email</a>{% endif %}
+                        {% if staff_member.email %}
+                            <a href="mailto:{{ staff_member.email }}" class="social-link">Email</a>
+                        {% endif %}
                         {% if staff_member.instagram_username %}
                             <a href="https://instagram.com/{{ staff_member.instagram_username }}"
                                target="_blank"
