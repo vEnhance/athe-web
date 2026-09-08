@@ -36,7 +36,9 @@
                             <thead class="table-dark">
                                 <tr>
                                     <th scope="col">Student</th>
-                                    {% for header in headers %}<th scope="col" class="text-end">{{ header }}</th>{% endfor %}
+                                    {% for header in headers %}
+                                        <th scope="col" class="text-end">{{ header }}</th>
+                                    {% endfor %}
                                     <th scope="col" class="text-end table-dark">Total</th>
                                 </tr>
                             </thead>
@@ -73,9 +75,9 @@
                 {% endif %}
                 <div class="mt-4">
                     <a href="{% url 'housepoints:house_detail' slug=semester.slug house=house %}"
-                       class="btn btn-outline-secondary">&larr; Back to House View</a>
+                       class="btn btn-outline-secondary">← Back to House View</a>
                     <a href="{% url 'housepoints:leaderboard_semester' slug=semester.slug %}"
-                       class="btn btn-outline-secondary">&larr; Back to Leaderboard</a>
+                       class="btn btn-outline-secondary">← Back to Leaderboard</a>
                 </div>
             </div>
         </div>

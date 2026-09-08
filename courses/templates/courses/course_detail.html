@@ -1,9 +1,7 @@
 {% extends "home/base.html" %}
 {% load static local_time %}
 {% block extra_css %}
-    <link type="text/css"
-          rel="stylesheet"
-          href="{% static "css/courses.css" %}" />
+    <link rel="stylesheet" href="{% static "css/courses.css" %}" />
 {% endblock extra_css %}
 {% block title %}
     {{ course.name }} - Athemath

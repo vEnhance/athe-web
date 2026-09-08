@@ -17,7 +17,7 @@
                             <br />
                         {% endif %}
                         <small class="text-muted">
-                            By {{ post.display_author }} &middot;
+                            By {{ post.display_author }} ·
                             {{ post.display_date|date:"F j, Y" }}
                         </small>
                     </a>
@@ -28,7 +28,7 @@
                     <ul class="pagination justify-content-center">
                         {% if page_obj.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?page=1">&laquo; First</a>
+                                <a class="page-link" href="?page=1">« First</a>
                             </li>
                             <li class="page-item">
                                 <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
@@ -42,7 +42,7 @@
                                 <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last »</a>
                             </li>
                         {% endif %}
                     </ul>

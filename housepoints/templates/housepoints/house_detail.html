@@ -58,10 +58,10 @@
                 {% endif %}
                 <div class="mt-4">
                     <a href="{% url 'housepoints:leaderboard_semester' slug=semester.slug %}"
-                       class="btn btn-outline-secondary">&larr; Back to Leaderboard</a>
+                       class="btn btn-outline-secondary">← Back to Leaderboard</a>
                     {% if user.is_staff %}
                         <a href="{% url 'housepoints:house_detail_staff' slug=semester.slug house=house %}"
-                           class="btn btn-outline-primary">View Staff Details &rarr;</a>
+                           class="btn btn-outline-primary">View Staff Details →</a>
                     {% endif %}
                 </div>
             </div>

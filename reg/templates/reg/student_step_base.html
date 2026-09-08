@@ -4,13 +4,12 @@
 {% block extra_css %}
     {# Tom Select from cdnjs, same arrangement as Bootstrap itself. To move #}
     {# version, update both URLs and both integrity hashes together. #}
-    <link type="text/css"
-          rel="stylesheet"
+    <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.6.2/css/tom-select.bootstrap5.min.css"
           integrity="sha384-qNqaCnsmyTrYVwmqv4/4PcwMK8ZFAQnYPpVjWor+6cX6rKsPhebzu8vO2J3s+VZg"
           crossorigin="anonymous"
           referrerpolicy="no-referrer" />
-    <link type="text/css" rel="stylesheet" href="{% static "css/reg.css" %}" />
+    <link rel="stylesheet" href="{% static "css/reg.css" %}" />
 {% endblock extra_css %}
 {% block title %}
     {{ form.title }} - Student Registration
@@ -22,7 +21,7 @@
                 <h1>Student Registration</h1>
                 <p class="text-muted">
                     {{ invite.semester }}
-                    {% if student %}&middot; {{ student.airtable_name }}{% endif %}
+                    {% if student %}· {{ student.airtable_name }}{% endif %}
                 </p>
                 {% include "reg/components/step_progress.html" %}
                 {% if complete %}

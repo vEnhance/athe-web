@@ -8,7 +8,8 @@
                     Instructor:
                 {% endif %}
             </strong>
-            <a class="course-teach" href="{{ course.instructor.get_absolute_url }}">{{ course.instructor.display_name }}</a>
+            <a class="course-teach"
+               href="{{ course.instructor.get_absolute_url }}">{{ course.instructor.display_name }}</a>
         </p>
     {% endif %}
     {% if course.student_organizers.all %}
@@ -16,7 +17,7 @@
             <strong>Student Organizers:</strong>
             {% for student in course.student_organizers.all %}
                 {{ student }}
-                {% if not forloop.last %}&middot;{% endif %}
+                {% if not forloop.last %}·{% endif %}
             {% endfor %}
         </p>
     {% endif %}

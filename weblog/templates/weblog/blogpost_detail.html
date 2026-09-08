@@ -26,14 +26,14 @@
                     {% else %}
                         {{ post.display_author }}
                     {% endif %}
-                    &middot;
+                    ·
                     {{ post.display_date|date:"F j, Y" }}
                 </p>
             </header>
             <div class="blog-content my-5">{{ post.content_rendered|safe }}</div>
         </article>
         <div class="d-flex align-items-center">
-            <a href="{% url 'weblog:blog_list' %}" class="btn btn-outline-secondary">&larr; Back to Blog</a>
+            <a href="{% url 'weblog:blog_list' %}" class="btn btn-outline-secondary">← Back to Blog</a>
             {% if user == post.creator and not post.published %}
                 <a href="{% url 'weblog:blog_update' slug=post.slug %}"
                    class="ms-2 btn btn-outline-dark">Edit Draft</a>

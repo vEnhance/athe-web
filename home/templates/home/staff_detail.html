@@ -4,9 +4,7 @@
     {{ staff_member.display_name }} - Athemath
 {% endblock title %}
 {% block extra_css %}
-    <link rel="stylesheet"
-          type="text/css"
-          href="{% static "css/staffdetail.css" %}" />
+    <link rel="stylesheet" href="{% static "css/staffdetail.css" %}" />
 {% endblock extra_css %}
 {% block content %}
     <div class="staff-detail-container">
@@ -26,7 +24,9 @@
                                rel="noopener noreferrer"
                                class="social-link">Website</a>
                         {% endif %}
-                        {% if staff_member.email %}<a href="mailto:{{ staff_member.email }}" class="social-link">Email</a>{% endif %}
+                        {% if staff_member.email %}
+                            <a href="mailto:{{ staff_member.email }}" class="social-link">Email</a>
+                        {% endif %}
                         {% if staff_member.instagram_username %}
                             <a href="https://instagram.com/{{ staff_member.instagram_username }}"
                                target="_blank"
