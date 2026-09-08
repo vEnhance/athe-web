@@ -59,7 +59,7 @@ def test_discord_house_updates_before_the_term_begins():
     Semester.current() is forward looking, so it names the coming semester well
     before it opens; the broadcast has to check the start date itself.
     """
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     Semester.objects.create(
         name="Fall 2026",
@@ -86,7 +86,7 @@ def test_discord_house_updates_before_the_term_begins():
 @pytest.mark.django_db
 def test_discord_house_updates_on_the_first_day_of_term():
     """The gate is on starting, not on having started: day one still sends."""
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     Semester.objects.create(
         name="Fall 2026",
@@ -114,7 +114,7 @@ def test_discord_house_updates_on_the_first_day_of_term():
 @pytest.mark.django_db
 def test_discord_house_updates_frozen_leaderboard():
     """Test that frozen leaderboard prints warning and exits 0."""
-    today = timezone.now().date()
+    today = timezone.localdate()
     freeze_time = timezone.now() - timedelta(days=1)
 
     Semester.objects.create(
@@ -144,7 +144,7 @@ def test_discord_house_updates_frozen_leaderboard():
 @pytest.mark.django_db
 def test_discord_house_updates_sends_message():
     """Test that message is sent to Discord with correct content."""
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     semester = Semester.objects.create(
         name="Fall 2025",
@@ -223,7 +223,7 @@ def test_discord_house_updates_sends_message():
 @pytest.mark.django_db
 def test_discord_house_updates_sorted_by_score():
     """Test that houses are sorted from highest to lowest score."""
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     semester = Semester.objects.create(
         name="Fall 2025",
@@ -291,7 +291,7 @@ def test_discord_house_updates_sorted_by_score():
 @pytest.mark.django_db
 def test_discord_house_updates_includes_zero_point_houses():
     """Test that houses with 0 points are included."""
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     semester = Semester.objects.create(
         name="Fall 2025",
@@ -344,7 +344,7 @@ def test_discord_house_updates_webhook_failure():
     """Test that webhook failure causes exit 1."""
     import requests
 
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     Semester.objects.create(
         name="Fall 2025",
@@ -375,7 +375,7 @@ def test_discord_house_updates_webhook_failure():
 @pytest.mark.django_db
 def test_discord_house_updates_empty_semester():
     """Test message is sent even when there are no awards."""
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     Semester.objects.create(
         name="Fall 2025",
