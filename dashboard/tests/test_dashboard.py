@@ -513,7 +513,7 @@ def test_notice_stops_once_the_semester_has_started(
     text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
 
     assert "glorious queen" not in text
-    assert "You are not enrolled in any classes this semester yet." in text
+    assert "You aren't yet enrolled in any classes this semester." in text
 
 
 @pytest.mark.django_db
@@ -782,8 +782,8 @@ def test_empty_sections_keep_their_wording_mid_semester(
     """With a semester underway, the sections still speak about it."""
     text = visible_text(client_for("lucy").get(reverse("index")).content.decode())
 
-    assert "You are not enrolled in any classes this semester yet." in text
-    assert "You have not joined any clubs this semester." in text
+    assert "You aren't yet enrolled in any classes this semester." in text
+    assert "You haven't joined any clubs yet" in text
     assert "no active semester" not in text
 
 
