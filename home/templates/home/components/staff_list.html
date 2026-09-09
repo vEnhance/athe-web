@@ -5,7 +5,8 @@
             <div class="staff-left">
                 <img class="staff-img"
                      src="{{ staff.photo.url }}"
-                     alt="{{ staff.display_name }}" />
+                     alt="{{ staff.display_name }}"
+                     loading="lazy" />
                 <img class="staff-max-icon"
                      src="{% static 'icons/maximize.svg' %}"
                      alt="Maximize icon" />

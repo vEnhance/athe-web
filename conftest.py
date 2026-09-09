@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -13,6 +14,12 @@ def use_fast_password_hasher(settings: LazySettings) -> None:
     settings.PASSWORD_HASHERS = [
         "django.contrib.auth.hashers.MD5PasswordHasher",
     ]
+
+
+@pytest.fixture(autouse=True)
+def media_in_tmp_path(settings: LazySettings, tmp_path: Path) -> None:
+    """Keep uploads written by tests out of the developer's media/ directory."""
+    settings.MEDIA_ROOT = tmp_path
 
 
 @pytest.fixture

@@ -122,6 +122,12 @@ Deployed to NearlyFreeSpeech; see [NFS.md](NFS.md).
 - `run-discord-remind.sh` / `run-discord-house.sh` - Cron entry points for the
   `send_discord_reminders` and `send_discord_house_updates` management commands
 
+Staff photos are re-encoded to a 512px JPEG on upload (`atheweb/images.py`, wired in through
+`DownscaledImageField` in `atheweb/fields.py`), since they never display larger than 200px.
+`shrink_staff_photos` backfills photos uploaded before that. It rewrites files under
+`MEDIA_ROOT` in place and nothing backs `media/` up, so tar up `staff_photos/` first and run
+`--dry-run` before the real thing.
+
 ## Authentication
 
 Google, GitHub, and Discord OAuth are the primary methods and are emphasized in the UI;

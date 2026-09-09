@@ -44,7 +44,8 @@
                     {% if course.instructor %}
                         <img src="{{ course.instructor.photo.url }}"
                              alt="{{ course.instructor.display_name }}"
-                             class="course-instructor-photo">
+                             class="course-instructor-photo"
+                             loading="lazy">
                     {% endif %}
                     <div class="course-title-text">
                         <h2 class="course-title">
