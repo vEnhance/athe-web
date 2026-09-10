@@ -1,3 +1,4 @@
+from enum import StrEnum
 from io import BytesIO
 from pathlib import Path
 from typing import IO
@@ -24,22 +25,34 @@ def _output_format(image: Image.Image, to_jpeg: bool) -> str:
     return image.format
 
 
-def needs_downscaling(
-    source: IO[bytes], max_dimension: int, to_jpeg: bool = True
-) -> bool:
-    """Whether rewriting this image would gain anything.
+class Verdict(StrEnum):
+    REWRITE = "rewrite"
+    RIGHT_SIZE = "already the right size"
+    UNSUPPORTED = "format left as is"
+
+
+def classify(source: IO[bytes], max_dimension: int, to_jpeg: bool = True) -> Verdict:
+    """Whether rewriting this image would gain anything, and if not, why not.
 
     Formats we would have to rewrite in place but cannot re-encode, such as an
     animated GIF, are left alone rather than flattened or renamed.
     """
     with Image.open(source) as image:
         if image.format not in ("JPEG", "PNG") and not to_jpeg:
-            return False
+            return Verdict.UNSUPPORTED
         if to_jpeg and image.format != "JPEG":
-            return True
+            return Verdict.REWRITE
         if image.getexif().get(ExifTag.Orientation, 1) != 1:
-            return True
-        return max(image.size) > max_dimension
+            return Verdict.REWRITE
+        if max(image.size) > max_dimension:
+            return Verdict.REWRITE
+        return Verdict.RIGHT_SIZE
+
+
+def needs_downscaling(
+    source: IO[bytes], max_dimension: int, to_jpeg: bool = True
+) -> bool:
+    return classify(source, max_dimension, to_jpeg) is Verdict.REWRITE
 
 
 def downscale(

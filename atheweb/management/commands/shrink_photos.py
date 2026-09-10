@@ -16,6 +16,7 @@ Files are rewritten under MEDIA_ROOT with no backup, so take one first and use
 --dry-run before the real thing.
 """
 
+from collections import Counter
 from typing import Any
 
 from django.core.exceptions import ValidationError
@@ -24,9 +25,13 @@ from django.db.models import Model
 from PIL import UnidentifiedImageError
 
 from atheweb.fields import DownscaledImageField
-from atheweb.images import downscale, needs_downscaling
+from atheweb.images import Verdict, classify, downscale
 from home.models import StaffPhotoListing
 from weblog.models import Photo
+
+NO_GAIN = "no smaller re-encoded"
+MISSING = "file missing"
+UNREADABLE = "unreadable"
 
 TARGETS: list[tuple[type[Model], str]] = [
     (StaffPhotoListing, "photo"),
@@ -57,32 +62,38 @@ class Command(BaseCommand):
                 self.style.WARNING("DRY RUN - no files will be rewritten")
             )
 
-        rewritten = 0
+        done = "would rewrite" if dry_run else "rewritten"
+        outcomes: Counter[str] = Counter()
         bytes_saved = 0
 
         for model, field_name in TARGETS:
             field = model._meta.get_field(field_name)
             assert isinstance(field, DownscaledImageField)
-            self.stdout.write(f"{model._meta.verbose_name_plural}:")
+            lines: list[str] = []
 
             for instance in model.objects.exclude(**{field_name: ""}):
-                saved = self.rewrite(
-                    getattr(instance, field_name), field, str(instance), dry_run
+                outcome, saved = self.rewrite(
+                    getattr(instance, field_name), field, str(instance), dry_run, lines
                 )
-                if saved:
-                    rewritten += 1
-                    bytes_saved += saved
+                outcomes[done if outcome is Verdict.REWRITE else outcome] += 1
+                bytes_saved += saved
 
-        if not rewritten:
-            self.stdout.write(self.style.SUCCESS("Every image is already small"))
+            if lines:
+                self.stdout.write(f"{model._meta.verbose_name_plural}:")
+                for line in lines:
+                    self.stdout.write(line)
+
+        self.stdout.write("")
+        for outcome in [done, *sorted(o for o in outcomes if o != done)]:
+            if outcomes[outcome]:
+                self.stdout.write(f"{outcomes[outcome]:>4} {outcome}")
+
+        if not outcomes[done]:
+            self.stdout.write(self.style.SUCCESS("Nothing left to rewrite"))
             return
 
         verb = "would save" if dry_run else "saved"
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"\n{rewritten} image(s) rewritten, {verb} {format_bytes(bytes_saved)}"
-            )
-        )
+        self.stdout.write(self.style.SUCCESS(f"{verb} {format_bytes(bytes_saved)}"))
 
     def rewrite(
         self,
@@ -90,35 +101,37 @@ class Command(BaseCommand):
         field: DownscaledImageField,
         label: str,
         dry_run: bool,
-    ) -> int:
-        """Shrink one stored image, returning the bytes saved (0 if skipped)."""
+        lines: list[str],
+    ) -> tuple[str, int]:
+        """Shrink one stored image, returning its outcome and the bytes saved."""
         if not image.storage.exists(image.name):
             self.stderr.write(
                 self.style.WARNING(f"  {label}: {image.name} is missing, skipping")
             )
-            return 0
+            return MISSING, 0
 
         try:
             with image.open("rb") as f:
-                if not needs_downscaling(f, field.max_dimension, field.to_jpeg):
-                    return 0
+                verdict = classify(f, field.max_dimension, field.to_jpeg)
+                if verdict is not Verdict.REWRITE:
+                    return verdict, 0
                 f.seek(0)
                 replacement = downscale(
                     f, image.name, field.max_dimension, field.to_jpeg
                 )
         except (ValidationError, UnidentifiedImageError, OSError) as e:
             self.stderr.write(self.style.WARNING(f"  {label}: {e}"))
-            return 0
+            return UNREADABLE, 0
 
         before = image.size
         if replacement.size >= before:
-            return 0
+            return NO_GAIN, 0
 
-        self.stdout.write(
+        lines.append(
             f"  {label}: {format_bytes(before)} -> {format_bytes(replacement.size)}"
         )
         if dry_run:
-            return before - replacement.size
+            return Verdict.REWRITE, before - replacement.size
 
         old_name = image.name
         if replacement.name == old_name.rsplit("/", 1)[-1]:
@@ -128,4 +141,4 @@ class Command(BaseCommand):
             image.save(replacement.name, replacement, save=True)
             image.storage.delete(old_name)
 
-        return before - replacement.size
+        return Verdict.REWRITE, before - replacement.size
