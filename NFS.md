@@ -23,6 +23,7 @@ mkdir -p "$TARGET"
 cd "$TARGET" || exit 1
 git --git-dir="/home/private/atheweb.git" --work-tree="." checkout -f main
 uv sync --all-extras --no-dev
+uv run --all-extras --no-dev python manage.py collectstatic --no-input
 nfsn signal-daemon django hup
 ```
 

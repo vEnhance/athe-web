@@ -118,7 +118,6 @@ Deployed to NearlyFreeSpeech; see [NFS.md](NFS.md).
   origin/main)
 - `gunicorn.sh` - Production entry point: migrates, starts gunicorn, re-migrates and
   reloads workers on SIGHUP
-- `sync-static.sh` - `collectstatic` plus rsync to the production static directory
 - `run-discord-remind.sh` / `run-discord-house.sh` - Cron entry points for the
   `send_discord_reminders` and `send_discord_house_updates` management commands
 
