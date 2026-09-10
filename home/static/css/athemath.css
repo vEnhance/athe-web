@@ -194,6 +194,13 @@ blockquote {
 }
 
 /* Image styling */
+.staff-photo {
+  display: block;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+}
+
 .text-img {
   margin-left: auto;
   margin-right: auto;
