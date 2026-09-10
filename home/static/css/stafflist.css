@@ -15,6 +15,7 @@
 .staff-left {
   flex-basis: auto;
   flex-grow: 0;
+  position: relative;
   text-align: center;
   color: #fff;
   width: 200px;
@@ -29,15 +30,17 @@
 }
 
 .staff-img {
-  display: inline-block;
-  position: relative;
+  display: block;
+  width: 200px;
   height: 200px;
+  object-fit: cover;
+  object-position: center 30%;
 }
 
 .staff-max-icon {
-  position: relative;
-  left: 87px;
-  top: -200px;
+  position: absolute;
+  right: 5px;
+  top: 5px;
 }
 
 .staff-right-visible {
