@@ -8,7 +8,7 @@ from django.urls import reverse
 from PIL import Image
 
 from atheweb import fields, images
-from atheweb.images import MAX_DIMENSION
+from atheweb.images import STAFF_MAX_DIMENSION
 from home.models import StaffPhotoListing
 
 
@@ -18,8 +18,9 @@ def upload(width: int, height: int, fmt: str = "JPEG", **save_kwargs: object):
     image = Image.new(mode, (width, height), color="red")
     buffer = BytesIO()
     image.save(buffer, format=fmt, **save_kwargs)
+    suffix = "jpg" if fmt == "JPEG" else fmt.lower()
     return SimpleUploadedFile(
-        name=f"headshot.{fmt.lower()}",
+        name=f"headshot.{suffix}",
         content=buffer.getvalue(),
         content_type=f"image/{fmt.lower()}",
     )
@@ -50,7 +51,7 @@ def edit_as_owner(client: Client, photo=None) -> tuple[StaffPhotoListing, int]:
 def test_large_upload_is_downscaled():
     """A big upload is stored no larger than the box it displays in."""
     staff, _ = edit_as_owner(Client(), upload(2000, 1500))
-    assert max(staff.photo.width, staff.photo.height) == MAX_DIMENSION
+    assert max(staff.photo.width, staff.photo.height) == STAFF_MAX_DIMENSION
     assert staff.photo.width / staff.photo.height == pytest.approx(
         2000 / 1500, abs=0.01
     )
@@ -67,10 +68,15 @@ def test_png_upload_is_stored_as_jpeg():
 
 
 @pytest.mark.django_db
-def test_small_upload_is_not_upscaled():
-    """An already-small photo keeps its dimensions."""
-    staff, _ = edit_as_owner(Client(), upload(100, 80))
+def test_in_spec_upload_is_stored_byte_for_byte():
+    """An already-small JPEG is not re-encoded, so it loses no quality."""
+    photo = upload(100, 80)
+    original = photo.read()
+    photo.seek(0)
+    staff, _ = edit_as_owner(Client(), photo)
     assert (staff.photo.width, staff.photo.height) == (100, 80)
+    with staff.photo.open("rb") as f:
+        assert f.read() == original
 
 
 @pytest.mark.django_db
@@ -97,7 +103,7 @@ def test_absurd_pixel_count_is_refused(monkeypatch: pytest.MonkeyPatch):
     """A decompression bomb becomes a form error, not a jail-killing decode."""
     monkeypatch.setattr(images, "MAX_PIXELS", 100)
     client = Client()
-    staff, status = edit_as_owner(client, upload(400, 300))
+    staff, status = edit_as_owner(client, upload(4000, 3000))
     assert status == 200
     assert (staff.photo.width, staff.photo.height) == (60, 60)
 
