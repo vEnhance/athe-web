@@ -146,5 +146,5 @@ def test_staff_list_defers_offscreen_photos():
         photo=upload(60, 60),
     )
     content = Client().get(reverse("home:staff")).content.decode()
-    assert 'class="staff-img"' in content
+    assert 'class="staff-photo"' in content
     assert 'loading="lazy"' in content
