@@ -122,6 +122,17 @@ Deployed to NearlyFreeSpeech; see [NFS.md](NFS.md).
 - `run-discord-remind.sh` / `run-discord-house.sh` - Cron entry points for the
   `send_discord_reminders` and `send_discord_house_updates` management commands
 
+Uploaded images are re-encoded down to the size they display at, by
+`DownscaledImageField` (`atheweb/fields.py`) via the helpers in `atheweb/images.py`. Staff
+photos become 512px JPEGs, since they never render larger than 200px. Weblog photos get a
+2048px cap and keep their format and file name, because their URLs are pasted into post
+markdown and one is hardcoded in `virtual_program.html`; formats we cannot re-encode without
+renaming, such as animated GIFs, are left alone.
+
+`shrink_photos` is a one-time backfill for images uploaded before that. It rewrites files
+under `MEDIA_ROOT` and nothing backs `media/` up, so tar up `photos/` and `staff_photos/`
+first and run `--dry-run` before the real thing.
+
 ## Authentication
 
 Google, GitHub, and Discord OAuth are the primary methods and are emphasized in the UI;

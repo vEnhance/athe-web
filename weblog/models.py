@@ -4,6 +4,8 @@ from django.urls import reverse
 from django.utils import timezone
 from markdownfield.models import MarkdownField, RenderedMarkdownField
 
+from atheweb.fields import DownscaledImageField
+from atheweb.images import CONTENT_MAX_DIMENSION
 from atheweb.validators import VALIDATOR_WITH_FIGURES
 
 
@@ -13,7 +15,12 @@ class Photo(models.Model):
     name = models.CharField(
         max_length=200, help_text="Name or caption for the photo (for identification)"
     )
-    image = models.ImageField(upload_to="photos/", help_text="Photo file to upload")
+    image = DownscaledImageField(
+        upload_to="photos/",
+        max_dimension=CONTENT_MAX_DIMENSION,
+        to_jpeg=False,
+        help_text="Photo file to upload",
+    )
     uploaded_at = models.DateTimeField(
         auto_now_add=True, help_text="Date and time when the photo was uploaded"
     )

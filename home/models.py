@@ -6,6 +6,7 @@ from django.db import models
 from django.urls import reverse
 from markdownfield.models import MarkdownField, RenderedMarkdownField
 
+from atheweb.fields import DownscaledImageField
 from atheweb.validators import VALIDATOR_WITH_FIGURES
 
 
@@ -104,7 +105,7 @@ class StaffPhotoListing(models.Model):
         help_text="Biography in Markdown format",
     )
     biography_rendered = RenderedMarkdownField()
-    photo = models.ImageField(
+    photo = DownscaledImageField(
         upload_to="staff_photos/",
         help_text="Staff member photo",
     )
