@@ -27,8 +27,8 @@ class Photo(models.Model):
 
     class Meta:
         ordering = ["-uploaded_at"]
-        verbose_name = "Photo"
-        verbose_name_plural = "Photos"
+        verbose_name = "Photo for blog posts"
+        verbose_name_plural = "Photos for blog posts"
 
     def __str__(self) -> str:
         return self.name
