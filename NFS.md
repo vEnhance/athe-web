@@ -9,32 +9,12 @@ The part where you plug in all the wires and pray.
 - Add an `.env` file (for Evan this is `athemath.env`)
 - Install `uv` (struggle bus)
 - Create a bare repository `~/atheweb.git`
-- Here's a script to use as a git post-receive hook
-
-```bash
-#!/bin/bash
-
-set -euo pipefail
-
-export OPENSSL_DIR=/usr
-export CARGO_BUILD_JOBS=1
-TARGET=/home/protected/atheweb/
-mkdir -p "$TARGET"
-cd "$TARGET" || exit 1
-git --git-dir="/home/private/atheweb.git" --work-tree="." checkout -f main
-uv sync --all-extras --no-dev
-uv run --all-extras --no-dev python manage.py collectstatic --no-input
-nfsn signal-daemon django hup
-```
-
+- Copy or symlink `postreceive.sh` as a post-receive hook for that Git repository.
 - Make sure permissions work in `public` and `protected`:
   - `chgrp` and `chmod g+s` all of `static/`, `/media`, and the repository
   - Write a simple `.htaccess` that says `Require all granted` for `/home/public`
-
 - Create a daemon using `gunicorn.sh`
-
 - Set up proxies for `static/` and `media/`
-
 - Apparently you have to install time zones manually,
   [as described here](https://members.nearlyfreespeech.net/forums/viewtopic.php?t=11631).
 
