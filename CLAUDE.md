@@ -131,7 +131,9 @@ renaming, such as animated GIFs, are left alone.
 
 `shrink_photos` is a one-time backfill for images uploaded before that. It rewrites files
 under `MEDIA_ROOT` and nothing backs `media/` up, so tar up `photos/` and `staff_photos/`
-first and run `--dry-run` before the real thing.
+first and run `--dry-run` before the real thing. Either mode ends with a breakdown counting
+every stored image by outcome, which doubles as a survey of what is in `media/` — including
+rows whose file has gone missing.
 
 ## Authentication
 

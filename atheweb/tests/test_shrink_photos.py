@@ -1,6 +1,8 @@
 from io import StringIO
 
 import pytest
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.management import call_command
 from PIL import Image
 
@@ -106,7 +108,7 @@ def test_already_small_images_are_left_alone():
     photo = Photo.objects.create(name="Small", image=upload(400, 300, fmt="PNG"))
     sizes = (staff.photo.size, photo.image.size)
 
-    assert "already small" in shrink()
+    assert "Nothing left to rewrite" in shrink()
 
     staff.refresh_from_db()
     photo.refresh_from_db()
@@ -119,7 +121,7 @@ def test_second_run_finds_nothing_to_do():
     make_listing("big", upload(1600, 1200))
     Photo.objects.create(name="Big", image=upload(3000, 2000, fmt="PNG"))
     shrink()
-    assert "already small" in shrink()
+    assert "Nothing left to rewrite" in shrink()
 
 
 @pytest.mark.django_db
@@ -142,3 +144,59 @@ def test_missing_file_is_skipped():
     make_listing("big", upload(1600, 1200))
 
     assert "big" in shrink()
+
+
+def seed_every_outcome() -> None:
+    """Store one image per outcome the command can report."""
+    make_listing("oversized", upload(1600, 1200))
+    make_listing("in-spec", upload(200, 200))
+    make_listing("no-gain", upload(40, 40, fmt="PNG"))
+    make_listing("gone", "staff_photos/nope.jpg")
+    make_listing("bogus", "staff_photos/bogus.jpg")
+    default_storage.save("staff_photos/bogus.jpg", ContentFile(b"not an image"))
+    Photo.objects.create(name="Screenshot", image=upload(3000, 2000, fmt="PNG"))
+    Photo.objects.create(name="Animation", image=upload(900, 600, fmt="GIF"))
+
+
+EXPECTED = {
+    "2 would rewrite": "the oversized JPEG and the oversized PNG",
+    "1 already the right size": "the in-spec JPEG",
+    "1 format left as is": "the GIF",
+    "1 no smaller re-encoded": "the tiny PNG",
+    "1 file missing": "the row pointing at nothing",
+    "1 unreadable": "the file that is not an image",
+}
+
+
+@pytest.mark.django_db
+def test_dry_run_reports_every_outcome():
+    """The breakdown accounts for every stored image, not just the rewritten ones."""
+    seed_every_outcome()
+
+    report = shrink("--dry-run")
+
+    for line, description in EXPECTED.items():
+        assert line in report, f"missing {description}: {line}"
+
+
+@pytest.mark.django_db
+def test_real_run_counts_match_the_dry_run():
+    """The two paths classify identically, so they cannot drift."""
+    seed_every_outcome()
+
+    report = shrink()
+
+    for line in EXPECTED:
+        assert line.replace("would rewrite", "rewritten") in report
+
+
+@pytest.mark.django_db
+def test_breakdown_explains_a_second_run():
+    """After a real run the images are accounted for as already the right size."""
+    make_listing("oversized", upload(1600, 1200))
+    shrink()
+
+    report = shrink()
+
+    assert "1 already the right size" in report
+    assert "Nothing left to rewrite" in report
