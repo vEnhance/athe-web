@@ -23,9 +23,9 @@ def course() -> Course:
 
 
 @pytest.fixture
-def leader_client(course: Course, staff_listing_for) -> Client:
+def leader_client(course: Course, make_staff_listing) -> Client:
     user = User.objects.create_user(username="leader", password="password")
-    course.instructor = staff_listing_for(user)
+    course.instructor = make_staff_listing(user)
     course.save()
     client = Client()
     client.login(username="leader", password="password")

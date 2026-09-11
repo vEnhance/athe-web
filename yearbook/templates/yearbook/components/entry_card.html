@@ -2,7 +2,8 @@
 {# Shared with the dashboard, which shows the reader their own entry.   #}
 {# Pass card_link to make the whole card a link to that URL, and stretch #}
 {# to fill its column when the card sits in a grid of equal-height ones. #}
-<div class="card yearbook-card {% if stretch %}h-100{% endif %}">
+<div class="card yearbook-card {% if stretch %}h-100{% endif %}"
+     data-testid="yearbook-card">
     <div class="card-body">
         <h4 class="card-title">
             {% if card_link %}
