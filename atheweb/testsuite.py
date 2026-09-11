@@ -30,7 +30,7 @@ def testids(response: HttpResponse) -> list[str]:
 
 
 class _TestIdText(HTMLParser):
-    """Collects the text inside the element carrying a given ``data-testid``."""
+    """Collects the text inside each element carrying a given ``data-testid``."""
 
     def __init__(self, testid: str) -> None:
         super().__init__()
@@ -38,6 +38,7 @@ class _TestIdText(HTMLParser):
         self.tag = ""
         self.depth = 0
         self.parts: list[str] = []
+        self.found: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         if self.depth:
@@ -46,18 +47,21 @@ class _TestIdText(HTMLParser):
         elif dict(attrs).get("data-testid") == self.testid:
             self.tag = tag
             self.depth = 1
+            self.parts = []
 
     def handle_endtag(self, tag: str) -> None:
         if self.depth and tag == self.tag:
             self.depth -= 1
+            if not self.depth:
+                self.found.append(" ".join("".join(self.parts).split()))
 
     def handle_data(self, data: str) -> None:
         if self.depth:
             self.parts.append(data)
 
 
-def text_of(response: HttpResponse, testid: str) -> str:
-    """The visible text inside one ``data-testid``, whitespace collapsed.
+def texts_of(response: HttpResponse, testid: str) -> list[str]:
+    """The visible text inside each element with this ``data-testid``.
 
     For the values a page prints -- a point total, a name, a date -- when they
     are not already sitting in the context. Scoping to one element is what
@@ -66,8 +70,14 @@ def text_of(response: HttpResponse, testid: str) -> str:
     """
     parser = _TestIdText(testid)
     parser.feed(response.content.decode())
-    assert parser.tag, f"no element with data-testid={testid!r}"
-    return " ".join("".join(parser.parts).split())
+    return parser.found
+
+
+def text_of(response: HttpResponse, testid: str) -> str:
+    """``texts_of`` where the page is supposed to have exactly one of them."""
+    found = texts_of(response, testid)
+    assert len(found) == 1, f"{testid} appears {len(found)} times, expected one"
+    return found[0]
 
 
 class AtheClient:
@@ -151,6 +161,9 @@ class AtheClient:
 
     def text_of(self, response: HttpResponse, testid: str) -> str:
         return text_of(response, testid)
+
+    def texts_of(self, response: HttpResponse, testid: str) -> list[str]:
+        return texts_of(response, testid)
 
     def assert_testid(self, response: HttpResponse, *wanted: str) -> None:
         present = testids(response)

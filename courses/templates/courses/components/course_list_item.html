@@ -1,4 +1,4 @@
-<div class="list-group-item">
+<div class="list-group-item" data-testid="course-list-item">
     <div class="d-flex w-100 justify-content-between align-items-start">
         <div>
             <h5 class="fw-bold mb-1">
@@ -21,24 +21,28 @@
                       action="{% url 'courses:drop_club' pk=course.pk %}"
                       onsubmit="return confirm('Are you sure you want to drop {{ course.name }}?');">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-link p-0">Drop</button>
+                    <button type="submit" class="btn btn-link p-0" data-testid="course-drop">Drop</button>
                 </form>
             {% elif action == "join" %}
                 <form method="post" action="{% url 'courses:join_club' pk=course.pk %}">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-link p-0">Join</button>
+                    <button type="submit" class="btn btn-link p-0" data-testid="course-join">Join</button>
                 </form>
             {% elif action == "unsubscribe" %}
                 <form method="post"
                       action="{% url 'courses:unsubscribe_course' pk=course.pk %}">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-link p-0">Unsubscribe</button>
+                    <button type="submit"
+                            class="btn btn-link p-0"
+                            data-testid="course-unsubscribe">Unsubscribe</button>
                 </form>
             {% elif action == "subscribe" %}
                 <form method="post"
                       action="{% url 'courses:subscribe_course' pk=course.pk %}">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-link p-0">Subscribe</button>
+                    <button type="submit"
+                            class="btn btn-link p-0"
+                            data-testid="course-subscribe">Subscribe</button>
                 </form>
             {% endif %}
         </div>

@@ -27,7 +27,7 @@
             </select>
         </div>
         {% if error %}
-            <div class="alert alert-warning">{{ error }}</div>
+            <div class="alert alert-warning" data-testid="schedule-error">{{ error }}</div>
         {% else %}
             <div class="mb-3">
                 Sort by:

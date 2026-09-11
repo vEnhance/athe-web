@@ -1,360 +1,196 @@
+from collections.abc import Callable
 from datetime import timedelta
 
 import pytest
 from django.contrib.auth.models import User
-from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
+from atheweb.testsuite import AtheClient
 from courses.models import Course, Semester, Student
 
+SEMESTER_LIST = reverse("courses:semester_list")
 
-@pytest.mark.django_db
-def test_semester_list_hides_invisible_from_non_staff():
-    """Test that non-staff users cannot see invisible semesters in the semester list."""
-    client = Client()
-    User.objects.create_user(username="student", password="password")
 
-    # Create visible and invisible semesters
-    visible_semester = Semester.objects.create(
-        name="Visible Semester",
-        slug="visible",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-        visible=True,
-    )
-    invisible_semester = Semester.objects.create(
+def course_list_url(semester: Semester) -> str:
+    return reverse("courses:course_list", kwargs={"slug": semester.slug})
+
+
+@pytest.fixture
+def invisible(make_semester: Callable[..., Semester]) -> Semester:
+    today = timezone.localdate()
+    return make_semester(
         name="Invisible Semester",
-        slug="invisible",
-        start_date=(timezone.now() + timedelta(days=120)).date(),
-        end_date=(timezone.now() + timedelta(days=210)).date(),
+        start_date=today + timedelta(days=120),
+        end_date=today + timedelta(days=210),
         visible=False,
     )
 
-    client.login(username="student", password="password")
-    url = reverse("courses:semester_list")
-    response = client.get(url)
 
-    content = response.content.decode()
-    assert "Visible Semester" in content
-    assert "Invisible Semester" not in content
+@pytest.mark.django_db
+def test_semester_list_hides_invisible_from_non_staff(
+    athe: AtheClient,
+    semester: Semester,
+    invisible: Semester,
+    make_user: Callable[..., User],
+):
+    athe.login(make_user())
+    response = athe.get_ok(SEMESTER_LIST)
 
-    # Verify the context
-    semesters = response.context["semesters"]
-    semester_names = [s.name for s in semesters]
-    assert visible_semester.name in semester_names
-    assert invisible_semester.name not in semester_names
+    assert [s.name for s in response.context["semesters"]] == [semester.name]
 
 
 @pytest.mark.django_db
-def test_semester_list_shows_all_to_staff():
-    """Test that staff users can see all semesters including invisible ones."""
-    client = Client()
-    User.objects.create_user(username="staff", password="password", is_staff=True)
+def test_semester_list_shows_all_to_staff(
+    athe: AtheClient,
+    semester: Semester,
+    invisible: Semester,
+    make_user: Callable[..., User],
+):
+    athe.login(make_user(username="staff", is_staff=True))
+    response = athe.get_ok(SEMESTER_LIST)
 
-    # Create visible and invisible semesters
-    visible_semester = Semester.objects.create(
-        name="Visible Semester",
-        slug="visible",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-        visible=True,
-    )
-    invisible_semester = Semester.objects.create(
-        name="Invisible Semester",
-        slug="invisible",
-        start_date=(timezone.now() + timedelta(days=120)).date(),
-        end_date=(timezone.now() + timedelta(days=210)).date(),
-        visible=False,
-    )
-
-    client.login(username="staff", password="password")
-    url = reverse("courses:semester_list")
-    response = client.get(url)
-
-    content = response.content.decode()
-    assert "Visible Semester" in content
-    assert "Invisible Semester" in content
-
-    # Verify the context
-    semesters = response.context["semesters"]
-    semester_names = [s.name for s in semesters]
-    assert visible_semester.name in semester_names
-    assert invisible_semester.name in semester_names
+    assert {s.name for s in response.context["semesters"]} == {
+        semester.name,
+        invisible.name,
+    }
 
 
 @pytest.mark.django_db
-def test_course_list_invisible_semester_non_staff_404():
-    """Test that non-staff users get 404 when accessing course list for invisible semester."""
-    client = Client()
-    User.objects.create_user(username="student", password="password")
-
-    # Create an invisible semester
-    invisible_semester = Semester.objects.create(
-        name="Invisible Semester",
-        slug="invisible",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-        visible=False,
-    )
-
-    client.login(username="student", password="password")
-    url = reverse("courses:course_list", kwargs={"slug": invisible_semester.slug})
-    response = client.get(url)
-
-    assert response.status_code == 404
+def test_course_list_invisible_semester_non_staff_404(
+    athe: AtheClient, invisible: Semester, make_user: Callable[..., User]
+):
+    athe.login(make_user())
+    assert athe.get(course_list_url(invisible)).status_code == 404
 
 
 @pytest.mark.django_db
-def test_course_list_invisible_semester_staff_access():
-    """Test that staff users can access course list for invisible semesters."""
-    client = Client()
-    User.objects.create_user(username="staff", password="password", is_staff=True)
+def test_course_list_invisible_semester_staff_access(
+    athe: AtheClient,
+    invisible: Semester,
+    make_user: Callable[..., User],
+    make_course: Callable[..., Course],
+):
+    course = make_course(invisible, name="Test Course")
 
-    # Create an invisible semester with a course
-    invisible_semester = Semester.objects.create(
-        name="Invisible Semester",
-        slug="invisible",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-        visible=False,
-    )
-    Course.objects.create(
-        name="Test Course",
-        description="Test",
-        semester=invisible_semester,
-        is_club=False,
-    )
+    athe.login(make_user(username="staff", is_staff=True))
+    response = athe.get_ok(course_list_url(invisible))
 
-    client.login(username="staff", password="password")
-    url = reverse("courses:course_list", kwargs={"slug": invisible_semester.slug})
-    response = client.get(url)
-
-    assert response.status_code == 200
-    assert "Test Course" in response.content.decode()
+    assert list(response.context["courses"]) == [course]
 
 
 @pytest.mark.django_db
-def test_course_detail_invisible_semester_non_staff_denied():
-    """Test that non-staff users cannot access courses in invisible semesters."""
-    client = Client()
-    user = User.objects.create_user(username="student", password="password")
+def test_course_detail_invisible_semester_non_staff_denied(
+    athe: AtheClient,
+    invisible: Semester,
+    make_user: Callable[..., User],
+    make_student: Callable[..., Student],
+    make_course: Callable[..., Course],
+):
+    """Enrolment is not enough: a semester kept back is kept back from its own
+    students too."""
+    user = make_user()
+    course = make_course(invisible)
+    course.students.add(make_student(invisible, user=user))
 
-    # Create an invisible semester
-    invisible_semester = Semester.objects.create(
-        name="Invisible Semester",
-        slug="invisible",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-        visible=False,
-    )
-
-    # Create a course and enroll the student
-    course = Course.objects.create(
-        name="Test Course",
-        description="Test",
-        semester=invisible_semester,
-        is_club=False,
-    )
-    student = Student.objects.create(user=user, semester=invisible_semester)
-    course.students.add(student)
-
-    client.login(username="student", password="password")
+    athe.login(user)
     url = reverse("courses:course_detail", kwargs={"pk": course.pk})
-    response = client.get(url)
-
-    # Should get 403 even though student is enrolled
-    assert response.status_code == 403
+    assert athe.get(url).status_code == 403
 
 
 @pytest.mark.django_db
-def test_course_detail_invisible_semester_staff_access():
-    """Test that staff users can access courses in invisible semesters."""
-    client = Client()
-    User.objects.create_user(username="staff", password="password", is_staff=True)
+def test_course_detail_invisible_semester_staff_access(
+    athe: AtheClient,
+    invisible: Semester,
+    make_user: Callable[..., User],
+    make_course: Callable[..., Course],
+):
+    course = make_course(invisible)
 
-    # Create an invisible semester
-    invisible_semester = Semester.objects.create(
-        name="Invisible Semester",
-        slug="invisible",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-        visible=False,
-    )
-
-    # Create a course
-    course = Course.objects.create(
-        name="Test Course",
-        description="Test",
-        semester=invisible_semester,
-        is_club=False,
-    )
-
-    client.login(username="staff", password="password")
-    url = reverse("courses:course_detail", kwargs={"pk": course.pk})
-    response = client.get(url)
-
-    assert response.status_code == 200
+    athe.login(make_user(username="staff", is_staff=True))
+    athe.get_ok(reverse("courses:course_detail", kwargs={"pk": course.pk}))
 
 
 @pytest.mark.django_db
-def test_catalog_root_skips_invisible_for_non_staff():
-    """Test that catalog root redirects to the most recent visible semester for non-staff."""
-    client = Client()
-    User.objects.create_user(username="student", password="password")
+def test_catalog_root_skips_invisible_for_non_staff(
+    athe: AtheClient,
+    past_semester: Semester,
+    make_semester: Callable[..., Semester],
+    make_user: Callable[..., User],
+):
+    make_semester(name="Newer Invisible", visible=False)
 
-    # Create semesters (most recent is invisible)
-    older_visible = Semester.objects.create(
+    athe.login(make_user())
+    athe.get_redirects(course_list_url(past_semester), reverse("courses:catalog_root"))
+
+
+@pytest.mark.django_db
+def test_catalog_root_includes_invisible_for_staff(
+    athe: AtheClient,
+    past_semester: Semester,
+    make_semester: Callable[..., Semester],
+    make_user: Callable[..., User],
+):
+    newer = make_semester(name="Newer Invisible", visible=False)
+
+    athe.login(make_user(username="staff", is_staff=True))
+    athe.get_redirects(course_list_url(newer), reverse("courses:catalog_root"))
+
+
+@pytest.fixture
+def three_semesters(
+    make_semester: Callable[..., Semester],
+) -> tuple[Semester, Semester, Semester]:
+    """Visible, invisible, visible, in chronological order."""
+    today = timezone.localdate()
+    older = make_semester(
         name="Older Visible",
-        slug="older",
-        start_date=(timezone.now() - timedelta(days=120)).date(),
-        end_date=(timezone.now() - timedelta(days=30)).date(),
-        visible=True,
+        start_date=today - timedelta(days=200),
+        end_date=today - timedelta(days=110),
     )
-    Semester.objects.create(
-        name="Newer Invisible",
-        slug="newer",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-        visible=False,
-    )
-
-    client.login(username="student", password="password")
-    url = reverse("courses:catalog_root")
-    response = client.get(url)
-
-    # Should redirect to the older visible semester
-    assert response.status_code == 302
-    assert response.url == reverse(
-        "courses:course_list", kwargs={"slug": older_visible.slug}
-    )
-
-
-@pytest.mark.django_db
-def test_catalog_root_includes_invisible_for_staff():
-    """Test that catalog root redirects to the most recent semester (even if invisible) for staff."""
-    client = Client()
-    User.objects.create_user(username="staff", password="password", is_staff=True)
-
-    # Create semesters (most recent is invisible)
-    Semester.objects.create(
-        name="Older Visible",
-        slug="older",
-        start_date=(timezone.now() - timedelta(days=120)).date(),
-        end_date=(timezone.now() - timedelta(days=30)).date(),
-        visible=True,
-    )
-    newer_invisible = Semester.objects.create(
-        name="Newer Invisible",
-        slug="newer",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-        visible=False,
-    )
-
-    client.login(username="staff", password="password")
-    url = reverse("courses:catalog_root")
-    response = client.get(url)
-
-    # Should redirect to the newer invisible semester
-    assert response.status_code == 302
-    assert response.url == reverse(
-        "courses:course_list", kwargs={"slug": newer_invisible.slug}
-    )
-
-
-@pytest.mark.django_db
-def test_course_list_navigation_skips_invisible_for_non_staff():
-    """Test that previous/next semester navigation skips invisible semesters for non-staff."""
-    client = Client()
-    User.objects.create_user(username="student", password="password")
-
-    # Create three semesters: visible, invisible, visible
-    older_visible = Semester.objects.create(
-        name="Older Visible",
-        slug="older",
-        start_date=(timezone.now() - timedelta(days=200)).date(),
-        end_date=(timezone.now() - timedelta(days=110)).date(),
-        visible=True,
-    )
-    # Create middle invisible semester (not used directly, but necessary for test)
-    Semester.objects.create(
+    middle = make_semester(
         name="Middle Invisible",
-        slug="middle",
-        start_date=(timezone.now() - timedelta(days=100)).date(),
-        end_date=(timezone.now() - timedelta(days=10)).date(),
+        start_date=today - timedelta(days=100),
+        end_date=today - timedelta(days=10),
         visible=False,
     )
-    newer_visible = Semester.objects.create(
-        name="Newer Visible",
-        slug="newer",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-        visible=True,
-    )
+    newer = make_semester(name="Newer Visible")
+    return older, middle, newer
 
-    client.login(username="student", password="password")
 
-    # Access the newer visible semester
-    url = reverse("courses:course_list", kwargs={"slug": newer_visible.slug})
-    response = client.get(url)
+@pytest.mark.django_db
+def test_course_list_navigation_skips_invisible_for_non_staff(
+    athe: AtheClient,
+    three_semesters: tuple[Semester, Semester, Semester],
+    make_user: Callable[..., User],
+):
+    older, _, newer = three_semesters
 
-    # Previous semester should skip the invisible one and go to older visible
-    assert response.context["prev_semester"] == older_visible
+    athe.login(make_user())
+
+    response = athe.get_ok(course_list_url(newer))
+    assert response.context["prev_semester"] == older
     assert response.context["next_semester"] is None
 
-    # Access the older visible semester
-    url = reverse("courses:course_list", kwargs={"slug": older_visible.slug})
-    response = client.get(url)
-
-    # Next semester should skip the invisible one and go to newer visible
+    response = athe.get_ok(course_list_url(older))
     assert response.context["prev_semester"] is None
-    assert response.context["next_semester"] == newer_visible
+    assert response.context["next_semester"] == newer
 
 
 @pytest.mark.django_db
-def test_course_list_navigation_includes_invisible_for_staff():
-    """Test that previous/next semester navigation includes invisible semesters for staff."""
-    client = Client()
-    User.objects.create_user(username="staff", password="password", is_staff=True)
+def test_course_list_navigation_includes_invisible_for_staff(
+    athe: AtheClient,
+    three_semesters: tuple[Semester, Semester, Semester],
+    make_user: Callable[..., User],
+):
+    older, middle, newer = three_semesters
 
-    # Create three semesters: visible, invisible, visible
-    older_visible = Semester.objects.create(
-        name="Older Visible",
-        slug="older",
-        start_date=(timezone.now() - timedelta(days=200)).date(),
-        end_date=(timezone.now() - timedelta(days=110)).date(),
-        visible=True,
-    )
-    middle_invisible = Semester.objects.create(
-        name="Middle Invisible",
-        slug="middle",
-        start_date=(timezone.now() - timedelta(days=100)).date(),
-        end_date=(timezone.now() - timedelta(days=10)).date(),
-        visible=False,
-    )
-    newer_visible = Semester.objects.create(
-        name="Newer Visible",
-        slug="newer",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-        visible=True,
-    )
+    athe.login(make_user(username="staff", is_staff=True))
 
-    client.login(username="staff", password="password")
-
-    # Access the newer visible semester
-    url = reverse("courses:course_list", kwargs={"slug": newer_visible.slug})
-    response = client.get(url)
-
-    # Previous semester should include the invisible one
-    assert response.context["prev_semester"] == middle_invisible
+    response = athe.get_ok(course_list_url(newer))
+    assert response.context["prev_semester"] == middle
     assert response.context["next_semester"] is None
 
-    # Access the middle invisible semester
-    url = reverse("courses:course_list", kwargs={"slug": middle_invisible.slug})
-    response = client.get(url)
-
-    # Should see both neighbors
-    assert response.context["prev_semester"] == older_visible
-    assert response.context["next_semester"] == newer_visible
+    response = athe.get_ok(course_list_url(middle))
+    assert response.context["prev_semester"] == older
+    assert response.context["next_semester"] == newer

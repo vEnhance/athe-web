@@ -19,7 +19,8 @@
             <div class="course-text">
                 <div class="course-ds course-ds-detail">
                     {% if course.instructor.photo %}
-                        <div class="course-instructor-aside">
+                        <div class="course-instructor-aside"
+                             data-testid="course-instructor-aside">
                             <img src="{{ course.instructor.photo.url }}"
                                  alt="{{ course.instructor.display_name }}"
                                  class="course-detail-instructor-photo">
@@ -33,7 +34,8 @@
             <div>{{ course.description|linebreaks }}</div>
             {% if is_leader %}
                 <p class="fs-6">
-                    <a href="{% url 'courses:course_update' pk=course.pk %}">Edit Course</a>
+                    <a data-testid="course-edit"
+                       href="{% url 'courses:course_update' pk=course.pk %}">Edit Course</a>
                     {% if request.user.is_superuser %}
                         •
                         <a href="{% url 'admin:courses_course_change' course.pk %}">Open in Django Admin</a>
@@ -45,7 +47,8 @@
                 Schedule
                 {% if is_leader %}
                     <a href="{% url 'courses:manage_meetings' pk=course.pk %}"
-                       class="btn btn-sm btn-primary ms-2">Manage Meetings</a>
+                       class="btn btn-sm btn-primary ms-2"
+                       data-testid="course-manage-meetings">Manage Meetings</a>
                 {% endif %}
             </h2>
             {% if meetings %}
@@ -59,7 +62,8 @@
                     </thead>
                     <tbody>
                         {% for meeting in meetings %}
-                            <tr {% if meeting == next_meeting %}class="table-danger fw-bold"{% endif %}>
+                            <tr data-testid="course-meeting-row"
+                                {% if meeting == next_meeting %}class="table-danger fw-bold"{% endif %}>
                                 <td>{{ forloop.counter }}</td>
                                 <td>{{ meeting.start_time|local_datetime }}</td>
                                 <td>
@@ -74,12 +78,12 @@
                     </tbody>
                 </table>
             {% else %}
-                <p class="text-muted">No meetings scheduled.</p>
+                <p class="text-muted" data-testid="course-no-meetings">No meetings scheduled.</p>
             {% endif %}
             <h2 class="mt-4">Members</h2>
             {% if members %}
                 <ul>
-                    {% for student in members %}<li>{{ student }}</li>{% endfor %}
+                    {% for student in members %}<li data-testid="course-member">{{ student }}</li>{% endfor %}
                 </ul>
             {% else %}
                 <p class="text-muted">No members enrolled yet.</p>

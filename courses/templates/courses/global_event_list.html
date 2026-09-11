@@ -21,7 +21,8 @@
                 </thead>
                 <tbody>
                     {% for event in events %}
-                        <tr {% if event.start_time < now %}class="text-muted"{% endif %}>
+                        <tr data-testid="global-event-row"
+                            {% if event.start_time < now %}class="text-muted"{% endif %}>
                             <td>
                                 <a href="{{ event.get_absolute_url }}">{{ event.title }}</a>
                                 {% if event.start_time < now %}<span class="badge bg-secondary ms-1">Past</span>{% endif %}
@@ -34,7 +35,7 @@
                 </tbody>
             </table>
         {% else %}
-            <p>No global events are scheduled this semester.</p>
+            <p data-testid="global-events-empty">No global events are scheduled this semester.</p>
         {% endif %}
     </div>
 {% endblock content %}
