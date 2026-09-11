@@ -11,13 +11,16 @@
                     <div class="card-body">
                         <h1 class="card-title mb-4 text-danger">Invite Link Expired</h1>
                         {% if reason == "expired" %}
-                            <p class="lead">This invite link has expired and can no longer be used.</p>
+                            <p class="lead"
+                               data-testid="invite-expired">This invite link has expired and can no longer be used.</p>
                             <p>
                                 The invite link for <strong>{{ invite.semester }}</strong> expired on
                                 <strong>{{ invite.expiration_date|local_datetime }}</strong>.
                             </p>
                         {% elif reason == "semester_ended" %}
-                            <p class="lead">This invite link is no longer valid because the semester has ended.</p>
+                            <p class="lead" data-testid="invite-semester-ended">
+                                This invite link is no longer valid because the semester has ended.
+                            </p>
                             <p>
                                 The semester <strong>{{ invite.semester }}</strong> ended on
                                 <strong>{{ invite.semester.end_date|date:"F j, Y" }}</strong>.

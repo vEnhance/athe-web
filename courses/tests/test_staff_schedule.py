@@ -1,230 +1,143 @@
+from collections.abc import Callable
 from datetime import timedelta
 
 import pytest
 from django.contrib.auth.models import User
-from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
+from atheweb.testsuite import AtheClient
 from courses.models import Course, CourseMeeting, Semester
 
+SCHEDULE = reverse("courses:staff_schedule")
 
-def make_semester(*, active: bool = True) -> Semester:
-    today = timezone.now().date()
-    if active:
-        start, end = today - timedelta(days=30), today + timedelta(days=60)
-    else:
-        start, end = today - timedelta(days=120), today - timedelta(days=30)
-    return Semester.objects.create(
-        name="Test Semester",
-        slug="test-sem",
-        start_date=start,
-        end_date=end,
+
+@pytest.fixture
+def staff(athe: AtheClient, make_user: Callable[..., User]) -> User:
+    return athe.login(make_user(username="staff", is_staff=True))
+
+
+def meeting(course: Course, days: int, title: str = "") -> CourseMeeting:
+    return CourseMeeting.objects.create(
+        course=course, start_time=timezone.now() + timedelta(days=days), title=title
     )
 
 
-@pytest.fixture()
-def staff_client():
-    user = User.objects.create_user(username="staff", password="pw", is_staff=True)
-    c = Client()
-    c.login(username="staff", password="pw")
-    return c, user
-
-
-@pytest.fixture()
-def plain_client():
-    User.objects.create_user(username="student", password="pw")
-    c = Client()
-    c.login(username="student", password="pw")
-    return c
-
-
-# ── access control ────────────────────────────────────────────────────────────
+@pytest.mark.django_db
+def test_non_staff_redirected(
+    athe: AtheClient, semester: Semester, make_user: Callable[..., User]
+):
+    athe.login(make_user())
+    athe.get_redirects(reverse("courses:catalog_root"), SCHEDULE)
 
 
 @pytest.mark.django_db
-def test_non_staff_redirected(plain_client):
-    make_semester()
-    url = reverse("courses:staff_schedule")
-    response = plain_client.get(url)
-    assert response.status_code == 302
+def test_unauthenticated_redirected(athe: AtheClient, semester: Semester):
+    assert athe.get(SCHEDULE).status_code == 302
 
 
 @pytest.mark.django_db
-def test_unauthenticated_redirected():
-    make_semester()
-    url = reverse("courses:staff_schedule")
-    response = Client().get(url)
-    assert response.status_code == 302
+def test_staff_schedule_defaults_to_the_current_semester(
+    athe: AtheClient, semester: Semester, staff: User
+):
+    response = athe.get_ok(SCHEDULE)
+
+    assert response.context["semester"] == semester
 
 
 @pytest.mark.django_db
-def test_staff_can_access(staff_client):
-    make_semester()
-    client, _ = staff_client
-    url = reverse("courses:staff_schedule")
-    response = client.get(url)
-    assert response.status_code == 200
+def test_no_current_semester_shows_error(
+    athe: AtheClient, past_semester: Semester, staff: User
+):
+    """Only an ended semester on the books, so there is nothing to default to."""
+    response = athe.get_ok(SCHEDULE)
 
-
-# ── no active semester ────────────────────────────────────────────────────────
-
-
-@pytest.mark.django_db
-def test_no_current_semester_shows_error(staff_client):
-    # Only a semester that has ended, so there is no current one to default to
-    make_semester(active=False)
-    client, _ = staff_client
-    url = reverse("courses:staff_schedule")
-    response = client.get(url)
-    assert response.status_code == 200
-    assert b"no current semester" in response.content.lower()
-
-
-# ── slug-based URL ────────────────────────────────────────────────────────────
+    athe.assert_testid(response, "schedule-error")
+    assert response.context["all_semesters"] == [past_semester]
 
 
 @pytest.mark.django_db
-def test_slug_url_shows_correct_semester(staff_client):
-    sem = make_semester(active=False)
-    client, _ = staff_client
-    url = reverse("courses:staff_schedule_semester", kwargs={"slug": sem.slug})
-    response = client.get(url)
-    assert response.status_code == 200
-    assert sem.name.encode() in response.content
+def test_slug_url_shows_correct_semester(
+    athe: AtheClient, past_semester: Semester, staff: User
+):
+    url = reverse(
+        "courses:staff_schedule_semester", kwargs={"slug": past_semester.slug}
+    )
+    response = athe.get_ok(url)
+
+    assert response.context["semester"] == past_semester
 
 
 @pytest.mark.django_db
-def test_slug_url_404_for_unknown_slug(staff_client):
-    client, _ = staff_client
+def test_slug_url_404_for_unknown_slug(athe: AtheClient, staff: User):
     url = reverse("courses:staff_schedule_semester", kwargs={"slug": "does-not-exist"})
-    response = client.get(url)
-    assert response.status_code == 404
-
-
-# ── meeting data ──────────────────────────────────────────────────────────────
+    assert athe.get(url).status_code == 404
 
 
 @pytest.mark.django_db
-def test_class_meetings_appear(staff_client):
-    sem = make_semester()
-    course = Course.objects.create(
-        name="Algebra", description="", semester=sem, is_club=False
-    )
-    CourseMeeting.objects.create(
-        course=course, start_time=timezone.now() + timedelta(days=1), title="Session 1"
-    )
-    client, _ = staff_client
-    response = client.get(reverse("courses:staff_schedule"))
-    assert b"Algebra" in response.content
-    assert b"Session 1" in response.content
-
-
-@pytest.mark.django_db
-def test_club_meetings_appear(staff_client):
-    sem = make_semester()
-    club = Course.objects.create(
-        name="Chess Club", description="", semester=sem, is_club=True
-    )
-    CourseMeeting.objects.create(
-        course=club, start_time=timezone.now() + timedelta(days=1), title="Match Day"
-    )
-    client, _ = staff_client
-    response = client.get(reverse("courses:staff_schedule"))
-    assert b"Chess Club" in response.content
-    assert b"Match Day" in response.content
-
-
-@pytest.mark.django_db
-def test_class_and_club_meetings_are_separated(staff_client):
+def test_class_and_club_meetings_are_separated(
+    athe: AtheClient,
+    semester: Semester,
+    staff: User,
+    make_course: Callable[..., Course],
+):
     """Meetings for classes and clubs don't bleed into each other's tables."""
-    sem = make_semester()
-    course = Course.objects.create(
-        name="Biology", description="", semester=sem, is_club=False
-    )
-    club = Course.objects.create(
-        name="Art Club", description="", semester=sem, is_club=True
-    )
-    CourseMeeting.objects.create(
-        course=course, start_time=timezone.now() + timedelta(days=1)
-    )
-    CourseMeeting.objects.create(
-        course=club, start_time=timezone.now() + timedelta(days=2)
-    )
-    client, _ = staff_client
-    response = client.get(reverse("courses:staff_schedule"))
-    ctx = response.context
-    class_course_ids = {m.course_id for m in ctx["class_meetings"]}
-    club_course_ids = {m.course_id for m in ctx["club_meetings"]}
-    assert course.pk in class_course_ids
-    assert club.pk not in class_course_ids
-    assert club.pk in club_course_ids
-    assert course.pk not in club_course_ids
+    biology = make_course(semester, name="Biology")
+    art_club = make_course(semester, name="Art Club", is_club=True)
+    class_meeting = meeting(biology, 1, "Session 1")
+    club_meeting = meeting(art_club, 2, "Match Day")
 
+    response = athe.get_ok(SCHEDULE)
 
-# ── courses without meetings ──────────────────────────────────────────────────
+    assert response.context["class_meetings"] == [class_meeting]
+    assert response.context["club_meetings"] == [club_meeting]
 
 
 @pytest.mark.django_db
-def test_course_without_meetings_listed(staff_client):
-    sem = make_semester()
-    Course.objects.create(
-        name="Empty Class", description="", semester=sem, is_club=False
-    )
-    client, _ = staff_client
-    response = client.get(reverse("courses:staff_schedule"))
-    assert b"Empty Class" in response.content
-    ctx = response.context
-    assert any(c.name == "Empty Class" for c in ctx["classes_without_meetings"])
+def test_courses_without_meetings_are_listed_separately(
+    athe: AtheClient,
+    semester: Semester,
+    staff: User,
+    make_course: Callable[..., Course],
+):
+    """An empty class is the one worth chasing, so it gets its own list."""
+    empty = make_course(semester, name="Empty Class")
+    full = make_course(semester, name="Full Class")
+    empty_club = make_course(semester, name="Empty Club", is_club=True)
+    meeting(full, 1)
+
+    response = athe.get_ok(SCHEDULE)
+
+    assert response.context["classes_without_meetings"] == [empty]
+    assert response.context["clubs_without_meetings"] == [empty_club]
 
 
 @pytest.mark.django_db
-def test_course_with_meetings_not_in_without_meetings_list(staff_client):
-    sem = make_semester()
-    course = Course.objects.create(
-        name="Full Class", description="", semester=sem, is_club=False
-    )
-    CourseMeeting.objects.create(
-        course=course, start_time=timezone.now() + timedelta(days=1)
-    )
-    client, _ = staff_client
-    response = client.get(reverse("courses:staff_schedule"))
-    ctx = response.context
-    assert not any(c.name == "Full Class" for c in ctx["classes_without_meetings"])
+def test_sort_by_course(
+    athe: AtheClient,
+    semester: Semester,
+    staff: User,
+    make_course: Callable[..., Course],
+):
+    meeting(make_course(semester, name="Zebra Course"), 1)
+    meeting(make_course(semester, name="Alpha Course"), 2)
 
+    response = athe.get_ok(f"{SCHEDULE}?sort=course")
 
-# ── sorting ───────────────────────────────────────────────────────────────────
-
-
-@pytest.mark.django_db
-def test_sort_by_course(staff_client):
-    sem = make_semester()
-    c1 = Course.objects.create(name="Zebra Course", description="", semester=sem)
-    c2 = Course.objects.create(name="Alpha Course", description="", semester=sem)
-    CourseMeeting.objects.create(
-        course=c1, start_time=timezone.now() + timedelta(days=1)
-    )
-    CourseMeeting.objects.create(
-        course=c2, start_time=timezone.now() + timedelta(days=2)
-    )
-    client, _ = staff_client
-    response = client.get(reverse("courses:staff_schedule") + "?sort=course")
-    meetings = response.context["class_meetings"]
-    names = [m.course.name for m in meetings]
-    assert names == sorted(names)
+    names = [m.course.name for m in response.context["class_meetings"]]
+    assert names == ["Alpha Course", "Zebra Course"]
 
 
 @pytest.mark.django_db
-def test_sort_by_date(staff_client):
-    sem = make_semester()
-    c1 = Course.objects.create(name="Alpha Course", description="", semester=sem)
-    c2 = Course.objects.create(name="Zebra Course", description="", semester=sem)
-    t1 = timezone.now() + timedelta(days=5)
-    t2 = timezone.now() + timedelta(days=1)
-    CourseMeeting.objects.create(course=c1, start_time=t1)
-    CourseMeeting.objects.create(course=c2, start_time=t2)
-    client, _ = staff_client
-    response = client.get(reverse("courses:staff_schedule") + "?sort=date")
-    meetings = response.context["class_meetings"]
-    times = [m.start_time for m in meetings]
-    assert times == sorted(times)
+def test_sort_by_date(
+    athe: AtheClient,
+    semester: Semester,
+    staff: User,
+    make_course: Callable[..., Course],
+):
+    later = meeting(make_course(semester, name="Alpha Course"), 5)
+    sooner = meeting(make_course(semester, name="Zebra Course"), 1)
+
+    response = athe.get_ok(f"{SCHEDULE}?sort=date")
+
+    assert response.context["class_meetings"] == [sooner, later]

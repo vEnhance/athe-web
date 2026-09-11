@@ -84,7 +84,57 @@ ruff handles both linting and formatting:
 
 `make test` (or `uv run pytest`). pytest is configured via `[tool.pytest.ini_options]` in
 `pyproject.toml`. Most apps keep a `tests/` package of `test_*.py` files; shared fixtures
-live in the root `conftest.py`.
+live in the root `conftest.py`, and an app may add its own `tests/conftest.py` for
+fixtures only it wants.
+
+The `athe` fixture is a Django test client that knows who is logged in, wrapped by
+`AtheClient` in [atheweb/testsuite.py](atheweb/testsuite.py): `athe.login(user_or_username)`
+plus `get_ok`, `post_ok`, `get_redirects` and `post_redirects`, which assert the status
+so a test does not have to. The `make_user`, `make_semester`,
+`make_student`, `make_course` and `make_staff_listing` fixtures build the rows every
+app needs; anything created through `make_user` has the password `athe.login` expects.
+[dashboard/tests/test_dashboard.py](dashboard/tests/test_dashboard.py) is the worked
+example.
+
+#### What to assert on
+
+Do not assert on rendered template prose. Rewording a message should never break a
+test, and a bare substring search over the page is weak as well as brittle:
+`assert "5" in content` matches the 5 inside 15. Reach for these in order:
+
+1. **`response.context[...]`** — for what the view computed. These views already put
+   the interesting values there (`dash_classes`, `leaderboard_data`, `grand_total`,
+   `notice`, `form`), so assert on those directly.
+2. **A direct database read** — for what a POST actually wrote. Assert on the model,
+   not on the confirmation page rendered afterwards.
+3. **`athe.assert_testid(resp, "...")`** — for whether an element is visible to this
+   user, and `assert_testid_count` for how many there are. Add a `data-testid`
+   attribute to the template and assert on that, never on the surrounding wording or
+   Bootstrap classes. Add one only where a test needs it.
+4. **`athe.text_of(resp, "...")`** — for a value the page prints that is not in the
+   context, such as a house tile's total. It returns the visible text inside that one
+   element, whitespace collapsed; `texts_of` returns every match, in document order,
+   which is how to check ordering. Scoping to an element is what keeps this honest.
+
+Searching `response.content` is for the two cases where the bytes really are the
+contract:
+
+- **Leakage checks** — asserting content is *absent* from a page someone may not see.
+- **Attributes another program reads** — `loading="lazy"`, the `data-semester-end` that
+  `manage_meetings.js` reads, an `href` a test is checking points somewhere.
+
+Asserting on `messages` text is fine when the string is a fixed literal — it lives in
+`views.py` next to the code you are editing, so a reword breaks one obvious test. Do
+**not** assert on a message that interpolates a value; that couples the test to a
+model's `__str__`. Assert the state change instead, plus the level if it matters that
+the user was notified:
+
+```python
+assert any(m.level == message_levels.SUCCESS for m in resp.context["messages"])
+```
+
+Import it as `from django.contrib.messages import constants as message_levels` —
+`messages` is already a common local variable name in these files.
 
 ## Git Hooks
 

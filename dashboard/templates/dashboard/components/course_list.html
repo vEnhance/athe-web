@@ -9,7 +9,7 @@
                         {{ row.next_meeting.start_time|local_datetime:"D M j, g:i A e" }}
                         {% if row.next_meeting.title %}— {{ row.next_meeting.title }}{% endif %}
                     {% else %}
-                        No meetings scheduled
+                        <span data-testid="dash-course-unscheduled">No meetings scheduled</span>
                     {% endif %}
                 </span>
             </li>

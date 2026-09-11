@@ -1,65 +1,62 @@
+from collections.abc import Callable
 from datetime import timedelta
 
 import pytest
-from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
+from atheweb.testsuite import AtheClient
 from courses.models import Course, Semester
 
+SEMESTER_LIST = reverse("courses:semester_list")
+
 
 @pytest.mark.django_db
-def test_semester_list_counts_classes_only():
+def test_semester_list_counts_classes_only(
+    athe: AtheClient, semester: Semester, make_course: Callable[..., Course]
+):
     """The count beside a semester matches its catalog, which excludes clubs."""
-    semester = Semester.objects.create(
-        name="Fall Semester",
-        slug="fall",
-        start_date=timezone.localdate(),
-        end_date=timezone.localdate() + timedelta(days=90),
-    )
     for name in ("Algebra", "Geometry"):
-        Course.objects.create(
-            name=name, description=name, semester=semester, is_club=False
-        )
+        make_course(semester, name=name)
     for name in ("Chess Club", "Japanese Club", "Art Club"):
-        Course.objects.create(
-            name=name, description=name, semester=semester, is_club=True
-        )
+        make_course(semester, name=name, is_club=True)
 
-    response = Client().get(reverse("courses:semester_list"))
+    response = athe.get_ok(SEMESTER_LIST)
 
     assert response.context["semesters"].get().class_count == 2
-    assert "2 classes" in response.content.decode()
+    assert athe.text_of(response, "semester-class-count") == "2 classes"
 
 
 @pytest.mark.django_db
-def test_semester_list_counts_are_per_semester_and_pluralized():
+def test_semester_list_counts_are_per_semester_and_pluralized(
+    athe: AtheClient,
+    semester: Semester,
+    make_semester: Callable[..., Semester],
+    make_course: Callable[..., Course],
+):
     """A semester with one class says so, and does not borrow another's count."""
-    fall = Semester.objects.create(
-        name="Fall Semester",
-        slug="fall",
-        start_date=timezone.localdate(),
-        end_date=timezone.localdate() + timedelta(days=90),
-    )
-    spring = Semester.objects.create(
+    today = timezone.localdate()
+    spring = make_semester(
         name="Spring Semester",
-        slug="spring",
-        start_date=timezone.localdate() + timedelta(days=120),
-        end_date=timezone.localdate() + timedelta(days=210),
+        start_date=today + timedelta(days=120),
+        end_date=today + timedelta(days=210),
     )
-    Course.objects.create(
-        name="Algebra", description="Algebra", semester=fall, is_club=False
-    )
-    Course.objects.create(
-        name="Chess Club", description="Chess", semester=spring, is_club=True
-    )
+    make_course(semester, name="Algebra")
+    make_course(spring, name="Chess Club", is_club=True)
 
-    response = Client().get(reverse("courses:semester_list"))
+    response = athe.get_ok(SEMESTER_LIST)
 
     counts = {s.name: s.class_count for s in response.context["semesters"]}
-    assert counts == {"Fall Semester": 1, "Spring Semester": 0}
+    assert counts == {"Fall 2025": 1, "Spring Semester": 0}
+    assert sorted(athe.texts_of(response, "semester-class-count")) == [
+        "0 classes",
+        "1 class",
+    ]
 
-    content = response.content.decode()
-    assert "1 class" in content
-    assert "1 classes" not in content
-    assert "0 classes" in content
+
+@pytest.mark.django_db
+def test_semester_list_is_empty_before_there_are_any(athe: AtheClient):
+    response = athe.get_ok(SEMESTER_LIST)
+
+    assert list(response.context["semesters"]) == []
+    athe.assert_testid(response, "semester-list-empty")

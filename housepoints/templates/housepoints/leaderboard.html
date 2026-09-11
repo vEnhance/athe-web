@@ -30,7 +30,7 @@
                         {% endif %}
                     </div>
                     {% if is_frozen %}
-                        <div class="alert alert-info">
+                        <div class="alert alert-info" data-testid="leaderboard-freeze-notice">
                             <strong>Leaderboard frozen as of {{ freeze_date|local_datetime }}</strong>
                             <br>
                             Points awarded after this date are not shown.
@@ -52,10 +52,12 @@
                                             <td>#{{ forloop.counter }}</td>
                                             <td>
                                                 {% if student.house == entry.house and student.semester %}
-                                                    <a href="{% url 'housepoints:house_detail' slug=semester.slug house=entry.house %}">{{ entry.house_display }}</a>
+                                                    <a data-testid="leaderboard-own-house"
+                                                       href="{% url 'housepoints:house_detail' slug=semester.slug house=entry.house %}">{{ entry.house_display }}</a>
                                                     (your house)
                                                 {% elif user.is_staff %}
-                                                    <a href="{% url 'housepoints:house_detail' slug=semester.slug house=entry.house %}">{{ entry.house_display }}</a>
+                                                    <a data-testid="leaderboard-house-link"
+                                                       href="{% url 'housepoints:house_detail' slug=semester.slug house=entry.house %}">{{ entry.house_display }}</a>
                                                 {% else %}
                                                     {{ entry.house_display }}
                                                 {% endif %}
@@ -102,7 +104,7 @@
                         </ul>
                     </div>
                 {% else %}
-                    <p class="text-muted">No semesters available.</p>
+                    <p class="text-muted" data-testid="leaderboard-no-semesters">No semesters available.</p>
                 {% endif %}
             </div>
         </div>

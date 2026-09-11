@@ -18,13 +18,14 @@
                 <h1>{{ house_display }} House</h1>
                 <h3 class="text-muted mb-4">{{ semester.name }}</h3>
                 {% if is_frozen %}
-                    <div class="alert alert-info">
+                    <div class="alert alert-info" data-testid="house-freeze-notice">
                         <strong>Leaderboard frozen as of {{ freeze_date|local_datetime }}</strong>
                         <br>
                         Points awarded after this date are not shown.
                         {% if user.is_staff %}
                             Staff members can
-                            <a href="{% url 'housepoints:house_detail_staff' slug=semester.slug house=house %}">view true totals</a>.
+                            <a data-testid="house-true-totals-link"
+                               href="{% url 'housepoints:house_detail_staff' slug=semester.slug house=house %}">view true totals</a>.
                         {% endif %}
                     </div>
                 {% endif %}
@@ -54,7 +55,7 @@
                         </table>
                     </div>
                 {% else %}
-                    <p class="text-muted">No points have been awarded to this house yet.</p>
+                    <p class="text-muted" data-testid="house-empty">No points have been awarded to this house yet.</p>
                 {% endif %}
                 <div class="mt-4">
                     <a href="{% url 'housepoints:leaderboard_semester' slug=semester.slug %}"

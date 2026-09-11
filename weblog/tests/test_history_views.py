@@ -1,6 +1,7 @@
 import pytest
 from django.test import RequestFactory
 
+from atheweb.testsuite import texts_of
 from weblog.models import HistoryEntry
 from weblog.views import HistoryListView
 
@@ -38,13 +39,10 @@ def test_history_list_view_with_visible_entries():
     response = HistoryListView.as_view()(request)
 
     assert response.status_code == 200
-    assert response.context_data["history_entries"].count() == 2
+    assert list(response.context_data["history_entries"]) == [entry2, entry1]
 
-    # Render to get content
     response.render()
-    content = response.content.decode()
-    assert entry1.title in content
-    assert entry2.title in content
+    assert texts_of(response, "history-entry-title") == [entry2.title, entry1.title]
 
 
 @pytest.mark.django_db
@@ -59,7 +57,7 @@ def test_history_list_view_excludes_invisible():
         content="Visible content.",
         visible=True,
     )
-    invisible_entry = HistoryEntry.objects.create(
+    HistoryEntry.objects.create(
         title="Invisible Entry",
         slug="invisible-entry",
         content="Hidden content.",
@@ -70,14 +68,10 @@ def test_history_list_view_excludes_invisible():
     response = HistoryListView.as_view()(request)
 
     assert response.status_code == 200
-    entries = response.context_data["history_entries"]
-    assert entries.count() == 1
+    assert list(response.context_data["history_entries"]) == [visible_entry]
 
-    # Render to get content
     response.render()
-    content = response.content.decode()
-    assert visible_entry.title in content
-    assert invisible_entry.title not in content
+    assert texts_of(response, "history-entry-title") == [visible_entry.title]
 
 
 @pytest.mark.django_db

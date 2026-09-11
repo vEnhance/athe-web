@@ -6,6 +6,7 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
+from atheweb.testsuite import texts_of
 from courses.models import Course, Semester
 from ta_attendance.models import Attendance
 
@@ -97,7 +98,7 @@ def test_all_attendance_shows_all_records():
 
 @pytest.mark.django_db
 def test_all_attendance_displays_user_name():
-    """Test that all_attendance displays the user's name correctly."""
+    """The table names the TA, falling back to the username when unset."""
     client = Client()
     User.objects.create_user(username="super", password="password", is_superuser=True)
     user = User.objects.create_user(
@@ -127,5 +128,4 @@ def test_all_attendance_displays_user_name():
     url = reverse("ta_attendance:all_attendance")
     response = client.get(url)
 
-    content = response.content.decode()
-    assert "John Doe" in content
+    assert texts_of(response, "attendance-who") == ["John Doe"]

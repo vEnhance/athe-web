@@ -1,230 +1,153 @@
+from collections.abc import Callable
 from datetime import timedelta
 
 import pytest
 from django.contrib.auth.models import User
-from django.db.models import Sum
-from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
+from atheweb.testsuite import AtheClient
 from courses.models import Semester, Student
 from housepoints.models import Award
 
-# ============================================================================
-# Leaderboard View Tests
-# ============================================================================
+
+def semester_url(semester: Semester) -> str:
+    return reverse("housepoints:leaderboard_semester", kwargs={"slug": semester.slug})
+
+
+def totals(response) -> dict[str, int]:
+    return {
+        entry["house_display"]: entry["total_points"]
+        for entry in response.context["leaderboard_data"]
+    }
 
 
 @pytest.mark.django_db
-def test_leaderboard():
-    """Test that leaderboard loads even with no login."""
-    client = Client()
-    url = reverse("housepoints:leaderboard")
-    response = client.get(url)
-    assert response.status_code == 200
+def test_leaderboard_loads_for_anonymous_visitors(athe: AtheClient):
+    athe.get_ok(reverse("housepoints:leaderboard"))
 
 
 @pytest.mark.django_db
-def test_leaderboard_calculates_totals():
-    """Test that leaderboard correctly calculates house totals."""
-    client = Client()
-    User.objects.create_user(username="staff", password="password", is_staff=True)
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
+def test_leaderboard_calculates_totals(
+    athe: AtheClient,
+    semester: Semester,
+    make_user: Callable[..., User],
+    make_student: Callable[..., Student],
+    award: Callable[..., Award],
+):
+    owl = make_student(semester, house=Student.House.OWL)
+    cat = make_student(semester, house=Student.House.CAT)
+    award(semester, owl, award_type=Award.AwardType.CLASS_ATTENDANCE)
+    award(semester, owl, award_type=Award.AwardType.HOMEWORK)
+    award(semester, cat, award_type=Award.AwardType.CLASS_ATTENDANCE)
 
-    # Create students in different houses
-    user1 = User.objects.create_user(username="user1", password="password")
-    user2 = User.objects.create_user(username="user2", password="password")
-    student1 = Student.objects.create(
-        user=user1,
-        semester=semester,
-        house=Student.House.OWL,
-        airtable_name="Student 1",
-    )
-    student2 = Student.objects.create(
-        user=user2,
-        semester=semester,
-        house=Student.House.CAT,
-        airtable_name="Student 2",
-    )
+    athe.login(make_user(username="staff", is_staff=True))
+    response = athe.get_ok(semester_url(semester))
 
-    # Create awards
-    Award.objects.create(
-        semester=semester,
-        student=student1,
-        award_type=Award.AwardType.CLASS_ATTENDANCE,
-        points=5,
-    )
-    Award.objects.create(
-        semester=semester,
-        student=student1,
-        award_type=Award.AwardType.HOMEWORK,
-        points=5,
-    )
-    Award.objects.create(
-        semester=semester,
-        student=student2,
-        award_type=Award.AwardType.CLASS_ATTENDANCE,
-        points=5,
-    )
-
-    client.login(username="staff", password="password")
-    url = reverse("housepoints:leaderboard_semester", kwargs={"slug": semester.slug})
-    response = client.get(url)
-
-    content = response.content.decode()
-    assert response.status_code == 200
-    # Owls should have 10 points (5+5), Cats should have 5
-    assert "10" in content  # Owls total
-    assert "Owls" in content
-    assert "Cats" in content
+    assert totals(response)["Owls"] == 10
+    assert totals(response)["Cats"] == 5
 
 
 @pytest.mark.django_db
-def test_leaderboard_respects_freeze_date():
-    """Test that leaderboard respects the freeze date."""
-    client = Client()
-    User.objects.create_user(username="staff", password="password", is_staff=True)
+def test_leaderboard_respects_freeze_date(
+    athe: AtheClient,
+    make_semester: Callable[..., Semester],
+    make_student: Callable[..., Student],
+    award: Callable[..., Award],
+):
+    """Points awarded after the freeze are off the public leaderboard."""
+    freeze = timezone.now() - timedelta(days=1)
+    semester = make_semester(house_points_freeze_date=freeze)
+    student = make_student(semester, house=Student.House.BLOB)
+    award(semester, student, points=5, awarded_at=freeze - timedelta(hours=1))
+    award(semester, student, points=10, awarded_at=freeze + timedelta(hours=1))
 
-    freeze_time = timezone.now() - timedelta(days=1)
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=(timezone.now() - timedelta(days=30)).date(),
-        end_date=(timezone.now() + timedelta(days=60)).date(),
-        house_points_freeze_date=freeze_time,
-    )
+    response = athe.get_ok(semester_url(semester))
 
-    user = User.objects.create_user(username="user1", password="password")
-    student = Student.objects.create(
-        user=user,
-        semester=semester,
-        house=Student.House.BLOB,
-        airtable_name="Student 1",
-    )
-
-    # Create award before freeze date (should count)
-    Award.objects.create(
-        semester=semester,
-        student=student,
-        award_type=Award.AwardType.HOMEWORK,
-        points=5,
-        awarded_at=freeze_time - timedelta(hours=1),
-    )
-    # Create award after freeze date (should not count)
-    Award.objects.create(
-        semester=semester,
-        student=student,
-        award_type=Award.AwardType.HOMEWORK,
-        points=10,
-        awarded_at=freeze_time + timedelta(hours=1),
-    )
-
-    client.login(username="staff", password="password")
-    url = reverse("housepoints:leaderboard_semester", kwargs={"slug": semester.slug})
-    client.get(url)  # Trigger view to ensure it works
-
-    # Total should be 5 (not 15)
-    total = Award.objects.filter(
-        semester=semester, awarded_at__lte=freeze_time
-    ).aggregate(total=Sum("points"))["total"]
-    assert total == 5
+    assert totals(response)["Blobs"] == 5
+    assert response.context["is_frozen"] is True
+    assert response.context["freeze_date"] == freeze
+    athe.assert_testid(response, "leaderboard-freeze-notice")
 
 
 @pytest.mark.django_db
-def test_leaderboard_shows_all_houses():
-    """Test that all houses are shown even with zero points."""
-    client = Client()
-    User.objects.create_user(username="staff", password="password", is_staff=True)
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
+def test_leaderboard_shows_all_houses(athe: AtheClient, semester: Semester):
+    """Every house has a row, whether or not it has scored."""
+    response = athe.get_ok(semester_url(semester))
 
-    client.login(username="staff", password="password")
-    url = reverse("housepoints:leaderboard_semester", kwargs={"slug": semester.slug})
-    response = client.get(url)
-
-    content = response.content.decode()
-    # All houses should appear
-    assert "Blobs" in content
-    assert "Cats" in content
-    assert "Owls" in content
-    assert "Red Panda" in content
-    assert "Bunnies" in content
+    assert totals(response) == {house.label: 0 for house in Student.House}
 
 
 @pytest.mark.django_db
-def test_leaderboard_uses_current_semester_when_no_slug():
-    """Test that leaderboard uses the current active semester when no slug provided."""
-    client = Client()
-    # Create a past semester
-    Semester.objects.create(
+def test_leaderboard_uses_current_semester_when_no_slug(
+    athe: AtheClient,
+    semester: Semester,
+    make_semester: Callable[..., Semester],
+):
+    today = timezone.localdate()
+    make_semester(
         name="Spring 2025",
-        slug="sp25",
-        start_date=(timezone.now() - timedelta(days=200)).date(),
-        end_date=(timezone.now() - timedelta(days=100)).date(),
-    )
-    # Create a current semester
-    current_semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=(timezone.now() - timedelta(days=10)).date(),
-        end_date=(timezone.now() + timedelta(days=80)).date(),
+        start_date=today - timedelta(days=200),
+        end_date=today - timedelta(days=100),
     )
 
-    # Create an award in the current semester to make it appear
-    user = User.objects.create_user(username="user1", password="password")
-    student = Student.objects.create(
-        user=user,
-        semester=current_semester,
-        house=Student.House.OWL,
-        airtable_name="Student 1",
-    )
-    Award.objects.create(
-        semester=current_semester,
-        student=student,
-        award_type=Award.AwardType.HOMEWORK,
-        points=5,
-    )
+    response = athe.get_ok(reverse("housepoints:leaderboard"))
 
-    # Access the leaderboard without a slug
-    url = reverse("housepoints:leaderboard")
-    response = client.get(url)
-
-    assert response.status_code == 200
-    # Check that the current semester is used, not the past one
-    assert response.context["semester"] == current_semester
+    assert response.context["semester"] == semester
 
 
 @pytest.mark.django_db
-def test_leaderboard_falls_back_to_latest_when_no_current():
-    """Test that leaderboard falls back to latest semester when no current semester."""
-    client = Client()
-    # Create only past semesters
-    Semester.objects.create(
+def test_leaderboard_falls_back_to_latest_when_no_current(
+    athe: AtheClient, make_semester: Callable[..., Semester]
+):
+    today = timezone.localdate()
+    make_semester(
         name="Spring 2024",
-        slug="sp24",
-        start_date=(timezone.now() - timedelta(days=300)).date(),
-        end_date=(timezone.now() - timedelta(days=200)).date(),
+        start_date=today - timedelta(days=300),
+        end_date=today - timedelta(days=200),
     )
-    latest_semester = Semester.objects.create(
+    latest = make_semester(
         name="Fall 2024",
-        slug="fa24",
-        start_date=(timezone.now() - timedelta(days=150)).date(),
-        end_date=(timezone.now() - timedelta(days=50)).date(),
+        start_date=today - timedelta(days=150),
+        end_date=today - timedelta(days=50),
     )
 
-    # Access the leaderboard without a slug
-    url = reverse("housepoints:leaderboard")
-    response = client.get(url)
+    response = athe.get_ok(reverse("housepoints:leaderboard"))
 
-    assert response.status_code == 200
-    # Should use the latest semester by start_date
-    assert response.context["semester"] == latest_semester
+    assert response.context["semester"] == latest
+
+
+@pytest.mark.django_db
+def test_leaderboard_says_so_when_there_are_no_semesters(athe: AtheClient):
+    response = athe.get_ok(reverse("housepoints:leaderboard"))
+
+    assert response.context["semester"] is None
+    athe.assert_testid(response, "leaderboard-no-semesters")
+
+
+@pytest.mark.django_db
+def test_leaderboard_links_a_student_to_her_own_house_only(
+    athe: AtheClient,
+    semester: Semester,
+    make_user: Callable[..., User],
+    make_student: Callable[..., Student],
+):
+    make_student(semester, user=make_user(username="owlet"), house=Student.House.OWL)
+
+    athe.login("owlet")
+    response = athe.get_ok(semester_url(semester))
+
+    athe.assert_testid_count(response, "leaderboard-own-house", 1)
+    athe.assert_no_testid(response, "leaderboard-house-link")
+
+
+@pytest.mark.django_db
+def test_leaderboard_links_staff_into_every_house(
+    athe: AtheClient, semester: Semester, make_user: Callable[..., User]
+):
+    athe.login(make_user(username="staff", is_staff=True))
+    response = athe.get_ok(semester_url(semester))
+
+    athe.assert_testid_count(
+        response, "leaderboard-house-link", len(Student.House.choices)
+    )

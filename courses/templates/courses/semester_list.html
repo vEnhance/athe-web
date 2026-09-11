@@ -9,10 +9,10 @@
                         <a href="{% url 'courses:course_list' slug=semester.slug %}">{{ semester.name }}</a>
                     </td>
                     <td>{{ semester.start_date|date:"F jS, Y" }}—{{ semester.end_date|date:"F jS, Y" }}</td>
-                    <td>{{ semester.class_count }} class{{ semester.class_count|pluralize:"es" }}</td>
+                    <td data-testid="semester-class-count">{{ semester.class_count }} class{{ semester.class_count|pluralize:"es" }}</td>
                 </tr>
             {% empty %}
-                <p>No semesters available yet.</p>
+                <p data-testid="semester-list-empty">No semesters available yet.</p>
             {% endfor %}
         </table>
     </div>

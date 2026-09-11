@@ -45,7 +45,7 @@
                                 </div>
                                 <div class="student-checkboxes mb-4">
                                     {% for item in students %}
-                                        <div class="form-check">
+                                        <div class="form-check" data-testid="attendance-student">
                                             <input class="form-check-input student-checkbox"
                                                    type="checkbox"
                                                    name="students"
@@ -72,7 +72,7 @@
                 {% if results %}
                     <div class="mt-4">
                         {% if results.success %}
-                            <div class="card border-success mb-3">
+                            <div class="card border-success mb-3" data-testid="attendance-awarded">
                                 <div class="card-header bg-success text-white">Successfully Awarded ({{ results.success|length }})</div>
                                 <div class="card-body">
                                     <ul class="mb-0">
@@ -82,7 +82,7 @@
                             </div>
                         {% endif %}
                         {% if results.errors %}
-                            <div class="card border-danger">
+                            <div class="card border-danger" data-testid="attendance-errors">
                                 <div class="card-header bg-danger text-white">Errors ({{ results.errors|length }})</div>
                                 <div class="card-body">
                                     <ul class="mb-0">

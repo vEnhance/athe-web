@@ -145,6 +145,7 @@ def test_staff_list_defers_offscreen_photos():
         biography="Bio",
         photo=upload(60, 60),
     )
-    content = Client().get(reverse("home:staff")).content.decode()
-    assert 'class="staff-photo"' in content
-    assert 'loading="lazy"' in content
+    content = Client().get(reverse("home:staff")).content
+    assert b'class="staff-photo"' in content
+    # The attribute itself is the point: it is what makes the grid affordable.
+    assert b'loading="lazy"' in content

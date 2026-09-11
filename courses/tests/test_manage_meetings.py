@@ -1,57 +1,58 @@
+from collections.abc import Callable
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 import pytest
 from django.contrib.auth.models import User
-from django.test import Client
 from django.urls import reverse
 
+from atheweb.testsuite import AtheClient
 from courses.models import Course, CourseMeeting, Semester
 
 EASTERN = ZoneInfo("America/New_York")
 
 
 @pytest.fixture
-def course() -> Course:
-    fall = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=date(2025, 9, 1),
-        end_date=date(2025, 12, 15),
+def course(
+    make_semester: Callable[..., Semester], make_course: Callable[..., Course]
+) -> Course:
+    fall = make_semester(
+        name="Fall 2025", start_date=date(2025, 9, 1), end_date=date(2025, 12, 15)
     )
-    return Course.objects.create(name="Test Course", description="Test", semester=fall)
+    return make_course(fall, name="Test Course")
 
 
 @pytest.fixture
-def leader_client(course: Course, staff_listing_for) -> Client:
-    user = User.objects.create_user(username="leader", password="password")
-    course.instructor = staff_listing_for(user)
+def leader(
+    athe: AtheClient,
+    course: Course,
+    make_user: Callable[..., User],
+    make_staff_listing,
+) -> User:
+    user = make_user(username="leader")
+    course.instructor = make_staff_listing(user)
     course.save()
-    client = Client()
-    client.login(username="leader", password="password")
-    return client
+    return athe.login(user)
 
 
 @pytest.mark.django_db
 def test_manage_meetings_offers_recurring_generator(
-    course: Course, leader_client: Client
+    athe: AtheClient, course: Course, leader: User
 ):
     """The client-side quick-fill controls and their script are on the page."""
     url = reverse("courses:manage_meetings", kwargs={"pk": course.pk})
-    response = leader_client.get(url)
+    response = athe.get_ok(url)
 
-    assert response.status_code == 200
-    content = response.content.decode()
-    assert 'id="recurring-panel"' in content
-    assert 'id="recurring-generate-btn"' in content
-    # The generator reads the term's end date to guess how many meetings fit.
-    assert 'data-semester-end="2025-12-15"' in content
-    assert "js/manage_meetings.js" in content
+    athe.assert_testid(response, "recurring-panel", "recurring-generate")
+    # manage_meetings.js reads the term's end date off the panel to guess how
+    # many meetings fit, so the attribute itself is the contract here.
+    assert b'data-semester-end="2025-12-15"' in response.content
+    assert b"js/manage_meetings.js" in response.content
 
 
 @pytest.mark.django_db
 def test_manage_meetings_saves_a_generated_weekly_batch(
-    course: Course, leader_client: Client
+    athe: AtheClient, course: Course, leader: User
 ):
     """A batch of rows like the generator produces round-trips through the formset.
 
@@ -78,9 +79,8 @@ def test_manage_meetings_saves_a_generated_weekly_batch(
         data[f"form-{i}-title"] = f"Week {i + 1}"
 
     url = reverse("courses:manage_meetings", kwargs={"pk": course.pk})
-    response = leader_client.post(url, data)
+    athe.post_redirects(url, url, data)
 
-    assert response.status_code == 302
     meetings = list(CourseMeeting.objects.filter(course=course).order_by("start_time"))
     assert [m.title for m in meetings] == ["Week 1", "Week 2", "Week 3", "Week 4"]
     assert [m.start_time.astimezone(EASTERN) for m in meetings] == [

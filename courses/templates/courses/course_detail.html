@@ -19,7 +19,7 @@
             <div class="course-text">
                 <div class="course-ds course-ds-detail">
                     {% if course.instructor.photo %}
-                        <div class="course-instructor-aside">
+                        <div class="course-instructor-aside" data-testid="course-instructor-aside">
                             <img src="{{ course.instructor.photo.url }}"
                                  alt="{{ course.instructor.display_name }}"
                                  class="course-detail-instructor-photo">
@@ -59,7 +59,8 @@
                     </thead>
                     <tbody>
                         {% for meeting in meetings %}
-                            <tr {% if meeting == next_meeting %}class="table-danger fw-bold"{% endif %}>
+                            <tr data-testid="course-meeting-row"
+                                {% if meeting == next_meeting %}class="table-danger fw-bold"{% endif %}>
                                 <td>{{ forloop.counter }}</td>
                                 <td>{{ meeting.start_time|local_datetime }}</td>
                                 <td>

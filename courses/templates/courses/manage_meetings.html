@@ -150,6 +150,7 @@
                     {% endcomment %}
                     <div class="recurring-panel"
                          id="recurring-panel"
+                         data-testid="recurring-panel"
                          data-semester-end="{{ course.semester.end_date|date:"Y-m-d" }}"
                          data-max-meetings="52">
                         <h4>Quick fill: recurring schedule</h4>
@@ -190,6 +191,7 @@
                             <div class="form-field">
                                 <button type="button"
                                         id="recurring-generate-btn"
+                                        data-testid="recurring-generate"
                                         class="btn btn-outline-primary">Generate</button>
                             </div>
                         </div>

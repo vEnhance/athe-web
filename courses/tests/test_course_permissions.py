@@ -34,14 +34,14 @@ def finished_semester() -> Semester:
 
 
 @pytest.fixture
-def staff_user(staff_listing_for):
+def staff_user(make_staff_listing):
     """A registered staff member with a current listing, running nothing."""
 
     def _make(username: str, **kwargs) -> User:
         user = User.objects.create_user(
             username=username, password="password", is_staff=True
         )
-        staff_listing_for(user, **kwargs)
+        make_staff_listing(user, **kwargs)
         return user
 
     return _make

@@ -149,4 +149,4 @@ def test_admin_add_and_change_pages_render():
     response = client.get(
         reverse("admin:reg_studentinvitelink_change", args=[student_invite.pk])
     )
-    assert "Semester" in response.content.decode()
+    assert "semester" in response.context["adminform"].form.fields

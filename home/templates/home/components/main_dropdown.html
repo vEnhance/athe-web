@@ -1,35 +1,49 @@
 {# Everything else that used to live here now has a home on the dashboard. #}
 <ul class="dropdown-menu" aria-labelledby="navbarDropdownUser">
     <li>
-        <a class="dropdown-item" href="{% url 'index' %}">Dashboard</a>
+        <a class="dropdown-item"
+           data-testid="nav-dashboard"
+           href="{% url 'index' %}">Dashboard</a>
     </li>
     <li>
-        <a class="dropdown-item" href="{% url 'courses:calendar' %}">Calendar</a>
+        <a class="dropdown-item"
+           data-testid="nav-calendar"
+           href="{% url 'courses:calendar' %}">Calendar</a>
     </li>
     <li>
-        <a class="dropdown-item" href="{% url 'courses:upcoming' %}">Upcoming</a>
+        <a class="dropdown-item"
+           data-testid="nav-upcoming"
+           href="{% url 'courses:upcoming' %}">Upcoming</a>
     </li>
     <li>
-        <a class="dropdown-item" href="{% url 'weblog:blog_landing' %}">My Blog Posts</a>
+        <a class="dropdown-item"
+           data-testid="nav-blog"
+           href="{% url 'weblog:blog_landing' %}">My Blog Posts</a>
     </li>
     <li>
         <hr class="dropdown-divider">
     </li>
     {% if request.user.is_superuser %}
         <li>
-            <a class="dropdown-item" href="{% url 'admin:index' %}">Django Admin</a>
+            <a class="dropdown-item"
+               data-testid="nav-admin"
+               href="{% url 'admin:index' %}">Django Admin</a>
         </li>
     {% endif %}
     <li>
-        <a class="dropdown-item" href="{% url 'home:profile_settings' %}">Profile Settings</a>
+        <a class="dropdown-item"
+           data-testid="nav-profile"
+           href="{% url 'home:profile_settings' %}">Profile Settings</a>
     </li>
     <li>
-        <a class="dropdown-item" href="{% url 'socialaccount_connections' %}">Login Providers</a>
+        <a class="dropdown-item"
+           data-testid="nav-providers"
+           href="{% url 'socialaccount_connections' %}">Login Providers</a>
     </li>
     <li>
         <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button type="submit" class="dropdown-item btn-link">Logout</button>
+            <button type="submit" class="dropdown-item btn-link" data-testid="nav-logout">Logout</button>
         </form>
     </li>
 </ul>

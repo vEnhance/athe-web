@@ -12,7 +12,7 @@
 {% endblock extra_css %}
 {% block content %}
     <div id="content">
-        <h1>Hi, {{ user.first_name|default:user.username }}!</h1>
+        <h1 data-testid="dash-greeting">Hi, {{ user.first_name|default:user.username }}!</h1>
         <p>
             You can see the
             <a href="{% url 'courses:calendar' %}">full calendar</a>
@@ -20,7 +20,7 @@
             <a href="{% url 'courses:upcoming' %}">upcoming meetings</a>.
             It's currently {% now "g:i A e" %}.
         </p>
-        <p>
+        <p data-testid="dash-global-events">
             {% if global_event_count %}
                 There
                 {% if next_global_event and global_event_count == 1 %}
@@ -42,7 +42,7 @@
             {% endif %}
         </p>
         {% if upcoming_semester %}
-            <p>
+            <p data-testid="dash-upcoming-semester">
                 The official start date for {{ upcoming_semester.name }} is
                 {{ upcoming_semester.start_date|date:"F j, Y" }}.
             </p>
@@ -53,24 +53,26 @@
                 <h2>
                     Classes
                     <a class="badge bg-secondary dash-see-all"
+                       data-testid="dash-see-all-classes"
                        href="{% url 'courses:my_courses' %}">See all</a>
                 </h2>
                 {% if dash_classes %}
                     {% include "dashboard/components/course_list.html" with rows=dash_classes %}
                 {% else %}
-                    You aren't yet enrolled in any classes this semester.
+                    <span data-testid="dash-no-classes">You aren't yet enrolled in any classes this semester.</span>
                 {% endif %}
             </div>
             <div class="col-md-6">
                 <h2>
                     Clubs
                     <a class="badge bg-secondary dash-see-all"
+                       data-testid="dash-see-all-clubs"
                        href="{% url 'courses:my_clubs' %}">See all</a>
                 </h2>
                 {% if dash_clubs %}
                     {% include "dashboard/components/course_list.html" with rows=dash_clubs %}
                 {% else %}
-                    You haven't joined any clubs yet, but you can
+                    <span data-testid="dash-no-clubs">You haven't joined any clubs yet, but you can</span>
                     <a href="{% url 'courses:my_clubs' %}">view the list of clubs</a>
                     and join any you're interested in.
                 {% endif %}
@@ -80,30 +82,36 @@
             <div class="col-md-6">
                 <h2>
                     House Points
-                    <a class="badge bg-secondary dash-see-all" href="{{ house_url }}">See all</a>
+                    <a class="badge bg-secondary dash-see-all"
+                       data-testid="dash-see-all-house"
+                       href="{{ house_url }}">See all</a>
                 </h2>
                 {% if house_display %}
-                    <div class="row gx-3">
+                    <div class="row gx-3" data-testid="dash-house-tiles">
                         <div class="col-6">
-                            <a class="dash-square" href="{{ house_detail_url }}">
+                            <a class="dash-square"
+                               data-testid="dash-house-square"
+                               href="{{ house_detail_url }}">
                                 <span class="dash-square-label">{{ house_display }}</span>
                                 <span class="dash-square-value">{{ house_points }}</span>
                             </a>
                         </div>
                         <div class="col-6">
-                            <a class="dash-square" href="{% url 'housepoints:my_awards' %}">
+                            <a class="dash-square"
+                               data-testid="dash-my-points-square"
+                               href="{% url 'housepoints:my_awards' %}">
                                 <span class="dash-square-label">Your Points</span>
                                 <span class="dash-square-value">{{ my_points }}</span>
                             </a>
                         </div>
                     </div>
                 {% elif has_current_semester %}
-                    <p>
+                    <p data-testid="dash-house-unassigned">
                         You're not assigned a house this semester yet,
                         but you can browse <a href="{{ house_url }}">the leaderboard anyway</a>.
                     </p>
                 {% else %}
-                    <p>
+                    <p data-testid="dash-house-no-semester">
                         There is no active semester, but you can browse
                         <a href="{% url 'housepoints:leaderboard' %}">leaderboards from all sessions</a>.
                     </p>
@@ -112,27 +120,33 @@
             <div class="col-md-6">
                 <h2>
                     Yearbook
-                    <a class="badge bg-secondary dash-see-all" href="{{ yearbook_url }}">See all</a>
+                    <a class="badge bg-secondary dash-see-all"
+                       data-testid="dash-see-all-yearbook"
+                       href="{{ yearbook_url }}">See all</a>
                 </h2>
                 {% if yearbook_entry %}
                     {% include "yearbook/components/entry_card.html" with entry=yearbook_entry %}
                     {% if yearbook_open %}
                         <a class="btn btn-outline-dark btn-sm mt-3"
+                           data-testid="dash-yearbook-edit"
                            href="{% url 'yearbook:edit' pk=yearbook_entry.pk %}">Edit entry</a>
                     {% endif %}
                 {% elif yearbook_student and yearbook_open %}
-                    <p>You don't have an entry yet for {{ yearbook_student.semester.name }}.</p>
+                    <p data-testid="dash-yearbook-prompt">You don't have an entry yet for {{ yearbook_student.semester.name }}.</p>
                     <a class="btn btn-primary"
+                       data-testid="dash-yearbook-create"
                        href="{% url 'yearbook:create' student_pk=yearbook_student.pk %}">Add entry</a>
                 {% elif yearbook_student %}
-                    <p class="text-muted">Entries for {{ yearbook_student.semester.name }} are closed.</p>
+                    <p class="text-muted" data-testid="dash-yearbook-closed">
+                        Entries for {{ yearbook_student.semester.name }} are closed.
+                    </p>
                 {% elif has_current_semester %}
-                    <p>
+                    <p data-testid="dash-yearbook-unregistered">
                         You're not registered yet this semester, but
                         you can browse <a href="{{ yearbook_url }}">past yearbook entries</a>.
                     </p>
                 {% else %}
-                    <p>
+                    <p data-testid="dash-yearbook-no-semester">
                         There is no active semester, but you can browse
                         <a href="{{ yearbook_url }}">yearbook entries from all sessions</a>.
                     </p>
@@ -141,7 +155,7 @@
         </div>
         {% if user.is_staff %}
             <h2>Staff</h2>
-            <ul class="dash-links">
+            <ul class="dash-links" data-testid="dash-staff-links">
                 <li>
                     <a href="{% url 'housepoints:attendance_bulk' %}">Class Attendance</a>:
                     Instructors should use this to take attendance at each class.
@@ -167,7 +181,7 @@
         {% endif %}
         {% if user.is_superuser %}
             <h2>Admin</h2>
-            <ul class="dash-links">
+            <ul class="dash-links" data-testid="dash-admin-links">
                 <li>
                     <a href="{% url 'admin:index' %}">Django Admin</a>
                 </li>

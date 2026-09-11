@@ -20,19 +20,23 @@
             <div class="mb-4">
                 {% if has_entry %}
                     <a href="{% url 'yearbook:edit' pk=user_entry.pk %}"
-                       class="btn btn-dark">Edit Your Entry</a>
+                       class="btn btn-dark"
+                       data-testid="yearbook-edit-own">Edit Your Entry</a>
                 {% else %}
                     <a href="{% url 'yearbook:create' student_pk=user_student.pk %}"
-                       class="btn btn-dark">Create Your Entry</a>
+                       class="btn btn-dark"
+                       data-testid="yearbook-create-own">Create Your Entry</a>
                 {% endif %}
             </div>
         {% elif user_student and not can_edit %}
-            <div class="alert alert-info">The semester has ended, so yearbook entries can no longer be created or edited.</div>
+            <div class="alert alert-info" data-testid="yearbook-closed">
+                The semester has ended, so yearbook entries can no longer be created or edited.
+            </div>
         {% endif %}
         {% if entries %}
             {% regroup entries by student.get_house_display as house_list %}
             {% for house in house_list %}
-                <h2 class="mt-4">{{ house.grouper }}</h2>
+                <h2 class="mt-4" data-testid="yearbook-house-heading">{{ house.grouper }}</h2>
                 <div class="row">
                     {% for entry in house.list %}
                         <div class="col-md-6 col-lg-4 mb-4">
@@ -42,7 +46,8 @@
                 </div>
             {% endfor %}
         {% else %}
-            <p class="text-muted">No yearbook entries yet. Be the first to add one!</p>
+            <p class="text-muted"
+               data-testid="yearbook-list-empty">No yearbook entries yet. Be the first to add one!</p>
         {% endif %}
     </div>
 {% endblock content %}
