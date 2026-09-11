@@ -1,57 +1,39 @@
-from datetime import timedelta
+from collections.abc import Callable
 
 import pytest
 from django.contrib.auth.models import User
-from django.test import Client
 from django.urls import reverse
-from django.utils import timezone
 
+from atheweb.testsuite import AtheClient
 from courses.models import Course, Semester
-from ta_attendance.models import Attendance
 
 
 @pytest.mark.django_db
-def test_navigation_link_visible_to_staff():
-    """Test that the TA Attendance link is visible in the navigation for staff."""
-    client = Client()
-    User.objects.create_user(username="staff", password="password", is_staff=True)
+def test_sign_in_sheet_is_linked_from_the_staff_block(
+    athe: AtheClient, make_user: Callable[..., User]
+):
+    athe.login(make_user(username="staff", is_staff=True))
+    response = athe.get_ok("/")
 
-    client.login(username="staff", password="password")
-    response = client.get(reverse("index"))
-
-    content = response.content.decode()
-    assert "TA Sign-in Sheet" in content
-    assert reverse("ta_attendance:my_attendance") in content
+    athe.assert_testid(response, "dash-staff-links")
+    assert reverse("ta_attendance:my_attendance").encode() in response.content
 
 
 @pytest.mark.django_db
-def test_all_attendance_link_visible_to_superuser():
-    """Test that the All Attendance link is visible for superusers."""
-    client = Client()
-    user = User.objects.create_user(
-        username="super", password="password", is_superuser=True, is_staff=True
+def test_all_attendance_link_visible_to_superuser(
+    athe: AtheClient,
+    semester: Semester,
+    make_user: Callable[..., User],
+    make_course: Callable[..., Course],
+):
+    make_course(semester, name="Math Club", is_club=True)
+
+    athe.login(make_user(username="pupil_staff", is_staff=True))
+    athe.assert_no_testid(
+        athe.get_ok(reverse("ta_attendance:my_attendance")), "attendance-all-link"
     )
 
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
+    athe.login(make_user(username="super", is_staff=True, is_superuser=True))
+    athe.assert_testid(
+        athe.get_ok(reverse("ta_attendance:my_attendance")), "attendance-all-link"
     )
-    Course.objects.create(
-        name="Math Club",
-        description="Math",
-        semester=semester,
-        is_club=True,
-    )
-
-    Attendance.objects.create(
-        user=user, date=timezone.localdate(), club=Course.objects.first()
-    )
-
-    client.login(username="super", password="password")
-    response = client.get(reverse("ta_attendance:my_attendance"))
-
-    content = response.content.decode()
-    assert "View All Attendance Records" in content
-    assert reverse("ta_attendance:all_attendance") in content

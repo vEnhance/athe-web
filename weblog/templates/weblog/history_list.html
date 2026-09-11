@@ -19,7 +19,7 @@
             </div>
             {% for entry in history_entries %}
                 <div class="mb-5" id="{{ entry.slug }}">
-                    <h2>{{ entry.title }}</h2>
+                    <h2 data-testid="history-entry-title">{{ entry.title }}</h2>
                     <div>{{ entry.content_rendered|safe }}</div>
                 </div>
             {% endfor %}

@@ -1,7 +1,7 @@
 {% load static %}
 <div class="staff-list">
     {% for staff in objects %}
-        <div class="staff-container-hidden">
+        <div class="staff-container-hidden" data-testid="staff-card">
             <div class="staff-left">
                 <img class="staff-photo"
                      src="{{ staff.photo.url }}"

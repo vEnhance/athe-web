@@ -132,9 +132,7 @@
                            href="{% url 'yearbook:edit' pk=yearbook_entry.pk %}">Edit entry</a>
                     {% endif %}
                 {% elif yearbook_student and yearbook_open %}
-                    <p data-testid="dash-yearbook-prompt">
-                        You don't have an entry yet for {{ yearbook_student.semester.name }}.
-                    </p>
+                    <p data-testid="dash-yearbook-prompt">You don't have an entry yet for {{ yearbook_student.semester.name }}.</p>
                     <a class="btn btn-primary"
                        data-testid="dash-yearbook-create"
                        href="{% url 'yearbook:create' student_pk=yearbook_student.pk %}">Add entry</a>

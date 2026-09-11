@@ -17,7 +17,7 @@
                 <h1>{{ staff_member.display_name }}</h1>
                 <div class="staff-detail-role">{{ staff_member.get_category_display }} | {{ staff_member.role }}</div>
                 {% if staff_member.website or staff_member.email or staff_member.instagram_username or staff_member.discord_username or staff_member.github_username %}
-                    <div class="staff-social-links">
+                    <div class="staff-social-links" data-testid="staff-social-links">
                         {% if staff_member.website %}
                             <a href="{{ staff_member.website }}"
                                target="_blank"

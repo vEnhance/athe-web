@@ -271,6 +271,16 @@ def test_navbar_dropdown_is_trimmed(athe: AtheClient, student: Student):
 
 
 @pytest.mark.django_db
+def test_navbar_dropdown_adds_the_admin_for_a_superuser(
+    athe: AtheClient, make_user: Callable[..., User]
+):
+    athe.login(make_user(username="boss", is_staff=True, is_superuser=True))
+    response = athe.get_ok(INDEX)
+
+    athe.assert_testid(response, "nav-admin")
+
+
+@pytest.mark.django_db
 def test_section_headings_carry_a_badge_to_the_full_page(
     athe: AtheClient, semester: Semester, student: Student
 ):
@@ -785,7 +795,7 @@ def test_empty_sections_speak_of_a_semester_yet_to_open(
     response = athe.get_ok(INDEX)
 
     assert response.context["has_current_semester"] is True
-    athe.assert_testid(response, "dash-house-unassigned")
+    athe.assert_testid(response, "dash-house-unassigned", "dash-yearbook-unregistered")
     athe.assert_no_testid(
         response, "dash-house-no-semester", "dash-yearbook-no-semester"
     )

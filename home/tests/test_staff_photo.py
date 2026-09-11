@@ -7,6 +7,7 @@ from django.test import Client
 from django.urls import reverse
 from PIL import Image
 
+from atheweb.testsuite import text_of, texts_of
 from home.models import StaffPhotoListing
 
 
@@ -112,12 +113,19 @@ def test_staff_detail_view_displays_social_links():
     )
     response = client.get(reverse("home:staff_detail", kwargs={"slug": staff.slug}))
     assert response.status_code == 200
-    content = response.content.decode()
-    assert "https://mywebsite.com" in content
-    assert "mailto:contact@example.com" in content
-    assert "https://instagram.com/myinsta" in content
-    assert "mydiscord" in content
-    assert "https://github.com/mygithub" in content
+    links = text_of(response, "staff-social-links")
+    assert "Website" in links
+    assert "Email" in links
+    assert "Instagram" in links
+    assert "Discord: mydiscord" in links
+    assert "GitHub" in links
+    for href in (
+        b'href="https://mywebsite.com"',
+        b'href="mailto:contact@example.com"',
+        b'href="https://instagram.com/myinsta"',
+        b'href="https://github.com/mygithub"',
+    ):
+        assert href in response.content
 
 
 @pytest.mark.django_db
@@ -134,8 +142,7 @@ def test_staff_detail_view_hides_empty_social_links():
     )
     response = client.get(reverse("home:staff_detail", kwargs={"slug": staff.slug}))
     assert response.status_code == 200
-    content = response.content.decode()
-    assert "staff-social-links" not in content
+    assert texts_of(response, "staff-social-links") == []
 
 
 @pytest.mark.django_db
@@ -174,7 +181,7 @@ def test_staff_edit_view_accessible_by_owner():
     client.login(username="staffuser", password="testpass")
     response = client.get(reverse("home:staff_edit"))
     assert response.status_code == 200
-    assert "Edit Your Staff Profile" in response.content.decode()
+    assert response.context["object"].user == user
 
 
 @pytest.mark.django_db
@@ -194,12 +201,10 @@ def test_staff_edit_view_displays_social_fields():
     client.login(username="staffuser", password="testpass")
     response = client.get(reverse("home:staff_edit"))
     assert response.status_code == 200
-    content = response.content.decode()
-    assert "website" in content.lower()
-    assert "email" in content.lower()
-    assert "instagram" in content.lower()
-    assert "discord" in content.lower()
-    assert "github" in content.lower()
+    fields = response.context["form"].fields
+    for name in ("website", "email", "instagram_username", "discord_username"):
+        assert name in fields
+    assert "github_username" in fields
 
 
 @pytest.mark.django_db
@@ -253,7 +258,8 @@ def test_staff_view_displays_staff_list():
     )
     response = client.get(reverse("home:staff"))
     assert response.status_code == 200
-    assert "Test Instructor" in response.content.decode()
+    assert list(response.context["instructor"]) == [_staff]
+    assert texts_of(response, "staff-card") != []
 
 
 @pytest.mark.django_db
@@ -270,4 +276,4 @@ def test_past_staff_view_displays_past_staff():
     )
     response = client.get(reverse("home:past_staff"))
     assert response.status_code == 200
-    assert "Former Staff" in response.content.decode()
+    assert list(response.context["xstaff"]) == [_staff]

@@ -11,7 +11,7 @@
                     <div class="row mb-4">
                         {% for total in semester_totals %}
                             <div class="col-md-4 mb-3">
-                                <div class="card" data-testid="my-awards-semester-card">
+                                <div class="card">
                                     <div class="card-body text-center">
                                         <h5 class="card-title">{{ total.semester.name }}</h5>
                                         <p class="card-text text-muted">House: {{ total.house }}</p>
@@ -50,9 +50,7 @@
                         </table>
                     </div>
                 {% else %}
-                    <p class="text-muted" data-testid="my-awards-empty">
-                        You haven't earned any house points yet.
-                    </p>
+                    <p class="text-muted" data-testid="my-awards-empty">You haven't earned any house points yet.</p>
                 {% endif %}
             </div>
         </div>

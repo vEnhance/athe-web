@@ -6,6 +6,7 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
+from atheweb.testsuite import assert_testid
 from courses.models import Course, Semester, Student
 from reg.models import CoursePreference, StudentInviteLink, StudentRegistration
 
@@ -100,10 +101,7 @@ def test_get_login_choice(student_invite_view_setup):
     )
     response = client.get(url)
     assert response.status_code == 200
-    assert (
-        "Do you already have an account from a previous Athemath?"
-        in response.content.decode()
-    )
+    assert "has_account" in response.context["form"].fields
 
 
 @pytest.mark.django_db
@@ -116,7 +114,7 @@ def test_get_expired_invite_student(student_invite_view_setup):
     )
     response = client.get(url)
     assert response.status_code == 200
-    assert "expired" in response.content.decode()
+    assert_testid(response, "invite-expired")
 
 
 @pytest.mark.django_db
@@ -129,7 +127,7 @@ def test_get_ended_semester_invite(student_invite_view_setup):
     )
     response = client.get(url)
     assert response.status_code == 200
-    assert "semester has ended" in response.content.decode()
+    assert_testid(response, "invite-semester-ended")
 
 
 @pytest.mark.django_db
@@ -312,12 +310,14 @@ def test_first_page_lists_the_roster_in_a_select(
 ):
     response = logged_in_client.get(step_url(student_invite_view_setup, "you"))
     assert response.status_code == 200
-    content = response.content.decode()
-    assert "Alice Johnson" in content
-    assert "Bob Smith" in content
-    # A hundred radio buttons is a hundred lines to scroll; it is a dropdown.
-    assert "data-tom-select" in content
-    assert "<select" in content
+    field = response.context["form"].fields["student"]
+    assert [str(student) for student in field.queryset] == [
+        "Alice Johnson",
+        "Bob Smith",
+    ]
+    # A hundred radio buttons is a hundred lines to scroll; it is a dropdown,
+    # and tom-select finds it by the attribute its widget carries.
+    assert field.widget.attrs["data-tom-select"] == ""
 
 
 @pytest.mark.django_db
@@ -598,7 +598,7 @@ def test_a_registered_student_can_come_back_and_edit(student_invite_view_setup):
     # The name is settled, so page 1 no longer offers the roster.
     response = client.get(step_url(setup, "you"))
     assert response.status_code == 200
-    assert "Alice Johnson" not in response.content.decode()
+    assert "student" not in response.context["form"].fields
     assert response.context["complete"] is True
 
     response = client.post(
@@ -633,7 +633,7 @@ def test_no_students_available(student_invite_view_setup, logged_in_client):
     )
     response = logged_in_client.get(url)
     assert response.status_code == 200
-    assert "no students" in response.content.decode().lower()
+    assert_testid(response, "no-students")
 
 
 @pytest.mark.django_db
@@ -654,7 +654,7 @@ def test_expired_invite_closes_the_steps_too(student_invite_view_setup):
     client.login(username="newuser", password="testpass123")
     response = client.get(step_url(student_invite_view_setup, "you", "expired_invite"))
     assert response.status_code == 200
-    assert "expired" in response.content.decode()
+    assert_testid(response, "invite-expired")
 
 
 @pytest.mark.django_db

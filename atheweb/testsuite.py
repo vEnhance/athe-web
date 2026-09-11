@@ -19,7 +19,7 @@ from django.http import HttpResponse
 from django.test import Client
 
 #: Every test user gets this; ``conftest`` swaps in a fast hasher.
-PASSWORD = "password"  # noqa: S105
+PASSWORD = "password"
 
 _TESTID = re.compile(rb'data-testid="([^"]*)"')
 
@@ -80,24 +80,35 @@ def text_of(response: HttpResponse, testid: str) -> str:
     return found[0]
 
 
+def assert_testid(response: HttpResponse, *wanted: str) -> None:
+    present = testids(response)
+    for testid in wanted:
+        assert testid in present, f"{testid} missing; page has {sorted(present)}"
+
+
+def assert_no_testid(response: HttpResponse, *unwanted: str) -> None:
+    present = testids(response)
+    for testid in unwanted:
+        assert testid not in present, f"{testid} should not be on the page"
+
+
+def assert_testid_count(response: HttpResponse, testid: str, count: int) -> None:
+    found = testids(response).count(testid)
+    assert found == count, f"{testid} appears {found} times, expected {count}"
+
+
 class AtheClient:
     """A Django test client that knows who is logged in and checks statuses."""
 
     def __init__(self) -> None:
         self.client = Client()
-        self.user: User | None = None
 
     def login(self, user: User | str) -> User:
         """Log in as an existing user, replacing whoever was logged in before."""
         if isinstance(user, str):
             user = User.objects.get(username=user)
         assert self.client.login(username=user.username, password=PASSWORD)
-        self.user = user
         return user
-
-    def logout(self) -> None:
-        self.client.logout()
-        self.user = None
 
     def get(self, url: str, **kwargs: Any) -> HttpResponse:
         return cast(HttpResponse, self.client.get(url, **kwargs))
@@ -123,19 +134,6 @@ class AtheClient:
         self, target: str, url: str, data: Any = None, **kwargs: Any
     ) -> HttpResponse:
         return self._redirects(target, self.post(url, data, **kwargs), "POST", url)
-
-    def get_denied(self, url: str, **kwargs: Any) -> HttpResponse:
-        """GET a page this user may not see, however the view says no.
-
-        Both a 403 and a bounce to the login page count: which one a view picks
-        is a detail of whether it guards with a permission check or a login
-        decorator, and tests about who can reach what should not have to care.
-        """
-        response = self.get(url, **kwargs)
-        assert response.status_code in (302, 403, 404), (
-            f"GET {url} gave {response.status_code}, expected to be refused"
-        )
-        return response
 
     def _redirects(
         self, target: str, response: HttpResponse, verb: str, url: str
@@ -166,17 +164,12 @@ class AtheClient:
         return texts_of(response, testid)
 
     def assert_testid(self, response: HttpResponse, *wanted: str) -> None:
-        present = testids(response)
-        for testid in wanted:
-            assert testid in present, f"{testid} missing; page has {sorted(present)}"
+        assert_testid(response, *wanted)
 
     def assert_no_testid(self, response: HttpResponse, *unwanted: str) -> None:
-        present = testids(response)
-        for testid in unwanted:
-            assert testid not in present, f"{testid} should not be on the page"
+        assert_no_testid(response, *unwanted)
 
     def assert_testid_count(
         self, response: HttpResponse, testid: str, count: int
     ) -> None:
-        found = testids(response).count(testid)
-        assert found == count, f"{testid} appears {found} times, expected {count}"
+        assert_testid_count(response, testid, count)

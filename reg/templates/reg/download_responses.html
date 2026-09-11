@@ -11,9 +11,10 @@
         </p>
         {% if current %}
             <a href="{% url 'reg:responses' current.slug %}"
-               class="btn btn-primary btn-lg">Download {{ current.name }}</a>
+               class="btn btn-primary btn-lg"
+               data-testid="download-current">Download {{ current.name }}</a>
         {% else %}
-            <div class="alert alert-warning">
+            <div class="alert alert-warning" data-testid="download-nothing">
                 There is no semester on the books that hasn't ended yet, so there is
                 nothing to download. Create one first.
             </div>

@@ -10,6 +10,7 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
+from atheweb.testsuite import assert_testid, text_of
 from courses.models import Course, Semester, Student
 from reg.models import CoursePreference, StudentRegistration
 
@@ -177,16 +178,17 @@ def test_download_page_offers_the_current_semester_and_the_rest(
     assert response.context["current"] == semester
     assert list(response.context["past"]) == [old_semester]
 
-    page = response.content.decode()
-    assert "Download Fall 2025" in page
-    assert reverse("reg:responses", kwargs={"slug": "spring-2025"}) in page
+    assert text_of(response, "download-current") == "Download Fall 2025"
+    assert reverse("reg:responses", kwargs={"slug": "spring-2025"}).encode() in (
+        response.content
+    )
 
 
 @pytest.mark.django_db
 def test_download_page_without_a_current_semester(superuser_client):
     response = superuser_client.get(DOWNLOAD_URL)
     assert response.context["current"] is None
-    assert "nothing to download" in response.content.decode()
+    assert_testid(response, "download-nothing")
 
 
 @pytest.mark.django_db

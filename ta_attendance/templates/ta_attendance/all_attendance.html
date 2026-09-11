@@ -23,7 +23,7 @@
                         <tr>
                             <td>{{ record.date }}</td>
                             <td>{{ record.club.name }}</td>
-                            <td>{{ record.user.get_full_name|default:record.user.username }}</td>
+                            <td data-testid="attendance-who">{{ record.user.get_full_name|default:record.user.username }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

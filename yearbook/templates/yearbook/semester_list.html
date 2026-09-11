@@ -11,7 +11,7 @@
             <table class="table">
                 {% for semester in semesters %}
                     <tr>
-                        <td>
+                        <td data-testid="yearbook-semester-row">
                             <a href="{% url 'yearbook:entry_list' slug=semester.slug %}">{{ semester }}</a>
                         </td>
                         <td class="text-muted">{{ semester.start_date }} to {{ semester.end_date }}</td>
@@ -19,7 +19,7 @@
                 {% endfor %}
             </table>
         {% else %}
-            <p class="text-muted">No semesters available yet.</p>
+            <p class="text-muted" data-testid="yearbook-semesters-empty">No semesters available yet.</p>
         {% endif %}
     </div>
 {% endblock content %}

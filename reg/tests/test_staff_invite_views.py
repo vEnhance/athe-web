@@ -6,6 +6,7 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
+from atheweb.testsuite import texts_of
 from courses.models import Course, Semester
 from home.models import StaffPhotoListing
 from reg.models import StaffInviteLink
@@ -88,8 +89,11 @@ def test_get_staff_selection(staff_invite_setup):
     )
     response = client.get(url)
     assert response.status_code == 200
-    assert "John Doe" in response.content.decode()
-    assert "Jane Smith" in response.content.decode()
+    assert [
+        str(listing)
+        for listing in response.context["form"].fields["staff_listing"].queryset
+    ] == ["John Doe", "Jane Smith"]
+    assert len(texts_of(response, "staff-option")) == 2
 
 
 @pytest.mark.django_db
@@ -126,7 +130,9 @@ def test_post_staff_selection_already_registered(staff_invite_setup):
     )
     response = client.post(url, {"staff_listing": staff_invite_setup["staff2"].id})
     assert response.status_code == 200
-    assert "janesmith" in response.content.decode()
+    # The flow stops and names the account that already claimed the listing.
+    assert response.context["username"] == "janesmith"
+    assert "staff_listing_id" not in client.session
 
 
 @pytest.mark.django_db
@@ -143,7 +149,7 @@ def test_get_registration_form(staff_invite_setup):
     )
     response = client.get(url)
     assert response.status_code == 200
-    assert "John Doe" in response.content.decode()
+    assert response.context["staff_listing"] == staff_invite_setup["staff1"]
 
 
 @pytest.mark.django_db

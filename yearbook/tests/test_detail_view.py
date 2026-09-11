@@ -1,327 +1,143 @@
-from datetime import timedelta
+from collections.abc import Callable
 
 import pytest
 from django.contrib.auth.models import User
-from django.test import Client
 from django.urls import reverse
-from django.utils import timezone
 
+from atheweb.testsuite import AtheClient
 from courses.models import Semester, Student
 from yearbook.models import YearbookEntry
 
 
-@pytest.mark.django_db
-def test_detail_view_requires_login():
-    """Test that viewing a yearbook entry detail requires login."""
-    client = Client()
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-    student = Student.objects.create(
-        airtable_name="Test Student",
-        semester=semester,
-    )
-    entry = YearbookEntry.objects.create(
-        student=student,
-        display_name="Test Name",
-        bio="Test bio",
-    )
-
-    url = reverse("yearbook:entry_detail", kwargs={"pk": entry.pk})
-    response = client.get(url)
-
-    assert response.status_code == 302
-    assert "/login/" in response.url
+def detail_url(entry: YearbookEntry) -> str:
+    return reverse("yearbook:entry_detail", kwargs={"pk": entry.pk})
 
 
-@pytest.mark.django_db
-def test_detail_view_staff_can_access_any_entry():
-    """Test that staff can view any yearbook entry."""
-    client = Client()
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-    student = Student.objects.create(
-        airtable_name="Test Student",
-        semester=semester,
-    )
-    entry = YearbookEntry.objects.create(
-        student=student,
-        display_name="Test Name",
-        bio="Test bio",
-    )
-    User.objects.create_user(username="staff", password="password", is_staff=True)
+@pytest.fixture
+def entry(
+    semester: Semester,
+    make_student: Callable[..., Student],
+    make_entry: Callable[..., YearbookEntry],
+) -> YearbookEntry:
+    student = make_student(semester, house=Student.House.OWL, airtable_name="Owlet")
+    return make_entry(student, display_name="Entry Person", bio="This is my bio")
 
-    client.login(username="staff", password="password")
-    url = reverse("yearbook:entry_detail", kwargs={"pk": entry.pk})
-    response = client.get(url)
 
-    assert response.status_code == 200
-    assert "Test Name" in response.content.decode()
+@pytest.fixture
+def viewer(
+    athe: AtheClient,
+    semester: Semester,
+    make_user: Callable[..., User],
+    make_student: Callable[..., Student],
+) -> User:
+    """Someone enrolled in the same semester, so allowed to read the entry."""
+    user = make_user(username="viewer")
+    make_student(semester, user=user)
+    return athe.login(user)
 
 
 @pytest.mark.django_db
-def test_detail_view_student_in_semester_can_access():
-    """Test that students in the same semester can view the entry."""
-    client = Client()
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-    # Student with entry
-    entry_student = Student.objects.create(
-        airtable_name="Entry Student",
-        semester=semester,
-    )
-    entry = YearbookEntry.objects.create(
-        student=entry_student,
-        display_name="Entry Person",
-        bio="This is my bio",
-    )
-    # Viewer student in same semester
-    viewer = User.objects.create_user(username="viewer", password="password")
-    Student.objects.create(
-        user=viewer,
-        airtable_name="Viewer Student",
-        semester=semester,
-    )
-
-    client.login(username="viewer", password="password")
-    url = reverse("yearbook:entry_detail", kwargs={"pk": entry.pk})
-    response = client.get(url)
-
-    assert response.status_code == 200
-    assert "Entry Person" in response.content.decode()
-    assert "This is my bio" in response.content.decode()
+def test_detail_view_requires_login(athe: AtheClient, entry: YearbookEntry):
+    athe.get_redirects(reverse("login"), detail_url(entry))
 
 
 @pytest.mark.django_db
-def test_detail_view_student_not_in_semester_denied():
-    """Test that students in a different semester cannot view the entry."""
-    client = Client()
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-    other_semester = Semester.objects.create(
-        name="Spring 2025",
-        slug="sp25",
-        start_date=(timezone.now() - timedelta(days=180)).date(),
-        end_date=(timezone.now() - timedelta(days=90)).date(),
-    )
-    # Entry in fall semester
-    entry_student = Student.objects.create(
-        airtable_name="Entry Student",
-        semester=semester,
-    )
-    entry = YearbookEntry.objects.create(
-        student=entry_student,
-        display_name="Entry Person",
-        bio="This is my bio",
-    )
-    # Viewer in different semester
-    viewer = User.objects.create_user(username="viewer", password="password")
-    Student.objects.create(
-        user=viewer,
-        airtable_name="Viewer Student",
-        semester=other_semester,
-    )
+def test_detail_view_staff_can_access_any_entry(
+    athe: AtheClient, entry: YearbookEntry, make_user: Callable[..., User]
+):
+    athe.login(make_user(username="staff", is_staff=True))
+    response = athe.get_ok(detail_url(entry))
 
-    client.login(username="viewer", password="password")
-    url = reverse("yearbook:entry_detail", kwargs={"pk": entry.pk})
-    response = client.get(url)
-
-    assert response.status_code == 403
+    assert response.context["entry"] == entry
 
 
 @pytest.mark.django_db
-def test_detail_view_user_without_student_denied():
-    """Test that users without a student record cannot view the entry."""
-    client = Client()
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-    entry_student = Student.objects.create(
-        airtable_name="Entry Student",
-        semester=semester,
-    )
-    entry = YearbookEntry.objects.create(
-        student=entry_student,
-        display_name="Entry Person",
-        bio="This is my bio",
-    )
-    User.objects.create_user(username="regular", password="password")
+def test_detail_view_student_in_semester_can_access(
+    athe: AtheClient, entry: YearbookEntry, viewer: User
+):
+    response = athe.get_ok(detail_url(entry))
 
-    client.login(username="regular", password="password")
-    url = reverse("yearbook:entry_detail", kwargs={"pk": entry.pk})
-    response = client.get(url)
-
-    assert response.status_code == 403
+    assert athe.text_of(response, "entry-name") == "Entry Person"
+    assert athe.text_of(response, "entry-bio") == "This is my bio"
 
 
 @pytest.mark.django_db
-def test_detail_view_shows_full_bio():
-    """Test that the detail view shows the full bio, not truncated."""
-    client = Client()
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-    # Long bio that would be truncated in list view
-    long_bio = "This is a very long biography. " * 20
-    entry_student = Student.objects.create(
-        airtable_name="Entry Student",
-        semester=semester,
-    )
-    entry = YearbookEntry.objects.create(
-        student=entry_student,
-        display_name="Entry Person",
-        bio=long_bio,
-    )
-    viewer = User.objects.create_user(username="viewer", password="password")
-    Student.objects.create(
-        user=viewer,
-        airtable_name="Viewer Student",
-        semester=semester,
-    )
+def test_detail_view_student_not_in_semester_denied(
+    athe: AtheClient,
+    entry: YearbookEntry,
+    past_semester_for_yearbook: Semester,
+    make_user: Callable[..., User],
+    make_student: Callable[..., Student],
+):
+    user = make_user(username="outsider")
+    make_student(past_semester_for_yearbook, user=user)
 
-    client.login(username="viewer", password="password")
-    url = reverse("yearbook:entry_detail", kwargs={"pk": entry.pk})
-    response = client.get(url)
-
-    assert response.status_code == 200
-    content = response.content.decode()
-    # Full bio should be shown (the truncatechars filter adds "..." which wouldn't be in full)
-    assert long_bio[:200] in content
+    athe.login(user)
+    assert athe.get(detail_url(entry)).status_code == 403
 
 
 @pytest.mark.django_db
-def test_detail_view_shows_social_links():
-    """Test that social media links are displayed correctly in detail view."""
-    client = Client()
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-    viewer = User.objects.create_user(username="viewer", password="password")
-    Student.objects.create(user=viewer, airtable_name="Viewer", semester=semester)
-
-    student = Student.objects.create(
-        airtable_name="Social Student",
-        semester=semester,
-        house=Student.House.BLOB,
-    )
-    YearbookEntry.objects.create(
-        student=student,
-        display_name="Social Person",
-        bio="Check out my socials!",
-        discord_username="socialuser#1234",
-        instagram_username="socialinsta",
-        github_username="socialgit",
-        website_url="https://social.example.com",
-    )
-
-    client.login(username="viewer", password="password")
-    entry = YearbookEntry.objects.get(student=student)
-    url = reverse("yearbook:entry_detail", kwargs={"pk": entry.pk})
-    response = client.get(url)
-
-    content = response.content.decode()
-    assert "socialuser#1234" in content
-    assert "socialinsta" in content
-    assert "socialgit" in content
-    assert "https://social.example.com" in content
+def test_detail_view_user_without_student_denied(
+    athe: AtheClient, entry: YearbookEntry, make_user: Callable[..., User]
+):
+    athe.login(make_user(username="regular"))
+    assert athe.get(detail_url(entry)).status_code == 403
 
 
 @pytest.mark.django_db
-def test_detail_view_shows_house():
-    """Test that the house is displayed in the detail view."""
-    client = Client()
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-    viewer = User.objects.create_user(username="viewer", password="password")
-    Student.objects.create(user=viewer, airtable_name="Viewer", semester=semester)
+def test_detail_view_shows_full_bio(
+    athe: AtheClient, entry: YearbookEntry, viewer: User
+):
+    """The listing card truncates; the detail page is where the whole bio lives."""
+    entry.bio = "This is a very long biography. " * 20
+    entry.save()
 
-    student = Student.objects.create(
-        airtable_name="Owl Student",
-        semester=semester,
-        house=Student.House.OWL,
-    )
-    entry = YearbookEntry.objects.create(
-        student=student,
-        display_name="Owl Person",
-        bio="I love owls!",
-    )
+    response = athe.get_ok(detail_url(entry))
 
-    client.login(username="viewer", password="password")
-    url = reverse("yearbook:entry_detail", kwargs={"pk": entry.pk})
-    response = client.get(url)
-
-    content = response.content.decode()
-    assert "Owl" in content
+    assert athe.text_of(response, "entry-bio") == entry.bio.strip()
 
 
 @pytest.mark.django_db
-def test_detail_view_has_back_link():
-    """Test that the detail view has a link back to the yearbook list."""
-    client = Client()
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-    viewer = User.objects.create_user(username="viewer", password="password")
-    Student.objects.create(user=viewer, airtable_name="Viewer", semester=semester)
+def test_detail_view_shows_social_links(
+    athe: AtheClient, entry: YearbookEntry, viewer: User
+):
+    entry.discord_username = "socialuser#1234"
+    entry.instagram_username = "socialinsta"
+    entry.github_username = "socialgit"
+    entry.website_url = "https://social.example.com"
+    entry.save()
 
-    student = Student.objects.create(
-        airtable_name="Test Student",
-        semester=semester,
-    )
-    entry = YearbookEntry.objects.create(
-        student=student,
-        display_name="Test Person",
-        bio="Test bio",
-    )
+    response = athe.get_ok(detail_url(entry))
 
-    client.login(username="viewer", password="password")
-    url = reverse("yearbook:entry_detail", kwargs={"pk": entry.pk})
-    response = client.get(url)
-
-    content = response.content.decode()
-    back_url = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
-    assert back_url in content
+    socials = athe.text_of(response, "entry-socials")
+    assert "socialuser#1234" in socials
+    assert "socialinsta" in socials
+    assert "socialgit" in socials
+    assert "https://social.example.com" in socials
 
 
 @pytest.mark.django_db
-def test_detail_view_nonexistent_entry_returns_404():
-    """Test that requesting a non-existent entry returns 404."""
-    client = Client()
-    User.objects.create_user(username="staff", password="password", is_staff=True)
+def test_detail_view_shows_house(athe: AtheClient, entry: YearbookEntry, viewer: User):
+    response = athe.get_ok(detail_url(entry))
 
-    client.login(username="staff", password="password")
+    assert athe.text_of(response, "entry-house") == "Owls"
+
+
+@pytest.mark.django_db
+def test_detail_view_has_back_link(
+    athe: AtheClient, semester: Semester, entry: YearbookEntry, viewer: User
+):
+    response = athe.get_ok(detail_url(entry))
+
+    athe.assert_testid(response, "entry-back")
+    back = reverse("yearbook:entry_list", kwargs={"slug": semester.slug})
+    assert f'href="{back}"'.encode() in response.content
+
+
+@pytest.mark.django_db
+def test_detail_view_nonexistent_entry_returns_404(
+    athe: AtheClient, make_user: Callable[..., User]
+):
+    athe.login(make_user(username="staff", is_staff=True))
     url = reverse("yearbook:entry_detail", kwargs={"pk": 99999})
-    response = client.get(url)
-
-    assert response.status_code == 404
+    assert athe.get(url).status_code == 404

@@ -48,7 +48,8 @@
         {% if user.is_superuser %}
             <p class="mt-4">
                 <a href="{% url 'ta_attendance:all_attendance' %}"
-                   class="btn btn-secondary">View All Attendance Records</a>
+                   class="btn btn-secondary"
+                   data-testid="attendance-all-link">View All Attendance Records</a>
             </p>
         {% endif %}
     </div>

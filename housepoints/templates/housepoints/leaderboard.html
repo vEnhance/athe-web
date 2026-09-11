@@ -22,7 +22,6 @@
                                     {% for sem in semesters %}
                                         <li>
                                             <a class="dropdown-item"
-                                               data-testid="leaderboard-semester-option"
                                                href="{% url 'housepoints:leaderboard_semester' slug=sem.slug %}">{{ sem.name }}</a>
                                         </li>
                                     {% endfor %}
@@ -70,9 +69,7 @@
                             </table>
                         </div>
                     {% else %}
-                        <p class="text-muted" data-testid="leaderboard-empty">
-                            No points have been awarded yet this semester.
-                        </p>
+                        <p class="text-muted">No points have been awarded yet this semester.</p>
                     {% endif %}
                     <div class="mt-4">
                         <h4>How to Earn Points</h4>

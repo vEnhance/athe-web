@@ -2,7 +2,7 @@
 {% if rows %}
     <ul class="dash-course-list">
         {% for row in rows %}
-            <li data-testid="dash-course-row">
+            <li>
                 <a href="{% url 'courses:course_detail' pk=row.course.pk %}">{{ row.course.name }}</a>
                 <span class="dash-course-when">
                     {% if row.next_meeting %}

@@ -18,7 +18,7 @@
                             {% csrf_token %}
                             <div class="mb-4">
                                 {% for staff in form.staff_listing.field.queryset %}
-                                    <div class="form-check mb-3">
+                                    <div class="form-check mb-3" data-testid="staff-option">
                                         <input class="form-check-input"
                                                type="radio"
                                                name="staff_listing"
