@@ -41,7 +41,9 @@
                     <div class="mt-4">
                         {% if results.success %}
                             <div class="card border-success mb-3">
-                                <div class="card-header bg-success text-white">Successfully Awarded ({{ results.success|length }})</div>
+                                <div class="card-header bg-success text-white" data-testid="bulk-award-awarded">
+                                    Successfully Awarded ({{ results.success|length }})
+                                </div>
                                 <div class="card-body">
                                     <ul class="mb-0">
                                         {% for msg in results.success %}<li>{{ msg }}</li>{% endfor %}
@@ -51,7 +53,9 @@
                         {% endif %}
                         {% if results.errors %}
                             <div class="card border-danger">
-                                <div class="card-header bg-danger text-white">Errors ({{ results.errors|length }})</div>
+                                <div class="card-header bg-danger text-white" data-testid="bulk-award-errors">
+                                    Errors ({{ results.errors|length }})
+                                </div>
                                 <div class="card-body">
                                     <ul class="mb-0">
                                         {% for msg in results.errors %}<li>{{ msg }}</li>{% endfor %}

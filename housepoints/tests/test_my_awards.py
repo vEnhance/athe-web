@@ -1,140 +1,104 @@
-from datetime import timedelta
+from collections.abc import Callable
 
 import pytest
 from django.contrib.auth.models import User
-from django.test import Client
 from django.urls import reverse
-from django.utils import timezone
 
+from atheweb.testsuite import AtheClient
 from courses.models import Semester, Student
 from housepoints.models import Award
 
-#
-# ============================================================================
-# My Awards View Tests
-# ============================================================================
+MY_AWARDS = reverse("housepoints:my_awards")
+
+
+def award_types(response) -> list[str]:
+    return [award.award_type for award in response.context["awards"]]
 
 
 @pytest.mark.django_db
-def test_my_awards_requires_login():
-    """Test that my awards page requires authentication."""
-    client = Client()
-    url = reverse("housepoints:my_awards")
-    response = client.get(url)
-
-    assert response.status_code == 302
-    assert "/login/" in response.url
+def test_my_awards_requires_login(athe: AtheClient):
+    athe.get_redirects(reverse("login"), MY_AWARDS)
 
 
 @pytest.mark.django_db
-def test_my_awards_shows_user_awards():
-    """Test that my awards page shows the user's awards."""
-    client = Client()
-    user = User.objects.create_user(username="student", password="password")
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
+def test_my_awards_shows_user_awards(
+    athe: AtheClient,
+    semester: Semester,
+    make_user: Callable[..., User],
+    make_student: Callable[..., Student],
+    award: Callable[..., Award],
+):
+    student = make_student(
+        semester, user=make_user(username="student"), house=Student.House.BUNNY
     )
-    student = Student.objects.create(
-        user=user, semester=semester, house=Student.House.BUNNY, airtable_name="Student"
-    )
-
-    Award.objects.create(
-        semester=semester,
-        student=student,
+    earned = award(
+        semester,
+        student,
         award_type=Award.AwardType.INTRO_POST,
         points=1,
         description="Posted intro",
     )
 
-    client.login(username="student", password="password")
-    url = reverse("housepoints:my_awards")
-    response = client.get(url)
+    athe.login("student")
+    response = athe.get_ok(MY_AWARDS)
 
-    content = response.content.decode()
-    assert response.status_code == 200
-    assert "Introduction Post" in content
-    assert "+1" in content
+    assert list(response.context["awards"]) == [earned]
+    athe.assert_testid_count(response, "my-awards-row", 1)
 
 
 @pytest.mark.django_db
-def test_my_awards_shows_semester_totals():
-    """Test that my awards page shows totals per semester."""
-    client = Client()
-    user = User.objects.create_user(username="student", password="password")
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
+def test_my_awards_shows_semester_totals(
+    athe: AtheClient,
+    semester: Semester,
+    make_user: Callable[..., User],
+    make_student: Callable[..., Student],
+    award: Callable[..., Award],
+):
+    student = make_student(
+        semester, user=make_user(username="student"), house=Student.House.CAT
     )
-    student = Student.objects.create(
-        user=user, semester=semester, house=Student.House.CAT, airtable_name="Student"
-    )
+    award(semester, student, award_type=Award.AwardType.HOMEWORK)
+    award(semester, student, award_type=Award.AwardType.CLASS_ATTENDANCE)
 
-    Award.objects.create(
-        semester=semester,
-        student=student,
-        award_type=Award.AwardType.HOMEWORK,
-        points=5,
-    )
-    Award.objects.create(
-        semester=semester,
-        student=student,
-        award_type=Award.AwardType.CLASS_ATTENDANCE,
-        points=5,
-    )
+    athe.login("student")
+    response = athe.get_ok(MY_AWARDS)
 
-    client.login(username="student", password="password")
-    url = reverse("housepoints:my_awards")
-    response = client.get(url)
-
-    content = response.content.decode()
-    assert "10" in content  # Total points
-    assert "Cats" in content  # House name
+    assert response.context["semester_totals"] == [
+        {"semester": semester, "house": "Cats", "total": 10}
+    ]
 
 
 @pytest.mark.django_db
-def test_my_awards_only_shows_own_awards():
-    """Test that users only see their own awards."""
-    client = Client()
-    user1 = User.objects.create_user(username="alice", password="password")
-    user2 = User.objects.create_user(username="bob", password="password")
-    semester = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
+def test_my_awards_only_shows_own_awards(
+    athe: AtheClient,
+    semester: Semester,
+    make_user: Callable[..., User],
+    make_student: Callable[..., Student],
+    award: Callable[..., Award],
+):
+    alice = make_student(
+        semester, user=make_user(username="alice"), house=Student.House.OWL
     )
-    student1 = Student.objects.create(
-        user=user1, semester=semester, house=Student.House.OWL, airtable_name="Alice"
+    bob = make_student(
+        semester, user=make_user(username="bob"), house=Student.House.CAT
     )
-    student2 = Student.objects.create(
-        user=user2, semester=semester, house=Student.House.CAT, airtable_name="Bob"
-    )
+    award(semester, alice, award_type=Award.AwardType.POTD, points=20)
+    award(semester, bob, award_type=Award.AwardType.HOMEWORK)
 
-    Award.objects.create(
-        semester=semester,
-        student=student1,
-        award_type=Award.AwardType.POTD,
-        points=20,
-        description="Alice PotD",
-    )
-    Award.objects.create(
-        semester=semester,
-        student=student2,
-        award_type=Award.AwardType.HOMEWORK,
-        points=5,
-        description="Bob HW",
-    )
+    athe.login("alice")
+    response = athe.get_ok(MY_AWARDS)
 
-    # Login as Alice
-    client.login(username="alice", password="password")
-    url = reverse("housepoints:my_awards")
-    response = client.get(url)
+    assert award_types(response) == [Award.AwardType.POTD]
 
-    content = response.content.decode()
-    assert "Problem of the Day" in content
-    assert "Homework" not in content
+
+@pytest.mark.django_db
+def test_my_awards_is_empty_for_someone_who_has_earned_nothing(
+    athe: AtheClient, make_user: Callable[..., User]
+):
+    make_user(username="newcomer")
+
+    athe.login("newcomer")
+    response = athe.get_ok(MY_AWARDS)
+
+    assert list(response.context["awards"]) == []
+    athe.assert_testid(response, "my-awards-empty")

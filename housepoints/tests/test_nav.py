@@ -1,66 +1,43 @@
-from datetime import timedelta
+from collections.abc import Callable
 
 import pytest
 from django.contrib.auth.models import User
-from django.test import Client
 from django.urls import reverse
-from django.utils import timezone
 
+from atheweb.testsuite import AtheClient
 from courses.models import Semester, Student
 
-# ============================================================================
-# Navigation Tests
-# ============================================================================
-
-
-@pytest.fixture
-def semester():
-    return Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=timezone.now().date() - timedelta(days=1),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
-    )
-
 
 @pytest.mark.django_db
-def test_dashboard_house_links_for_student(semester: Semester):
+def test_dashboard_house_links_for_student(
+    athe: AtheClient,
+    semester: Semester,
+    make_user: Callable[..., User],
+    make_student: Callable[..., Student],
+):
     """House points links live on the dashboard now, not in the navbar."""
-    client = Client()
-    user = User.objects.create_user(username="user", password="password")
-    Student.objects.create(
-        user=user,
-        semester=semester,
-        house=Student.House.BUNNY,
-        airtable_name="Student",
-    )
+    make_student(semester, user=make_user(), house=Student.House.BUNNY)
 
-    client.login(username="user", password="password")
-    response = client.get(reverse("index"))
+    athe.login("student")
+    response = athe.get_ok("/")
 
-    content = response.content.decode()
-    assert "Bunnies" in content
-    assert (
-        reverse("housepoints:leaderboard_semester", kwargs={"slug": "fa25"}) in content
+    assert response.context["house_display"] == "Bunnies"
+    assert response.context["house_url"] == reverse(
+        "housepoints:leaderboard_semester", kwargs={"slug": semester.slug}
     )
-    assert reverse("housepoints:my_awards") in content
+    athe.assert_testid(response, "dash-house-square", "dash-my-points-square")
 
 
 @pytest.mark.django_db
-def test_dashboard_bulk_award_link_for_staff():
-    """Test that Award Points link appears for staff only."""
-    client = Client()
-    User.objects.create_user(username="user", password="password")
-    User.objects.create_user(username="staff", password="password", is_staff=True)
+def test_dashboard_bulk_award_link_for_staff(
+    athe: AtheClient, make_user: Callable[..., User]
+):
+    """Award Points sits in the staff block, so only staff reach it."""
+    make_user(username="pupil")
+    make_user(username="staff", is_staff=True)
 
-    # Regular user should not see Award Points link
-    client.login(username="user", password="password")
-    response = client.get(reverse("index"))
-    content = response.content.decode()
-    assert "Award Points" not in content
+    athe.login("pupil")
+    athe.assert_no_testid(athe.get_ok("/"), "dash-staff-links")
 
-    # Staff should see Award Points link
-    client.login(username="staff", password="password")
-    response = client.get(reverse("index"))
-    content = response.content.decode()
-    assert "Award Points" in content
+    athe.login("staff")
+    athe.assert_testid(athe.get_ok("/"), "dash-staff-links")
