@@ -39,6 +39,12 @@ def completed(registration: StudentRegistration | None) -> set[str]:
     return set(registration.completed_steps) if registration else set()
 
 
+def done_count(registration: StudentRegistration | None) -> int:
+    """How many of the pages this student has saved."""
+    done = completed(registration)
+    return sum(step.slug in done for step in STEPS)
+
+
 def is_complete(registration: StudentRegistration | None) -> bool:
     """Whether every page has been saved."""
     return completed(registration).issuperset(step.slug for step in STEPS)

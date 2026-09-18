@@ -546,6 +546,55 @@ def download_responses(request: HttpRequest) -> HttpResponse:
 
 
 @superuser_required()
+def incomplete_registrations(
+    request: HttpRequest, slug: str | None = None
+) -> HttpResponse:
+    """The nag list: everyone on the roster who has not finished registering.
+
+    A student who never started has no registration row, and so no contact
+    details of their own -- the Airtable name they were rostered under is all
+    the site knows about them.
+    """
+    if slug is None:
+        semester = Semester.current()
+    else:
+        semester = get_object_or_404(Semester, slug=slug)
+
+    others = Semester.objects.all()
+    roster = Student.objects.none()
+    if semester is not None:
+        others = others.exclude(pk=semester.pk)
+        roster = Student.objects.filter(semester=semester).select_related(
+            "registration"
+        )
+    rows = []
+    for student in roster:
+        registration: StudentRegistration | None = getattr(
+            student, "registration", None
+        )
+        if wizard.is_complete(registration):
+            continue
+        rows.append(
+            {
+                "student": student,
+                "registration": registration,
+                "pages_done": wizard.done_count(registration),
+            }
+        )
+    return render(
+        request,
+        "reg/incomplete_registrations.html",
+        {
+            "semester": semester,
+            "semesters": others,
+            "rows": rows,
+            "roster_size": len(roster),
+            "total_pages": len(wizard.STEPS),
+        },
+    )
+
+
+@superuser_required()
 def student_responses(request: HttpRequest, slug: str) -> HttpResponse:
     """Download every questionnaire response for a semester as JSON."""
     semester = get_object_or_404(Semester, slug=slug)

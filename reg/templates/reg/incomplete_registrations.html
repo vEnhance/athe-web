@@ -1,0 +1,71 @@
+{% extends "home/base.html" %}
+{% block title %}
+    Incomplete Registrations - Athemath
+{% endblock title %}
+{% block content %}
+    <div id="content">
+        <h1>Incomplete Registrations</h1>
+        <p class="text-muted">
+            Everyone on the roster who has not finished the questionnaire, so you know
+            who to chase up. Students who never started have no contact details here:
+            all the site knows about them is the name they were rostered under.
+            Only available to superusers.
+        </p>
+        {% if semester %}
+            <p data-testid="incomplete-summary">
+                <strong>{{ semester.name }}</strong>:
+                {{ rows|length }} of {{ roster_size }} still to finish.
+            </p>
+            {% if rows %}
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Pages done</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Discord</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                            <tr data-testid="incomplete-row">
+                                <td data-testid="incomplete-name">{{ row.student.airtable_name }}</td>
+                                <td data-testid="incomplete-pages">{{ row.pages_done }}/{{ total_pages }}</td>
+                                {% if row.registration %}
+                                    <td data-testid="incomplete-email">
+                                        <a href="mailto:{{ row.registration.email }}">{{ row.registration.email }}</a>
+                                    </td>
+                                    <td data-testid="incomplete-discord">{{ row.registration.discord_username }}</td>
+                                {% else %}
+                                    <td colspan="2"
+                                        class="text-muted"
+                                        data-testid="incomplete-unstarted">Never started</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="alert alert-success" data-testid="incomplete-nobody">
+                    Everyone on the roster has finished. Nothing to chase up.
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-warning" data-testid="incomplete-no-semester">
+                There is no semester on the books that hasn't ended yet, so there is
+                nobody to chase up. Create one first.
+            </div>
+        {% endif %}
+        {% if semesters %}
+            <h2 class="mt-4">Other semesters</h2>
+            <ul class="list-group">
+                {% for other in semesters %}
+                    <li class="list-group-item">
+                        <a href="{% url 'reg:incomplete-registrations' other.slug %}"
+                           data-testid="incomplete-semester-link">{{ other.name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endblock content %}

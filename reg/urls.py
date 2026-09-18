@@ -20,6 +20,16 @@ urlpatterns = [
         views.StudentRegistrationStepView.as_view(),
         name="student-step",
     ),
+    path(
+        "incomplete/",
+        views.incomplete_registrations,
+        name="incomplete-registrations",
+    ),
+    path(
+        "incomplete/<slug:slug>/",
+        views.incomplete_registrations,
+        name="incomplete-registrations",
+    ),
     path("responses/", views.download_responses, name="download-responses"),
     path("responses/<slug:slug>.json", views.student_responses, name="responses"),
     path("assignments/", views.upload_assignments, name="upload-assignments"),

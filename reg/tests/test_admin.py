@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from courses.models import Semester
-from reg.models import StaffInviteLink, StudentInviteLink
+from reg.models import StaffInviteLink, StudentInviteLink, StudentRegistration
 
 
 @pytest.mark.django_db
@@ -150,3 +150,37 @@ def test_admin_add_and_change_pages_render():
         reverse("admin:reg_studentinvitelink_change", args=[student_invite.pk])
     )
     assert "semester" in response.context["adminform"].form.fields
+
+
+@pytest.mark.django_db
+def test_registration_admin_filters_by_pages_done(
+    athe, make_user, semester, make_student
+):
+    """The pages-done filter picks out who to nag, and who never finished."""
+    athe.login(make_user("greta", is_superuser=True, is_staff=True))
+
+    def register(name, *steps):
+        student = make_student(semester, airtable_name=name)
+        return StudentRegistration.objects.create(
+            student=student,
+            email=f"{name.lower()}@example.com",
+            parent_email="parent@example.com",
+            discord_username=name.lower(),
+            completed_steps=list(steps),
+        )
+
+    done = register("Alice", "you", "classes", "availability", "sorting")
+    partway = register("Bob", "you", "classes")
+    started = register("Carol", "you")
+
+    url = reverse("admin:reg_studentregistration_changelist")
+
+    def shown(**params):
+        response = athe.get_ok(url, data=params)
+        return set(response.context["cl"].queryset)
+
+    assert shown() == {done, partway, started}
+    assert shown(pages_done="unfinished") == {partway, started}
+    assert shown(pages_done="2") == {partway}
+    assert shown(pages_done="4") == {done}
+    assert shown(pages_done="0") == set()
