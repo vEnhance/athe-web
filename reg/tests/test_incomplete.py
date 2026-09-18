@@ -63,26 +63,65 @@ def test_lists_only_the_unfinished(
 
     assert athe.texts_of(response, "incomplete-name") == ["Bob Brown", "Carol Clark"]
     assert athe.texts_of(response, "incomplete-pages") == ["2/4", "0/4"]
-    assert athe.texts_of(response, "incomplete-email") == ["bob@example.com"]
-    assert athe.texts_of(response, "incomplete-discord") == ["bob"]
-    athe.assert_testid_count(response, "incomplete-unstarted", 1)
+    assert athe.texts_of(response, "incomplete-email") == [
+        "bob@example.com",
+        "none known",
+    ]
+    assert athe.texts_of(response, "incomplete-discord") == ["bob", "never started"]
 
 
 @pytest.mark.django_db
-def test_an_unstarted_student_leaks_nothing_but_their_roster_name(
+def test_an_unstarted_student_falls_back_to_their_account_email(
     athe: AtheClient,
     greta: User,
     semester: Semester,
     make_student: Callable[..., Student],
     make_user: Callable[..., User],
 ) -> None:
-    """A claimed name with no answers still only has the Airtable name to show."""
     user = make_user("carol", email="carol@example.com")
     make_student(semester, user=user, airtable_name="Carol Clark")
 
     response = athe.get_ok(URL)
     assert response.context["rows"][0]["registration"] is None
-    assert b"carol@example.com" not in response.content
+    assert response.context["rows"][0]["email"] == "carol@example.com"
+    assert athe.text_of(response, "incomplete-email") == "carol@example.com (account)"
+
+
+@pytest.mark.django_db
+def test_copy_button_carries_every_address_we_know(
+    athe: AtheClient,
+    greta: User,
+    semester: Semester,
+    make_student: Callable[..., Student],
+    make_user: Callable[..., User],
+) -> None:
+    register(make_student(semester, airtable_name="Bob Brown"), "you")
+    make_student(
+        semester,
+        user=make_user("carol", email="carol@example.com"),
+        airtable_name="Carol Clark",
+    )
+    make_student(semester, airtable_name="Dan Davis")
+    register(make_student(semester, airtable_name="Erin Evans"), *ALL_STEPS)
+
+    response = athe.get_ok(URL)
+    assert response.context["emails"] == ["bob@example.com", "carol@example.com"]
+    assert athe.text_of(response, "copy-emails") == "Copy 2 emails"
+    assert b'data-emails="bob@example.com, carol@example.com"' in response.content
+
+
+@pytest.mark.django_db
+def test_no_copy_button_without_an_address_to_copy(
+    athe: AtheClient,
+    greta: User,
+    semester: Semester,
+    make_student: Callable[..., Student],
+) -> None:
+    make_student(semester, airtable_name="Dan Davis")
+
+    response = athe.get_ok(URL)
+    assert response.context["emails"] == []
+    athe.assert_no_testid(response, "copy-emails", "email-list")
 
 
 @pytest.mark.django_db

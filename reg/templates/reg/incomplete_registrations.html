@@ -1,4 +1,5 @@
 {% extends "home/base.html" %}
+{% load static %}
 {% block title %}
     Incomplete Registrations - Athemath
 {% endblock title %}
@@ -7,15 +8,30 @@
         <h1>Incomplete Registrations</h1>
         <p class="text-muted">
             Everyone on the roster who has not finished the questionnaire, so you know
-            who to chase up. Students who never started have no contact details here:
-            all the site knows about them is the name they were rostered under.
-            Only available to superusers.
+            who to chase up. A student who never started has no email of their own
+            here, only whatever address is on the account they signed in with, if they
+            got even that far. Only available to superusers.
         </p>
         {% if semester %}
             <p data-testid="incomplete-summary">
                 <strong>{{ semester.name }}</strong>:
                 {{ rows|length }} of {{ roster_size }} still to finish.
             </p>
+            {% if emails %}
+                <p>
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            data-testid="copy-emails"
+                            data-emails="{{ emails|join:", " }}">
+                        Copy {{ emails|length }} email{{ emails|length|pluralize }}
+                    </button>
+                </p>
+                <textarea class="form-control mb-3"
+                          rows="3"
+                          readonly
+                          hidden
+                          data-testid="email-list">{{ emails|join:", " }}</textarea>
+            {% endif %}
             {% if rows %}
                 <table class="table table-striped align-middle">
                     <thead>
@@ -31,16 +47,21 @@
                             <tr data-testid="incomplete-row">
                                 <td data-testid="incomplete-name">{{ row.student.airtable_name }}</td>
                                 <td data-testid="incomplete-pages">{{ row.pages_done }}/{{ total_pages }}</td>
-                                {% if row.registration %}
-                                    <td data-testid="incomplete-email">
-                                        <a href="mailto:{{ row.registration.email }}">{{ row.registration.email }}</a>
-                                    </td>
-                                    <td data-testid="incomplete-discord">{{ row.registration.discord_username }}</td>
-                                {% else %}
-                                    <td colspan="2"
-                                        class="text-muted"
-                                        data-testid="incomplete-unstarted">Never started</td>
-                                {% endif %}
+                                <td data-testid="incomplete-email">
+                                    {% if row.email %}
+                                        <a href="mailto:{{ row.email }}">{{ row.email }}</a>
+                                        {% if not row.registration %}<span class="text-muted">(account)</span>{% endif %}
+                                    {% else %}
+                                        <span class="text-muted">none known</span>
+                                    {% endif %}
+                                </td>
+                                <td data-testid="incomplete-discord">
+                                    {% if row.registration %}
+                                        {{ row.registration.discord_username }}
+                                    {% else %}
+                                        <span class="text-muted">never started</span>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -69,3 +90,6 @@
         {% endif %}
     </div>
 {% endblock content %}
+{% block extra_js %}
+    <script src="{% static 'js/copy-emails.js' %}"></script>
+{% endblock extra_js %}
