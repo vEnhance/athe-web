@@ -545,6 +545,64 @@ def download_responses(request: HttpRequest) -> HttpResponse:
     )
 
 
+def _nag_address(student: Student, registration: StudentRegistration | None) -> str:
+    """Where to write to this student: what they told us, else their account."""
+    if registration is not None:
+        return registration.email
+    return student.user.email if student.user is not None else ""
+
+
+@superuser_required()
+def incomplete_registrations(
+    request: HttpRequest, slug: str | None = None
+) -> HttpResponse:
+    """The nag list: everyone on the roster who has not finished registering.
+
+    A student who never started has no registration row, so all the site knows
+    about them is the name they were rostered under, plus whatever address is
+    on the account they signed in with, if they got even that far.
+    """
+    if slug is None:
+        semester = Semester.current()
+    else:
+        semester = get_object_or_404(Semester, slug=slug)
+
+    others = Semester.objects.all()
+    roster = Student.objects.none()
+    if semester is not None:
+        others = others.exclude(pk=semester.pk)
+        roster = Student.objects.filter(semester=semester).select_related(
+            "registration", "user"
+        )
+    rows = []
+    for student in roster:
+        registration: StudentRegistration | None = getattr(
+            student, "registration", None
+        )
+        if wizard.is_complete(registration):
+            continue
+        rows.append(
+            {
+                "student": student,
+                "registration": registration,
+                "email": _nag_address(student, registration),
+                "pages_done": wizard.done_count(registration),
+            }
+        )
+    return render(
+        request,
+        "reg/incomplete_registrations.html",
+        {
+            "semester": semester,
+            "semesters": others,
+            "rows": rows,
+            "emails": [row["email"] for row in rows if row["email"]],
+            "roster_size": len(roster),
+            "total_pages": len(wizard.STEPS),
+        },
+    )
+
+
 @superuser_required()
 def student_responses(request: HttpRequest, slug: str) -> HttpResponse:
     """Download every questionnaire response for a semester as JSON."""

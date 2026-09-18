@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib import admin
 from django.db.models import QuerySet
 from django.http import HttpRequest
@@ -61,6 +63,36 @@ class StudentInviteLinkAdmin(InviteLinkAdmin):
     list_filter = ["semester", "expiration_date", "created_at"]
 
 
+class PagesDoneFilter(admin.SimpleListFilter):
+    """How far through the questionnaire a student got, for chasing up the rest.
+
+    The count lives inside a JSON list, which SQLite and MySQL disagree about
+    how to measure, so the tallying happens in Python rather than in the query.
+    """
+
+    title = "pages done"
+    parameter_name = "pages_done"
+
+    def lookups(self, request: HttpRequest, model_admin: Any) -> list[tuple[str, str]]:
+        total = len(wizard.STEPS)
+        return [
+            ("unfinished", "Unfinished (any)"),
+            *((str(n), f"{n} of {total}") for n in range(total + 1)),
+        ]
+
+    def queryset(
+        self, request: HttpRequest, queryset: QuerySet[StudentRegistration]
+    ) -> QuerySet[StudentRegistration]:
+        value = self.value()
+        if value is None:
+            return queryset
+        if value == "unfinished":
+            matches = (reg for reg in queryset if not wizard.is_complete(reg))
+        else:
+            matches = (reg for reg in queryset if wizard.done_count(reg) == int(value))
+        return queryset.filter(pk__in=[reg.pk for reg in matches])
+
+
 class CoursePreferenceInline(admin.TabularInline):  # type: ignore[type-arg]
     model = CoursePreference
     extra = 0
@@ -80,7 +112,7 @@ class StudentRegistrationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         "pages_done",
         "updated_at",
     ]
-    list_filter = ["student__semester"]
+    list_filter = ["student__semester", PagesDoneFilter]
     search_fields = [
         "student__airtable_name",
         "email",
@@ -100,4 +132,4 @@ class StudentRegistrationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 
     @admin.display(description="Pages done")
     def pages_done(self, obj: StudentRegistration) -> str:
-        return f"{len(obj.completed_steps)}/{len(wizard.STEPS)}"
+        return f"{wizard.done_count(obj)}/{len(wizard.STEPS)}"
