@@ -31,7 +31,7 @@ def staffer(make_user: Callable[..., User]) -> User:
 def office_hours(make_course: Callable[..., Course], semester: Semester) -> Course:
     return make_course(
         semester,
-        name="Office Hours (Alex + Heather)",
+        name="OH (Alex + Heather)",
         is_club=True,
         is_office_hours=True,
     )
