@@ -5,6 +5,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import F
 from django.urls import reverse
 from django.utils import timezone
 
@@ -22,10 +23,10 @@ class TicketQuerySet(models.QuerySet["Ticket"]):
         return self.filter(resolved_at__isnull=False)
 
     def for_review(self) -> TicketQuerySet:
-        """Every ticket on the staff list, oldest first so the queue is a queue."""
+        """Every ticket on the staff list."""
         return self.select_related(
             "student", "student__user", "meeting", "meeting__course"
-        ).order_by("created_at")
+        ).order_by(F("resolved_at").desc(nulls_first=True), "-created_at")
 
     def followed_by(self, user: AbstractBaseUser | AnonymousUser) -> TicketQuerySet:
         """Tickets aimed at an office hours session this staff member follows."""
