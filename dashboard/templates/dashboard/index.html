@@ -215,13 +215,13 @@
                     Master calendar of courses.
                 </li>
                 <li data-testid="dash-review-tickets">
-                    Review Questions:
+                    <a href="{% url 'tickets:review_list' %}">Review Questions</a>:
                     {% if tickets_to_review %}
-                        There {{ tickets_to_review|pluralize:"is,are" }} {{ tickets_to_review }}
-                        question{{ tickets_to_review|pluralize }} to review. You can see
-                        <a href="{% url 'tickets:review_list' %}">them here</a>.
+                        There {{ tickets_to_review|pluralize:"is,are" }}
+                        <strong>{{ tickets_to_review }} question{{ tickets_to_review|pluralize }}</strong>
+                        to review.
                     {% else %}
-                        There are no questions to review.
+                        No unresolved questions now.
                     {% endif %}
                 </li>
             </ul>
