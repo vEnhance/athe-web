@@ -1,4 +1,6 @@
 from collections.abc import Callable
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import pytest
 from django.contrib.auth.models import User
@@ -10,6 +12,8 @@ from home.models import StaffPhotoListing
 from tickets.models import Ticket
 
 REVIEW = reverse("tickets:review_list")
+
+EASTERN = ZoneInfo("America/New_York")
 
 
 def make_ticket_for(student: Student, meeting: CourseMeeting) -> Ticket:
@@ -38,10 +42,39 @@ def test_review_list_sorts_correctly(
     athe: AtheClient,
     student: Student,
     staffer: User,
-    make_ticket: Callable[..., Ticket],
 ):
-    # TODO rewrite this
-    pass
+    # unresolved tickets should all just sort by implicit created_at
+    # resolved tickets sort by resolved_at
+    Ticket.objects.create(
+        student=student,
+        title="4",
+        resolved_at=datetime(2050, 10, 2, tzinfo=EASTERN),
+        resolved_by=staffer,
+    )
+    Ticket.objects.create(
+        student=student,
+        title="2",
+    )
+    Ticket.objects.create(
+        student=student,
+        title="3",
+        resolved_at=datetime(2050, 10, 3, tzinfo=EASTERN),
+        resolved_by=staffer,
+    )
+    Ticket.objects.create(
+        student=student,
+        title="1",
+    )
+    Ticket.objects.create(
+        student=student,
+        title="5",
+        resolved_at=datetime(2050, 10, 1, tzinfo=EASTERN),
+        resolved_by=staffer,
+    )
+
+    athe.login(staffer)
+    response = athe.get_ok(REVIEW)
+    assert athe.texts_of(response, "ticket-title") == ["1", "2", "3", "4", "5"]
 
 
 @pytest.mark.django_db
