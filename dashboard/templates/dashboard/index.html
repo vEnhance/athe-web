@@ -154,15 +154,15 @@
                 {% endif %}
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-6">
-                <h2>
-                    Questions
-                    <a class="badge bg-secondary dash-see-all"
-                       data-testid="dash-see-all-tickets"
-                       href="{% url 'tickets:ticket_list' %}">See all</a>
-                </h2>
-                {% if can_submit_ticket %}
+        {% if can_submit_ticket %}
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>
+                        Questions
+                        <a class="badge bg-secondary dash-see-all"
+                           data-testid="dash-see-all-tickets"
+                           href="{% url 'tickets:ticket_list' %}">See all</a>
+                    </h2>
                     {% if open_tickets %}
                         <ul class="dash-course-list" data-testid="dash-open-tickets">
                             {% for ticket in open_tickets %}
@@ -185,11 +185,10 @@
                     <a class="btn btn-primary btn-sm"
                        data-testid="dash-submit-ticket"
                        href="{% url 'tickets:submit' %}">Submit a Question</a>
-                {% else %}
                     <p data-testid="dash-tickets-unavailable">Questions are for students enrolled in the current semester.</p>
-                {% endif %}
+                </div>
             </div>
-        </div>
+        {% endif %}
         {% if user.is_staff %}
             <h2>Staff</h2>
             <ul class="dash-links" data-testid="dash-staff-links">

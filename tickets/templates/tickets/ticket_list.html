@@ -16,6 +16,8 @@
                    class="btn btn-primary"
                    data-testid="ticket-submit-link">Submit a Question</a>
             </p>
+        {% else %}
+            <p class="text-muted">You aren't a student in the current semester.</p>
         {% endif %}
         {% if tickets %}
             <div class="ticket-list">
