@@ -62,7 +62,7 @@ class TicketReviewForm(forms.ModelForm):  # type: ignore[type-arg]
     class Meta:
         model = Ticket
         fields = ["staff_notes"]
-        widgets = {"staff_notes": forms.Textarea(attrs={"rows": 6})}
+        widgets = {"staff_notes": forms.Textarea(attrs={"rows": 2})}
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
