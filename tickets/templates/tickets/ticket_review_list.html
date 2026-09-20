@@ -11,10 +11,6 @@
 {% block content %}
     <div id="content">
         <h1>Review Questions</h1>
-        <p>
-            Here's a list of questions submitted by students. Click on any question
-            to review it.
-        </p>
         <form method="get" class="mb-4" data-testid="ticket-filter">
             <label class="form-label" for="session">Office hours session</label>
             <div class="d-flex gap-2">
@@ -49,15 +45,15 @@
                             data-testid="ticket-row">
                             <td>
                                 <a href="{% url 'tickets:review_detail' pk=ticket.pk %}"
-                                   data-testid="ticket-title">{{ ticket.title }}</a>
+                                   data-testid="ticket-title">{{ ticket.title|truncatechars:"20" }}</a>
                             </td>
                             <td data-testid="ticket-student">{{ ticket.student }}</td>
                             <td data-testid="ticket-where">
                                 {{ ticket.destination }}
-                                {% if ticket.meeting %}on {{ ticket.meeting.start_time|local_datetime:"D M j, g:i A e" }}{% endif %}
+                                {% if ticket.meeting %}<br />{{ ticket.meeting.start_time|local_datetime:"D M j, g:i A e" }}{% endif %}
                             </td>
                             <td>{{ ticket.created_at|naturaltime }}</td>
-                            <td>{{ ticket.resolved_at|naturaltime }}</td>
+                            <td>{{ ticket.resolved_at|naturaltime|default_if_none:"—" }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

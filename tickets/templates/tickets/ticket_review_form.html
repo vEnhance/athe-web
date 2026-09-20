@@ -21,14 +21,15 @@
             </span>
         </p>
         <div class="ticket-question mb-4" data-testid="ticket-question">{{ ticket.question|linebreaks }}</div>
+        <hr />
+        <h3>Update ticket</h3>
         {% if ticket.is_resolved %}
-            <p class="text-muted" data-testid="ticket-resolved-by">
+            <p data-testid="ticket-resolved-by">
+                Current status:
                 Resolved by {{ ticket.resolved_by.get_full_name|default:ticket.resolved_by.username|default:"staff" }}
                 on {{ ticket.resolved_at|local_datetime:"D M j, g:i A e" }}.
             </p>
         {% endif %}
-        <hr />
-        <h3>Update ticket</h3>
         <div class="row">
             <div class="col-lg-8">
                 <form method="post">
