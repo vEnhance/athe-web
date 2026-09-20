@@ -83,7 +83,11 @@ def test_submit_for_discord_dm(athe: AtheClient, student: Student):
     athe.post_redirects(
         MY_QUESTIONS,
         SUBMIT,
-        {"title": "What is a root of unity?", "question": "Just curious", "meeting": ""},
+        {
+            "title": "What is a root of unity?",
+            "question": "Just curious",
+            "meeting": "",
+        },
     )
 
     assert Ticket.objects.get().meeting is None

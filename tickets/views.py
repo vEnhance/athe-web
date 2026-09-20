@@ -69,8 +69,7 @@ class TicketCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         if meeting is None:
             messages.success(
                 self.request,
-                "Your question has been submitted. Staff will answer it by "
-                "Discord DM.",
+                "Your question has been submitted. Staff will answer it by Discord DM.",
             )
         else:
             when = timezone.localtime(meeting.start_time)

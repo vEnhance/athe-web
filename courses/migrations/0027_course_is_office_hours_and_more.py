@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("courses", "0026_course_subscribed_staff_student_organizers"),
         ("home", "0014_alter_staffphotolisting_photo"),

@@ -67,7 +67,9 @@ def test_office_hours_within_skips_finished_semesters(
         start_date=today - timedelta(days=200),
         end_date=today - timedelta(days=1),
     )
-    stale = make_course(over, name="Office Hours (Old)", is_club=True, is_office_hours=True)
+    stale = make_course(
+        over, name="Office Hours (Old)", is_club=True, is_office_hours=True
+    )
     make_meeting(stale, days=3)
 
     assert not CourseMeeting.objects.office_hours_within(15).exists()

@@ -97,7 +97,6 @@ def test_review_list_flags_sessions_this_staffer_follows(
     assert response.context["followed"] == {mine.pk}
 
 
-
 @pytest.mark.django_db
 def test_review_list_filters_by_session(
     athe: AtheClient,
@@ -125,7 +124,6 @@ def test_review_list_filters_by_session(
     assert titles(athe, f"{REVIEW}?session=dm") == ["Discord one"]
     assert len(titles(athe, REVIEW)) == 3
     assert list(athe.get_ok(REVIEW).context["sessions"]) == [office_hours, other]
-
 
 
 @pytest.mark.django_db
