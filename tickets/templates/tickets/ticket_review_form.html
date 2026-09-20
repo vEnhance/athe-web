@@ -10,7 +10,7 @@
 {% endblock extra_css %}
 {% block content %}
     <div id="content">
-        <h1 data-testid="ticket-title">{{ ticket.title }}</h1>
+        <h2 data-testid="ticket-title">{{ ticket.title }}</h2>
         <p class="ticket-meta">
             Asked by <strong data-testid="ticket-student">{{ ticket.student }}</strong>
             on {{ ticket.created_at|local_datetime:"D M j, g:i A e" }}
@@ -27,6 +27,8 @@
                 on {{ ticket.resolved_at|local_datetime:"D M j, g:i A e" }}.
             </p>
         {% endif %}
+        <hr />
+        <h3>Update ticket</h3>
         <div class="row">
             <div class="col-lg-8">
                 <form method="post">
