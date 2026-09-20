@@ -13,6 +13,7 @@ from courses.models import Course, CourseMeeting, GlobalEvent, Semester, Student
 from housepoints.models import Award
 from reg import wizard
 from reg.models import StudentInviteLink, StudentRegistration
+from tickets.models import Ticket
 from yearbook.models import YearbookEntry
 
 INDEX = "/"
@@ -264,6 +265,7 @@ def test_navbar_dropdown_is_trimmed(athe: AtheClient, student: Student):
         "nav-calendar",
         "nav-upcoming",
         "nav-blog",
+        "nav-tickets",
         "nav-profile",
         "nav-providers",
         "nav-logout",
@@ -886,3 +888,53 @@ def test_dashboard_orders_a_coming_semester_after_the_running_one(
 
     # Alphabetically Aardvark would win; the running semester outranks it.
     assert listed(response, "dash_classes") == ["Zebra Theory", "Aardvark Theory"]
+
+
+@pytest.mark.django_db
+def test_dashboard_previews_a_students_open_questions(
+    athe: AtheClient, semester: Semester, student: Student
+):
+    """Open tickets are previewed; answered ones have stopped being news."""
+    Ticket.objects.create(student=student, title="AMC 2024 P17", question="?")
+    answered = Ticket.objects.create(
+        student=student, title="Root of unity", question="?"
+    )
+    answered.resolve(student.user)
+    answered.save()
+
+    athe.login("lucy")
+    response = athe.get_ok(INDEX)
+
+    assert [t.title for t in response.context["open_tickets"]] == ["AMC 2024 P17"]
+    athe.assert_testid(response, "dash-open-tickets", "dash-submit-ticket")
+
+
+@pytest.mark.django_db
+def test_dashboard_invites_a_student_with_no_questions(
+    athe: AtheClient, semester: Semester, student: Student
+):
+    athe.login("lucy")
+    response = athe.get_ok(INDEX)
+
+    assert response.context["open_tickets"] == []
+    athe.assert_testid(response, "dash-no-tickets", "dash-submit-ticket")
+
+
+@pytest.mark.django_db
+def test_dashboard_counts_questions_for_staff(
+    athe: AtheClient,
+    semester: Semester,
+    student: Student,
+    make_user: Callable[..., User],
+):
+    """The staff line counts what is still open, and is staff-only."""
+    Ticket.objects.create(student=student, title="AMC 2024 P17", question="?")
+
+    athe.login("lucy")
+    athe.assert_no_testid(athe.get_ok(INDEX), "dash-review-tickets")
+
+    athe.login(make_user(username="alex", is_staff=True))
+    response = athe.get_ok(INDEX)
+
+    assert response.context["tickets_to_review"] == 1
+    assert "1 question to review" in athe.text_of(response, "dash-review-tickets")

@@ -21,8 +21,20 @@
            href="{% url 'weblog:blog_landing' %}">My Blog Posts</a>
     </li>
     <li>
+        <a class="dropdown-item"
+           data-testid="nav-tickets"
+           href="{% url 'tickets:submit' %}">Submit Questions</a>
+    </li>
+    <li>
         <hr class="dropdown-divider">
     </li>
+    {% if request.user.is_staff %}
+        <li>
+            <a class="dropdown-item"
+               data-testid="nav-review-tickets"
+               href="{% url 'tickets:review_list' %}">Review Questions</a>
+        </li>
+    {% endif %}
     {% if request.user.is_superuser %}
         <li>
             <a class="dropdown-item"

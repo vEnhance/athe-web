@@ -64,11 +64,12 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "is_club",
+        "is_office_hours",
         "semester",
         "instructor",
         "discord_reminders_enabled",
     )
-    list_filter = ("is_club", "semester", "difficulty")
+    list_filter = ("is_club", "is_office_hours", "semester", "difficulty")
     search_fields = ("name", "description")
     autocomplete_fields = ("instructor", "subscribed_staff")
     filter_horizontal = ("students", "student_organizers")

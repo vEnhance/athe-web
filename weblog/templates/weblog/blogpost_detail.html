@@ -46,15 +46,5 @@
     </div>
 {% endblock content %}
 {% block extra_js %}
-    <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
-            },
-        };
-    </script>
-    <script id="MathJax-script"
-            async
-            src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+    {% include "home/components/mathjax.html" %}
 {% endblock extra_js %}

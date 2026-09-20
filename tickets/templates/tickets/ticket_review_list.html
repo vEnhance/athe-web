@@ -1,0 +1,65 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% load humanize %}
+{% load local_time %}
+{% block title %}
+    Review Questions - Athemath
+{% endblock title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/tickets.css' %}" />
+{% endblock extra_css %}
+{% block content %}
+    <div id="content">
+        <h1>Review Questions</h1>
+        <form method="get" class="mb-4" data-testid="ticket-filter">
+            <label class="form-label" for="session">Office hours session</label>
+            <div class="d-flex gap-2">
+                <select class="form-select w-auto" id="session" name="session">
+                    <option value="">All questions</option>
+                    <option value="{{ dm_filter }}"
+                            {% if chosen_session == dm_filter %}selected{% endif %}>Discord DM</option>
+                    {% for session in sessions %}
+                        <option value="{{ session.pk }}"
+                                {% if chosen_session == session.pk|stringformat:"s" %}selected{% endif %}>
+                            {{ session.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-outline-dark">Filter</button>
+            </div>
+        </form>
+        {% if tickets %}
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th>Student</th>
+                        <th>Answer via</th>
+                        <th>Submitted</th>
+                        <th>Resolved</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                        <tr class="{% if ticket.is_resolved %}ticket-done{% elif ticket.pk in followed %}ticket-office-hours{% endif %}"
+                            data-testid="ticket-row">
+                            <td>
+                                <a href="{% url 'tickets:review_detail' pk=ticket.pk %}"
+                                   data-testid="ticket-title">{{ ticket.title|truncatechars:"20" }}</a>
+                            </td>
+                            <td data-testid="ticket-student">{{ ticket.student }}</td>
+                            <td data-testid="ticket-where">
+                                {{ ticket.destination }}
+                                {% if ticket.meeting %}<br />{{ ticket.meeting.start_time|local_datetime:"D M j, g:i A e" }}{% endif %}
+                            </td>
+                            <td>{{ ticket.created_at|naturaltime }}</td>
+                            <td>{{ ticket.resolved_at|naturaltime|default_if_none:"—" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted" data-testid="ticket-none">There are no questions to review.</p>
+        {% endif %}
+    </div>
+{% endblock content %}

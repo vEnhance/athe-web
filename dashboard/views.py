@@ -21,6 +21,7 @@ from courses.models import Course, CourseMeeting, GlobalEvent, Semester, Student
 from housepoints.models import Award
 from reg import wizard
 from reg.models import StudentInviteLink, StudentRegistration
+from tickets.models import Ticket
 from yearbook.models import YearbookEntry
 
 
@@ -163,6 +164,20 @@ def _dashboard_house(student: Student) -> dict[str, Any]:
     }
 
 
+def _dashboard_tickets(user: User, student: Student | None) -> dict[str, Any]:
+    """The question-ticket corner: a student's open ones, or the staff queue."""
+    context: dict[str, Any] = {"can_submit_ticket": student is not None}
+    if student is not None:
+        context["open_tickets"] = list(
+            Ticket.objects.filter(student__user=user)
+            .open()
+            .select_related("meeting", "meeting__course")[:5]
+        )
+    if user.is_staff:
+        context["tickets_to_review"] = Ticket.objects.open().count()
+    return context
+
+
 @login_required
 def dashboard(request: HttpRequest) -> HttpResponse:
     """Landing page for logged-in users: their classes, house, and staff tools."""
@@ -211,6 +226,7 @@ def dashboard(request: HttpRequest) -> HttpResponse:
         "house_url": reverse("housepoints:leaderboard"),
         "yearbook_url": reverse("yearbook:index"),
     }
+    context |= _dashboard_tickets(request.user, student)
     if student is not None:
         context |= _dashboard_house(student)
         context["house_url"] = reverse(

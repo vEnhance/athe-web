@@ -1,0 +1,53 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% load local_time %}
+{% block title %}
+    My Questions - Athemath
+{% endblock title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/tickets.css' %}" />
+{% endblock extra_css %}
+{% block content %}
+    <div id="content">
+        <h1>My Questions</h1>
+        {% if can_submit %}
+            <p>
+                <a href="{% url 'tickets:submit' %}"
+                   class="btn btn-primary"
+                   data-testid="ticket-submit-link">Submit a Question</a>
+            </p>
+        {% endif %}
+        {% if tickets %}
+            <div class="ticket-list">
+                {% for ticket in tickets %}
+                    <div class="ticket-card {% if ticket.is_resolved %}ticket-done{% elif ticket.meeting %}ticket-office-hours{% endif %}"
+                         data-testid="ticket-card">
+                        <h2 class="ticket-title" data-testid="ticket-title">{{ ticket.title }}</h2>
+                        <p class="ticket-meta">
+                            {% if ticket.meeting %}
+                                <span data-testid="ticket-where">
+                                    {{ ticket.meeting.course.name }} on
+                                    {{ ticket.meeting.start_time|local_datetime:"D M j, g:i A e" }}
+                                </span>
+                            {% else %}
+                                <span data-testid="ticket-where">via Discord DM</span>
+                            {% endif %}
+                            ·
+                            {% if ticket.is_resolved %}
+                                <span data-testid="ticket-status">Answered</span>
+                            {% else %}
+                                <span data-testid="ticket-status">Waiting</span>
+                            {% endif %}
+                        </p>
+                        <div class="ticket-question">{{ ticket.question|linebreaks }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted" data-testid="ticket-none">You haven't submitted any questions yet.</p>
+        {% endif %}
+    </div>
+{% endblock content %}
+{% block extra_js %}
+    {% include "home/components/mathjax.html" %}
+{% endblock extra_js %}

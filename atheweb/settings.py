@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     "misc",
     "reg",
     "ta_attendance",
+    "tickets",
     "weblog",
     "yearbook",
 ]

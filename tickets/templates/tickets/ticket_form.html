@@ -1,0 +1,34 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}
+    Submit a Question - Athemath
+{% endblock title %}
+{% block content %}
+    <div id="content">
+        <h2>Submit a Question</h2>
+        <h3>You can pre-submit questions before office hour starts!</h3>
+        <div class="row">
+            <div class="col-lg-5">
+                <p>
+                    Submit any math questions you have before office hours begins.
+                    This helps the TA's prepare ahead of time.
+                </p>
+                <p>You can also request to get a reply via Discord DM rather than office hours.</p>
+                <p>
+                    Any math question or problem is welcome!
+                    It could be a problem from a class handout, past contest problem,
+                    or any general question (e.g. "what's a root of unity?").
+                </p>
+            </div>
+            <div class="col-lg-7">
+                <form method="post" data-testid="ticket-form">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    <button type="submit" class="btn btn-primary">Submit question</button>
+                    <a href="{% url 'tickets:ticket_list' %}"
+                       class="btn btn-outline-secondary">My Questions</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
