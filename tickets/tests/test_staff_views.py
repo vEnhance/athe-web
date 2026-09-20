@@ -26,7 +26,7 @@ def titles(athe: AtheClient, url: str) -> list[str]:
 def test_review_list_is_staff_only(
     athe: AtheClient, student: Student, make_ticket: Callable[..., Ticket]
 ):
-    ticket = make_ticket(student, title="AMC 2024 P17")
+    ticket = make_ticket(student, title="FLT")
 
     athe.login("lucy")
     athe.get_redirects("/", REVIEW)

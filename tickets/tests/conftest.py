@@ -56,8 +56,10 @@ def sitting(
 
 @pytest.fixture
 def make_ticket() -> Callable[..., Ticket]:
-    def _make(student: Student, title: str = "AMC 2024 P17", **kwargs: Any) -> Ticket:
-        defaults = {"question": "How do I start? $x^2 = 1$"}
+    def _make(student: Student, title: str = "FLT", **kwargs: Any) -> Ticket:
+        defaults = {
+            "question": "How do I solve this Diophantine? $a^n+b^n=c^n$, $n>2$."
+        }
         return Ticket.objects.create(
             student=student, title=title, **(defaults | kwargs)
         )

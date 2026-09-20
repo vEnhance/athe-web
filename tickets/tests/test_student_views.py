@@ -51,7 +51,7 @@ def test_submit_for_office_hours(
     athe.post_redirects(
         MY_QUESTIONS,
         SUBMIT,
-        {"title": "AMC 2024 P17", "question": "How do I start?", "meeting": sitting.pk},
+        {"title": "FLT", "question": "How do I start?", "meeting": sitting.pk},
     )
 
     ticket = Ticket.objects.get()
@@ -67,7 +67,7 @@ def test_office_hours_submission_names_the_voice_channel(
     athe.login("lucy")
     response = athe.post(
         SUBMIT,
-        {"title": "AMC 2024 P17", "question": "How do I start?", "meeting": sitting.pk},
+        {"title": "FLT", "question": "How do I start?", "meeting": sitting.pk},
         follow=True,
     )
 
