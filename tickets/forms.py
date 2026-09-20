@@ -29,8 +29,10 @@ class TicketForm(forms.ModelForm):  # type: ignore[type-arg]
     meeting = MeetingChoiceField(
         queryset=CourseMeeting.objects.none(),
         required=False,
+        blank=True,
         empty_label=DM_LABEL,
         label="Where should we answer this?",
+        widget=forms.RadioSelect,
     )
 
     class Meta:
