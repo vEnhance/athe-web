@@ -1,0 +1,26 @@
+{% extends "home/base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}
+    Submit a Question - Athemath
+{% endblock title %}
+{% block content %}
+    <div id="content">
+        <h1>Submit a Question</h1>
+        <p>
+            Submit any math question or problem you have here! It could be a problem
+            from a class handout, past contest problem, or any general question
+            (e.g. "what's a root of unity?").
+        </p>
+        <div class="row">
+            <div class="col-lg-8">
+                <form method="post" data-testid="ticket-form">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    <button type="submit" class="btn btn-primary">Submit question</button>
+                    <a href="{% url 'tickets:ticket_list' %}"
+                       class="btn btn-outline-secondary">My Questions</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

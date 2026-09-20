@@ -40,6 +40,7 @@ urlpatterns = [
     path("ta-attendance/", include("ta_attendance.urls")),
     path("accounts/", include("allauth.urls")),
     path("reg/", include("reg.urls")),
+    path("tickets/", include("tickets.urls")),
     path("yearbook/", include("yearbook.urls")),
     path("blog/", include("weblog.urls")),
     path("misc/", include("misc.urls")),

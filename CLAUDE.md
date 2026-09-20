@@ -44,6 +44,7 @@ Local apps in `INSTALLED_APPS`:
 | `misc`          | One-off static pages                                                                              |
 | `reg`           | Registration wizard, invite links, course preferences                                             |
 | `ta_attendance` | Staff attendance records for club sessions                                                        |
+| `tickets`       | Student questions answered at office hours or by Discord DM                                       |
 | `weblog`        | Blog posts, with custom markdown extensions                                                       |
 | `yearbook`      | Student yearbook entries                                                                          |
 

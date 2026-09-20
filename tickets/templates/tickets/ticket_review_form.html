@@ -1,0 +1,45 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load local_time %}
+{% block title %}
+    {{ ticket.title }} - Review Questions - Athemath
+{% endblock title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/tickets.css' %}" />
+{% endblock extra_css %}
+{% block content %}
+    <div id="content">
+        <h1 data-testid="ticket-title">{{ ticket.title }}</h1>
+        <p class="ticket-meta">
+            Asked by <strong data-testid="ticket-student">{{ ticket.student }}</strong>
+            on {{ ticket.created_at|local_datetime:"D M j, g:i A e" }}
+            ·
+            <span data-testid="ticket-where">
+                {{ ticket.destination }}
+                {% if ticket.meeting %}on {{ ticket.meeting.start_time|local_datetime:"D M j, g:i A e" }}{% endif %}
+            </span>
+        </p>
+        <div class="ticket-question mb-4" data-testid="ticket-question">{{ ticket.question|linebreaks }}</div>
+        {% if ticket.is_resolved %}
+            <p class="text-muted" data-testid="ticket-resolved-by">
+                Resolved by {{ ticket.resolved_by.get_full_name|default:ticket.resolved_by.username|default:"staff" }}
+                on {{ ticket.resolved_at|local_datetime:"D M j, g:i A e" }}.
+            </p>
+        {% endif %}
+        <div class="row">
+            <div class="col-lg-8">
+                <form method="post">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a href="{% url 'tickets:review_list' %}"
+                       class="btn btn-outline-secondary">Back to all questions</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_js %}
+    {% include "home/components/mathjax.html" %}
+{% endblock extra_js %}

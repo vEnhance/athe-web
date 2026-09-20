@@ -1,4 +1,5 @@
 import secrets
+from datetime import timedelta
 from typing import ClassVar
 
 from django.conf import settings
@@ -177,6 +178,11 @@ class Course(models.Model):
         default=False,
         help_text="Whether this is a club (vs. a class).",
     )
+    is_office_hours = models.BooleanField(
+        default=False,
+        help_text="Whether this club is a weekly office hours session, whose "
+        "meetings students may send questions to.",
+    )
     description = models.TextField()
     semester = models.ForeignKey(
         Semester, on_delete=models.CASCADE, related_name="courses"
@@ -301,6 +307,8 @@ class Course(models.Model):
     def clean(self) -> None:
         """Validate that everyone attached as a student is in this semester."""
         super().clean()
+        if self.is_office_hours and not self.is_club:
+            raise ValidationError("Only a club can be an office hours session.")
         # Only validate if the instance has been saved (has a pk)
         if self.pk:
             for field in ("students", "student_organizers"):
@@ -318,6 +326,12 @@ class Course(models.Model):
 
     class Meta:
         ordering = ("-semester__start_date", "is_club", "name")
+        constraints = (
+            models.CheckConstraint(
+                condition=Q(is_office_hours=False) | Q(is_club=True),
+                name="office_hours_must_be_a_club",
+            ),
+        )
 
 
 class Student(models.Model):
@@ -376,6 +390,23 @@ class Student(models.Model):
         ordering = ("-semester__start_date", "airtable_name")
 
 
+class CourseMeetingQuerySet(models.QuerySet["CourseMeeting"]):
+    def office_hours_within(self, days: int) -> CourseMeetingQuerySet:
+        """Office hours sittings a student can still send a question to.
+
+        The horizon is what keeps the dropdown on the ticket form short: these
+        sessions run every week, so without one the list grows to the length of
+        the semester and buries the two or three sittings anyone would pick.
+        """
+        now = timezone.now()
+        return self.filter(
+            course__is_office_hours=True,
+            course__semester__end_date__gte=timezone.localdate(),
+            start_time__gte=now,
+            start_time__lte=now + timedelta(days=days),
+        ).select_related("course")
+
+
 class CourseMeeting(models.Model):
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="meetings"
@@ -387,6 +418,8 @@ class CourseMeeting(models.Model):
     reminder_sent = models.BooleanField(
         default=False, help_text="Whether a reminder has been sent for this meeting."
     )
+
+    objects: ClassVar[CourseMeetingQuerySet] = CourseMeetingQuerySet.as_manager()  # type: ignore[assignment]
 
     def __str__(self) -> str:
         return f"{self.course.name} - {self.title} ({self.start_time})"

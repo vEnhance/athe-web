@@ -1,0 +1,39 @@
+/* Office hours and DM question tickets. */
+
+#content .ticket-card {
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  border: 1px solid #e0d3d3;
+  border-radius: 8px;
+}
+
+#content .ticket-title {
+  margin: 0;
+  font-size: 20px;
+}
+
+#content .ticket-meta {
+  margin-bottom: 8px;
+  font-size: 15px;
+  color: #555;
+}
+
+#content .ticket-question {
+  margin-bottom: 0;
+}
+
+/* Still waiting on an answer someone has to turn up in person to give. */
+#content .ticket-office-hours {
+  background-color: #fdeeee;
+  border-color: #e0a8a8;
+}
+
+#content .ticket-done,
+#content .ticket-done .ticket-meta {
+  color: #777;
+}
+
+#content .ticket-done .ticket-title,
+#content .ticket-done a {
+  color: #777;
+}

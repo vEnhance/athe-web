@@ -1,5 +1,6 @@
 {% extends "home/base.html" %}
 {% load static %}
+{% load local_time %}
 {% block title %}
     Dashboard - Athemath
 {% endblock title %}
@@ -75,6 +76,42 @@
                     <span data-testid="dash-no-clubs">You haven't joined any clubs yet, but you can</span>
                     <a href="{% url 'courses:my_clubs' %}">view the list of clubs</a>
                     and join any you're interested in.
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h2>
+                    Questions
+                    <a class="badge bg-secondary dash-see-all"
+                       data-testid="dash-see-all-tickets"
+                       href="{% url 'tickets:ticket_list' %}">My Questions</a>
+                </h2>
+                {% if can_submit_ticket %}
+                    {% if open_tickets %}
+                        <ul class="dash-course-list" data-testid="dash-open-tickets">
+                            {% for ticket in open_tickets %}
+                                <li>
+                                    {{ ticket.title }}
+                                    <span class="dash-course-when">
+                                        {% if ticket.meeting %}
+                                            {{ ticket.meeting.course.name }} on
+                                            {{ ticket.meeting.start_time|local_datetime:"D M j, g:i A e" }}
+                                        {% else %}
+                                            via Discord DM
+                                        {% endif %}
+                                    </span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p data-testid="dash-no-tickets">You don't have any questions waiting on an answer.</p>
+                    {% endif %}
+                    <a class="btn btn-primary btn-sm"
+                       data-testid="dash-submit-ticket"
+                       href="{% url 'tickets:submit' %}">Submit a Question</a>
+                {% else %}
+                    <p data-testid="dash-tickets-unavailable">Questions are for students enrolled in the current semester.</p>
                 {% endif %}
             </div>
         </div>
@@ -176,6 +213,16 @@
                 <li>
                     <a href="{% url 'courses:staff_schedule' %}">Staff Schedule</a>:
                     Master calendar of courses.
+                </li>
+                <li data-testid="dash-review-tickets">
+                    Review Questions:
+                    {% if tickets_to_review %}
+                        There {{ tickets_to_review|pluralize:"is,are" }} {{ tickets_to_review }}
+                        question{{ tickets_to_review|pluralize }} to review. You can see
+                        <a href="{% url 'tickets:review_list' %}">them here</a>.
+                    {% else %}
+                        There are no questions to review.
+                    {% endif %}
                 </li>
             </ul>
         {% endif %}
