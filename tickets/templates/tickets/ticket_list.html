@@ -24,8 +24,6 @@
                          data-testid="ticket-card">
                         <h2 class="ticket-title" data-testid="ticket-title">{{ ticket.title }}</h2>
                         <p class="ticket-meta">
-                            Asked {{ ticket.created_at|local_datetime:"D M j, g:i A e" }}
-                            ·
                             {% if ticket.meeting %}
                                 <span data-testid="ticket-where">
                                     {{ ticket.meeting.course.name }} on

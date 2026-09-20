@@ -5,14 +5,22 @@
 {% endblock title %}
 {% block content %}
     <div id="content">
-        <h1>Submit a Question</h1>
-        <p>
-            Submit any math question or problem you have here! It could be a problem
-            from a class handout, past contest problem, or any general question
-            (e.g. "what's a root of unity?").
-        </p>
+        <h2>Submit a Question</h2>
+        <h3 class="text-muted">Pre-submit questions before office hour starts</h3>
         <div class="row">
-            <div class="col-lg-8">
+            <div class="col-lg-5">
+                <p>
+                    You can use this form to submit any math questions you have before office hours!
+                    This helps the TA's prepare.
+                </p>
+                <p>(You can also request to get a reply via Discord DM rather than office hours.)</p>
+                <p>
+                    Any math question or problem is welcome!
+                    It could be a problem from a class handout, past contest problem,
+                    or any general question (e.g. "what's a root of unity?").
+                </p>
+            </div>
+            <div class="col-lg-7">
                 <form method="post" data-testid="ticket-form">
                     {% csrf_token %}
                     {% bootstrap_form form %}
