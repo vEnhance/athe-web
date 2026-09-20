@@ -1,5 +1,6 @@
 {% extends "home/base.html" %}
 {% load static %}
+{% load humanize %}
 {% load local_time %}
 {% block title %}
     Review Questions - Athemath
@@ -39,6 +40,7 @@
                         <th>Student</th>
                         <th>Answer via</th>
                         <th>Submitted</th>
+                        <th>Resolved</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -54,7 +56,8 @@
                                 {{ ticket.destination }}
                                 {% if ticket.meeting %}on {{ ticket.meeting.start_time|local_datetime:"D M j, g:i A e" }}{% endif %}
                             </td>
-                            <td>{{ ticket.created_at|local_datetime:"D M j, g:i A e" }}</td>
+                            <td>{{ ticket.created_at|naturaltime }}</td>
+                            <td>{{ ticket.resolved_at|naturaltime }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
