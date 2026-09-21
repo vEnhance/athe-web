@@ -135,6 +135,7 @@ class StaffTicketListView(StaffOnlyMixin, ListView):
 
 class StaffTicketUpdateView(StaffOnlyMixin, UpdateView):
     model = Ticket
+    queryset = Ticket.objects.select_related("student__user", "student__registration")
     form_class = TicketReviewForm
     template_name = "tickets/ticket_review_form.html"
     context_object_name = "ticket"

@@ -9,6 +9,7 @@ from django.urls import reverse
 from atheweb.testsuite import AtheClient
 from courses.models import Course, CourseMeeting, Semester, Student
 from home.models import StaffPhotoListing
+from reg.models import StudentRegistration
 from tickets.models import Ticket
 
 REVIEW = reverse("tickets:review_list")
@@ -203,3 +204,38 @@ def test_editing_notes_keeps_who_resolved_it(
     ticket.refresh_from_db()
     assert ticket.resolved_by == staffer
     assert ticket.resolved_at == closed_at
+
+
+@pytest.mark.django_db
+def test_detail_shows_asker_discord_username(
+    athe: AtheClient,
+    student: Student,
+    staffer: User,
+    make_ticket: Callable[..., Ticket],
+):
+    StudentRegistration.objects.create(
+        student=student,
+        email="lucy@example.com",
+        parent_email="parent@example.com",
+        discord_username="lucylu",
+    )
+    ticket = make_ticket(student)
+
+    athe.login(staffer)
+    resp = athe.get_ok(reverse("tickets:review_detail", kwargs={"pk": ticket.pk}))
+    assert athe.text_of(resp, "ticket-discord") == "lucylu"
+
+
+@pytest.mark.django_db
+def test_detail_shows_discord_placeholder_without_registration(
+    athe: AtheClient,
+    student: Student,
+    staffer: User,
+    make_ticket: Callable[..., Ticket],
+):
+    ticket = make_ticket(student)
+    assert ticket.discord_username == ""
+
+    athe.login(staffer)
+    resp = athe.get_ok(reverse("tickets:review_detail", kwargs={"pk": ticket.pk}))
+    assert athe.text_of(resp, "ticket-discord") == "unknown"
