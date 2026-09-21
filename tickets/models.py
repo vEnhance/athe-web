@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from courses.models import Course, CourseMeeting, Student
+from reg.models import StudentRegistration
 
 #: How far ahead of now a student may pick an office hours sitting.
 MEETING_HORIZON_DAYS = 15
@@ -25,7 +26,11 @@ class TicketQuerySet(models.QuerySet["Ticket"]):
     def for_review(self) -> TicketQuerySet:
         """Every ticket on the staff list."""
         return self.select_related(
-            "student", "student__user", "meeting", "meeting__course"
+            "student",
+            "student__user",
+            "student__registration",
+            "meeting",
+            "meeting__course",
         ).order_by(F("resolved_at").desc(nulls_first=True), "-created_at")
 
     def followed_by(self, user: AbstractBaseUser | AnonymousUser) -> TicketQuerySet:
@@ -81,6 +86,14 @@ class Ticket(models.Model):
     @property
     def is_resolved(self) -> bool:
         return self.resolved_at is not None
+
+    @property
+    def discord_username(self) -> str:
+        """The asker's Discord handle, empty if they never registered."""
+        try:
+            return self.student.registration.discord_username
+        except StudentRegistration.DoesNotExist:
+            return ""
 
     @property
     def destination(self) -> str:

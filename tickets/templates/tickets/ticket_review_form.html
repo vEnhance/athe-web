@@ -13,6 +13,7 @@
         <h2 data-testid="ticket-title">{{ ticket.title }}</h2>
         <p class="ticket-meta">
             Asked by <strong data-testid="ticket-student">{{ ticket.student }}</strong>
+            (Discord: <span data-testid="ticket-discord">{{ ticket.discord_username|default:"unknown" }}</span>)
             on {{ ticket.created_at|local_datetime:"D M j, g:i A e" }}
             ·
             <span data-testid="ticket-where">
