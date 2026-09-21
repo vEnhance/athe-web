@@ -141,3 +141,118 @@ def test_sort_by_date(
     response = athe.get_ok(f"{SCHEDULE}?sort=date")
 
     assert response.context["class_meetings"] == [sooner, later]
+
+
+@pytest.mark.django_db
+def test_default_shows_two_weeks(
+    athe: AtheClient,
+    semester: Semester,
+    staff: User,
+    make_course: Callable[..., Course],
+):
+    soon = meeting(make_course(semester, name="Soon Course"), 3)
+    meeting(make_course(semester, name="Distant Course"), 20)
+
+    response = athe.get_ok(SCHEDULE)
+
+    assert response.context["weeks"] == 2
+    assert response.context["class_meetings"] == [soon]
+
+
+@pytest.mark.django_db
+def test_weeks_all_shows_the_whole_semester(
+    athe: AtheClient,
+    semester: Semester,
+    staff: User,
+    make_course: Callable[..., Course],
+):
+    course = make_course(semester)
+    past = meeting(course, -5)
+    soon = meeting(course, 3)
+    distant = meeting(course, 20)
+
+    response = athe.get_ok(f"{SCHEDULE}?sort=date&weeks=all")
+
+    assert response.context["weeks"] is None
+    assert response.context["class_meetings"] == [past, soon, distant]
+
+
+@pytest.mark.django_db
+def test_weeks_widens_the_window(
+    athe: AtheClient,
+    semester: Semester,
+    staff: User,
+    make_course: Callable[..., Course],
+):
+    course = make_course(semester)
+    soon = meeting(course, 3)
+    distant = meeting(course, 20)
+
+    response = athe.get_ok(f"{SCHEDULE}?sort=date&weeks=4")
+
+    assert response.context["weeks"] == 4
+    assert response.context["class_meetings"] == [soon, distant]
+
+
+@pytest.mark.django_db
+def test_window_excludes_meetings_already_past(
+    athe: AtheClient,
+    semester: Semester,
+    staff: User,
+    make_course: Callable[..., Course],
+):
+    course = make_course(semester)
+    meeting(course, -3)
+    upcoming = meeting(course, 3)
+
+    response = athe.get_ok(SCHEDULE)
+
+    assert response.context["class_meetings"] == [upcoming]
+
+
+@pytest.mark.parametrize("value", ["", "0", "seven", "-3", "99"])
+@pytest.mark.django_db
+def test_unusable_weeks_falls_back_to_the_default(
+    athe: AtheClient, semester: Semester, staff: User, value: str
+):
+    response = athe.get_ok(f"{SCHEDULE}?weeks={value}")
+
+    assert response.context["weeks"] == 2
+
+
+@pytest.mark.django_db
+def test_window_of_a_finished_semester_opens_at_its_start(
+    athe: AtheClient,
+    past_semester: Semester,
+    staff: User,
+    make_course: Callable[..., Course],
+):
+    """Today is past this semester, so its first weeks are the useful ones."""
+    course = make_course(past_semester)
+    opening = meeting(course, -118)
+    meeting(course, -35)
+
+    url = reverse(
+        "courses:staff_schedule_semester", kwargs={"slug": past_semester.slug}
+    )
+    response = athe.get_ok(url)
+
+    assert response.context["class_meetings"] == [opening]
+
+
+@pytest.mark.django_db
+def test_window_does_not_change_the_no_meetings_list(
+    athe: AtheClient,
+    semester: Semester,
+    staff: User,
+    make_course: Callable[..., Course],
+):
+    """Having meetings at all is a fact about the semester, not the window."""
+    later = make_course(semester, name="Later Course")
+    empty = make_course(semester, name="Empty Course")
+    meeting(later, 20)
+
+    response = athe.get_ok(SCHEDULE)
+
+    assert response.context["class_meetings"] == []
+    assert response.context["classes_without_meetings"] == [empty]

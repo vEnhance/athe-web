@@ -268,14 +268,50 @@ def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect("courses:my_clubs")
 
 
+SCHEDULE_WEEK_CHOICES = (1, 2, 3, 4, 6)
+SCHEDULE_DEFAULT_WEEKS = 2
+
+
+def _schedule_weeks(request: HttpRequest) -> int | None:
+    """How many weeks of the schedule to show, or ``None`` for every week."""
+    raw = request.GET.get("weeks", "")
+    if raw == "all":
+        return None
+    try:
+        weeks = int(raw)
+    except ValueError:
+        return SCHEDULE_DEFAULT_WEEKS
+    return weeks if weeks in SCHEDULE_WEEK_CHOICES else SCHEDULE_DEFAULT_WEEKS
+
+
+def _schedule_window(semester: Semester, weeks: int) -> tuple[datetime, datetime]:
+    """The span of time a schedule cut down to ``weeks`` weeks covers.
+
+    It opens today while the semester is running, and at the semester's own
+    start otherwise, so that a semester nobody is in the middle of shows its
+    opening weeks rather than nothing at all.
+    """
+    today = timezone.localdate()
+    if semester.start_date <= today <= semester.end_date:
+        first_day = today
+    else:
+        first_day = semester.start_date
+    start = timezone.make_aware(
+        datetime.combine(first_day, time.min), timezone.get_current_timezone()
+    )
+    return start, start + timedelta(weeks=weeks)
+
+
 @staff_required(
     message="You don't have permission to view the staff schedule.",
     redirect_to="courses:catalog_root",
 )
 def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpResponse:
-    """Staff-only master schedule: all course meetings for a semester.
+    """Staff-only master schedule: course meetings for a semester.
 
-    If no slug is given, defaults to the current semester.
+    If no slug is given, defaults to the current semester. Only the next
+    ``weeks`` weeks are listed, since the whole semester is more than anyone
+    reads at once; ``?weeks=all`` lifts the limit.
     """
     all_semesters = list(Semester.objects.order_by("-start_date"))
 
@@ -295,10 +331,16 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
         semester = current
 
     sort = request.GET.get("sort", "course")
+    weeks = _schedule_weeks(request)
 
     base_qs = CourseMeeting.objects.filter(course__semester=semester).select_related(
         "course"
     )
+    if weeks is not None:
+        window_start, window_end = _schedule_window(semester, weeks)
+        base_qs = base_qs.filter(
+            start_time__gte=window_start, start_time__lt=window_end
+        )
     if sort == "course":
         base_qs = base_qs.order_by("course__name", "start_time")
     else:
@@ -326,6 +368,8 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
                 courses_qs.filter(is_club=True).exclude(pk__in=courses_with_meetings)
             ),
             "sort": sort,
+            "weeks": weeks,
+            "week_choices": SCHEDULE_WEEK_CHOICES,
         },
     )
 
