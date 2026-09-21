@@ -21,6 +21,7 @@ from django.views.generic import DetailView, UpdateView
 from atheweb.decorators import staff_required, superuser_required
 from courses.forms import (
     BulkStudentCreationForm,
+    CourseLogisticsForm,
     CourseMeetingForm,
     CourseUpdateForm,
 )
@@ -599,6 +600,46 @@ def manage_meetings(request: HttpRequest, pk: int) -> HttpResponse:
         request,
         "courses/manage_meetings.html",
         {"course": course, "formset": formset},
+    )
+
+
+@superuser_required(
+    message="You don't have permission to edit class logistics.",
+    redirect_to="courses:catalog_root",
+)
+def class_logistics(request: HttpRequest) -> HttpResponse:
+    """Edit meeting time, links and Discord wiring for every class at once.
+
+    These are settled for the whole timetable in one sitting once the schedule
+    is fixed, which through the per-course edit page means a dozen round trips.
+    Clubs are left out: theirs are the business of whoever runs them, and they
+    come and go through the semester rather than being set up with it.
+    """
+    semester = Semester.current()
+    if semester is None:
+        messages.error(request, "There is no current semester to set up.")
+        return redirect("courses:catalog_root")
+
+    LogisticsFormSet = modelformset_factory(Course, form=CourseLogisticsForm, extra=0)
+    classes = (
+        Course.objects.filter(semester=semester, is_club=False)
+        .select_related("instructor")
+        .order_by("name")
+    )
+    formset = LogisticsFormSet(request.POST or None, queryset=classes)
+
+    if request.method == "POST" and formset.is_valid():
+        saved = formset.save()
+        messages.success(
+            request,
+            f"Saved {len(saved)} of {len(formset.forms)} classes in {semester}.",
+        )
+        return redirect("courses:class_logistics")
+
+    return render(
+        request,
+        "courses/class_logistics.html",
+        {"semester": semester, "formset": formset},
     )
 
 

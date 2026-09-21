@@ -1,0 +1,78 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static "css/courses.css" %}" />
+    <style>
+        .logistics-row {
+            display: grid;
+            grid-template-columns: minmax(170px, 1fr) 3fr;
+            gap: 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+        .logistics-row h3 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        .logistics-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 0 20px;
+        }
+        @media (max-width: 768px) {
+            .logistics-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock extra_css %}
+{% block title %}
+    Class Logistics - Athemath
+{% endblock title %}
+{% block content %}
+    <div id="content">
+        <div class="course">
+            <h1>Class Logistics</h1>
+            <p class="text-muted">{{ semester }}</p>
+            <p class="text-info">
+                Every class in the current semester, clubs excluded. Fill in the
+                schedule and links once it is settled, then save the lot in one go.
+                Anything left blank stays blank.
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                {{ formset.management_form }}
+                {% bootstrap_formset_errors formset %}
+                {% for form in formset %}
+                    <div class="logistics-row" data-testid="logistics-row">
+                        <div>
+                            <h3>
+                                <a href="{% url 'courses:course_detail' pk=form.instance.pk %}"
+                                   data-testid="logistics-name">{{ form.instance.name }}</a>
+                            </h3>
+                            <p class="text-muted"
+                               data-testid="logistics-instructor">{{ form.instance.instructor|default:"No instructor" }}</p>
+                        </div>
+                        <div class="logistics-fields">
+                            {% for field in form.visible_fields %}
+                                {% bootstrap_field field show_help=False %}
+                            {% endfor %}
+                        </div>
+                        {{ form.id }}
+                    </div>
+                {% empty %}
+                    <p data-testid="logistics-empty">{{ semester }} has no classes yet.</p>
+                {% endfor %}
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Save All Changes</button>
+                    <a href="{% url 'courses:course_list' slug=semester.slug %}"
+                       class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}
