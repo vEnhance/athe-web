@@ -82,6 +82,8 @@ def test_lists_this_semester_s_classes_only(
         "No instructor",
         "Ann Adams",
     ]
+    athe.assert_testid_count(response, "logistics-photo", 1)
+    assert listing.photo.url.encode() in response.content
 
 
 @pytest.mark.django_db

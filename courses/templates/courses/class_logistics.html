@@ -18,6 +18,12 @@
             font-size: 1.1em;
             margin-bottom: 5px;
         }
+        .logistics-photo {
+            width: 128px;
+            height: 128px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
         @media (max-width: 768px) {
             .logistics-row {
                 grid-template-columns: 1fr;
@@ -49,6 +55,13 @@
                                 <a href="{% url 'courses:course_detail' pk=form.instance.pk %}"
                                    data-testid="logistics-name">{{ form.instance.name }}</a>
                             </h3>
+                            {% if form.instance.instructor.photo %}
+                                <img src="{{ form.instance.instructor.photo.url }}"
+                                     alt="{{ form.instance.instructor.display_name }}"
+                                     class="logistics-photo"
+                                     data-testid="logistics-photo"
+                                     loading="lazy">
+                            {% endif %}
                             <p class="text-muted"
                                data-testid="logistics-instructor">{{ form.instance.instructor|default:"No instructor" }}</p>
                         </div>
