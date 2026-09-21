@@ -3,44 +3,6 @@ from django.contrib import admin
 from courses.models import Course, CourseMeeting, GlobalEvent, Semester, Student
 
 
-# Admin actions for changing student houses
-@admin.action(description="Assign selected students to Blob house")
-def assign_to_blob(modeladmin, request, queryset):  # type: ignore
-    """Change the house of selected students to Blob."""
-    updated = queryset.update(house=Student.House.BLOB)
-    modeladmin.message_user(request, f"{updated} student(s) assigned to Blob house.")
-
-
-@admin.action(description="Assign selected students to Cat house")
-def assign_to_cat(modeladmin, request, queryset):  # type: ignore
-    """Change the house of selected students to Cat."""
-    updated = queryset.update(house=Student.House.CAT)
-    modeladmin.message_user(request, f"{updated} student(s) assigned to Cat house.")
-
-
-@admin.action(description="Assign selected students to Owl house")
-def assign_to_owl(modeladmin, request, queryset):  # type: ignore
-    """Change the house of selected students to Owl."""
-    updated = queryset.update(house=Student.House.OWL)
-    modeladmin.message_user(request, f"{updated} student(s) assigned to Owl house.")
-
-
-@admin.action(description="Assign selected students to Red Panda house")
-def assign_to_red_panda(modeladmin, request, queryset):  # type: ignore
-    """Change the house of selected students to Red Panda."""
-    updated = queryset.update(house=Student.House.RED_PANDA)
-    modeladmin.message_user(
-        request, f"{updated} student(s) assigned to Red Panda house."
-    )
-
-
-@admin.action(description="Assign selected students to Bunny house")
-def assign_to_bunny(modeladmin, request, queryset):  # type: ignore
-    """Change the house of selected students to Bunny."""
-    updated = queryset.update(house=Student.House.BUNNY)
-    modeladmin.message_user(request, f"{updated} student(s) assigned to Bunny house.")
-
-
 @admin.register(Semester)
 class SemesterAdmin(admin.ModelAdmin):
     list_display = (
@@ -103,6 +65,39 @@ class CourseAdmin(admin.ModelAdmin):
                 except Course.DoesNotExist:
                     pass
         return super().formfield_for_manytomany(db_field, request, **kwargs)
+
+
+# Admin actions for changing student houses
+@admin.action(description="Assign selected students to Blob house")
+def assign_to_blob(modeladmin, request, queryset):  # type: ignore
+    updated = queryset.update(house=Student.House.BLOB)
+    modeladmin.message_user(request, f"{updated} student(s) assigned to Blob house.")
+
+
+@admin.action(description="Assign selected students to Cat house")
+def assign_to_cat(modeladmin, request, queryset):  # type: ignore
+    updated = queryset.update(house=Student.House.CAT)
+    modeladmin.message_user(request, f"{updated} student(s) assigned to Cat house.")
+
+
+@admin.action(description="Assign selected students to Owl house")
+def assign_to_owl(modeladmin, request, queryset):  # type: ignore
+    updated = queryset.update(house=Student.House.OWL)
+    modeladmin.message_user(request, f"{updated} student(s) assigned to Owl house.")
+
+
+@admin.action(description="Assign selected students to Red Panda house")
+def assign_to_red_panda(modeladmin, request, queryset):  # type: ignore
+    updated = queryset.update(house=Student.House.RED_PANDA)
+    modeladmin.message_user(
+        request, f"{updated} student(s) assigned to Red Panda house."
+    )
+
+
+@admin.action(description="Assign selected students to Bunny house")
+def assign_to_bunny(modeladmin, request, queryset):  # type: ignore
+    updated = queryset.update(house=Student.House.BUNNY)
+    modeladmin.message_user(request, f"{updated} student(s) assigned to Bunny house.")
 
 
 @admin.register(Student)
