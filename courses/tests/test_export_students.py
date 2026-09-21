@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from atheweb.testsuite import AtheClient
 from courses.models import Course, Semester, Student
+from courses.views import STUDENT_COLUMNS
 from reg.models import StudentRegistration
 
 EXPORT = reverse("courses:export_students")
@@ -65,6 +66,7 @@ def test_registered_student_row(
     )
     make_course(semester, name="Geometry").students.add(student)
     make_course(semester, name="Algebra").students.add(student)
+    make_course(semester, name="Combo")
     make_course(semester, name="Chess", is_club=True).students.add(student)
 
     (row,) = rows(athe.get_ok(EXPORT))
@@ -77,6 +79,9 @@ def test_registered_student_row(
         "discord_username": "lucylu",
         "classes": "Algebra; Geometry",
         "house": "Owls",
+        "Algebra": "1",
+        "Combo": "0",
+        "Geometry": "1",
     }
 
 
@@ -119,6 +124,52 @@ def test_unclaimed_student_row_is_blank(
         "classes": "",
         "house": "",
     }
+
+
+@pytest.mark.django_db
+def test_class_columns_cover_the_semester_in_name_order(
+    athe: AtheClient,
+    semester: Semester,
+    past_semester: Semester,
+    staff: User,
+    make_student: Callable[..., Student],
+    make_course: Callable[..., Course],
+):
+    make_student(semester)
+    for name in ("Nifty NT", "AIME Combo", "Comical Combo"):
+        make_course(semester, name=name)
+    make_course(semester, name="Chess", is_club=True)
+    make_course(past_semester, name="Old Geometry")
+
+    (row,) = rows(athe.get_ok(EXPORT))
+
+    assert list(row)[len(STUDENT_COLUMNS) :] == [
+        "AIME Combo",
+        "Comical Combo",
+        "Nifty NT",
+    ]
+
+
+@pytest.mark.django_db
+def test_classes_sharing_a_name_get_their_own_column(
+    athe: AtheClient,
+    semester: Semester,
+    staff: User,
+    make_student: Callable[..., Student],
+    make_course: Callable[..., Course],
+):
+    """A repeated header would collide into one column, losing a class."""
+    student = make_student(semester)
+    first = make_course(semester, name="Geometry")
+    second = make_course(semester, name="Geometry")
+    second.students.add(student)
+
+    (row,) = rows(athe.get_ok(EXPORT))
+
+    assert row["Geometry"] == "0"
+    assert row[f"Geometry (#{second.pk})"] == "1"
+    assert row["classes"] == f"Geometry (#{second.pk})"
+    assert first.pk < second.pk
 
 
 @pytest.mark.django_db

@@ -329,7 +329,7 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
     )
 
 
-EXPORT_COLUMNS: tuple[str, ...] = (
+STUDENT_COLUMNS: tuple[str, ...] = (
     "airtable_name",
     "username",
     "email",
@@ -340,10 +340,32 @@ EXPORT_COLUMNS: tuple[str, ...] = (
 )
 
 
-def _export_row(student: Student) -> dict[str, str]:
-    """One roster line: what the site knows, blank where it does not know it."""
+def _class_columns(semester: Semester) -> dict[int, str]:
+    """Header for each class of the semester, by course id.
+
+    Nothing stops two classes in a semester sharing a name, and a repeated
+    header would collide into a single column, so a repeat carries its id.
+    """
+    headers: dict[int, str] = {}
+    for course in Course.objects.filter(semester=semester, is_club=False).order_by(
+        "name", "pk"
+    ):
+        header = course.name
+        if header in headers.values():
+            header = f"{course.name} (#{course.pk})"
+        headers[course.pk] = header
+    return headers
+
+
+def _export_row(student: Student, class_columns: dict[int, str]) -> dict[str, str]:
+    """One roster line: what the site knows, blank where it does not know it.
+
+    Every class of the semester gets a 1/0 column, so a spreadsheet can filter
+    on one class without matching a course whose name contains another's.
+    """
     registration = getattr(student, "registration", None)
     account_email = student.user.email if student.user is not None else ""
+    enrolled = {course.pk for course in student.enrolled_courses.all()}  # type: ignore[attr-defined]
     return {
         "airtable_name": student.airtable_name,
         "username": student.user.username if student.user is not None else "",
@@ -354,10 +376,13 @@ def _export_row(student: Student) -> dict[str, str]:
             registration.discord_username if registration is not None else ""
         ),
         "classes": "; ".join(
-            course.name
-            for course in student.enrolled_courses.all()  # type: ignore[attr-defined]
+            class_columns[pk] for pk in class_columns if pk in enrolled
         ),
         "house": student.get_house_display(),  # type: ignore[attr-defined]
+        **{
+            header: "1" if pk in enrolled else "0"
+            for pk, header in class_columns.items()
+        },
     }
 
 
@@ -378,7 +403,9 @@ def export_students(request: HttpRequest) -> HttpResponse:
         .prefetch_related(
             Prefetch(
                 "enrolled_courses",
-                queryset=Course.objects.filter(is_club=False).order_by("name"),
+                queryset=Course.objects.filter(
+                    semester=semester, is_club=False
+                ).order_by("name", "pk"),
             )
         )
         .order_by("airtable_name")
@@ -388,9 +415,10 @@ def export_students(request: HttpRequest) -> HttpResponse:
     response["Content-Disposition"] = (
         f'attachment; filename="{semester.slug}-students.csv"'
     )
-    writer = csv.DictWriter(response, EXPORT_COLUMNS)
+    class_columns = _class_columns(semester)
+    writer = csv.DictWriter(response, (*STUDENT_COLUMNS, *class_columns.values()))
     writer.writeheader()
-    writer.writerows(_export_row(student) for student in students)
+    writer.writerows(_export_row(student, class_columns) for student in students)
     return response
 
 
