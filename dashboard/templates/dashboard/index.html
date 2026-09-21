@@ -192,25 +192,13 @@
             <h2>Staff</h2>
             <ul class="dash-links" data-testid="dash-staff-links">
                 <li>
-                    <a href="{% url 'housepoints:attendance_bulk' %}">Class Attendance</a>:
-                    Instructors should use this to take attendance at each class.
-                    (Also used for house points.)
-                </li>
-                <li>
-                    <a href="{% url 'ta_attendance:my_attendance' %}">TA Sign-in Sheet</a>:
-                    TA's should use this to record their hours of running activities.
-                </li>
-                <li>
                     <a href="{% url 'housepoints:bulk_award' %}">Award Points</a>:
                     Awarding house points to students.
                 </li>
                 <li>
-                    <a href="{% url 'home:staff_edit' %}">Update Bio</a>:
-                    Update your staff listing on the public site.
-                </li>
-                <li>
-                    <a href="{% url 'courses:staff_schedule' %}">Staff Schedule</a>:
-                    Master calendar of courses.
+                    <a href="{% url 'housepoints:attendance_bulk' %}">Class Attendance</a>:
+                    Instructors should use this to take attendance at each class.
+                    (Also used for house points.)
                 </li>
                 <li>
                     <a href="{% url 'courses:export_students' %}">Export Students</a>:
@@ -226,31 +214,49 @@
                         No unresolved questions now.
                     {% endif %}
                 </li>
+                <li>
+                    <a href="{% url 'courses:staff_schedule' %}">Staff Schedule</a>:
+                    Master calendar of courses.
+                </li>
+                <li>
+                    <a href="{% url 'ta_attendance:my_attendance' %}">TA Sign-in Sheet</a>:
+                    TA's should use this to record their hours of running activities.
+                </li>
+                <li>
+                    <a href="{% url 'home:staff_edit' %}">Update Bio</a>:
+                    Update your staff listing on the public site.
+                </li>
             </ul>
         {% endif %}
         {% if user.is_superuser %}
             <h2>Admin</h2>
             <ul class="dash-links" data-testid="dash-admin-links">
                 <li>
-                    <a href="{% url 'admin:index' %}">Django Admin</a>
+                    <a href="{% url 'admin:index' %}"
+                       class="fw-bold">Django Admin</a>: Execute arbitrary admin operations.
                 </li>
                 <li>
-                    <a href="{% url 'home:manual' %}">Admin Manual</a>
+                    <a href="{% url 'home:manual' %}">Admin Manual</a>: Instructions manual.
                 </li>
                 <li>
-                    <a href="{% url 'courses:bulk_create_students' %}">Bulk Create Students</a>
+                    <a href="{% url 'courses:bulk_create_students' %}">Bulk Create Students</a>:
+                    Create Student objects for the new semester after admissions.
                 </li>
                 <li>
-                    <a href="{% url 'courses:class_logistics' %}">Class Logistics</a>
+                    <a href="{% url 'courses:class_logistics' %}">Class Logistics</a>:
+                    Mass edit details for course like meeting time, Zoom link, Google Classroom.
                 </li>
                 <li>
-                    <a href="{% url 'reg:download-responses' %}">Download Responses</a>
+                    <a href="{% url 'reg:download-responses' %}">Download Responses</a>:
+                    Download responses from the questionnaire.
                 </li>
                 <li>
-                    <a href="{% url 'reg:incomplete-registrations' %}">Incomplete Registrations</a>
+                    <a href="{% url 'reg:incomplete-registrations' %}">Incomplete Registrations</a>:
+                    See a list of accepted students who didn't finish the registration flow.
                 </li>
                 <li>
-                    <a href="{% url 'reg:upload-assignments' %}">Class Assignments</a>
+                    <a href="{% url 'reg:upload-assignments' %}">Upload Assignments</a>:
+                    Import a JSON of class and house assignments computed by a solver
                 </li>
             </ul>
         {% endif %}
