@@ -20,6 +20,7 @@ urlpatterns = [
     path(
         "bulk-create-students/", views.bulk_create_students, name="bulk_create_students"
     ),
+    path("export-students.csv", views.export_students, name="export_students"),
     path("course/<int:pk>/", views.CourseDetailView.as_view(), name="course_detail"),
     path(
         "course/<int:pk>/edit/", views.CourseUpdateView.as_view(), name="course_update"

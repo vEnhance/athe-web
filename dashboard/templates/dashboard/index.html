@@ -212,6 +212,10 @@
                     <a href="{% url 'courses:staff_schedule' %}">Staff Schedule</a>:
                     Master calendar of courses.
                 </li>
+                <li>
+                    <a href="{% url 'courses:export_students' %}">Export Students</a>:
+                    Download this semester's roster as a CSV.
+                </li>
                 <li data-testid="dash-review-tickets">
                     <a href="{% url 'tickets:review_list' %}">Review Questions</a>:
                     {% if tickets_to_review %}
