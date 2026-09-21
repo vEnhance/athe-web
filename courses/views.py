@@ -1,4 +1,5 @@
 import calendar
+import csv
 from collections import defaultdict
 from datetime import date, datetime, time, timedelta
 from typing import Any
@@ -8,7 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.db.models import Count, Exists, OuterRef, Q
+from django.db.models import Count, Exists, OuterRef, Prefetch, Q
 from django.forms import modelformset_factory
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -326,6 +327,71 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
             "sort": sort,
         },
     )
+
+
+EXPORT_COLUMNS: tuple[str, ...] = (
+    "airtable_name",
+    "username",
+    "email",
+    "parent_email",
+    "discord_username",
+    "classes",
+    "house",
+)
+
+
+def _export_row(student: Student) -> dict[str, str]:
+    """One roster line: what the site knows, blank where it does not know it."""
+    registration = getattr(student, "registration", None)
+    account_email = student.user.email if student.user is not None else ""
+    return {
+        "airtable_name": student.airtable_name,
+        "username": student.user.username if student.user is not None else "",
+        "email": (registration.email if registration is not None else "")
+        or account_email,
+        "parent_email": registration.parent_email if registration is not None else "",
+        "discord_username": (
+            registration.discord_username if registration is not None else ""
+        ),
+        "classes": "; ".join(
+            course.name
+            for course in student.enrolled_courses.all()  # type: ignore[attr-defined]
+        ),
+        "house": student.get_house_display(),  # type: ignore[attr-defined]
+    }
+
+
+@staff_required(
+    message="You don't have permission to download the student roster.",
+    redirect_to="courses:catalog_root",
+)
+def export_students(request: HttpRequest) -> HttpResponse:
+    """Download the current semester's roster as a CSV."""
+    semester = Semester.current()
+    if semester is None:
+        messages.error(request, "There is no current semester to export.")
+        return redirect("courses:catalog_root")
+
+    students = (
+        Student.objects.filter(semester=semester)
+        .select_related("user", "registration")
+        .prefetch_related(
+            Prefetch(
+                "enrolled_courses",
+                queryset=Course.objects.filter(is_club=False).order_by("name"),
+            )
+        )
+        .order_by("airtable_name")
+    )
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = (
+        f'attachment; filename="{semester.slug}-students.csv"'
+    )
+    writer = csv.DictWriter(response, EXPORT_COLUMNS)
+    writer.writeheader()
+    writer.writerows(_export_row(student) for student in students)
+    return response
 
 
 @login_required
