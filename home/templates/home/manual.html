@@ -264,13 +264,9 @@
                 fill in <a href="{% url 'courses:class_logistics' %}">Class Logistics</a>:
                 meeting time, Google Classroom link, Zoom link, role ID and webhook
                 for every class of the semester, on one page.
-                Auto-reminders then post through that webhook,
-                once <strong>Discord reminders enabled</strong> is ticked
-                on the class itself.
-            </li>
-            <li>
-                Clubs are not on that page, so make sure every club leader
-                updates their own <code>Course</code> with the same details.
+                Discord auto-reminders are not enabled by default
+                and need to be enabled via the Django admin if not already
+                (there is a bulk action to enable Discord on all checked courses.)
             </li>
             <li>
                 Make sure all the staff know how to do:
