@@ -155,12 +155,29 @@ def test_default_shows_two_weeks(
 
     response = athe.get_ok(SCHEDULE)
 
-    assert response.context["weeks"] == 2
+    assert response.context["horizon"] == "2"
     assert response.context["class_meetings"] == [soon]
 
 
 @pytest.mark.django_db
-def test_weeks_all_shows_the_whole_semester(
+def test_future_horizon_keeps_every_upcoming_meeting(
+    athe: AtheClient,
+    semester: Semester,
+    staff: User,
+    make_course: Callable[..., Course],
+):
+    course = make_course(semester)
+    meeting(course, -5)
+    soon = meeting(course, 3)
+    distant = meeting(course, 70)
+
+    response = athe.get_ok(f"{SCHEDULE}?sort=date&weeks=future")
+
+    assert response.context["class_meetings"] == [soon, distant]
+
+
+@pytest.mark.django_db
+def test_all_horizon_keeps_the_past_too(
     athe: AtheClient,
     semester: Semester,
     staff: User,
@@ -169,11 +186,10 @@ def test_weeks_all_shows_the_whole_semester(
     course = make_course(semester)
     past = meeting(course, -5)
     soon = meeting(course, 3)
-    distant = meeting(course, 20)
+    distant = meeting(course, 70)
 
     response = athe.get_ok(f"{SCHEDULE}?sort=date&weeks=all")
 
-    assert response.context["weeks"] is None
     assert response.context["class_meetings"] == [past, soon, distant]
 
 
@@ -187,10 +203,11 @@ def test_weeks_widens_the_window(
     course = make_course(semester)
     soon = meeting(course, 3)
     distant = meeting(course, 20)
+    meeting(course, 70)
 
     response = athe.get_ok(f"{SCHEDULE}?sort=date&weeks=4")
 
-    assert response.context["weeks"] == 4
+    assert response.context["horizon"] == "4"
     assert response.context["class_meetings"] == [soon, distant]
 
 
@@ -210,14 +227,14 @@ def test_window_excludes_meetings_already_past(
     assert response.context["class_meetings"] == [upcoming]
 
 
-@pytest.mark.parametrize("value", ["", "0", "seven", "-3", "99"])
+@pytest.mark.parametrize("value", ["", "0", "seven", "-3", "99", "ALL"])
 @pytest.mark.django_db
-def test_unusable_weeks_falls_back_to_the_default(
+def test_unusable_horizon_falls_back_to_the_default(
     athe: AtheClient, semester: Semester, staff: User, value: str
 ):
     response = athe.get_ok(f"{SCHEDULE}?weeks={value}")
 
-    assert response.context["weeks"] == 2
+    assert response.context["horizon"] == "2"
 
 
 @pytest.mark.django_db
@@ -241,13 +258,13 @@ def test_window_of_a_finished_semester_opens_at_its_start(
 
 
 @pytest.mark.django_db
-def test_window_does_not_change_the_no_meetings_list(
+def test_horizon_does_not_change_the_no_meetings_list(
     athe: AtheClient,
     semester: Semester,
     staff: User,
     make_course: Callable[..., Course],
 ):
-    """Having meetings at all is a fact about the semester, not the window."""
+    """Having meetings at all is a fact about the semester, not the horizon."""
     later = make_course(semester, name="Later Course")
     empty = make_course(semester, name="Empty Course")
     meeting(later, 20)

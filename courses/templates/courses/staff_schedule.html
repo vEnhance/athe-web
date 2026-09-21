@@ -21,7 +21,7 @@
                     onchange="window.location = this.value">
                 {% if not semester %}<option value="" selected>— select a semester —</option>{% endif %}
                 {% for s in all_semesters %}
-                    <option value="{% url 'courses:staff_schedule_semester' slug=s.slug %}?sort={{ sort }}&amp;weeks={{ weeks|default_if_none:'all' }}"
+                    <option value="{% url 'courses:staff_schedule_semester' slug=s.slug %}?sort={{ sort }}&amp;weeks={{ horizon }}"
                             {% if s == semester %}selected{% endif %}>{{ s }}</option>
                 {% endfor %}
             </select>
@@ -30,17 +30,15 @@
             <div class="alert alert-warning" data-testid="schedule-error">{{ error }}</div>
         {% else %}
             <div class="mb-3">
-                <label for="weeks-select" class="form-label fw-bold">Weeks shown:</label>
+                <label for="weeks-select" class="form-label fw-bold">Show:</label>
                 <select id="weeks-select"
                         class="form-select w-auto d-inline-block"
                         data-testid="weeks-select"
                         onchange="window.location = this.value">
-                    {% for choice in week_choices %}
-                        <option value="?sort={{ sort }}&amp;weeks={{ choice }}"
-                                {% if choice == weeks %}selected{% endif %}>{{ choice }}</option>
+                    {% for value, label in horizons %}
+                        <option value="?sort={{ sort }}&amp;weeks={{ value }}"
+                                {% if value == horizon %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
-                    <option value="?sort={{ sort }}&amp;weeks=all"
-                            {% if weeks is None %}selected{% endif %}>All</option>
                 </select>
             </div>
             <div class="mb-3">
@@ -48,13 +46,13 @@
                 {% if sort == "date" %}
                     <strong>Date</strong>
                 {% else %}
-                    <a href="?sort=date&amp;weeks={{ weeks|default_if_none:'all' }}">Date</a>
+                    <a href="?sort=date&amp;weeks={{ horizon }}">Date</a>
                 {% endif %}
                 &nbsp;|&nbsp;
                 {% if sort == "course" %}
                     <strong>Course Name</strong>
                 {% else %}
-                    <a href="?sort=course&amp;weeks={{ weeks|default_if_none:'all' }}">Course Name</a>
+                    <a href="?sort=course&amp;weeks={{ horizon }}">Course Name</a>
                 {% endif %}
             </div>
             <h2>Classes</h2>

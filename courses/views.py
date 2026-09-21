@@ -29,6 +29,7 @@ from courses.models import (
     CalendarToken,
     Course,
     CourseMeeting,
+    CourseMeetingQuerySet,
     GlobalEvent,
     Semester,
     Student,
@@ -268,38 +269,53 @@ def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect("courses:my_clubs")
 
 
-SCHEDULE_WEEK_CHOICES = (1, 2, 3, 4, 6)
-SCHEDULE_DEFAULT_WEEKS = 2
+SCHEDULE_HORIZONS = (
+    ("1", "1 week"),
+    ("2", "2 weeks"),
+    ("3", "3 weeks"),
+    ("4", "4 weeks"),
+    ("6", "6 weeks"),
+    ("future", "All upcoming"),
+    ("all", "All, including past"),
+)
+SCHEDULE_DEFAULT_HORIZON = "2"
 
 
-def _schedule_weeks(request: HttpRequest) -> int | None:
-    """How many weeks of the schedule to show, or ``None`` for every week."""
-    raw = request.GET.get("weeks", "")
-    if raw == "all":
-        return None
-    try:
-        weeks = int(raw)
-    except ValueError:
-        return SCHEDULE_DEFAULT_WEEKS
-    return weeks if weeks in SCHEDULE_WEEK_CHOICES else SCHEDULE_DEFAULT_WEEKS
+def _schedule_horizon(request: HttpRequest) -> str:
+    """Which of ``SCHEDULE_HORIZONS`` the request asked for."""
+    horizon = request.GET.get("weeks", "")
+    if horizon in {value for value, _ in SCHEDULE_HORIZONS}:
+        return horizon
+    return SCHEDULE_DEFAULT_HORIZON
 
 
-def _schedule_window(semester: Semester, weeks: int) -> tuple[datetime, datetime]:
-    """The span of time a schedule cut down to ``weeks`` weeks covers.
+def _schedule_start(semester: Semester) -> datetime:
+    """Where a schedule that hides the past begins.
 
-    It opens today while the semester is running, and at the semester's own
-    start otherwise, so that a semester nobody is in the middle of shows its
-    opening weeks rather than nothing at all.
+    Today while the semester is running, and the semester's own start date
+    otherwise, so that a semester nobody is in the middle of shows its opening
+    weeks rather than nothing at all.
     """
     today = timezone.localdate()
     if semester.start_date <= today <= semester.end_date:
         first_day = today
     else:
         first_day = semester.start_date
-    start = timezone.make_aware(
+    return timezone.make_aware(
         datetime.combine(first_day, time.min), timezone.get_current_timezone()
     )
-    return start, start + timedelta(weeks=weeks)
+
+
+def _within_horizon(
+    meetings: CourseMeetingQuerySet, semester: Semester, horizon: str
+) -> CourseMeetingQuerySet:
+    if horizon == "all":
+        return meetings
+    start = _schedule_start(semester)
+    meetings = meetings.filter(start_time__gte=start)
+    if horizon == "future":
+        return meetings
+    return meetings.filter(start_time__lt=start + timedelta(weeks=int(horizon)))
 
 
 @staff_required(
@@ -309,9 +325,9 @@ def _schedule_window(semester: Semester, weeks: int) -> tuple[datetime, datetime
 def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpResponse:
     """Staff-only master schedule: course meetings for a semester.
 
-    If no slug is given, defaults to the current semester. Only the next
-    ``weeks`` weeks are listed, since the whole semester is more than anyone
-    reads at once; ``?weeks=all`` lifts the limit.
+    If no slug is given, defaults to the current semester. Only the next two
+    weeks are listed, since the whole semester is more than anyone reads at
+    once; ``?weeks=`` picks another of ``SCHEDULE_HORIZONS``.
     """
     all_semesters = list(Semester.objects.order_by("-start_date"))
 
@@ -331,16 +347,15 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
         semester = current
 
     sort = request.GET.get("sort", "course")
-    weeks = _schedule_weeks(request)
+    horizon = _schedule_horizon(request)
 
-    base_qs = CourseMeeting.objects.filter(course__semester=semester).select_related(
-        "course"
+    base_qs = _within_horizon(
+        CourseMeeting.objects.filter(course__semester=semester).select_related(
+            "course"
+        ),
+        semester,
+        horizon,
     )
-    if weeks is not None:
-        window_start, window_end = _schedule_window(semester, weeks)
-        base_qs = base_qs.filter(
-            start_time__gte=window_start, start_time__lt=window_end
-        )
     if sort == "course":
         base_qs = base_qs.order_by("course__name", "start_time")
     else:
@@ -368,8 +383,8 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
                 courses_qs.filter(is_club=True).exclude(pk__in=courses_with_meetings)
             ),
             "sort": sort,
-            "weeks": weeks,
-            "week_choices": SCHEDULE_WEEK_CHOICES,
+            "horizon": horizon,
+            "horizons": SCHEDULE_HORIZONS,
         },
     )
 
