@@ -38,6 +38,37 @@ class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
         return start_time
 
 
+#: The logistics a president sets up once per semester, per class.
+LOGISTICS_FIELDS = (
+    "regular_meeting_time",
+    "google_classroom_direct_link",
+    "zoom_meeting_link",
+    "discord_webhook",
+    "discord_role_id",
+)
+
+
+def _logistics_widgets() -> dict[str, forms.Widget]:
+    """Fresh widgets for LOGISTICS_FIELDS, for each form that edits them."""
+    return {
+        "regular_meeting_time": forms.TextInput(
+            attrs={"placeholder": "e.g. 5pm-6pm ET on Saturday"}
+        ),
+        "google_classroom_direct_link": forms.URLInput(
+            attrs={"placeholder": "https://classroom.google.com/..."}
+        ),
+        "zoom_meeting_link": forms.URLInput(
+            attrs={"placeholder": "https://zoom.us/..."}
+        ),
+        "discord_webhook": forms.URLInput(
+            attrs={"placeholder": "https://discord.com/api/webhooks/..."}
+        ),
+        "discord_role_id": forms.TextInput(
+            attrs={"placeholder": "Discord role ID for mentions"}
+        ),
+    }
+
+
 class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
     """Form for updating course details, for whoever runs the course."""
 
@@ -47,32 +78,13 @@ class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
             "description",
             "difficulty",
             "lesson_plan",
-            "regular_meeting_time",
-            "google_classroom_direct_link",
-            "zoom_meeting_link",
-            "discord_webhook",
-            "discord_role_id",
+            *LOGISTICS_FIELDS,
             "discord_reminders_enabled",
         ]
-        widgets = {
+        widgets = _logistics_widgets() | {
             "description": forms.Textarea(attrs={"rows": 4}),
             "lesson_plan": forms.Textarea(
                 attrs={"rows": 8, "placeholder": "One lesson per line"}
-            ),
-            "regular_meeting_time": forms.TextInput(
-                attrs={"placeholder": "e.g. 5pm-6pm ET on Saturday"}
-            ),
-            "google_classroom_direct_link": forms.URLInput(
-                attrs={"placeholder": "https://classroom.google.com/..."}
-            ),
-            "zoom_meeting_link": forms.URLInput(
-                attrs={"placeholder": "https://zoom.us/..."}
-            ),
-            "discord_webhook": forms.URLInput(
-                attrs={"placeholder": "https://discord.com/api/webhooks/..."}
-            ),
-            "discord_role_id": forms.TextInput(
-                attrs={"placeholder": "Discord role ID for mentions"}
             ),
         }
         help_texts = {
@@ -86,6 +98,15 @@ class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
             "discord_role_id": "Discord role ID to mention in reminders",
             "discord_reminders_enabled": "Whether to send Discord reminders",
         }
+
+
+class CourseLogisticsForm(forms.ModelForm):  # type: ignore[type-arg]
+    """One row of the bulk logistics page: where and how a class meets."""
+
+    class Meta:
+        model = Course
+        fields = list(LOGISTICS_FIELDS)
+        widgets = _logistics_widgets()
 
 
 class BulkStudentCreationForm(forms.Form):
