@@ -48,27 +48,6 @@ LOGISTICS_FIELDS = (
 )
 
 
-def _logistics_widgets() -> dict[str, forms.Widget]:
-    """Fresh widgets for LOGISTICS_FIELDS, for each form that edits them."""
-    return {
-        "regular_meeting_time": forms.TextInput(
-            attrs={"placeholder": "e.g. 5pm-6pm ET on Saturday"}
-        ),
-        "google_classroom_direct_link": forms.URLInput(
-            attrs={"placeholder": "https://classroom.google.com/..."}
-        ),
-        "zoom_meeting_link": forms.URLInput(
-            attrs={"placeholder": "https://zoom.us/..."}
-        ),
-        "discord_webhook": forms.URLInput(
-            attrs={"placeholder": "https://discord.com/api/webhooks/..."}
-        ),
-        "discord_role_id": forms.TextInput(
-            attrs={"placeholder": "Discord role ID for mentions"}
-        ),
-    }
-
-
 class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
     """Form for updating course details, for whoever runs the course."""
 
@@ -81,7 +60,22 @@ class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
             *LOGISTICS_FIELDS,
             "discord_reminders_enabled",
         ]
-        widgets = _logistics_widgets() | {
+        widgets = {
+            "regular_meeting_time": forms.TextInput(
+                attrs={"placeholder": "e.g. 5pm-6pm ET on Saturday"}
+            ),
+            "google_classroom_direct_link": forms.URLInput(
+                attrs={"placeholder": "https://classroom.google.com/..."}
+            ),
+            "zoom_meeting_link": forms.URLInput(
+                attrs={"placeholder": "https://zoom.us/..."}
+            ),
+            "discord_webhook": forms.URLInput(
+                attrs={"placeholder": "https://discord.com/api/webhooks/..."}
+            ),
+            "discord_role_id": forms.TextInput(
+                attrs={"placeholder": "Discord role ID for mentions"}
+            ),
             "description": forms.Textarea(attrs={"rows": 4}),
             "lesson_plan": forms.Textarea(
                 attrs={"rows": 8, "placeholder": "One lesson per line"}
@@ -106,7 +100,13 @@ class CourseLogisticsForm(forms.ModelForm):  # type: ignore[type-arg]
     class Meta:
         model = Course
         fields = list(LOGISTICS_FIELDS)
-        widgets = _logistics_widgets()
+        labels = {
+            "regular_meeting_time": "Meeting Time",
+            "google_classroom_direct_link": "G Classroom",
+            "zoom_meeting_link": "Zoom link",
+            "discord_webhook": "DC Webhook",
+            "discord_role_id": "DC Role ID",
+        }
 
 
 class BulkStudentCreationForm(forms.Form):
