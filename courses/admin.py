@@ -59,6 +59,18 @@ class CourseMeetingInline(admin.TabularInline):
     fields = ("start_time", "title", "reminder_sent")
 
 
+@admin.action(description="Activate Discord reminders for these Course objects")
+def enable_discord_reminders(modeladmin, request, queryset):  # type: ignore
+    updated = queryset.update(discord_reminders_enabled=True)
+    modeladmin.message_user(request, f"{updated} courses updated.")
+
+
+@admin.action(description="Deactivate Discord reminders for these Course objects")
+def disable_discord_reminders(modeladmin, request, queryset):  # type: ignore
+    updated = queryset.update(discord_reminders_enabled=False)
+    modeladmin.message_user(request, f"{updated} courses updated.")
+
+
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     list_display = (
@@ -74,6 +86,7 @@ class CourseAdmin(admin.ModelAdmin):
     autocomplete_fields = ("instructor", "subscribed_staff")
     filter_horizontal = ("students", "student_organizers")
     inlines = [CourseMeetingInline]
+    actions = [enable_discord_reminders, disable_discord_reminders]
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):  # type: ignore
         """Filter students to only show students from the course's semester."""
