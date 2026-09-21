@@ -329,7 +329,7 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
     )
 
 
-EXPORT_COLUMNS = (
+EXPORT_COLUMNS: tuple[str, ...] = (
     "airtable_name",
     "username",
     "email",
@@ -340,19 +340,25 @@ EXPORT_COLUMNS = (
 )
 
 
-def _export_row(student: Student) -> list[str]:
+def _export_row(student: Student) -> dict[str, str]:
     """One roster line: what the site knows, blank where it does not know it."""
     registration = getattr(student, "registration", None)
     account_email = student.user.email if student.user is not None else ""
-    return [
-        student.airtable_name,
-        student.user.username if student.user is not None else "",
-        (registration.email if registration is not None else "") or account_email,
-        registration.parent_email if registration is not None else "",
-        registration.discord_username if registration is not None else "",
-        "; ".join(course.name for course in student.enrolled_courses.all()),  # type: ignore[attr-defined]
-        student.get_house_display(),  # type: ignore[attr-defined]
-    ]
+    return {
+        "airtable_name": student.airtable_name,
+        "username": student.user.username if student.user is not None else "",
+        "email": (registration.email if registration is not None else "")
+        or account_email,
+        "parent_email": registration.parent_email if registration is not None else "",
+        "discord_username": (
+            registration.discord_username if registration is not None else ""
+        ),
+        "classes": "; ".join(
+            course.name
+            for course in student.enrolled_courses.all()  # type: ignore[attr-defined]
+        ),
+        "house": student.get_house_display(),  # type: ignore[attr-defined]
+    }
 
 
 @staff_required(
@@ -382,8 +388,8 @@ def export_students(request: HttpRequest) -> HttpResponse:
     response["Content-Disposition"] = (
         f'attachment; filename="{semester.slug}-students.csv"'
     )
-    writer = csv.writer(response)
-    writer.writerow(EXPORT_COLUMNS)
+    writer = csv.DictWriter(response, EXPORT_COLUMNS)
+    writer.writeheader()
     writer.writerows(_export_row(student) for student in students)
     return response
 
