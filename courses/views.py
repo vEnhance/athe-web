@@ -29,6 +29,7 @@ from courses.models import (
     CalendarToken,
     Course,
     CourseMeeting,
+    CourseMeetingQuerySet,
     GlobalEvent,
     Semester,
     Student,
@@ -268,14 +269,65 @@ def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect("courses:my_clubs")
 
 
+SCHEDULE_HORIZONS = (
+    ("1", "1 week"),
+    ("2", "2 weeks"),
+    ("3", "3 weeks"),
+    ("4", "4 weeks"),
+    ("6", "6 weeks"),
+    ("future", "All upcoming"),
+    ("all", "All, including past"),
+)
+SCHEDULE_DEFAULT_HORIZON = "2"
+
+
+def _schedule_horizon(request: HttpRequest) -> str:
+    """Which of ``SCHEDULE_HORIZONS`` the request asked for."""
+    horizon = request.GET.get("weeks", "")
+    if horizon in {value for value, _ in SCHEDULE_HORIZONS}:
+        return horizon
+    return SCHEDULE_DEFAULT_HORIZON
+
+
+def _schedule_start(semester: Semester) -> datetime:
+    """Where a schedule that hides the past begins.
+
+    Today while the semester is running, and the semester's own start date
+    otherwise, so that a semester nobody is in the middle of shows its opening
+    weeks rather than nothing at all.
+    """
+    today = timezone.localdate()
+    if semester.start_date <= today <= semester.end_date:
+        first_day = today
+    else:
+        first_day = semester.start_date
+    return timezone.make_aware(
+        datetime.combine(first_day, time.min), timezone.get_current_timezone()
+    )
+
+
+def _within_horizon(
+    meetings: CourseMeetingQuerySet, semester: Semester, horizon: str
+) -> CourseMeetingQuerySet:
+    if horizon == "all":
+        return meetings
+    start = _schedule_start(semester)
+    meetings = meetings.filter(start_time__gte=start)
+    if horizon == "future":
+        return meetings
+    return meetings.filter(start_time__lt=start + timedelta(weeks=int(horizon)))
+
+
 @staff_required(
     message="You don't have permission to view the staff schedule.",
     redirect_to="courses:catalog_root",
 )
 def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpResponse:
-    """Staff-only master schedule: all course meetings for a semester.
+    """Staff-only master schedule: course meetings for a semester.
 
-    If no slug is given, defaults to the current semester.
+    If no slug is given, defaults to the current semester. Only the next two
+    weeks are listed, since the whole semester is more than anyone reads at
+    once; ``?weeks=`` picks another of ``SCHEDULE_HORIZONS``.
     """
     all_semesters = list(Semester.objects.order_by("-start_date"))
 
@@ -295,9 +347,14 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
         semester = current
 
     sort = request.GET.get("sort", "course")
+    horizon = _schedule_horizon(request)
 
-    base_qs = CourseMeeting.objects.filter(course__semester=semester).select_related(
-        "course"
+    base_qs = _within_horizon(
+        CourseMeeting.objects.filter(course__semester=semester).select_related(
+            "course"
+        ),
+        semester,
+        horizon,
     )
     if sort == "course":
         base_qs = base_qs.order_by("course__name", "start_time")
@@ -326,6 +383,8 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
                 courses_qs.filter(is_club=True).exclude(pk__in=courses_with_meetings)
             ),
             "sort": sort,
+            "horizon": horizon,
+            "horizons": SCHEDULE_HORIZONS,
         },
     )
 
