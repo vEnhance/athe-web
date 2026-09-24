@@ -1,0 +1,19 @@
+{% extends "home/base.html" %}
+{% block title %}
+    Sorting Quiz - Athemath
+{% endblock title %}
+{% block content %}
+    <div id="content">
+        <h1>Sorting Quiz</h1>
+        <ol>
+            {% for question, choices in quiz %}
+                <li class="mb-3" data-testid="quiz-question">
+                    <strong>{{ question }}</strong>
+                    <ul>
+                        {% for value, label in choices %}<li data-testid="quiz-choice">{{ label }}</li>{% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ol>
+    </div>
+{% endblock content %}
