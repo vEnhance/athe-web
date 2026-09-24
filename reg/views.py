@@ -531,6 +531,15 @@ def _responses_payload(semester: Semester) -> dict[str, Any]:
     }
 
 
+def quiz_questions(request: HttpRequest) -> HttpResponse:
+    fields = [getattr(StudentRegistration, name).field for name in QUIZ_FIELDS]
+    return render(
+        request,
+        "reg/quiz_questions.html",
+        {"quiz": [(field.verbose_name, field.choices) for field in fields]},
+    )
+
+
 @superuser_required()
 def download_responses(request: HttpRequest) -> HttpResponse:
     """List the questionnaire downloads, the semester being prepared first."""
