@@ -14,10 +14,15 @@ class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
         fields = ["start_time", "title"]
         widgets = {
             "start_time": forms.DateTimeInput(
-                attrs={"type": "datetime-local"},
+                attrs={"type": "datetime-local", "class": "form-control"},
                 format="%Y-%m-%dT%H:%M",
             ),
-            "title": forms.TextInput(attrs={"placeholder": "Meeting topic (optional)"}),
+            "title": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Meeting topic (optional)",
+                }
+            ),
         }
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
