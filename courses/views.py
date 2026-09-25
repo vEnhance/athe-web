@@ -278,13 +278,16 @@ SCHEDULE_HORIZONS = (
     ("future", "All upcoming"),
     ("all", "All, including past"),
 )
+UPCOMING_HORIZONS = tuple(h for h in SCHEDULE_HORIZONS if h[0] != "all")
 SCHEDULE_DEFAULT_HORIZON = "2"
 
 
-def _schedule_horizon(request: HttpRequest) -> str:
-    """Which of ``SCHEDULE_HORIZONS`` the request asked for."""
+def _schedule_horizon(
+    request: HttpRequest, horizons: tuple[tuple[str, str], ...] = SCHEDULE_HORIZONS
+) -> str:
+    """Which of ``horizons`` the request asked for."""
     horizon = request.GET.get("weeks", "")
-    if horizon in {value for value, _ in SCHEDULE_HORIZONS}:
+    if horizon in {value for value, _ in horizons}:
         return horizon
     return SCHEDULE_DEFAULT_HORIZON
 
@@ -490,20 +493,26 @@ def export_students(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def upcoming(request: HttpRequest) -> HttpResponse:
-    """Show upcoming meetings and events for courses/clubs the user is in or leads."""
+    """Show upcoming meetings and events for courses/clubs the user is in or leads.
+
+    Like the staff schedule, only the next two weeks are listed unless
+    ``?weeks=`` picks another of ``UPCOMING_HORIZONS``.
+    """
     assert isinstance(request.user, User)
+    horizon = _schedule_horizon(request, UPCOMING_HORIZONS)
     now = timezone.now()
+    window = Q(start_time__gte=now)
+    if horizon != "future":
+        window &= Q(start_time__lt=now + timedelta(weeks=int(horizon)))
 
     upcoming_meetings = (
         CourseMeeting.objects.filter(
-            course__in=Course.objects.for_user(request.user), start_time__gte=now
+            window, course__in=Course.objects.for_user(request.user)
         )
         .select_related("course", "course__semester")
         .order_by("start_time")
     )
-    upcoming_events = GlobalEvent.objects.visible_to(request.user).filter(
-        start_time__gte=now
-    )
+    upcoming_events = GlobalEvent.objects.visible_to(request.user).filter(window)
 
     return render(
         request,
@@ -511,6 +520,8 @@ def upcoming(request: HttpRequest) -> HttpResponse:
         {
             "upcoming_meetings": upcoming_meetings,
             "upcoming_events": upcoming_events,
+            "horizon": horizon,
+            "horizons": UPCOMING_HORIZONS,
         },
     )
 
