@@ -25,7 +25,7 @@ def test_attendance_creation():
         name="Math Club",
         description="Math enthusiasts",
         semester=semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     attendance = Attendance.objects.create(
@@ -56,7 +56,7 @@ def test_attendance_unique_constraint():
         name="Math Club",
         description="Math enthusiasts",
         semester=semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     # Create first attendance record
@@ -83,7 +83,7 @@ def test_attendance_same_user_different_dates():
         name="Math Club",
         description="Math enthusiasts",
         semester=semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     # Create attendance on different dates
@@ -111,13 +111,13 @@ def test_attendance_same_date_different_clubs():
         name="Math Club",
         description="Math enthusiasts",
         semester=semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
     club2 = Course.objects.create(
         name="Chess Club",
         description="Chess players",
         semester=semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     # Create attendance for different clubs on same date

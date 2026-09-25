@@ -56,7 +56,9 @@ def test_my_courses_shows_enrolled_and_taught_but_not_clubs(
     student = make_student(semester, user=user)
     make_course(semester, name="Math 101").students.add(student)
     make_course(semester, name="CS 101", instructor=make_staff_listing(user))
-    make_course(semester, name="Chess Club", is_club=True).students.add(student)
+    make_course(semester, name="Chess Club", kind=Course.Kind.CLUB).students.add(
+        student
+    )
 
     athe.login(user)
     response = athe.get_ok(MY_COURSES)
@@ -77,11 +79,14 @@ def test_my_clubs_query_count(
     user = make_user()
     student = make_student(semester, user=user)
     for name in ("Chess Club", "Math Club"):
-        make_course(semester, name=name, is_club=True).students.add(student)
+        make_course(semester, name=name, kind=Course.Kind.CLUB).students.add(student)
     make_course(
-        semester, name="Art Club", is_club=True, instructor=make_staff_listing(user)
+        semester,
+        name="Art Club",
+        kind=Course.Kind.CLUB,
+        instructor=make_staff_listing(user),
     )
-    make_course(semester, name="Music Club", is_club=True)
+    make_course(semester, name="Music Club", kind=Course.Kind.CLUB)
 
     athe.login(user)
     with CaptureQueriesContext(connection) as queries:
@@ -103,11 +108,16 @@ def test_my_clubs_counts_a_club_you_run_as_enrolled(
 ):
     user = make_user()
     student = make_student(semester, user=user)
-    make_course(semester, name="Chess Club", is_club=True).students.add(student)
-    make_course(
-        semester, name="Math Club", is_club=True, instructor=make_staff_listing(user)
+    make_course(semester, name="Chess Club", kind=Course.Kind.CLUB).students.add(
+        student
     )
-    make_course(semester, name="Art Club", is_club=True)
+    make_course(
+        semester,
+        name="Math Club",
+        kind=Course.Kind.CLUB,
+        instructor=make_staff_listing(user),
+    )
+    make_course(semester, name="Art Club", kind=Course.Kind.CLUB)
 
     athe.login(user)
     response = athe.get_ok(MY_CLUBS)
@@ -124,7 +134,7 @@ def test_my_clubs_no_current_semester(
     make_course: Callable[..., Course],
 ):
     """With nothing unfinished on the books, my_clubs has nothing to offer."""
-    make_course(past_semester, name="Old Club", is_club=True)
+    make_course(past_semester, name="Old Club", kind=Course.Kind.CLUB)
 
     athe.login(make_user())
     response = athe.get_ok(MY_CLUBS)

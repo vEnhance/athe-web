@@ -65,7 +65,7 @@ def test_lists_this_semester_s_classes_only(
     listing = make_staff_listing(make_user(username="ann"), display_name="Ann Adams")
     make_course(admin, name="Geometry", instructor=listing)
     make_course(admin, name="Algebra")
-    make_course(admin, name="Board Games", is_club=True)
+    make_course(admin, name="Board Games", kind=Course.Kind.CLUB)
     make_course(
         make_semester(
             name="Old Semester",
@@ -134,7 +134,7 @@ def test_one_bad_link_saves_nothing(
 def test_clubs_cannot_be_smuggled_in(
     athe: AtheClient, admin: Semester, make_course: Callable[..., Course]
 ) -> None:
-    club = make_course(admin, name="Board Games", is_club=True)
+    club = make_course(admin, name="Board Games", kind=Course.Kind.CLUB)
 
     athe.post_redirects(URL, URL, payload({"id": club.pk, **LOGISTICS}))
 

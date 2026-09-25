@@ -79,7 +79,7 @@ def test_all_attendance_shows_all_records():
         name="Math Club",
         description="Math",
         semester=semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     # Create attendance for both users
@@ -119,7 +119,7 @@ def test_all_attendance_displays_user_name():
         name="Math Club",
         description="Math",
         semester=semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     Attendance.objects.create(user=user, date=timezone.localdate(), club=club)

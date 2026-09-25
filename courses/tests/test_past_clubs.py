@@ -32,8 +32,8 @@ def test_past_clubs_shows_clubs_the_reader_was_never_in(
     make_course: Callable[..., Course],
 ):
     """Past clubs are a read-only archive, so enrolment does not gate them."""
-    make_course(past_semester, name="Chess Club", is_club=True)
-    make_course(past_semester, name="Art Club", is_club=True)
+    make_course(past_semester, name="Chess Club", kind=Course.Kind.CLUB)
+    make_course(past_semester, name="Art Club", kind=Course.Kind.CLUB)
 
     response = athe.get_ok(PAST_CLUBS)
 
@@ -55,8 +55,8 @@ def test_past_clubs_excludes_invisible_semesters(
         end_date=past_semester.end_date.replace(year=2020),
         visible=False,
     )
-    make_course(past_semester, name="Visible Club", is_club=True)
-    make_course(hidden, name="Invisible Club", is_club=True)
+    make_course(past_semester, name="Visible Club", kind=Course.Kind.CLUB)
+    make_course(hidden, name="Invisible Club", kind=Course.Kind.CLUB)
 
     assert listed(athe.get_ok(PAST_CLUBS)) == ["Visible Club"]
 
@@ -70,9 +70,9 @@ def test_past_clubs_excludes_active_and_future_semesters(
     future_semester: Semester,
     make_course: Callable[..., Course],
 ):
-    make_course(past_semester, name="Past Club", is_club=True)
-    make_course(semester, name="Active Club", is_club=True)
-    make_course(future_semester, name="Future Club", is_club=True)
+    make_course(past_semester, name="Past Club", kind=Course.Kind.CLUB)
+    make_course(semester, name="Active Club", kind=Course.Kind.CLUB)
+    make_course(future_semester, name="Future Club", kind=Course.Kind.CLUB)
 
     assert listed(athe.get_ok(PAST_CLUBS)) == ["Past Club"]
 
@@ -84,7 +84,7 @@ def test_past_clubs_excludes_regular_courses(
     past_semester: Semester,
     make_course: Callable[..., Course],
 ):
-    make_course(past_semester, name="Chess Club", is_club=True)
+    make_course(past_semester, name="Chess Club", kind=Course.Kind.CLUB)
     make_course(past_semester, name="Math 101")
 
     assert listed(athe.get_ok(PAST_CLUBS)) == ["Chess Club"]
@@ -100,7 +100,7 @@ def test_past_clubs_are_linked_whoever_is_reading(
 ):
     """Every past club is a link, whether or not this reader was in its semester;
     the course page does its own access check when they follow it."""
-    club = make_course(past_semester, name="Chess Club", is_club=True)
+    club = make_course(past_semester, name="Chess Club", kind=Course.Kind.CLUB)
     outsider = make_user(username="outsider")
     alumna = make_user(username="alumna")
     make_student(past_semester, user=alumna)

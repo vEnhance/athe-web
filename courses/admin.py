@@ -37,13 +37,12 @@ def disable_discord_reminders(modeladmin, request, queryset):  # type: ignore
 class CourseAdmin(admin.ModelAdmin):
     list_display = (
         "name",
-        "is_club",
-        "is_office_hours",
+        "kind",
         "semester",
         "instructor",
         "discord_reminders_enabled",
     )
-    list_filter = ("is_club", "is_office_hours", "semester")
+    list_filter = ("kind", "semester")
     search_fields = ("name", "description")
     autocomplete_fields = ("instructor", "subscribed_staff")
     filter_horizontal = ("students", "student_organizers")
@@ -126,7 +125,7 @@ class CourseMeetingAdmin(admin.ModelAdmin):
     list_display = ("course", "title", "start_time", "reminder_sent_at")
     list_filter = (
         ("reminder_sent_at", admin.EmptyFieldListFilter),
-        "course__is_club",
+        "course__kind",
         "course__semester",
         "course",
     )

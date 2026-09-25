@@ -95,7 +95,7 @@ def test_dashboard_lists_classes_and_clubs_with_next_meeting(
 ):
     """Enrolled classes and clubs are listed apart, each with its next meeting."""
     klass = make_course(semester, name="Intro to Olympiad")
-    club = make_course(semester, name="Origami Club", is_club=True)
+    club = make_course(semester, name="Origami Club", kind=Course.Kind.CLUB)
     klass.students.add(student)
     club.students.add(student)
 
@@ -492,7 +492,9 @@ def test_notice_ignores_clubs_when_looking_for_assignments(
     """Clubs are joined, not assigned, so one does not answer the question."""
     student = make_student(next_semester, user=lucy)
     complete_registration(student)
-    make_course(next_semester, name="Origami Club", is_club=True).students.add(student)
+    make_course(next_semester, name="Origami Club", kind=Course.Kind.CLUB).students.add(
+        student
+    )
 
     athe.login("lucy")
     response = athe.get_ok(INDEX)
@@ -831,7 +833,7 @@ def test_dashboard_lists_courses_from_a_semester_about_to_open(
     student = make_student(next_semester, user=lucy)
     complete_registration(student)
     klass = make_course(next_semester, name="Intro to Olympiad")
-    club = make_course(next_semester, name="Origami Club", is_club=True)
+    club = make_course(next_semester, name="Origami Club", kind=Course.Kind.CLUB)
     klass.students.add(student)
     club.students.add(student)
     first = CourseMeeting.objects.create(

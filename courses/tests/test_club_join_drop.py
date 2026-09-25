@@ -28,7 +28,7 @@ def test_join_club_active_semester():
         name="Chess Club",
         description="Learn to play chess",
         semester=active_semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     # Create student record so they have access to the semester
@@ -66,7 +66,7 @@ def test_join_club_fails_for_non_student():
         name="Math Club",
         description="Math enthusiasts",
         semester=active_semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     # No student record exists yet
@@ -98,7 +98,7 @@ def test_join_club_inactive_semester():
         name="Old Club",
         description="A club from the past",
         semester=past_semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     client.login(username="student", password="password")
@@ -137,7 +137,7 @@ def test_join_club_before_the_semester_starts():
         name="Future Club",
         description="A club from the future",
         semester=future_semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
     student = Student.objects.create(user=user, semester=future_semester)
 
@@ -162,7 +162,10 @@ def test_join_club_without_a_student_row_is_refused():
         end_date=(timezone.now() + timedelta(days=120)).date(),
     )
     club = Course.objects.create(
-        name="Future Club", description="", semester=future_semester, is_club=True
+        name="Future Club",
+        description="",
+        semester=future_semester,
+        kind=Course.Kind.CLUB,
     )
 
     client.login(username="outsider", password="password")
@@ -194,7 +197,7 @@ def test_join_club_already_enrolled():
         name="Drama Club",
         description="Drama enthusiasts",
         semester=active_semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
     student = Student.objects.create(user=user, semester=active_semester)
     club.students.add(student)
@@ -234,14 +237,14 @@ def test_join_regular_course_fails():
         name="Math 101",
         description="Intro to Math",
         semester=active_semester,
-        is_club=False,
+        kind=Course.Kind.CLASS,
     )
 
     client.login(username="student", password="password")
     url = reverse("courses:join_club", kwargs={"pk": course.pk})
     response = client.post(url)
 
-    # Should return 404 since is_club=True is required
+    # Should return 404 since only clubs can be joined or dropped
     assert response.status_code == 404
 
 
@@ -264,7 +267,7 @@ def test_drop_club_active_semester():
         name="Book Club",
         description="Reading books",
         semester=active_semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
     student = Student.objects.create(user=user, semester=active_semester)
     club.students.add(student)
@@ -301,7 +304,7 @@ def test_drop_club_inactive_semester():
         name="Old Book Club",
         description="Old reading club",
         semester=past_semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
     student = Student.objects.create(user=user, semester=past_semester)
     club.students.add(student)
@@ -340,7 +343,7 @@ def test_drop_club_not_enrolled():
         name="Art Club",
         description="Art enthusiasts",
         semester=active_semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
     Student.objects.create(user=user, semester=active_semester)
 
@@ -374,14 +377,14 @@ def test_drop_regular_course_fails():
         name="Physics 101",
         description="Intro to Physics",
         semester=active_semester,
-        is_club=False,
+        kind=Course.Kind.CLASS,
     )
 
     client.login(username="student", password="password")
     url = reverse("courses:drop_club", kwargs={"pk": course.pk})
     response = client.post(url)
 
-    # Should return 404 since is_club=True is required
+    # Should return 404 since only clubs can be joined or dropped
     assert response.status_code == 404
 
 
@@ -401,7 +404,7 @@ def test_join_club_requires_login():
         name="Music Club",
         description="Music lovers",
         semester=active_semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     # Try to join without logging in
@@ -429,7 +432,7 @@ def test_drop_club_requires_login():
         name="Science Club",
         description="Science enthusiasts",
         semester=active_semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     # Try to drop without logging in

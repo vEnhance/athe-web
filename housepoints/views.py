@@ -401,16 +401,14 @@ class AttendanceBulkForm(forms.Form):
         # Courses in a semester that has not ended. The default below picked
         # from exactly this set already, so anything narrower left the dropdown
         # empty while still preselecting a course.
-        courses = Course.objects.filter(is_club=False).unfinished()
+        courses = Course.objects.classes().unfinished()
         self.fields["course"].queryset = courses.select_related(  # type: ignore[attr-defined]
             "semester"
         )
 
         # Set default to a course the user leads, if any
         if user is not None:
-            led_courses = (
-                Course.objects.taught_by(user).filter(is_club=False).unfinished()
-            )
+            led_courses = Course.objects.taught_by(user).classes().unfinished()
             if led_courses.exists():
                 self.fields["course"].initial = led_courses.first()
 

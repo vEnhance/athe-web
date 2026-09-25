@@ -3,25 +3,10 @@ from datetime import timedelta
 
 import pytest
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
 from django.utils import timezone
 
 from courses.models import Course, CourseMeeting, Semester, Student
 from tickets.models import Ticket
-
-
-@pytest.mark.django_db
-def test_office_hours_must_be_a_club(semester: Semester):
-    klass = Course(
-        semester=semester,
-        name="Intro to Olympiad",
-        description="Olympiad basics",
-        is_office_hours=True,
-    )
-    with pytest.raises(ValidationError, match="Only a club"):
-        klass.full_clean()
-    with pytest.raises(IntegrityError):
-        klass.save()
 
 
 @pytest.mark.django_db
@@ -67,7 +52,7 @@ def test_office_hours_within_skips_finished_semesters(
         start_date=today - timedelta(days=200),
         end_date=today - timedelta(days=1),
     )
-    stale = make_course(over, name="OH (Old)", is_club=True, is_office_hours=True)
+    stale = make_course(over, name="OH (Old)", kind=Course.Kind.OFFICE_HOURS)
     make_meeting(stale, days=3)
 
     assert not CourseMeeting.objects.office_hours_within(15).exists()

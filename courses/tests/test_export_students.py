@@ -67,7 +67,7 @@ def test_registered_student_row(
     make_course(semester, name="Geometry").students.add(student)
     make_course(semester, name="Algebra").students.add(student)
     make_course(semester, name="Combo")
-    make_course(semester, name="Chess", is_club=True).students.add(student)
+    make_course(semester, name="Chess", kind=Course.Kind.CLUB).students.add(student)
 
     (row,) = rows(athe.get_ok(EXPORT))
 
@@ -138,7 +138,7 @@ def test_class_columns_cover_the_semester_in_name_order(
     make_student(semester)
     for name in ("Nifty NT", "AIME Combo", "Comical Combo"):
         make_course(semester, name=name)
-    make_course(semester, name="Chess", is_club=True)
+    make_course(semester, name="Chess", kind=Course.Kind.CLUB)
     make_course(past_semester, name="Old Geometry")
 
     (row,) = rows(athe.get_ok(EXPORT))

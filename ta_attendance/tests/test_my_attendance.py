@@ -72,7 +72,7 @@ def test_my_attendance_shows_only_user_records():
         name="Math Club",
         description="Math",
         semester=semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     # Create attendance for both users
@@ -110,7 +110,7 @@ def test_my_attendance_post_creates_record():
         name="Math Club",
         description="Math",
         semester=semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     client.login(username="staff", password="password")
@@ -146,7 +146,7 @@ def test_my_attendance_post_duplicate_shows_error():
         name="Math Club",
         description="Math",
         semester=semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     # Create existing record
@@ -191,13 +191,13 @@ def test_my_attendance_form_only_shows_active_clubs():
         name="Active Club",
         description="Active",
         semester=active_semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
     Course.objects.create(
         name="Ended Club",
         description="Ended",
         semester=ended_semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
 
     client.login(username="staff", password="password")
@@ -229,13 +229,13 @@ def test_my_attendance_form_excludes_non_clubs():
         name="Math Club",
         description="Club",
         semester=semester,
-        is_club=True,
+        kind=Course.Kind.CLUB,
     )
     Course.objects.create(
         name="Math 101",
         description="Course",
         semester=semester,
-        is_club=False,
+        kind=Course.Kind.CLASS,
     )
 
     client.login(username="staff", password="password")
