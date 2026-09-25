@@ -75,11 +75,11 @@
                 <a href="{% url 'courses:course_detail' pk=course.pk %}"
                    class="btn btn-sm btn-outline-primary">View Page</a>
                 <a href="{% url 'courses:course_update' pk=course.pk %}"
-                   class="btn btn-sm btn-outline-primary">Edit Course</a>
+                   class="btn btn-sm btn-outline-primary">Edit Course Info</a>
                 {% if request.user.is_superuser %}
                     <a href="{% url 'admin:courses_course_change' course.pk %}"
                        class="btn btn-sm btn-outline-secondary"
-                       data-testid="manage-meetings-admin-link">Edit in Django Admin</a>
+                       data-testid="manage-meetings-admin-link">Open in Django Admin</a>
                 {% endif %}
             </div>
             <p class="text-info">Edit existing meetings, add new ones, or mark meetings for deletion all in one form.</p>

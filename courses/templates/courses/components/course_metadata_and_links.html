@@ -1,4 +1,9 @@
 <span class="course-description">
+    <p>
+        <strong>Term:</strong>
+        <a href="{% url 'courses:course_list' course.semester.slug %}">{{ course.semester }}</a>
+        {% if course.is_club %}<span class="badge bg-dark">Club/Event</span>{% endif %}
+    </p>
     {% if course.instructor %}
         <p>
             <strong>
@@ -52,34 +57,5 @@
         <div class="opt-link">
             <a href="{{ course.zoom_meeting_link }}" target="_blank">Join Zoom Meeting</a>
         </div>
-    {% endif %}
-    {% if can_subscribe and is_subscribed %}
-        <form method="post"
-              action="{% url 'courses:unsubscribe_course' pk=course.pk %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-link p-0">
-                ★ Unsubscribe from this
-                {% if course.is_club %}
-                    club
-                {% else %}
-                    class
-                {% endif %}
-                (as staff)
-            </button>
-        </form>
-    {% elif can_subscribe and not is_subscribed %}
-        <form method="post"
-              action="{% url 'courses:subscribe_course' pk=course.pk %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-link p-0">
-                ★ Subscribe to this
-                {% if course.is_club %}
-                    club
-                {% else %}
-                    class
-                {% endif %}
-                (as staff)
-            </button>
-        </form>
     {% endif %}
 </span>
