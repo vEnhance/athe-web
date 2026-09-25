@@ -170,9 +170,7 @@
                             <a href="{% url 'tickets:review_list' %}">{{ tickets_to_review }} question{{ tickets_to_review|pluralize }}</a>
                             you can review.
                         {% else %}
-                            As a staff member, there are no
-                            <a href="{% url 'tickets:review_list' %}">unresolved questions</a>
-                            at this moment.
+                            As a staff member, there are no unresolved questions at this moment.
                         {% endif %}
                     </p>
                 {% elif not can_submit_ticket %}
