@@ -15,32 +15,28 @@
     <div id="content">
         <h1 data-testid="dash-greeting">Hi, {{ user.first_name|default:user.username }}!</h1>
         <p>
-            You can see the
-            <a href="{% url 'courses:calendar' %}">full calendar</a>
-            and a list of
-            <a href="{% url 'courses:upcoming' %}">upcoming meetings</a>.
             It's currently {% now "g:i A e" %}.
-        </p>
-        <p data-testid="dash-global-events">
-            {% if global_event_count %}
-                There
-                {% if next_global_event and global_event_count == 1 %}
-                    is
-                {% elif next_global_event and global_event_count > 1 %}
-                    are
-                {% elif not next_global_event and global_event_count == 1 %}
-                    was
-                {% elif not next_global_event and global_event_count > 1 %}
-                    were
+            <span data-testid="dash-global-events">
+                {% if global_event_count %}
+                    There
+                    {% if next_global_event and global_event_count == 1 %}
+                        is
+                    {% elif next_global_event and global_event_count > 1 %}
+                        are
+                    {% elif not next_global_event and global_event_count == 1 %}
+                        was
+                    {% elif not next_global_event and global_event_count > 1 %}
+                        were
+                    {% endif %}
+                    <a href="{% url 'courses:global_events' %}">{{ global_event_count }} global event{{ global_event_count|pluralize }} this semester</a>.
+                    {% if next_global_event %}
+                        The next one is
+                        <a href="{{ next_global_event.get_absolute_url }}">{{ next_global_event.title }} at {{ next_global_event.start_time|date:"D M j, g:i A e" }}</a>.
+                    {% else %}
+                        There are no future global events scheduled.
+                    {% endif %}
                 {% endif %}
-                <a href="{% url 'courses:global_events' %}">{{ global_event_count }} global event{{ global_event_count|pluralize }} this semester</a>.
-                {% if next_global_event %}
-                    The next one is
-                    <a href="{{ next_global_event.get_absolute_url }}">{{ next_global_event.title }} at {{ next_global_event.start_time|date:"D M j, g:i A e" }}</a>.
-                {% else %}
-                    There are no future global events scheduled.
-                {% endif %}
-            {% endif %}
+            </span>
         </p>
         {% if upcoming_semester %}
             <p data-testid="dash-upcoming-semester">
@@ -49,6 +45,10 @@
             </p>
         {% endif %}
         {% include "dashboard/components/notice.html" %}
+        <p>
+            <a class="btn btn-secondary" href="{% url 'courses:calendar' %}">Show full calendar</a>
+            <a class="btn btn-secondary" href="{% url 'courses:upcoming' %}">Show upcoming meetings</a>
+        </p>
         <div class="row">
             <div class="col-md-6">
                 <h2>
