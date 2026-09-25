@@ -362,6 +362,11 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
         base_qs = base_qs.order_by("start_time", "course__name")
 
     courses_qs = Course.objects.filter(semester=semester).order_by("name")
+    managed_course_ids = {
+        course.pk
+        for course in courses_qs.select_related("instructor", "semester")
+        if course.is_managed_by(request.user)
+    }
     courses_with_meetings = set(
         CourseMeeting.objects.filter(course__semester=semester).values_list(
             "course_id", flat=True
@@ -382,6 +387,7 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
             "clubs_without_meetings": list(
                 courses_qs.clubs().exclude(pk__in=courses_with_meetings)
             ),
+            "managed_course_ids": managed_course_ids,
             "sort": sort,
             "horizon": horizon,
             "horizons": SCHEDULE_HORIZONS,

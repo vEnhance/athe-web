@@ -294,3 +294,29 @@ def test_horizon_does_not_change_the_no_meetings_list(
 
     assert response.context["class_meetings"] == []
     assert response.context["classes_without_meetings"] == [empty]
+
+
+@pytest.mark.django_db
+def test_course_links_to_manage_meetings_only_where_allowed(
+    athe: AtheClient,
+    semester: Semester,
+    make_user: Callable[..., User],
+    make_staff_listing,
+    make_course: Callable[..., Course],
+):
+    teacher = make_user(username="teacher", is_staff=True)
+    mine = make_course(semester, name="Mine", instructor=make_staff_listing(teacher))
+    theirs = make_course(semester, name="Theirs")
+    meeting(mine, 1)
+    meeting(theirs, 2)
+    athe.login(teacher)
+
+    response = athe.get_ok(SCHEDULE)
+
+    assert response.context["managed_course_ids"] == {mine.pk}
+    manage_mine = reverse("courses:manage_meetings", kwargs={"pk": mine.pk})
+    manage_theirs = reverse("courses:manage_meetings", kwargs={"pk": theirs.pk})
+    view_theirs = reverse("courses:course_detail", kwargs={"pk": theirs.pk})
+    assert f'href="{manage_mine}"'.encode() in response.content
+    assert f'href="{manage_theirs}"'.encode() not in response.content
+    assert f'href="{view_theirs}"'.encode() in response.content
