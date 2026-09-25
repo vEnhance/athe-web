@@ -110,8 +110,8 @@
             <a href="{% url 'courses:upcoming' %}">upcoming list view</a>.
         </p>
         <p>
-            The calendar is also displayed below in <strong>{{ timezone_name }}</strong> time zone
-            (for example, right now it is {% now "g:i a e" %}).
+            The calendar is shown in <strong>{{ timezone_name }}</strong> time zone
+            (e.g., right now it is {% now "g:i a e" %}).
         </p>
         <div class="calendar-nav">
             <a href="?year={{ prev_year }}&amp;month={{ prev_month }}"
