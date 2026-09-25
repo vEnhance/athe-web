@@ -61,10 +61,10 @@
                     {% if is_leader %}
                         <a href="{% url 'courses:course_update' pk=course.pk %}"
                            class="btn btn-sm btn-outline-primary">Edit Course Info</a>
-                        {% if request.user.is_superuser %}
-                            <a href="{% url 'admin:courses_course_change' course.pk %}"
-                               class="btn btn-sm btn-outline-secondary">Open in Django Admin</a>
-                        {% endif %}
+                    {% endif %}
+                    {% if request.user.is_superuser %}
+                        <a href="{% url 'admin:courses_course_change' course.pk %}"
+                           class="btn btn-sm btn-outline-secondary">Open in Django Admin</a>
                     {% endif %}
                 </div>
             {% endif %}
