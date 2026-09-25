@@ -18,7 +18,7 @@ class SemesterAdmin(admin.ModelAdmin):
 class CourseMeetingInline(admin.TabularInline):
     model = CourseMeeting
     extra = 3
-    fields = ("start_time", "title", "reminder_sent")
+    fields = ("start_time", "title", "reminder_sent_at")
 
 
 @admin.action(description="Activate Discord reminders for these Course objects")
@@ -123,9 +123,9 @@ class StudentAdmin(admin.ModelAdmin):
 
 @admin.register(CourseMeeting)
 class CourseMeetingAdmin(admin.ModelAdmin):
-    list_display = ("course", "title", "start_time", "reminder_sent")
+    list_display = ("course", "title", "start_time", "reminder_sent_at")
     list_filter = (
-        "reminder_sent",
+        ("reminder_sent_at", admin.EmptyFieldListFilter),
         "course__is_club",
         "course__semester",
         "course",

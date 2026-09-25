@@ -54,7 +54,7 @@ def test_discord_reminder_command(mock_post):
 
     # Check that meeting was marked as sent
     meeting.refresh_from_db()
-    assert meeting.reminder_sent is True
+    assert meeting.reminder_sent_at is not None
 
 
 @pytest.mark.django_db
@@ -82,4 +82,4 @@ def test_discord_reminder_command_no_webhook():
 
     # Meeting should not be marked as sent
     meeting.refresh_from_db()
-    assert meeting.reminder_sent is False
+    assert meeting.reminder_sent_at is None

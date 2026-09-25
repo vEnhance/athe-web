@@ -415,8 +415,10 @@ class CourseMeeting(models.Model):
     title = models.CharField(
         max_length=200, blank=True, help_text="Topic for this lecture."
     )
-    reminder_sent = models.BooleanField(
-        default=False, help_text="Whether a reminder has been sent for this meeting."
+    reminder_sent_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the Discord reminder for this meeting was sent, if ever.",
     )
 
     objects: ClassVar[CourseMeetingQuerySet] = CourseMeetingQuerySet.as_manager()  # type: ignore[assignment]

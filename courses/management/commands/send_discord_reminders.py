@@ -22,7 +22,7 @@ class Command(BaseCommand):
         upcoming_meetings = CourseMeeting.objects.filter(
             start_time__gte=now,
             start_time__lte=deadline,
-            reminder_sent=False,
+            reminder_sent_at__isnull=True,
             course__discord_reminders_enabled=True,
         ).select_related("course")
 
@@ -81,9 +81,8 @@ class Command(BaseCommand):
                 )
                 response.raise_for_status()
 
-                # Mark reminder as sent
-                meeting.reminder_sent = True
-                meeting.save(update_fields=["reminder_sent"])
+                meeting.reminder_sent_at = timezone.now()
+                meeting.save(update_fields=["reminder_sent_at"])
 
                 self.stdout.write(self.style.SUCCESS(f"Sent reminder for: {meeting}"))
                 sent_count += 1

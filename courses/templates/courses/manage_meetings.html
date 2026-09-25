@@ -122,8 +122,8 @@
                                 <div class="form-field">
                                     <label>Reminder Sent</label>
                                     <div>
-                                        {% if form.instance.reminder_sent %}
-                                            <span class="badge bg-success">Yes</span>
+                                        {% if form.instance.reminder_sent_at %}
+                                            <span class="badge bg-success">{{ form.instance.reminder_sent_at|date:"M j, g:i A" }}</span>
                                         {% else %}
                                             <span class="badge bg-secondary">No</span>
                                         {% endif %}
