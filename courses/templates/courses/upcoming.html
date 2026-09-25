@@ -10,6 +10,18 @@
             All upcoming meetings for courses, clubs, and events you're enrolled in.
             <a href="{% url 'courses:calendar' %}">View Calendar</a>
         </p>
+        <div class="mb-3">
+            <label for="weeks-select" class="form-label fw-bold">Show:</label>
+            <select id="weeks-select"
+                    class="form-select w-auto d-inline-block"
+                    data-testid="weeks-select"
+                    onchange="window.location = this.value">
+                {% for value, label in horizons %}
+                    <option value="?weeks={{ value }}"
+                            {% if value == horizon %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
         {% if upcoming_events %}
             <h2>Global Events</h2>
             <div class="mt-3 mb-4">

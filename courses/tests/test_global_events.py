@@ -325,3 +325,81 @@ def test_global_events_list_staff_see_every_active_semester(
     response = athe.get_ok(GLOBAL_EVENTS)
 
     assert list(response.context["events"]) == [visible]
+
+
+@pytest.fixture
+def enrolled_in(
+    athe: AtheClient,
+    semester: Semester,
+    make_user: Callable[..., User],
+    make_student: Callable[..., Student],
+    make_course: Callable[..., Course],
+) -> Course:
+    user = make_user()
+    course = make_course(semester)
+    course.students.add(make_student(semester, user=user))
+    athe.login(user)
+    return course
+
+
+def upcoming_in(course: Course, days: int) -> CourseMeeting:
+    return CourseMeeting.objects.create(
+        course=course, start_time=timezone.now() + timedelta(days=days)
+    )
+
+
+@pytest.mark.django_db
+def test_upcoming_defaults_to_two_weeks(athe: AtheClient, enrolled_in: Course):
+    soon = upcoming_in(enrolled_in, 3)
+    upcoming_in(enrolled_in, 20)
+    event = GlobalEvent.objects.create(
+        semester=enrolled_in.semester,
+        title="Soon",
+        start_time=timezone.now() + timedelta(days=3),
+    )
+    GlobalEvent.objects.create(
+        semester=enrolled_in.semester,
+        title="Distant",
+        start_time=timezone.now() + timedelta(days=20),
+    )
+
+    response = athe.get_ok(UPCOMING)
+
+    assert response.context["horizon"] == "2"
+    assert list(response.context["upcoming_meetings"]) == [soon]
+    assert list(response.context["upcoming_events"]) == [event]
+    athe.assert_testid(response, "weeks-select")
+
+
+@pytest.mark.django_db
+def test_upcoming_weeks_widens_the_window(athe: AtheClient, enrolled_in: Course):
+    soon = upcoming_in(enrolled_in, 3)
+    distant = upcoming_in(enrolled_in, 20)
+    upcoming_in(enrolled_in, 70)
+
+    response = athe.get_ok(f"{UPCOMING}?weeks=4")
+
+    assert list(response.context["upcoming_meetings"]) == [soon, distant]
+
+
+@pytest.mark.django_db
+def test_upcoming_future_keeps_every_upcoming_meeting(
+    athe: AtheClient, enrolled_in: Course
+):
+    upcoming_in(enrolled_in, -5)
+    soon = upcoming_in(enrolled_in, 3)
+    distant = upcoming_in(enrolled_in, 70)
+
+    response = athe.get_ok(f"{UPCOMING}?weeks=future")
+
+    assert list(response.context["upcoming_meetings"]) == [soon, distant]
+
+
+@pytest.mark.django_db
+def test_upcoming_never_includes_the_past(athe: AtheClient, enrolled_in: Course):
+    upcoming_in(enrolled_in, -5)
+
+    response = athe.get_ok(f"{UPCOMING}?weeks=all")
+
+    assert response.context["horizon"] == "2"
+    assert list(response.context["upcoming_meetings"]) == []
