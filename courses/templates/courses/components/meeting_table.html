@@ -13,14 +13,16 @@
             {% for meeting in meetings %}
                 <tr>
                     <td>
+                        <a href="{% url 'courses:course_detail' pk=meeting.course.pk %}">{{ meeting.course.name|truncatechars:24 }}</a>
+                    </td>
+                    <td>
                         <a href="{% url 'courses:manage_meetings' pk=meeting.course.pk %}"
                            class="text-decoration-none me-1"
                            aria-label="Manage meetings"
                            data-bs-toggle="tooltip"
                            data-bs-title="Manage meetings"><i class="bi bi-pencil"></i></a>
-                        <a href="{% url 'courses:course_detail' pk=meeting.course.pk %}">{{ meeting.course.name|truncatechars:24 }}</a>
+                        {{ meeting.start_time|local_datetime:"D M j, G:i e" }}
                     </td>
-                    <td>{{ meeting.start_time|local_datetime:"D M j, G:i e" }}</td>
                     <td>{{ meeting.title|truncatechars:24 }}</td>
                     <td>{% include "courses/components/reminder_badge.html" with sent_at=meeting.reminder_sent_at %}</td>
                 </tr>

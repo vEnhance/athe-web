@@ -1,9 +1,8 @@
 {% if sent_at %}
-    <span class="badge bg-success"
+    <time class="badge bg-success"
           data-testid="reminder-sent"
-          data-bs-toggle="tooltip"
-          data-bs-placement="top"
-          data-bs-title="{{ sent_at|date:"M j, Y, g:i A" }}">{{ sent_at|date:"M j" }}</span>
+          datetime="{{ sent_at|date:"c" }}"
+          tabindex="0">{{ sent_at|date:"M j" }}</time>
 {% else %}
     <span class="badge bg-secondary" data-testid="reminder-not-yet">Not yet</span>
 {% endif %}
