@@ -155,7 +155,7 @@ def test_course_meeting_creation():
 
     assert meeting.course == course
     assert meeting.title == "Introduction to Algebra"
-    assert meeting.reminder_sent is False
+    assert meeting.reminder_sent_at is None
 
 
 @pytest.mark.django_db

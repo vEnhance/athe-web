@@ -14,12 +14,6 @@
             opacity: 0.5;
             text-decoration: line-through;
         }
-        .formset-header {
-            display: grid;
-            grid-template-columns: 2fr 3fr 1fr auto;
-            gap: 15px;
-            align-items: start;
-        }
         .form-field {
             display: flex;
             flex-direction: column;
@@ -33,7 +27,11 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            margin-top: 25px;
+        }
+        @media (min-width: 992px) {
+            .delete-checkbox {
+                margin-top: 25px;
+            }
         }
         .empty-form-section {
             margin-top: 30px;
@@ -83,17 +81,16 @@
                 {# Hidden template for cloning new forms #}
                 <template id="empty-form-template">
                     <div class="formset-row" data-form-index="__prefix__">
-                        <div class="formset-header">
-                            <div class="form-field">
+                        <div class="row g-3">
+                            <div class="form-field col-sm-6 col-lg-4">
                                 {{ formset.empty_form.start_time.label_tag }}
                                 {{ formset.empty_form.start_time }}
                             </div>
-                            <div class="form-field">
+                            <div class="form-field col-sm-6 col-lg">
                                 {{ formset.empty_form.title.label_tag }}
                                 {{ formset.empty_form.title }}
                             </div>
-                            <div class="form-field">{# Placeholder for grid alignment #}</div>
-                            <div class="delete-checkbox">
+                            <div class="delete-checkbox col-auto ms-auto">
                                 {{ formset.empty_form.DELETE }}
                                 <label for="{{ formset.empty_form.DELETE.id_for_label }}">Delete?</label>
                             </div>
@@ -108,28 +105,29 @@
                         <div class="formset-row existing-meeting"
                              data-form-index="{{ forloop.counter0 }}">
                             {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
-                            <div class="formset-header">
-                                <div class="form-field">
+                            <div class="row g-3">
+                                <div class="form-field col-sm-6 col-lg-4">
                                     {{ form.start_time.label_tag }}
                                     {{ form.start_time }}
                                     {% if form.start_time.errors %}<small class="text-danger">{{ form.start_time.errors }}</small>{% endif %}
                                 </div>
-                                <div class="form-field">
+                                <div class="form-field col-sm-6 col-lg">
                                     {{ form.title.label_tag }}
                                     {{ form.title }}
                                     {% if form.title.errors %}<small class="text-danger">{{ form.title.errors }}</small>{% endif %}
                                 </div>
-                                <div class="form-field">
+                                <div class="form-field col-auto">
                                     <label>Reminder Sent</label>
                                     <div>
-                                        {% if form.instance.reminder_sent %}
-                                            <span class="badge bg-success">Yes</span>
+                                        {% if form.instance.reminder_sent_at %}
+                                            <span class="badge bg-success"
+                                                  title="{{ form.instance.reminder_sent_at|date:"M j, Y, g:i A" }}">{{ form.instance.reminder_sent_at|date:"M j" }}</span>
                                         {% else %}
-                                            <span class="badge bg-secondary">No</span>
+                                            <span class="badge bg-secondary">Not yet</span>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="delete-checkbox">
+                                <div class="delete-checkbox col-auto ms-auto">
                                     {{ form.DELETE }}
                                     <label for="{{ form.DELETE.id_for_label }}">Delete?</label>
                                 </div>
