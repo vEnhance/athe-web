@@ -100,7 +100,7 @@ def test_superuser_manages_anything(semester, staff_user):
 @pytest.mark.django_db
 def test_any_current_staff_member_edits_an_active_club(semester, staff_user):
     bystander = staff_user("bystander")
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
 
     assert not club.is_run_by(bystander)
     assert club.is_managed_by(bystander)
@@ -109,7 +109,7 @@ def test_any_current_staff_member_edits_an_active_club(semester, staff_user):
 @pytest.mark.django_db
 def test_past_staff_cannot_edit_a_club(semester, staff_user):
     alum = staff_user("alum", category=StaffPhotoListing.Category.XSTAFF)
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
 
     assert not club.is_managed_by(alum)
 
@@ -119,7 +119,7 @@ def test_staff_cannot_edit_a_club_from_a_finished_semester(
     finished_semester, staff_user
 ):
     bystander = staff_user("bystander")
-    club = make_course(finished_semester, name="Japanese Club", is_club=True)
+    club = make_course(finished_semester, name="Japanese Club", kind=Course.Kind.CLUB)
 
     assert not club.is_managed_by(bystander)
 
@@ -131,7 +131,7 @@ def test_whoever_ran_a_finished_club_still_can(finished_semester, staff_user):
     club = make_course(
         finished_semester,
         name="Japanese Club",
-        is_club=True,
+        kind=Course.Kind.CLUB,
         instructor=teacher.staffphotolisting,
     )
 
@@ -144,7 +144,7 @@ def test_a_flag_alone_is_not_enough_without_a_listing(semester):
     flagged = User.objects.create_user(
         username="flagged", password="password", is_staff=True
     )
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
 
     assert not club.is_managed_by(flagged)
 
@@ -155,7 +155,7 @@ def test_a_flag_alone_is_not_enough_without_a_listing(semester):
 @pytest.mark.django_db
 def test_enrolled_student_cannot_edit_their_club(semester):
     kid = User.objects.create_user(username="kid", password="password")
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
     club.students.add(Student.objects.create(user=kid, semester=semester))
 
     assert not club.is_managed_by(kid)
@@ -163,7 +163,7 @@ def test_enrolled_student_cannot_edit_their_club(semester):
 
 @pytest.mark.django_db
 def test_anonymous_users_manage_nothing(semester):
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
 
     assert not club.is_managed_by(AnonymousUser())
     assert not club.is_run_by(AnonymousUser())
@@ -204,7 +204,7 @@ def test_for_user_covers_enrolment_and_running_without_duplicates(semester, staf
 def test_a_subscription_is_not_published_on_the_staff_page(semester, staff_user):
     """Following a club is a private choice, not a credit anyone else sees."""
     follower = staff_user("follower")
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
     club.subscribed_staff.add(follower.staffphotolisting)
 
     client = Client()
@@ -221,9 +221,9 @@ def test_a_subscription_is_not_published_on_the_staff_page(semester, staff_user)
 def test_my_clubs_offers_staff_subscribing_rather_than_joining(semester, staff_user):
     """Joining means a Student row, which is a different thing staff may have."""
     follower = staff_user("follower")
-    mine = make_course(semester, name="Japanese Club", is_club=True)
+    mine = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
     mine.subscribed_staff.add(follower.staffphotolisting)
-    other = make_course(semester, name="Chess Club", is_club=True)
+    other = make_course(semester, name="Chess Club", kind=Course.Kind.CLUB)
 
     client = Client()
     client.force_login(follower)
@@ -264,7 +264,7 @@ def club_run_by_three(semester, staff_user):
     club = make_course(
         semester,
         name="Japanese Club",
-        is_club=True,
+        kind=Course.Kind.CLUB,
         instructor=lead.staffphotolisting,
     )
     club.subscribed_staff.add(second.staffphotolisting, third.staffphotolisting)
@@ -347,7 +347,7 @@ def student_led_club(semester):
     """A club a student runs, with no staff attached to it at all."""
     kid = User.objects.create_user(username="kid", password="password")
     student = Student.objects.create(user=kid, semester=semester)
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
     club.students.add(student)
     club.student_organizers.add(student)
     return club, kid
@@ -365,7 +365,7 @@ def test_a_student_organizer_may_edit_their_own_club(student_led_club):
 def test_a_student_organizer_gets_no_reach_beyond_that_club(student_led_club, semester):
     """The grant is one club wide, unlike the blanket one staff get."""
     _, kid = student_led_club
-    other_club = make_course(semester, name="Chess Club", is_club=True)
+    other_club = make_course(semester, name="Chess Club", kind=Course.Kind.CLUB)
     other_class = make_course(semester, name="Combo Heuristics")
 
     assert not other_club.is_managed_by(kid)
@@ -411,7 +411,7 @@ def test_a_student_organizer_is_credited_on_the_club_page(student_led_club):
 def test_organizers_from_another_semester_are_rejected(semester, finished_semester):
     """Same rule the enrolled students already follow."""
     kid = User.objects.create_user(username="kid", password="password")
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
     club.student_organizers.add(
         Student.objects.create(user=kid, semester=finished_semester)
     )
@@ -426,7 +426,7 @@ def test_organizers_from_another_semester_are_rejected(semester, finished_semest
 @pytest.mark.django_db
 def test_staff_can_subscribe_and_unsubscribe_from_the_course_page(semester, staff_user):
     follower = staff_user("follower")
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
 
     client = Client()
     client.force_login(follower)
@@ -457,7 +457,7 @@ def test_staff_can_subscribe_to_a_class_too(semester, staff_user):
 @pytest.mark.django_db
 def test_subscribing_twice_is_harmless(semester, staff_user):
     follower = staff_user("follower")
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
 
     client = Client()
     client.force_login(follower)
@@ -472,7 +472,7 @@ def test_a_student_cannot_subscribe(semester):
     """Following is the staff-side counterpart of joining, not an extra way in."""
     kid = User.objects.create_user(username="kid", password="password")
     Student.objects.create(user=kid, semester=semester)
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
 
     client = Client()
     client.force_login(kid)
@@ -487,7 +487,7 @@ def test_a_student_cannot_subscribe(semester):
 @pytest.mark.django_db
 def test_past_staff_cannot_subscribe(semester, staff_user):
     alum = staff_user("alum", category=StaffPhotoListing.Category.XSTAFF)
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
 
     client = Client()
     client.force_login(alum)
@@ -499,7 +499,7 @@ def test_past_staff_cannot_subscribe(semester, staff_user):
 @pytest.mark.django_db
 def test_subscribing_needs_a_post(semester, staff_user):
     follower = staff_user("follower")
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
 
     client = Client()
     client.force_login(follower)
@@ -513,7 +513,7 @@ def test_a_staff_members_dummy_student_row_is_left_alone(semester, staff_user):
     """Some staff keep a Student row for testing; following must not touch it."""
     follower = staff_user("follower")
     dummy = Student.objects.create(user=follower, semester=semester)
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
     club.students.add(dummy)
 
     client = Client()
@@ -528,7 +528,7 @@ def test_a_staff_members_dummy_student_row_is_left_alone(semester, staff_user):
 @pytest.mark.django_db
 def test_the_course_page_offers_staff_the_right_button(semester, staff_user):
     follower = staff_user("follower")
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
 
     client = Client()
     client.force_login(follower)
@@ -543,7 +543,7 @@ def test_the_course_page_offers_students_join_by_post(semester):
     """The Join and Drop controls must post: both views require it."""
     kid = User.objects.create_user(username="kid", password="password")
     Student.objects.create(user=kid, semester=semester)
-    club = make_course(semester, name="Japanese Club", is_club=True)
+    club = make_course(semester, name="Japanese Club", kind=Course.Kind.CLUB)
 
     client = Client()
     client.force_login(kid)

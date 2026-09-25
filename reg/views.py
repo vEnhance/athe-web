@@ -478,7 +478,7 @@ def _responses_payload(semester: Semester) -> dict[str, Any]:
         "generated_at": timezone.now().isoformat(),
         "courses": [
             _course_json(course)
-            for course in Course.objects.filter(semester=semester, is_club=False)
+            for course in Course.objects.classes().filter(semester=semester)
         ],
         "availability_slots": [
             {"key": key, "label": label} for key, label in availability.slot_choices()
@@ -630,7 +630,7 @@ def _apply_assignments(
     semester: Semester, assignments: list[Assignment]
 ) -> list[dict[str, Any]]:
     """Enroll students in their computed classes and sort them into houses."""
-    classes = Course.objects.filter(semester=semester, is_club=False)
+    classes = Course.objects.classes().filter(semester=semester)
     enrollment = Course.students.through
 
     # Replacing enrollments only clears classes; clubs a student joined on

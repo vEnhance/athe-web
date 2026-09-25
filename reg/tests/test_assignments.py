@@ -30,9 +30,13 @@ def semester():
 def courses(semester):
     return {
         name: Course.objects.create(
-            name=name, description=name, semester=semester, is_club=is_club
+            name=name, description=name, semester=semester, kind=kind
         )
-        for name, is_club in (("Algebra", False), ("Geometry", False), ("Chess", True))
+        for name, kind in (
+            ("Algebra", Course.Kind.CLASS),
+            ("Geometry", Course.Kind.CLASS),
+            ("Chess", Course.Kind.CLUB),
+        )
     }
 
 

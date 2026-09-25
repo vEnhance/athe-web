@@ -83,7 +83,7 @@ def test_class_and_club_meetings_are_separated(
 ):
     """Meetings for classes and clubs don't bleed into each other's tables."""
     biology = make_course(semester, name="Biology")
-    art_club = make_course(semester, name="Art Club", is_club=True)
+    art_club = make_course(semester, name="Art Club", kind=Course.Kind.CLUB)
     class_meeting = meeting(biology, 1, "Session 1")
     club_meeting = meeting(art_club, 2, "Match Day")
 
@@ -103,7 +103,7 @@ def test_courses_without_meetings_are_listed_separately(
     """An empty class is the one worth chasing, so it gets its own list."""
     empty = make_course(semester, name="Empty Class")
     full = make_course(semester, name="Full Class")
-    empty_club = make_course(semester, name="Empty Club", is_club=True)
+    empty_club = make_course(semester, name="Empty Club", kind=Course.Kind.CLUB)
     meeting(full, 1)
 
     response = athe.get_ok(SCHEDULE)

@@ -113,8 +113,7 @@ def test_review_list_flags_sessions_this_staffer_follows(
     other = make_course(
         semester,
         name="OH (Melody + Aaron)",
-        is_club=True,
-        is_office_hours=True,
+        kind=Course.Kind.OFFICE_HOURS,
     )
     office_hours.subscribed_staff.add(make_staff_listing(staffer))
     mine = make_ticket_for(student, sitting)
@@ -140,8 +139,7 @@ def test_review_list_filters_by_session(
     other = make_course(
         semester,
         name="OH (Joshua + Tarun)",
-        is_club=True,
-        is_office_hours=True,
+        kind=Course.Kind.OFFICE_HOURS,
     )
     make_ticket_for(student, sitting)
     make_ticket_for(student, make_meeting(other))

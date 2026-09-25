@@ -36,7 +36,7 @@ def student_invite_view_setup():
         name="Geometry", description="Geometry", semester=semester
     )
     chess = Course.objects.create(
-        name="Chess", description="Chess", semester=semester, is_club=True
+        name="Chess", description="Chess", semester=semester, kind=Course.Kind.CLUB
     )
 
     # Create students

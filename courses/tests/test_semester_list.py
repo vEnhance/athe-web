@@ -19,7 +19,7 @@ def test_semester_list_counts_classes_only(
     for name in ("Algebra", "Geometry"):
         make_course(semester, name=name)
     for name in ("Chess Club", "Japanese Club", "Art Club"):
-        make_course(semester, name=name, is_club=True)
+        make_course(semester, name=name, kind=Course.Kind.CLUB)
 
     response = athe.get_ok(SEMESTER_LIST)
 
@@ -42,7 +42,7 @@ def test_semester_list_counts_are_per_semester_and_pluralized(
         end_date=today + timedelta(days=210),
     )
     make_course(semester, name="Algebra")
-    make_course(spring, name="Chess Club", is_club=True)
+    make_course(spring, name="Chess Club", kind=Course.Kind.CLUB)
 
     response = athe.get_ok(SEMESTER_LIST)
 

@@ -217,9 +217,9 @@ def test_calendar_categorises_what_it_draws(
 
     my_class = make_course(semester, name="Test Class")
     my_class.students.add(student)
-    my_club = make_course(semester, name="Test Club", is_club=True)
+    my_club = make_course(semester, name="Test Club", kind=Course.Kind.CLUB)
     my_club.students.add(student)
-    other_club = make_course(semester, name="Other Club", is_club=True)
+    other_club = make_course(semester, name="Other Club", kind=Course.Kind.CLUB)
     other_class = make_course(semester, name="Other Class")
     for course in (my_class, my_club, other_club, other_class):
         CourseMeeting.objects.create(course=course, start_time=soon)

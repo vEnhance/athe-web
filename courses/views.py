@@ -53,7 +53,7 @@ def semester_list(request: HttpRequest) -> HttpResponse:
     too.
     """
     semesters = Semester.objects.visible_to(request.user).annotate(
-        class_count=Count("courses", filter=Q(courses__is_club=False))
+        class_count=Count("courses", filter=Q(courses__kind=Course.Kind.CLASS))
     )
     return render(request, "courses/semester_list.html", {"semesters": semesters})
 
@@ -64,8 +64,8 @@ def course_list(request: HttpRequest, slug: str) -> HttpResponse:
     semester = get_object_or_404(visible, slug=slug)
 
     # Filter to only show classes (not clubs)
-    courses = Course.objects.filter(semester=semester, is_club=False).select_related(
-        "instructor"
+    courses = (
+        Course.objects.classes().filter(semester=semester).select_related("instructor")
     )
 
     prev_semester = visible.filter(start_date__lt=semester.start_date).first()
@@ -94,7 +94,7 @@ def my_courses(request: HttpRequest) -> HttpResponse:
 
     enrolled_courses = (
         Course.objects.for_user(request.user)
-        .filter(is_club=False)
+        .classes()
         .select_related("semester", "instructor")
     )
 
@@ -114,7 +114,7 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
     current_clubs = (
         Course.objects.none()
         if current is None
-        else Course.objects.filter(is_club=True, semester=current)
+        else Course.objects.clubs().filter(semester=current)
     )
 
     if request.user.is_staff:
@@ -157,11 +157,11 @@ def past_clubs(request: HttpRequest) -> HttpResponse:
     today = timezone.now().date()
 
     # Get all clubs from visible semesters that have ended
-    past_clubs_queryset = Course.objects.filter(
-        is_club=True,
-        semester__end_date__lt=today,
-        semester__visible=True,
-    ).select_related("semester", "instructor")
+    past_clubs_queryset = (
+        Course.objects.clubs()
+        .filter(semester__end_date__lt=today, semester__visible=True)
+        .select_related("semester", "instructor")
+    )
 
     # Convert to list and sort by semester (most recent first), then by course name
     past_clubs_list = sorted(
@@ -223,7 +223,7 @@ def _back_to(course: Course) -> HttpResponse:
 @require_POST
 def join_club(request: HttpRequest, pk: int) -> HttpResponse:
     """Join a club if the user has student access to that semester."""
-    club = get_object_or_404(Course, pk=pk, is_club=True)
+    club = get_object_or_404(Course.objects.clubs(), pk=pk)
 
     if club.semester != Semester.current():
         messages.error(request, "This club is not in the current semester.")
@@ -250,7 +250,7 @@ def join_club(request: HttpRequest, pk: int) -> HttpResponse:
 @require_POST
 def drop_club(request: HttpRequest, pk: int) -> HttpResponse:
     """Drop a club, as long as it is in the current semester."""
-    club = get_object_or_404(Course, pk=pk, is_club=True)
+    club = get_object_or_404(Course.objects.clubs(), pk=pk)
 
     if club.semester != Semester.current():
         messages.error(request, "This club is not in the current semester.")
@@ -374,13 +374,13 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
         {
             "semester": semester,
             "all_semesters": all_semesters,
-            "class_meetings": list(base_qs.filter(course__is_club=False)),
-            "club_meetings": list(base_qs.filter(course__is_club=True)),
+            "class_meetings": list(base_qs.filter(course__kind=Course.Kind.CLASS)),
+            "club_meetings": list(base_qs.exclude(course__kind=Course.Kind.CLASS)),
             "classes_without_meetings": list(
-                courses_qs.filter(is_club=False).exclude(pk__in=courses_with_meetings)
+                courses_qs.classes().exclude(pk__in=courses_with_meetings)
             ),
             "clubs_without_meetings": list(
-                courses_qs.filter(is_club=True).exclude(pk__in=courses_with_meetings)
+                courses_qs.clubs().exclude(pk__in=courses_with_meetings)
             ),
             "sort": sort,
             "horizon": horizon,
@@ -407,8 +407,8 @@ def _class_columns(semester: Semester) -> dict[int, str]:
     header would collide into a single column, so a repeat carries its id.
     """
     headers: dict[int, str] = {}
-    for course in Course.objects.filter(semester=semester, is_club=False).order_by(
-        "name", "pk"
+    for course in (
+        Course.objects.classes().filter(semester=semester).order_by("name", "pk")
     ):
         header = course.name
         if header in headers.values():
@@ -463,9 +463,9 @@ def export_students(request: HttpRequest) -> HttpResponse:
         .prefetch_related(
             Prefetch(
                 "enrolled_courses",
-                queryset=Course.objects.filter(
-                    semester=semester, is_club=False
-                ).order_by("name", "pk"),
+                queryset=Course.objects.classes()
+                .filter(semester=semester)
+                .order_by("name", "pk"),
             )
         )
         .order_by("airtable_name")
@@ -681,7 +681,8 @@ def class_logistics(request: HttpRequest) -> HttpResponse:
 
     LogisticsFormSet = modelformset_factory(Course, form=CourseLogisticsForm, extra=0)
     classes = (
-        Course.objects.filter(semester=semester, is_club=False)
+        Course.objects.classes()
+        .filter(semester=semester)
         .select_related("instructor")
         .order_by("name")
     )

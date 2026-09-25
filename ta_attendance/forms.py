@@ -23,10 +23,8 @@ class AttendanceForm(forms.ModelForm):
         self.fields["date"].initial = today
         # Only show clubs from semesters that have not ended
         self.fields["club"].queryset = (  # type: ignore[attr-defined]
-            Course.objects.filter(
-                is_club=True,
-                semester__end_date__gte=today,
-            )
+            Course.objects.clubs()
+            .filter(semester__end_date__gte=today)
             .select_related("semester")
             .order_by("semester__name", "name")
         )

@@ -32,8 +32,7 @@ def office_hours(make_course: Callable[..., Course], semester: Semester) -> Cour
     return make_course(
         semester,
         name="OH (Alex + Heather)",
-        is_club=True,
-        is_office_hours=True,
+        kind=Course.Kind.OFFICE_HOURS,
     )
 
 

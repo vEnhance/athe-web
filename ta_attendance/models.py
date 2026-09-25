@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 
 from courses.models import Course
 
@@ -17,7 +18,7 @@ class Attendance(models.Model):
         Course,
         on_delete=models.CASCADE,
         related_name="ta_attendance_records",
-        limit_choices_to={"is_club": True},
+        limit_choices_to=~Q(kind=Course.Kind.CLASS),
     )
 
     timestamp = models.DateTimeField(

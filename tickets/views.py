@@ -124,7 +124,7 @@ class StaffTicketListView(StaffOnlyMixin, ListView):
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["sessions"] = Course.objects.filter(is_office_hours=True).unfinished()
+        context["sessions"] = Course.objects.office_hours().unfinished()
         context["chosen_session"] = self.request.GET.get("session", "")
         context["dm_filter"] = DM_FILTER
         context["followed"] = set(

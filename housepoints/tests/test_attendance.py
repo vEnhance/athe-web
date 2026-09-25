@@ -90,7 +90,7 @@ def test_attendance_bulk_excludes_clubs(
     make_course: Callable[..., Course],
 ):
     make_course(semester, name="Regular Class")
-    make_course(semester, name="Test Club", is_club=True)
+    make_course(semester, name="Test Club", kind=Course.Kind.CLUB)
 
     assert choices(athe.get_ok(ATTENDANCE)) == ["Regular Class"]
 

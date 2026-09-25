@@ -67,7 +67,7 @@ def _student_notice(student: Student, today: date) -> DashboardNotice | None:
     # course lists say "not enrolled in any classes" for themselves.
     if student.semester.start_date <= today:
         return None
-    if Course.objects.filter(students=student, is_club=False).exists():
+    if Course.objects.classes().filter(students=student).exists():
         return None
     return DashboardNotice("assignments", student.semester)
 

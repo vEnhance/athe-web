@@ -171,17 +171,30 @@ class CourseQuerySet(models.QuerySet["Course"]):
         """
         return self.filter(semester__end_date__gte=timezone.localdate())
 
+    def classes(self) -> CourseQuerySet:
+        return self.filter(kind=Course.Kind.CLASS)
+
+    def clubs(self) -> CourseQuerySet:
+        """Clubs and events, office hours sessions included."""
+        return self.exclude(kind=Course.Kind.CLASS)
+
+    def office_hours(self) -> CourseQuerySet:
+        return self.filter(kind=Course.Kind.OFFICE_HOURS)
+
 
 class Course(models.Model):
+    class Kind(models.TextChoices):
+        CLASS = "class", "Class"
+        CLUB = "club", "Club/Event"
+        OFFICE_HOURS = "office_hours", "Office hours"
+
     name = models.CharField(max_length=200)
-    is_club = models.BooleanField(
-        default=False,
-        help_text="Whether this is a club (vs. a class).",
-    )
-    is_office_hours = models.BooleanField(
-        default=False,
-        help_text="Whether this club is a weekly office hours session, whose "
-        "meetings students may send questions to.",
+    kind = models.CharField(
+        max_length=20,
+        choices=Kind.choices,
+        default=Kind.CLASS,
+        help_text="Office hours are a club whose meetings students may send "
+        "questions to.",
     )
     description = models.TextField()
     semester = models.ForeignKey(
@@ -259,6 +272,14 @@ class Course(models.Model):
     def get_absolute_url(self) -> str:
         return reverse("courses:course_detail", kwargs={"pk": self.pk})
 
+    @property
+    def is_club(self) -> bool:
+        return self.kind != self.Kind.CLASS
+
+    @property
+    def is_office_hours(self) -> bool:
+        return self.kind == self.Kind.OFFICE_HOURS
+
     def is_run_by(self, user: AbstractBaseUser | AnonymousUser) -> bool:
         """Whether this user is the staff member listed as running the course."""
         if not user.is_authenticated:
@@ -307,8 +328,6 @@ class Course(models.Model):
     def clean(self) -> None:
         """Validate that everyone attached as a student is in this semester."""
         super().clean()
-        if self.is_office_hours and not self.is_club:
-            raise ValidationError("Only a club can be an office hours session.")
         # Only validate if the instance has been saved (has a pk)
         if self.pk:
             for field in ("students", "student_organizers"):
@@ -325,13 +344,7 @@ class Course(models.Model):
                     )
 
     class Meta:
-        ordering = ("-semester__start_date", "is_club", "name")
-        constraints = (
-            models.CheckConstraint(
-                condition=Q(is_office_hours=False) | Q(is_club=True),
-                name="office_hours_must_be_a_club",
-            ),
-        )
+        ordering = ("-semester__start_date", "kind", "name")
 
 
 class Student(models.Model):
@@ -400,7 +413,7 @@ class CourseMeetingQuerySet(models.QuerySet["CourseMeeting"]):
         """
         now = timezone.now()
         return self.filter(
-            course__is_office_hours=True,
+            course__kind=Course.Kind.OFFICE_HOURS,
             course__semester__end_date__gte=timezone.localdate(),
             start_time__gte=now,
             start_time__lte=now + timedelta(days=days),

@@ -440,8 +440,8 @@ class ClassPreferenceStepForm(RegistrationStepForm):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        classes = Course.objects.filter(semester=self.semester, is_club=False).order_by(
-            "name"
+        classes = (
+            Course.objects.classes().filter(semester=self.semester).order_by("name")
         )
         self.classes = list(classes)
 

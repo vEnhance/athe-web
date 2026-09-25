@@ -26,7 +26,7 @@ def test_all_attendance_link_visible_to_superuser(
     make_user: Callable[..., User],
     make_course: Callable[..., Course],
 ):
-    make_course(semester, name="Math Club", is_club=True)
+    make_course(semester, name="Math Club", kind=Course.Kind.CLUB)
 
     athe.login(make_user(username="pupil_staff", is_staff=True))
     athe.assert_no_testid(
