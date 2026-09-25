@@ -206,6 +206,7 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     )
 
     events = GlobalEvent.objects.current_for(request.user)
+    upcoming_events = events.filter(start_time__gte=timezone.now() - timedelta(hours=1))
     context: dict[str, Any] = {
         "dash_classes": classes,
         "dash_clubs": clubs,
@@ -218,8 +219,8 @@ def dashboard(request: HttpRequest) -> HttpResponse:
             if current is not None and current.start_date > timezone.localdate()
             else None
         ),
-        "global_event_count": events.count(),
-        "next_global_event": events.filter(start_time__gte=timezone.now()).first(),
+        "upcoming_global_events": list(upcoming_events[:5]),
+        "past_global_event_count": events.count() - upcoming_events.count(),
         "yearbook_student": yearbook_student,
         # The two section headings are links into a semester of the user's own;
         # anyone who has never enrolled gets the default view instead.

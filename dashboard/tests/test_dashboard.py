@@ -306,35 +306,34 @@ def test_section_headings_carry_a_badge_to_the_full_page(
 
 
 @pytest.mark.django_db
-def test_dashboard_summarises_global_events(
+def test_dashboard_lists_upcoming_global_events(
     athe: AtheClient, semester: Semester, student: Student
 ):
-    """The intro paragraph counts the semester's events and names the next one."""
+    """The panel lists the events still to come, soonest first."""
     now = timezone.now()
     GlobalEvent.objects.create(
         semester=semester, title="Opening Social", start_time=now - timedelta(days=3)
     )
-    soonest = GlobalEvent.objects.create(
+    lecture = GlobalEvent.objects.create(
         semester=semester, title="Guest Lecture", start_time=now + timedelta(days=2)
     )
-    GlobalEvent.objects.create(
+    party = GlobalEvent.objects.create(
         semester=semester, title="Closing Party", start_time=now + timedelta(days=40)
     )
 
     athe.login("lucy")
     response = athe.get_ok(INDEX)
 
-    # The count covers the whole semester; "next" looks only forwards.
-    assert response.context["global_event_count"] == 3
-    assert response.context["next_global_event"] == soonest
-    assert "Closing Party" not in athe.text_of(response, "dash-global-events")
+    assert response.context["upcoming_global_events"] == [lecture, party]
+    athe.assert_testid(response, "dash-global-events")
+    athe.assert_no_testid(response, "dash-no-global-events")
 
 
 @pytest.mark.django_db
 def test_dashboard_global_events_all_in_the_past(
     athe: AtheClient, semester: Semester, student: Student
 ):
-    """With nothing left to come, there is a count but no next event."""
+    """With nothing left to come, the panel counts the ones already held."""
     GlobalEvent.objects.create(
         semester=semester,
         title="Opening Social",
@@ -344,20 +343,21 @@ def test_dashboard_global_events_all_in_the_past(
     athe.login("lucy")
     response = athe.get_ok(INDEX)
 
-    assert response.context["global_event_count"] == 1
-    assert response.context["next_global_event"] is None
+    assert response.context["upcoming_global_events"] == []
+    assert response.context["past_global_event_count"] == 1
+    athe.assert_testid(response, "dash-no-global-events")
 
 
 @pytest.mark.django_db
-def test_dashboard_says_nothing_without_global_events(
+def test_dashboard_without_global_events(
     athe: AtheClient, semester: Semester, student: Student
 ):
-    """No events at all means no sentence about them."""
     athe.login("lucy")
     response = athe.get_ok(INDEX)
 
-    assert response.context["global_event_count"] == 0
-    assert athe.text_of(response, "dash-global-events") == ""
+    assert response.context["upcoming_global_events"] == []
+    assert response.context["past_global_event_count"] == 0
+    athe.assert_testid(response, "dash-no-global-events")
 
 
 @pytest.mark.django_db
@@ -384,7 +384,7 @@ def test_dashboard_ignores_events_from_other_semesters(
     athe.login("lucy")
     response = athe.get_ok(INDEX)
 
-    assert response.context["global_event_count"] == 0
+    assert response.context["past_global_event_count"] == 0
 
 
 @pytest.mark.django_db
@@ -923,6 +923,17 @@ def test_dashboard_invites_a_student_with_no_questions(
 
 
 @pytest.mark.django_db
+def test_dashboard_tells_non_students_questions_are_unavailable(
+    athe: AtheClient, semester: Semester, make_user: Callable[..., User]
+):
+    athe.login(make_user(username="visitor"))
+    response = athe.get_ok(INDEX)
+
+    athe.assert_testid(response, "dash-tickets-unavailable")
+    athe.assert_no_testid(response, "dash-submit-ticket", "dash-review-tickets")
+
+
+@pytest.mark.django_db
 def test_dashboard_counts_questions_for_staff(
     athe: AtheClient,
     semester: Semester,
@@ -939,4 +950,5 @@ def test_dashboard_counts_questions_for_staff(
     response = athe.get_ok(INDEX)
 
     assert response.context["tickets_to_review"] == 1
-    assert "1 question to review" in athe.text_of(response, "dash-review-tickets")
+    athe.assert_testid(response, "dash-review-tickets")
+    athe.assert_no_testid(response, "dash-tickets-unavailable", "dash-submit-ticket")

@@ -1,0 +1,28 @@
+<h2>Staff</h2>
+<ul class="dash-links" data-testid="dash-staff-links">
+    <li>
+        <a href="{% url 'housepoints:bulk_award' %}">Award Points</a>:
+        Awarding house points to students.
+    </li>
+    <li>
+        <a href="{% url 'housepoints:attendance_bulk' %}">Class Attendance</a>:
+        Instructors should use this to take attendance at each class.
+        (Also used for house points.)
+    </li>
+    <li>
+        <a href="{% url 'courses:export_students' %}">Export Students</a>:
+        Download this semester's roster as a CSV.
+    </li>
+    <li>
+        <a href="{% url 'courses:staff_schedule' %}">Staff Schedule</a>:
+        Master calendar of course meetings scheduled.
+    </li>
+    <li>
+        <a href="{% url 'ta_attendance:my_attendance' %}">TA Sign-in Sheet</a>:
+        TA's should use this to record their hours of running activities.
+    </li>
+    <li>
+        <a href="{% url 'home:staff_edit' %}">Update Bio</a>:
+        Update your staff listing on the public site.
+    </li>
+</ul>
