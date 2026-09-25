@@ -14,30 +14,7 @@
 {% block content %}
     <div id="content">
         <h1 data-testid="dash-greeting">Hi, {{ user.first_name|default:user.username }}!</h1>
-        <p>
-            It's currently {% now "g:i A e" %}.
-            <span data-testid="dash-global-events">
-                {% if global_event_count %}
-                    There
-                    {% if next_global_event and global_event_count == 1 %}
-                        is
-                    {% elif next_global_event and global_event_count > 1 %}
-                        are
-                    {% elif not next_global_event and global_event_count == 1 %}
-                        was
-                    {% elif not next_global_event and global_event_count > 1 %}
-                        were
-                    {% endif %}
-                    <a href="{% url 'courses:global_events' %}">{{ global_event_count }} global event{{ global_event_count|pluralize }} this semester</a>.
-                    {% if next_global_event %}
-                        The next one is
-                        <a href="{{ next_global_event.get_absolute_url }}">{{ next_global_event.title }} at {{ next_global_event.start_time|date:"D M j, g:i A e" }}</a>.
-                    {% else %}
-                        There are no future global events scheduled.
-                    {% endif %}
-                {% endif %}
-            </span>
-        </p>
+        <p>It's currently {% now "g:i A e" %}.</p>
         {% if upcoming_semester %}
             <p data-testid="dash-upcoming-semester">
                 The official start date for {{ upcoming_semester.name }} is
@@ -154,8 +131,33 @@
                 {% endif %}
             </div>
         </div>
-        {% if can_submit_ticket %}
-            <div class="row">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>
+                    Global Events
+                    <a class="badge bg-secondary dash-see-all"
+                       data-testid="dash-see-all-global-events"
+                       href="{% url 'courses:global_events' %}">See all</a>
+                </h2>
+                {% if upcoming_global_events %}
+                    <ul class="dash-course-list" data-testid="dash-global-events">
+                        {% for event in upcoming_global_events %}
+                            <li>
+                                <a href="{{ event.get_absolute_url }}">{{ event.title }}</a>
+                                <span class="dash-course-when">{{ event.start_time|local_datetime:"D M j, g:i A e" }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p data-testid="dash-no-global-events">
+                        There are no upcoming global events scheduled at the moment.
+                        There {{ past_global_event_count|pluralize:"was,were" }}
+                        <a href="{% url 'courses:global_events' %}">{{ past_global_event_count }} past global event{{ past_global_event_count|pluralize }}</a>
+                        this semester.
+                    </p>
+                {% endif %}
+            </div>
+            {% if can_submit_ticket %}
                 <div class="col-md-6">
                     <h2>
                         Questions
@@ -186,8 +188,8 @@
                        data-testid="dash-submit-ticket"
                        href="{% url 'tickets:submit' %}">Submit a Question</a>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
         {% if user.is_staff %}
             <h2>Staff</h2>
             <ul class="dash-links" data-testid="dash-staff-links">
