@@ -118,14 +118,7 @@
                                 </div>
                                 <div class="form-field col-auto">
                                     <label>Reminder Sent</label>
-                                    <div>
-                                        {% if form.instance.reminder_sent_at %}
-                                            <span class="badge bg-success"
-                                                  title="{{ form.instance.reminder_sent_at|date:"M j, Y, g:i A" }}">{{ form.instance.reminder_sent_at|date:"M j" }}</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">Not yet</span>
-                                        {% endif %}
-                                    </div>
+                                    <div>{% include "courses/components/reminder_badge.html" with sent_at=form.instance.reminder_sent_at %}</div>
                                 </div>
                                 <div class="delete-checkbox col-auto ms-auto">
                                     {{ form.DELETE }}

@@ -6,6 +6,7 @@
                 <th>Course</th>
                 <th>Date/Time</th>
                 <th>Topic</th>
+                <th>Reminder</th>
             </tr>
         </thead>
         <tbody>
@@ -14,7 +15,7 @@
                     <td>
                         <a href="{% url 'courses:course_detail' pk=meeting.course.pk %}">{{ meeting.course.name|truncatechars:24 }}</a>
                     </td>
-                    <td>{{ meeting.start_time|local_datetime:"D M j, Y, G:i e" }}</td>
+                    <td>{{ meeting.start_time|local_datetime:"D M j, G:i e" }}</td>
                     <td>
                         <a href="{% url 'courses:manage_meetings' pk=meeting.course.pk %}">
                             {% if meeting.title %}
@@ -24,6 +25,7 @@
                             {% endif %}
                         </a>
                     </td>
+                    <td>{% include "courses/components/reminder_badge.html" with sent_at=meeting.reminder_sent_at %}</td>
                 </tr>
             {% endfor %}
         </tbody>

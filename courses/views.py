@@ -346,7 +346,7 @@ def staff_schedule(request: HttpRequest, slug: str | None = None) -> HttpRespons
             )
         semester = current
 
-    sort = request.GET.get("sort", "course")
+    sort = request.GET.get("sort", "date")
     horizon = _schedule_horizon(request)
 
     base_qs = _within_horizon(

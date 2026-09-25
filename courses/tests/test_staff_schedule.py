@@ -129,7 +129,7 @@ def test_sort_by_course(
 
 
 @pytest.mark.django_db
-def test_sort_by_date(
+def test_sorts_by_date_by_default(
     athe: AtheClient,
     semester: Semester,
     staff: User,
@@ -138,9 +138,30 @@ def test_sort_by_date(
     later = meeting(make_course(semester, name="Alpha Course"), 5)
     sooner = meeting(make_course(semester, name="Zebra Course"), 1)
 
-    response = athe.get_ok(f"{SCHEDULE}?sort=date")
+    response = athe.get_ok(SCHEDULE)
 
+    assert response.context["sort"] == "date"
     assert response.context["class_meetings"] == [sooner, later]
+
+
+@pytest.mark.django_db
+def test_shows_whether_each_reminder_was_sent(
+    athe: AtheClient,
+    semester: Semester,
+    staff: User,
+    make_course: Callable[..., Course],
+):
+    course = make_course(semester)
+    sent = meeting(course, 1)
+    sent.reminder_sent_at = timezone.now()
+    sent.save()
+    meeting(course, 2)
+    meeting(course, 3)
+
+    response = athe.get_ok(SCHEDULE)
+
+    athe.assert_testid_count(response, "reminder-sent", 1)
+    athe.assert_testid_count(response, "reminder-not-yet", 2)
 
 
 @pytest.mark.django_db
