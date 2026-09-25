@@ -79,7 +79,7 @@
                 {% if request.user.is_superuser %}
                     <a href="{% url 'admin:courses_course_change' course.pk %}"
                        class="btn btn-sm btn-outline-secondary"
-                       data-testid="manage-meetings-admin-link">Edit in Django Admin</a>
+                       data-testid="manage-meetings-admin-link">Open in Django Admin</a>
                 {% endif %}
             </div>
             <p class="text-info">Edit existing meetings, add new ones, or mark meetings for deletion all in one form.</p>
