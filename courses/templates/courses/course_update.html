@@ -24,12 +24,15 @@
             </div>
             <form method="post">
                 {% csrf_token %}
+                <h2>Academic information</h2>
                 {% bootstrap_field form.description %}
                 {% bootstrap_field form.difficulty %}
                 {% bootstrap_field form.regular_meeting_time %}
                 {% bootstrap_field form.lesson_plan %}
+                <h2>Platform links</h2>
                 {% bootstrap_field form.google_classroom_direct_link %}
                 {% bootstrap_field form.zoom_meeting_link %}
+                <h2>Discord integration</h2>
                 {% bootstrap_field form.discord_webhook %}
                 {% bootstrap_field form.discord_role_id %}
                 {% bootstrap_field form.discord_reminders_enabled %}
