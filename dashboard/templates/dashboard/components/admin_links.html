@@ -1,0 +1,36 @@
+<h2>Admin</h2>
+<p>
+    The <a href="{% url 'admin:index' %}" class="fw-bold">Django Admin</a>
+    allows the execution of arbitrary changes to the database.
+    For most one-off changes, this is where you can go.
+</p>
+<p>
+    The rest of the links are used mostly at the start of the semester
+    for certain bulk operations that are too tedious to do in Django Admin.
+    Once the semester has started, you mostly won't need them anymore.
+</p>
+<ul class="dash-links" data-testid="dash-admin-links">
+    <li>
+        <a href="{% url 'home:manual' %}">Admin Manual</a>: Instructions manual.
+    </li>
+    <li>
+        <a href="{% url 'courses:bulk_create_students' %}">Bulk Create Students</a>:
+        Mass create Student objects for the new semester after admissions.
+    </li>
+    <li>
+        <a href="{% url 'courses:class_logistics' %}">Class Logistics</a>:
+        Mass edit details for course like meeting time, Zoom link, Google Classroom.
+    </li>
+    <li>
+        <a href="{% url 'reg:download-responses' %}">Download Responses</a>:
+        Download all the responses from the registration questionnaire.
+    </li>
+    <li>
+        <a href="{% url 'reg:incomplete-registrations' %}">Incomplete Registrations</a>:
+        See a list of accepted students who didn't finish the registration flow.
+    </li>
+    <li>
+        <a href="{% url 'reg:upload-assignments' %}">Upload Assignments</a>:
+        Import a JSON of class and house assignments computed by a solver.
+    </li>
+</ul>

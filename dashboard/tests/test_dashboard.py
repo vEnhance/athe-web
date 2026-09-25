@@ -926,11 +926,11 @@ def test_dashboard_invites_a_student_with_no_questions(
 def test_dashboard_tells_non_students_questions_are_unavailable(
     athe: AtheClient, semester: Semester, make_user: Callable[..., User]
 ):
-    athe.login(make_user(username="alex", is_staff=True))
+    athe.login(make_user(username="visitor"))
     response = athe.get_ok(INDEX)
 
     athe.assert_testid(response, "dash-tickets-unavailable")
-    athe.assert_no_testid(response, "dash-submit-ticket")
+    athe.assert_no_testid(response, "dash-submit-ticket", "dash-review-tickets")
 
 
 @pytest.mark.django_db
@@ -950,4 +950,5 @@ def test_dashboard_counts_questions_for_staff(
     response = athe.get_ok(INDEX)
 
     assert response.context["tickets_to_review"] == 1
-    assert "1 question to review" in athe.text_of(response, "dash-review-tickets")
+    athe.assert_testid(response, "dash-review-tickets")
+    athe.assert_no_testid(response, "dash-tickets-unavailable", "dash-submit-ticket")
