@@ -70,9 +70,18 @@
     <div id="content">
         <div class="course">
             <h1>Manage Meetings</h1>
-            <p class="text-muted">
-                <a href="{% url 'courses:course_detail' pk=course.pk %}">{{ course.name }}</a> - {{ course.semester }}
-            </p>
+            <p class="text-muted">{{ course.name }} - {{ course.semester }}</p>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a href="{% url 'courses:course_detail' pk=course.pk %}"
+                   class="btn btn-sm btn-outline-primary">View Page</a>
+                <a href="{% url 'courses:course_update' pk=course.pk %}"
+                   class="btn btn-sm btn-outline-primary">Edit Course</a>
+                {% if request.user.is_superuser %}
+                    <a href="{% url 'admin:courses_course_change' course.pk %}"
+                       class="btn btn-sm btn-outline-secondary"
+                       data-testid="manage-meetings-admin-link">Edit in Django Admin</a>
+                {% endif %}
+            </div>
             <p class="text-info">Edit existing meetings, add new ones, or mark meetings for deletion all in one form.</p>
             <form method="post">
                 {% csrf_token %}

@@ -12,17 +12,8 @@
         <tbody>
             {% for meeting in meetings %}
                 <tr>
-                    <td>
-                        <a href="{% url 'courses:course_detail' pk=meeting.course.pk %}">{{ meeting.course.name|truncatechars:24 }}</a>
-                    </td>
-                    <td>
-                        <a href="{% url 'courses:manage_meetings' pk=meeting.course.pk %}"
-                           class="text-decoration-none me-1"
-                           aria-label="Manage meetings"
-                           data-bs-toggle="tooltip"
-                           data-bs-title="Manage meetings"><i class="bi bi-pencil"></i></a>
-                        {{ meeting.start_time|local_datetime:"D M j, G:i e" }}
-                    </td>
+                    <td>{% include "courses/components/staff_course_link.html" with course=meeting.course %}</td>
+                    <td>{{ meeting.start_time|local_datetime:"D M j, G:i e" }}</td>
                     <td>{{ meeting.title|truncatechars:24 }}</td>
                     <td>{% include "courses/components/reminder_badge.html" with sent_at=meeting.reminder_sent_at %}</td>
                 </tr>
@@ -36,11 +27,7 @@
     <h3>⚠️ No meetings scheduled yet</h3>
     <ul>
         {% for course in naughty_list %}
-            <li>
-                <a href="{% url 'courses:course_detail' pk=course.pk %}">[View]</a>
-                <a href="{% url 'courses:manage_meetings' pk=course.pk %}">[Manage]</a>
-                {{ course.name }}
-            </li>
+            <li>{% include "courses/components/staff_course_link.html" %}</li>
         {% endfor %}
     </ul>
 {% endif %}

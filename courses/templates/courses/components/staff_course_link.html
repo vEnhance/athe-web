@@ -1,0 +1,5 @@
+{% if course.pk in managed_course_ids %}
+    <a href="{% url 'courses:manage_meetings' pk=course.pk %}">{{ course.name|truncatechars:24 }}</a>
+{% else %}
+    <a href="{% url 'courses:course_detail' pk=course.pk %}">{{ course.name|truncatechars:24 }}</a>
+{% endif %}

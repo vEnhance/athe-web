@@ -89,3 +89,14 @@ def test_manage_meetings_saves_a_generated_weekly_batch(
         datetime(2025, 11, 12, 16, 0, tzinfo=EASTERN),
         datetime(2025, 11, 19, 16, 0, tzinfo=EASTERN),
     ]
+
+
+@pytest.mark.django_db
+def test_only_superusers_get_the_admin_button(
+    athe: AtheClient, course: Course, leader: User, make_user: Callable[..., User]
+):
+    url = reverse("courses:manage_meetings", kwargs={"pk": course.pk})
+    athe.assert_no_testid(athe.get_ok(url), "manage-meetings-admin-link")
+
+    athe.login(make_user(username="root", is_superuser=True))
+    athe.assert_testid(athe.get_ok(url), "manage-meetings-admin-link")
