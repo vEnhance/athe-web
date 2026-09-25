@@ -134,6 +134,40 @@
         <div class="row">
             <div class="col-md-6">
                 <h2>
+                    Questions
+                    <a class="badge bg-secondary dash-see-all"
+                       data-testid="dash-see-all-tickets"
+                       href="{% url 'tickets:ticket_list' %}">See all</a>
+                </h2>
+                {% if can_submit_ticket %}
+                    {% if open_tickets %}
+                        <ul class="dash-course-list" data-testid="dash-open-tickets">
+                            {% for ticket in open_tickets %}
+                                <li>
+                                    {{ ticket.title }}
+                                    <span class="dash-course-when">
+                                        {% if ticket.meeting %}
+                                            {{ ticket.meeting.course.name }} on
+                                            {{ ticket.meeting.start_time|local_datetime:"D M j, g:i A e" }}
+                                        {% else %}
+                                            via Discord DM
+                                        {% endif %}
+                                    </span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p data-testid="dash-no-tickets">You don't have any questions waiting on an answer.</p>
+                    {% endif %}
+                    <a class="btn btn-primary btn-sm"
+                       data-testid="dash-submit-ticket"
+                       href="{% url 'tickets:submit' %}">Submit a Question</a>
+                {% else %}
+                    <p data-testid="dash-tickets-unavailable">This feature isn't available to you right now.</p>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h2>
                     Global Events
                     <a class="badge bg-secondary dash-see-all"
                        data-testid="dash-see-all-global-events"
@@ -157,38 +191,6 @@
                     </p>
                 {% endif %}
             </div>
-            {% if can_submit_ticket %}
-                <div class="col-md-6">
-                    <h2>
-                        Questions
-                        <a class="badge bg-secondary dash-see-all"
-                           data-testid="dash-see-all-tickets"
-                           href="{% url 'tickets:ticket_list' %}">See all</a>
-                    </h2>
-                    {% if open_tickets %}
-                        <ul class="dash-course-list" data-testid="dash-open-tickets">
-                            {% for ticket in open_tickets %}
-                                <li>
-                                    {{ ticket.title }}
-                                    <span class="dash-course-when">
-                                        {% if ticket.meeting %}
-                                            {{ ticket.meeting.course.name }} on
-                                            {{ ticket.meeting.start_time|local_datetime:"D M j, g:i A e" }}
-                                        {% else %}
-                                            via Discord DM
-                                        {% endif %}
-                                    </span>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p data-testid="dash-no-tickets">You don't have any questions waiting on an answer.</p>
-                    {% endif %}
-                    <a class="btn btn-primary btn-sm"
-                       data-testid="dash-submit-ticket"
-                       href="{% url 'tickets:submit' %}">Submit a Question</a>
-                </div>
-            {% endif %}
         </div>
         {% if user.is_staff %}
             <h2>Staff</h2>
