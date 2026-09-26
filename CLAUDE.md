@@ -190,5 +190,6 @@ rows whose file has gone missing.
 Google, GitHub, and Discord OAuth are the primary methods and are emphasized in the UI;
 username/password is a de-emphasized fallback. Admins can impersonate users through
 django-hijack. The site sends no email, so a student who forgets their login gets a reset
-link from a superuser instead: `/password-reset-link/` finds their account and makes the
-same link allauth's reset flow would have mailed, for the admin to pass on by hand.
+link from a superuser instead: the "Make password reset links" action on the Django admin
+user list makes the same link allauth's reset flow would have mailed, for the admin to pass
+on by hand.
