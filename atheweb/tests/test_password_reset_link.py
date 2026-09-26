@@ -2,7 +2,6 @@ from collections.abc import Callable
 from urllib.parse import urlparse
 
 import pytest
-from django.contrib.admin import helpers
 from django.contrib.auth.models import Permission, User
 from django.test import Client
 from django.urls import reverse
@@ -13,28 +12,17 @@ from courses.models import Semester, Student
 pytestmark = pytest.mark.django_db
 
 CHANGELIST = reverse("admin:auth_user_changelist")
-ACTION = "make_password_reset_links"
 
 
-def make_links(athe: AtheClient, *users: User) -> list[str]:
-    response = athe.post(
-        CHANGELIST,
-        {"action": ACTION, helpers.ACTION_CHECKBOX_NAME: [u.pk for u in users]},
-        follow=True,
-    )
-    return [
-        urlparse(str(m).split(": ", 1)[1]).path for m in response.context["messages"]
-    ]
+def reset_link_url(user: User) -> str:
+    return reverse("admin:auth_user_reset_link", args=[user.pk])
 
 
-def action_names(athe: AtheClient) -> list[str]:
-    choices = athe.get_ok(CHANGELIST).context["action_form"].fields["action"].choices
-    return [name for name, _ in choices]
-
-
-def test_only_superusers_get_the_action(
+def test_only_superusers_can_make_links(
     athe: AtheClient, make_user: Callable[..., User]
 ) -> None:
+    forgetful = make_user("forgetful")
+    change_page = reverse("admin:auth_user_change", args=[forgetful.pk])
     staff = make_user("ta", is_staff=True)
     staff.user_permissions.set(
         Permission.objects.filter(
@@ -42,10 +30,11 @@ def test_only_superusers_get_the_action(
         )
     )
     athe.login(staff)
-    assert ACTION not in action_names(athe)
+    athe.assert_no_testid(athe.get_ok(change_page), "reset-link-button")
+    assert athe.get(reset_link_url(forgetful)).status_code == 403
 
     athe.login(make_user("admin", is_superuser=True, is_staff=True))
-    assert ACTION in action_names(athe)
+    athe.assert_testid(athe.get_ok(change_page), "reset-link-button")
 
 
 def test_search_finds_a_user_by_their_roster_name(
@@ -69,7 +58,12 @@ def test_the_link_lets_the_student_set_a_new_password_once(
 ) -> None:
     forgetful = make_user("forgetful")
     athe.login(make_user("admin", is_superuser=True, is_staff=True))
-    [path] = make_links(athe, forgetful)
+    response = athe.get(reset_link_url(forgetful), follow=True)
+    assert response.redirect_chain[-1][0] == reverse(
+        "admin:auth_user_change", args=[forgetful.pk]
+    )
+    [message] = response.context["messages"]
+    path = urlparse(str(message).split(": ", 1)[1]).path
 
     student = Client()
     form_page = student.get(path, follow=True)

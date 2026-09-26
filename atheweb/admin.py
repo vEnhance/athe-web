@@ -1,11 +1,12 @@
 from allauth.account.forms import default_token_generator
 from allauth.account.utils import user_pk_to_url_str
-from django.contrib import admin, messages
+from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from django.db.models import QuerySet
-from django.http import HttpRequest
-from django.urls import reverse
+from django.core.exceptions import PermissionDenied
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import URLPattern, path, reverse
 
 admin.site.unregister(User)
 
@@ -25,18 +26,20 @@ def reset_link(request: HttpRequest, user: User) -> str:
 @admin.register(User)
 class AtheUserAdmin(UserAdmin):
     search_fields = (*UserAdmin.search_fields, "students__airtable_name")
-    actions = ["make_password_reset_links"]
 
-    def has_reset_password_permission(self, request: HttpRequest) -> bool:
-        return request.user.is_superuser  # type: ignore[attr-defined]
+    def get_urls(self) -> list[URLPattern]:
+        return [
+            path(
+                "<int:user_id>/reset-link/",
+                self.admin_site.admin_view(self.make_reset_link),
+                name="auth_user_reset_link",
+            ),
+            *super().get_urls(),
+        ]
 
-    @admin.action(
-        description="Make password reset links", permissions=["reset_password"]
-    )
-    def make_password_reset_links(
-        self, request: HttpRequest, queryset: QuerySet[User]
-    ) -> None:
-        for user in queryset:
-            self.message_user(
-                request, f"{user.username}: {reset_link(request, user)}", messages.INFO
-            )
+    def make_reset_link(self, request: HttpRequest, user_id: int) -> HttpResponse:
+        if not request.user.is_superuser:  # type: ignore[attr-defined]
+            raise PermissionDenied
+        user = get_object_or_404(User, pk=user_id)
+        self.message_user(request, f"{user.username}: {reset_link(request, user)}")
+        return redirect("admin:auth_user_change", user.pk)
