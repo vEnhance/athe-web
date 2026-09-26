@@ -22,7 +22,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import include, path
 from django.views.generic.base import RedirectView
 
-from atheweb.views import index
+from atheweb.views import index, password_reset_link
 
 urlpatterns = [
     path(
@@ -53,6 +53,11 @@ urlpatterns = [
         "logout/",
         auth_views.LogoutView.as_view(next_page="/"),
         name="logout",
+    ),
+    path(
+        "password-reset-link/",
+        password_reset_link,
+        name="password-reset-link",
     ),
     path("", index, name="index"),
     path("", include("home.urls")),
