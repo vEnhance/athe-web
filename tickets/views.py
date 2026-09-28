@@ -12,6 +12,7 @@ from django.views.generic import CreateView, ListView, UpdateView
 
 from courses.models import Course, Semester, Student
 
+from .discord import notify_ticket
 from .forms import TicketForm, TicketReviewForm
 from .models import Ticket
 
@@ -65,6 +66,7 @@ class TicketCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         assert student is not None
         form.instance.student = student
         response = super().form_valid(form)
+        notify_ticket(self.request, form.instance, "submitted")
         meeting = form.instance.meeting
         if meeting is None:
             messages.success(
@@ -144,11 +146,16 @@ class StaffTicketUpdateView(StaffOnlyMixin, UpdateView):
         assert isinstance(self.request.user, User)
         # Only stamp who closed a ticket when this save is what closed it, so
         # editing the notes on a resolved ticket does not rewrite its history.
+        newly_resolved = False
         if not form.cleaned_data["resolved"]:
             form.instance.unresolve()
         elif not form.instance.is_resolved:
             form.instance.resolve(self.request.user)
-        return super().form_valid(form)
+            newly_resolved = True
+        response = super().form_valid(form)
+        if newly_resolved:
+            notify_ticket(self.request, form.instance, "resolved")
+        return response
 
     def get_success_url(self) -> str:
         return reverse("tickets:review_list")
