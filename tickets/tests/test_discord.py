@@ -49,7 +49,7 @@ def test_submitting_posts_red_embed(
 
 
 @pytest.mark.django_db
-def test_posts_only_when_resolution_changes(
+def test_posts_whenever_staff_change_something(
     athe: AtheClient,
     student: Student,
     staffer: User,
@@ -67,14 +67,16 @@ def test_posts_only_when_resolution_changes(
 
     post.reset_mock()
     athe.post_redirects(review, url, {"resolved": "on", "staff_notes": "Hi"})
-    post.assert_not_called()
+    assert sent_embed(post)["color"] == RESOLVED_COLOR
+    assert post.call_args.kwargs["json"]["content"].startswith("Question updated")
 
+    post.reset_mock()
     athe.post_redirects(review, url, {"staff_notes": "Hi"})
     assert sent_embed(post)["color"] == UNRESOLVED_COLOR
     assert post.call_args.kwargs["json"]["content"].startswith("Question reopened")
 
     post.reset_mock()
-    athe.post_redirects(review, url, {"staff_notes": "Still open"})
+    athe.post_redirects(review, url, {"staff_notes": "Hi"})
     post.assert_not_called()
 
 

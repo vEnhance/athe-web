@@ -155,6 +155,8 @@ class StaffTicketUpdateView(StaffOnlyMixin, UpdateView):
         if form.instance.is_resolved != was_resolved:
             event = "resolved" if form.instance.is_resolved else "reopened"
             notify_ticket(self.request, form.instance, event)
+        elif form.has_changed():
+            notify_ticket(self.request, form.instance, "updated")
         return response
 
     def get_success_url(self) -> str:
