@@ -146,15 +146,15 @@ class StaffTicketUpdateView(StaffOnlyMixin, UpdateView):
         assert isinstance(self.request.user, User)
         # Only stamp who closed a ticket when this save is what closed it, so
         # editing the notes on a resolved ticket does not rewrite its history.
-        newly_resolved = False
+        was_resolved = form.instance.is_resolved
         if not form.cleaned_data["resolved"]:
             form.instance.unresolve()
-        elif not form.instance.is_resolved:
+        elif not was_resolved:
             form.instance.resolve(self.request.user)
-            newly_resolved = True
         response = super().form_valid(form)
-        if newly_resolved:
-            notify_ticket(self.request, form.instance, "resolved")
+        if form.instance.is_resolved != was_resolved:
+            event = "resolved" if form.instance.is_resolved else "reopened"
+            notify_ticket(self.request, form.instance, event)
         return response
 
     def get_success_url(self) -> str:

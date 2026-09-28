@@ -49,7 +49,7 @@ def test_submitting_posts_red_embed(
 
 
 @pytest.mark.django_db
-def test_resolving_posts_green_embed_once(
+def test_posts_only_when_resolution_changes(
     athe: AtheClient,
     student: Student,
     staffer: User,
@@ -58,16 +58,24 @@ def test_resolving_posts_green_embed_once(
 ):
     ticket = make_ticket(student)
     url = reverse("tickets:review_detail", kwargs={"pk": ticket.pk})
-
+    review = reverse("tickets:review_list")
     athe.login(staffer)
-    athe.post_redirects(reverse("tickets:review_list"), url, {"resolved": "on"})
-    assert sent_embed(post)["color"] == RESOLVED_COLOR
 
-    athe.post_redirects(
-        reverse("tickets:review_list"), url, {"resolved": "on", "staff_notes": "Hi"}
-    )
-    athe.post_redirects(reverse("tickets:review_list"), url, {})
-    post.assert_called_once()
+    athe.post_redirects(review, url, {"resolved": "on"})
+    assert sent_embed(post)["color"] == RESOLVED_COLOR
+    assert post.call_args.kwargs["json"]["content"].startswith("Question resolved")
+
+    post.reset_mock()
+    athe.post_redirects(review, url, {"resolved": "on", "staff_notes": "Hi"})
+    post.assert_not_called()
+
+    athe.post_redirects(review, url, {"staff_notes": "Hi"})
+    assert sent_embed(post)["color"] == UNRESOLVED_COLOR
+    assert post.call_args.kwargs["json"]["content"].startswith("Question reopened")
+
+    post.reset_mock()
+    athe.post_redirects(review, url, {"staff_notes": "Still open"})
+    post.assert_not_called()
 
 
 @pytest.mark.django_db
