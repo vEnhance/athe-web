@@ -154,7 +154,7 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
 @login_required
 def past_clubs(request: HttpRequest) -> HttpResponse:
     """Show all clubs from visible past semesters (readonly)."""
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     # Get all clubs from visible semesters that have ended
     past_clubs_queryset = (
@@ -834,7 +834,7 @@ def calendar_view(request: HttpRequest) -> HttpResponse:
     """Monthly calendar of every event the user can see."""
     assert isinstance(request.user, User)
 
-    today = timezone.now().date()
+    today = timezone.localdate()
     display_year, display_month = _requested_month(request, today)
 
     # Sunday is the first day of the week (6 in Python's calendar module)

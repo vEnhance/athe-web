@@ -32,7 +32,7 @@ def test_course_with_links():
     fall = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     course = Course.objects.create(
@@ -62,7 +62,7 @@ def test_student_creation():
     fall = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(user=user, semester=fall)
@@ -79,7 +79,7 @@ def test_student_enrollment():
     fall = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     course1 = Course.objects.create(
@@ -104,7 +104,7 @@ def test_student_enrollment_semester_validation():
     fall = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     spring = Semester.objects.create(
@@ -142,7 +142,7 @@ def test_course_meeting_creation():
     fall = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     course = Course.objects.create(
@@ -164,7 +164,7 @@ def test_semester_visible_by_default():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     assert semester.visible is True

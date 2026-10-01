@@ -14,7 +14,7 @@ def test_yearbook_entry_creation():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     user = User.objects.create_user(username="testuser", password="password")
@@ -42,7 +42,7 @@ def test_yearbook_entry_with_social_links():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(

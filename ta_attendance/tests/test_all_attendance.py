@@ -72,7 +72,7 @@ def test_all_attendance_shows_all_records():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     club = Course.objects.create(
@@ -112,7 +112,7 @@ def test_all_attendance_displays_user_name():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     club = Course.objects.create(

@@ -18,14 +18,14 @@ def student_invite_model_setup():
     active_semester = Semester.objects.create(
         name="Fall 2025",
         slug="fall-2025",
-        start_date=timezone.now().date(),
-        end_date=timezone.now().date() + timedelta(days=90),
+        start_date=timezone.localdate(),
+        end_date=timezone.localdate() + timedelta(days=90),
     )
     ended_semester = Semester.objects.create(
         name="Spring 2024",
         slug="spring-2024",
-        start_date=timezone.now().date() - timedelta(days=180),
-        end_date=timezone.now().date() - timedelta(days=90),
+        start_date=timezone.localdate() - timedelta(days=180),
+        end_date=timezone.localdate() - timedelta(days=90),
     )
 
     return {

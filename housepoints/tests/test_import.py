@@ -34,7 +34,7 @@ def test_import_housepoints_basic(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(
@@ -95,7 +95,7 @@ def test_import_housepoints_dry_run(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(
@@ -130,7 +130,7 @@ def test_import_housepoints_missing_student(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(
@@ -168,7 +168,7 @@ def test_import_housepoints_student_without_house(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(airtable_name="Alice Smith", semester=semester, house="")
@@ -202,7 +202,7 @@ def test_import_housepoints_ignores_nightly_debrief(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(
@@ -236,7 +236,7 @@ def test_import_housepoints_ignores_repeated_headers(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(
@@ -271,7 +271,7 @@ def test_import_housepoints_skips_non_students(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(
@@ -304,7 +304,7 @@ def test_import_housepoints_custom_description(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(
@@ -366,7 +366,7 @@ def test_import_housepoints_missing_file():
     Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
 
@@ -395,7 +395,7 @@ def test_import_housepoints_empty_cells(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(
@@ -430,7 +430,7 @@ def test_import_housepoints_zero_values(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(
@@ -464,7 +464,7 @@ def test_import_housepoints_auto_fills_house(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(
@@ -504,7 +504,7 @@ def test_import_housepoints_intro_true_false(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(
@@ -544,7 +544,7 @@ def test_import_housepoints_potd_column(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(
@@ -579,7 +579,7 @@ def test_import_housepoints_prefix_matching_variants(tsv_file):
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     Student.objects.create(

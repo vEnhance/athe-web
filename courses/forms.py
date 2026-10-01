@@ -147,7 +147,7 @@ class BulkStudentCreationForm(forms.Form):
         if semester is None or "student_data" not in cleaned:
             return cleaned
 
-        if semester.end_date < timezone.now().date():
+        if semester.end_date < timezone.localdate():
             raise forms.ValidationError(
                 f"Cannot create students for {semester.name} - semester has ended."
             )

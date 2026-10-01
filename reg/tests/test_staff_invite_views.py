@@ -59,8 +59,8 @@ def staff_invite_setup():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fall-2025",
-        start_date=timezone.now().date(),
-        end_date=timezone.now().date() + timedelta(days=90),
+        start_date=timezone.localdate(),
+        end_date=timezone.localdate() + timedelta(days=90),
     )
     course = Course.objects.create(
         name="Test Course",
