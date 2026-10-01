@@ -17,7 +17,7 @@ def test_update_view_requires_login():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
@@ -44,7 +44,7 @@ def test_update_view_only_owner_can_access():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     owner = User.objects.create_user(username="owner", password="password")

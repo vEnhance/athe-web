@@ -17,7 +17,7 @@ from reg.models import CoursePreference, StudentRegistration
 
 @pytest.fixture
 def semester():
-    today = timezone.now().date()
+    today = timezone.localdate()
     return Semester.objects.create(
         name="Fall 2025",
         slug="fall-2025",
@@ -169,7 +169,7 @@ def test_responses_download(
 def test_download_page_offers_the_current_semester_and_the_rest(
     superuser_client, semester
 ):
-    today = timezone.now().date()
+    today = timezone.localdate()
     old_semester = Semester.objects.create(
         name="Spring 2025",
         slug="spring-2025",

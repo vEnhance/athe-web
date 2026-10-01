@@ -65,7 +65,7 @@ def test_my_attendance_shows_only_user_records():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     club = Course.objects.create(
@@ -103,7 +103,7 @@ def test_my_attendance_post_creates_record():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     club = Course.objects.create(
@@ -139,7 +139,7 @@ def test_my_attendance_post_duplicate_shows_error():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     club = Course.objects.create(
@@ -222,7 +222,7 @@ def test_my_attendance_form_excludes_non_clubs():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     club = Course.objects.create(

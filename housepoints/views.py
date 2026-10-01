@@ -596,7 +596,7 @@ class AttendanceBulkView(UserPassesTestMixin, View):
             )
 
             # Pre-populate description with date and course name
-            today_str = timezone.now().date().strftime("%Y-%m-%d")
+            today_str = timezone.localdate().strftime("%Y-%m-%d")
             default_description = f"Attendance on {today_str} for {course.name}"
 
             # Create a new form with the description pre-filled

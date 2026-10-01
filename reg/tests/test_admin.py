@@ -87,8 +87,8 @@ def test_student_admin_create_invite():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fall-2025",
-        start_date=timezone.now().date(),
-        end_date=timezone.now().date() + timedelta(days=90),
+        start_date=timezone.localdate(),
+        end_date=timezone.localdate() + timedelta(days=90),
     )
 
     url = reverse("admin:reg_studentinvitelink_add")
@@ -122,8 +122,8 @@ def test_admin_add_and_change_pages_render():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fall-2025",
-        start_date=timezone.now().date(),
-        end_date=timezone.now().date() + timedelta(days=30),
+        start_date=timezone.localdate(),
+        end_date=timezone.localdate() + timedelta(days=30),
     )
     staff_invite = StaffInviteLink.objects.create(
         name="Staff invite", expiration_date=timezone.now() + timedelta(days=5)

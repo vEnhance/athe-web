@@ -20,7 +20,7 @@ def test_student_house_assignment():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
@@ -50,7 +50,7 @@ def test_award_creation_for_student():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
@@ -77,7 +77,7 @@ def test_award_creation_for_house():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
 
@@ -101,7 +101,7 @@ def test_award_auto_fills_house_from_student():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
@@ -127,7 +127,7 @@ def test_award_validation_student_without_house():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(user=user, semester=semester, house="")
@@ -152,7 +152,7 @@ def test_award_validation_house_mismatch():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
@@ -180,7 +180,7 @@ def test_award_validation_semester_mismatch():
     fall = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     spring = Semester.objects.create(
@@ -210,7 +210,7 @@ def test_award_validation_house_award_requires_house():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
 
@@ -235,7 +235,7 @@ def test_semester_freeze_date():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
         house_points_freeze_date=freeze_time,
     )
@@ -283,7 +283,7 @@ def test_award_str_representation_with_student():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
@@ -307,7 +307,7 @@ def test_award_str_representation_house_only():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     award = Award.objects.create(
@@ -334,7 +334,7 @@ def test_intro_post_awarded_only_once_per_student():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
@@ -370,7 +370,7 @@ def test_intro_post_can_be_awarded_in_different_semesters():
     fall = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     spring = Semester.objects.create(
@@ -414,7 +414,7 @@ def test_other_award_types_can_be_awarded_multiple_times():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
@@ -454,7 +454,7 @@ def test_class_attendance_can_be_awarded_multiple_times():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     student = Student.objects.create(
@@ -485,7 +485,7 @@ def test_intro_post_constraint_only_applies_to_student_awards():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
 

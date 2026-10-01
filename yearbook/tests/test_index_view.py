@@ -33,7 +33,7 @@ def test_index_view_redirects_staff_to_most_recent_semester():
     most_recent = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     User.objects.create_user(username="staff", password="password", is_staff=True)
@@ -61,7 +61,7 @@ def test_index_view_redirects_student_to_their_semester():
     most_recent = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     user = User.objects.create_user(username="student", password="password")
@@ -91,7 +91,7 @@ def test_index_view_redirects_to_semester_list_if_no_access():
     Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     user = User.objects.create_user(username="student", password="password")
@@ -126,7 +126,7 @@ def test_index_view_user_without_student_redirects_to_semester_list():
     Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     User.objects.create_user(username="user", password="password")

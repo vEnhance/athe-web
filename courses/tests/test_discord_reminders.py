@@ -21,7 +21,7 @@ def test_discord_reminder_command(mock_post):
     fall = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     course = Course.objects.create(
@@ -63,7 +63,7 @@ def test_discord_reminder_command_no_webhook():
     fall = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
-        start_date=timezone.now().date(),
+        start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
     )
     course = Course.objects.create(

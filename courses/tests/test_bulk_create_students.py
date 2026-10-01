@@ -13,7 +13,7 @@ URL = reverse("courses:bulk_create_students")
 
 @pytest.fixture
 def semester():
-    today = timezone.now().date()
+    today = timezone.localdate()
     return Semester.objects.create(
         name="Fall 2025",
         slug="fall-2025",
@@ -105,7 +105,7 @@ def test_rejects_empty_list(superuser_client, semester):
 
 @pytest.mark.django_db
 def test_rejects_ended_semester(superuser_client, semester):
-    today = timezone.now().date()
+    today = timezone.localdate()
     semester.start_date = today - timedelta(days=60)
     semester.end_date = today - timedelta(days=1)
     semester.save()
