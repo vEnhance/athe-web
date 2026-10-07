@@ -26,6 +26,10 @@ class Command(BaseCommand):
     help = "Send Discord updates with current house points standings"
 
     def handle(self, *args: Any, **options: Any) -> None:
+        # Routine progress is only for a human at the terminal; cron passes
+        # --verbosity 0 so that it only hears about real problems
+        verbose = options.get("verbosity", 1) >= 1
+
         # Check for webhook environment variable
         webhook_url = os.environ.get("DISCORD_HOUSE_POINTS_WEBHOOK")
         if not webhook_url:
@@ -38,15 +42,21 @@ class Command(BaseCommand):
 
         semester = Semester.current()
         if semester is None:
-            self.stderr.write(self.style.ERROR("No current semester found"))
+            # Normal in the gap between semesters, so not worth a complaint
+            if verbose:
+                self.stdout.write(self.style.WARNING("No current semester found"))
             return
         elif semester.start_date > timezone.localdate():
-            self.stdout.write(self.style.WARNING(f"{semester.name} not started yet."))
+            if verbose:
+                self.stdout.write(
+                    self.style.WARNING(f"{semester.name} not started yet.")
+                )
             return
 
         # Check if leaderboard is frozen
         if semester.house_points_freeze_date is not None:
-            self.stdout.write(self.style.WARNING(f"{semester.name} frozen."))
+            if verbose:
+                self.stdout.write(self.style.WARNING(f"{semester.name} frozen."))
             return
 
         # The freeze check above means this always reflects live standings
@@ -80,11 +90,12 @@ class Command(BaseCommand):
                 timeout=10,
             )
             response.raise_for_status()
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f"Successfully sent house points update for {semester.name}"
+            if verbose:
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f"Successfully sent house points update for {semester.name}"
+                    )
                 )
-            )
         except requests.exceptions.RequestException as e:
             self.stderr.write(self.style.ERROR(f"Failed to send Discord message: {e}"))
             raise SystemExit(1)

@@ -3,6 +3,7 @@ from io import StringIO
 from unittest.mock import MagicMock, patch
 
 import pytest
+from django.core.management import call_command
 from django.utils import timezone
 
 from courses.management.commands.send_discord_reminders import Command
@@ -83,3 +84,35 @@ def test_discord_reminder_command_no_webhook():
     # Meeting should not be marked as sent
     meeting.refresh_from_db()
     assert meeting.reminder_sent_at is None
+
+
+@pytest.mark.django_db
+@patch("requests.post")
+def test_discord_reminder_command_quiet_at_verbosity_zero(mock_post):
+    """Cron runs it with -v 0, and sending reminders should print nothing."""
+    mock_post.return_value = MagicMock()
+
+    fall = Semester.objects.create(
+        name="Fall 2025",
+        slug="fa25",
+        start_date=timezone.now().date(),
+        end_date=(timezone.now() + timedelta(days=90)).date(),
+    )
+    course = Course.objects.create(
+        name="Test Course",
+        description="Test",
+        semester=fall,
+        discord_webhook="https://discord.com/api/webhooks/test",
+        discord_reminders_enabled=True,
+    )
+    CourseMeeting.objects.create(
+        course=course, start_time=timezone.now() + timedelta(hours=12)
+    )
+
+    out = StringIO()
+    err = StringIO()
+    call_command("send_discord_reminders", verbosity=0, stdout=out, stderr=err)
+
+    assert mock_post.called
+    assert out.getvalue() == ""
+    assert err.getvalue() == ""

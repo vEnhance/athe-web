@@ -15,6 +15,9 @@ class Command(BaseCommand):
     help = "Send Discord reminders for upcoming course meetings within 24 hours"
 
     def handle(self, *args: Any, **options: Any) -> None:
+        # Routine progress is only for a human at the terminal; cron passes
+        # --verbosity 0 so that it only hears about real problems
+        verbose = options.get("verbosity", 1) >= 1
         now = timezone.now()
         deadline = now + timedelta(hours=24)
 
@@ -27,9 +30,10 @@ class Command(BaseCommand):
         ).select_related("course")
 
         if not upcoming_meetings.exists():
-            self.stdout.write(
-                self.style.SUCCESS("No meetings require reminders at this time.")
-            )
+            if verbose:
+                self.stdout.write(
+                    self.style.SUCCESS("No meetings require reminders at this time.")
+                )
             return
 
         sent_count = 0
@@ -40,7 +44,7 @@ class Command(BaseCommand):
 
             # Skip if no Discord webhook configured
             if not course.discord_webhook:
-                self.stdout.write(
+                self.stderr.write(
                     self.style.WARNING(
                         f"Skipping {meeting}: No Discord webhook configured"
                     )
@@ -84,16 +88,17 @@ class Command(BaseCommand):
                 meeting.reminder_sent_at = timezone.now()
                 meeting.save(update_fields=["reminder_sent_at"])
 
-                self.stdout.write(self.style.SUCCESS(f"Sent reminder for: {meeting}"))
+                if verbose:
+                    self.stdout.write(
+                        self.style.SUCCESS(f"Sent reminder for: {meeting}")
+                    )
                 sent_count += 1
 
             except requests.exceptions.RequestException as e:
-                self.stdout.write(
-                    self.style.ERROR(f"Failed to send reminder for {meeting}: {e}")
-                )
                 logger.error(f"Discord webhook error for {meeting}: {e}")
                 error_count += 1
 
-        self.stdout.write(
-            self.style.SUCCESS(f"Sent {sent_count} reminders, {error_count} errors")
-        )
+        if verbose:
+            self.stdout.write(
+                self.style.SUCCESS(f"Sent {sent_count} reminders, {error_count} errors")
+            )

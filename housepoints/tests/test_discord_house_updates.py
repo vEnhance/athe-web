@@ -49,7 +49,8 @@ def test_discord_house_updates_no_current_semester():
     ):
         call_command("send_discord_house_updates", stdout=out, stderr=err)
 
-    assert "No current semester" in err.getvalue()
+    assert "No current semester" in out.getvalue()
+    assert err.getvalue() == ""
 
 
 @pytest.mark.django_db
@@ -109,6 +110,36 @@ def test_discord_house_updates_on_the_first_day_of_term():
 
     assert mock_post.called
     assert "Successfully sent" in out.getvalue()
+
+
+@pytest.mark.django_db
+def test_discord_house_updates_quiet_at_verbosity_zero():
+    """Cron runs it with -v 0, and a successful send should print nothing."""
+    today = timezone.localdate()
+
+    Semester.objects.create(
+        name="Fall 2026",
+        slug="fa26",
+        start_date=today,
+        end_date=today + timedelta(days=120),
+    )
+
+    out = StringIO()
+    err = StringIO()
+    mock_response = MagicMock()
+    mock_response.raise_for_status = MagicMock()
+
+    with (
+        patch.dict(
+            "os.environ", {"DISCORD_HOUSE_POINTS_WEBHOOK": "https://example.com"}
+        ),
+        patch("requests.post", return_value=mock_response) as mock_post,
+    ):
+        call_command("send_discord_house_updates", verbosity=0, stdout=out, stderr=err)
+
+    assert mock_post.called
+    assert out.getvalue() == ""
+    assert err.getvalue() == ""
 
 
 @pytest.mark.django_db
