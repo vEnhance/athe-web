@@ -44,9 +44,9 @@ error: could not compile `syn` (lib)
 That's why we have `export CARGO_BUILD_JOBS=1` above. The build takes a few minutes
 but only happens once per `nh3` version: uv caches the wheel it produces, so later
 deploys reuse it. If a deploy fails this way after a dependency bump, run
-`CARGO_BUILD_JOBS=1 uv sync --all-extras --no-dev` by hand as the `atheweb` user to
-warm the cache, then re-run the hook. Don't `uv cache clean`; it throws away the
-built wheels.
+`CARGO_BUILD_JOBS=1 uv sync --all-extras --no-dev -v`
+by hand as the `atheweb` user to warm the cache, then re-run the hook.
+Don't `uv cache clean`; it throws away the built wheels.
 
 ## Gotchas: permission issues on protected/
 
