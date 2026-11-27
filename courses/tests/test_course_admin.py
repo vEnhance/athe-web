@@ -30,9 +30,9 @@ def one_of_each(
 @pytest.mark.parametrize(
     ("model_name", "kind"),
     [
-        ("class", Course.Kind.CLASS),
-        ("club", Course.Kind.CLUB),
-        ("officehours", Course.Kind.OFFICE_HOURS),
+        ("classproxy", Course.Kind.CLASS),
+        ("clubproxy", Course.Kind.CLUB),
+        ("officehoursproxy", Course.Kind.OFFICE_HOURS),
     ],
 )
 def test_each_kind_has_its_own_admin_list(
@@ -73,10 +73,10 @@ def test_club_admin_form_has_club_fields_only(
 @pytest.mark.django_db
 def test_admin_url_matches_kind(one_of_each: dict[Course.Kind, Course]):
     assert one_of_each[Course.Kind.CLASS].get_admin_url() == reverse(
-        "admin:courses_class_change", args=[one_of_each[Course.Kind.CLASS].pk]
+        "admin:courses_classproxy_change", args=[one_of_each[Course.Kind.CLASS].pk]
     )
     assert one_of_each[Course.Kind.OFFICE_HOURS].get_admin_url() == reverse(
-        "admin:courses_officehours_change",
+        "admin:courses_officehoursproxy_change",
         args=[one_of_each[Course.Kind.OFFICE_HOURS].pk],
     )
 
@@ -87,7 +87,8 @@ def test_club_admin_rejects_another_kind(
 ):
     class_pk = one_of_each[Course.Kind.CLASS].pk
     athe.get_redirects(
-        reverse("admin:index"), reverse("admin:courses_club_change", args=[class_pk])
+        reverse("admin:index"),
+        reverse("admin:courses_clubproxy_change", args=[class_pk]),
     )
 
 
@@ -97,8 +98,8 @@ def test_adding_through_club_admin_makes_a_club(
 ):
     semester = make_semester()
     athe.post_redirects(
-        reverse("admin:courses_club_changelist"),
-        reverse("admin:courses_club_add"),
+        reverse("admin:courses_clubproxy_changelist"),
+        reverse("admin:courses_clubproxy_add"),
         {
             "name": "Chess Club",
             "semester": semester.pk,

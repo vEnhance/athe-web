@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="Class",
+            name="ClassProxy",
             fields=[],
             options={
                 "verbose_name_plural": "classes",
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             bases=("courses.course",),
         ),
         migrations.CreateModel(
-            name="Club",
+            name="ClubProxy",
             fields=[],
             options={
                 "verbose_name": "club/event",
@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
             bases=("courses.course",),
         ),
         migrations.CreateModel(
-            name="OfficeHours",
+            name="OfficeHoursProxy",
             fields=[],
             options={
                 "verbose_name": "office hours",

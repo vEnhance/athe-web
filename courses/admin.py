@@ -2,12 +2,12 @@ from django.contrib import admin
 
 from courses.models import (
     CLASS_ONLY_FIELDS,
-    Class,
-    Club,
+    ClassProxy,
+    ClubProxy,
     Course,
     CourseMeeting,
     GlobalEvent,
-    OfficeHours,
+    OfficeHoursProxy,
     Semester,
     Student,
 )
@@ -97,19 +97,19 @@ class CourseKindAdmin(admin.ModelAdmin):
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
-@admin.register(Class)
+@admin.register(ClassProxy)
 class ClassAdmin(CourseKindAdmin):
     kind = Course.Kind.CLASS
     fields = (*SHARED_COURSE_FIELDS, *CLASS_ONLY_FIELDS)
 
 
-@admin.register(Club)
+@admin.register(ClubProxy)
 class ClubAdmin(CourseKindAdmin):
     kind = Course.Kind.CLUB
     fields = (*SHARED_COURSE_FIELDS, "student_organizers")
 
 
-@admin.register(OfficeHours)
+@admin.register(OfficeHoursProxy)
 class OfficeHoursAdmin(CourseKindAdmin):
     kind = Course.Kind.OFFICE_HOURS
     fields = (*SHARED_COURSE_FIELDS, "student_organizers")

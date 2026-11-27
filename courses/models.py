@@ -360,29 +360,29 @@ class Course(models.Model):
         )
 
 
-class Class(Course):
+class ClassProxy(Course):
     class Meta:
         proxy = True
         verbose_name_plural = "classes"
 
 
-class Club(Course):
+class ClubProxy(Course):
     class Meta:
         proxy = True
         verbose_name = "club/event"
         verbose_name_plural = "clubs/events"
 
 
-class OfficeHours(Course):
+class OfficeHoursProxy(Course):
     class Meta:
         proxy = True
         verbose_name = verbose_name_plural = "office hours"
 
 
 KIND_PROXIES: dict[Course.Kind, type[Course]] = {
-    Course.Kind.CLASS: Class,
-    Course.Kind.CLUB: Club,
-    Course.Kind.OFFICE_HOURS: OfficeHours,
+    Course.Kind.CLASS: ClassProxy,
+    Course.Kind.CLUB: ClubProxy,
+    Course.Kind.OFFICE_HOURS: OfficeHoursProxy,
 }
 
 

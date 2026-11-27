@@ -49,7 +49,7 @@ Local apps in `INSTALLED_APPS`:
 | `yearbook`      | Student yearbook entries                                                                          |
 
 A `Course` is a class, a club/event or office hours, told apart by `kind`. The Django admin
-lists each kind on its own page through the proxy models `Class`, `Club` and `OfficeHours`;
+lists each kind on its own page through the proxy models `ClassProxy`, `ClubProxy` and `OfficeHoursProxy`;
 link to a course's admin page with `course.get_admin_url()`. The proxies exist for the admin
 only: querying `Course` or following a foreign key still returns plain `Course` objects, so
 code that varies by kind checks `is_club` rather than overriding methods on a proxy.
