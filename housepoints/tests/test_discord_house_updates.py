@@ -39,6 +39,7 @@ def test_discord_house_updates_no_current_semester():
         slug="past",
         start_date=(timezone.now() - timedelta(days=180)).date(),
         end_date=(timezone.now() - timedelta(days=90)).date(),
+        status=Semester.Status.ENDED,
     )
 
     out = StringIO()
@@ -67,6 +68,7 @@ def test_discord_house_updates_before_the_term_begins():
         slug="fa26",
         start_date=today + timedelta(days=14),
         end_date=today + timedelta(days=120),
+        status=Semester.Status.PUBLIC_FINALIZED,
     )
 
     out = StringIO()
@@ -94,6 +96,7 @@ def test_discord_house_updates_on_the_first_day_of_term():
         slug="fa26",
         start_date=today,
         end_date=today + timedelta(days=120),
+        status=Semester.Status.STARTED,
     )
 
     out = StringIO()
@@ -122,6 +125,7 @@ def test_discord_house_updates_quiet_at_verbosity_zero():
         slug="fa26",
         start_date=today,
         end_date=today + timedelta(days=120),
+        status=Semester.Status.STARTED,
     )
 
     out = StringIO()
@@ -153,6 +157,7 @@ def test_discord_house_updates_frozen_leaderboard():
         slug="fa25",
         start_date=today - timedelta(days=30),
         end_date=today + timedelta(days=30),
+        status=Semester.Status.STARTED,
         house_points_freeze_date=freeze_time,
     )
 
@@ -182,6 +187,7 @@ def test_discord_house_updates_sends_message():
         slug="fa25",
         start_date=today - timedelta(days=30),
         end_date=today + timedelta(days=30),
+        status=Semester.Status.STARTED,
     )
 
     # Create students and awards
@@ -261,6 +267,7 @@ def test_discord_house_updates_sorted_by_score():
         slug="fa25",
         start_date=today - timedelta(days=30),
         end_date=today + timedelta(days=30),
+        status=Semester.Status.STARTED,
     )
 
     # Create students in all houses with different scores
@@ -329,6 +336,7 @@ def test_discord_house_updates_includes_zero_point_houses():
         slug="fa25",
         start_date=today - timedelta(days=30),
         end_date=today + timedelta(days=30),
+        status=Semester.Status.STARTED,
     )
 
     # Only give points to one house
@@ -382,6 +390,7 @@ def test_discord_house_updates_webhook_failure():
         slug="fa25",
         start_date=today - timedelta(days=30),
         end_date=today + timedelta(days=30),
+        status=Semester.Status.STARTED,
     )
 
     out = StringIO()
@@ -413,6 +422,7 @@ def test_discord_house_updates_empty_semester():
         slug="fa25",
         start_date=today - timedelta(days=30),
         end_date=today + timedelta(days=30),
+        status=Semester.Status.STARTED,
     )
 
     out = StringIO()

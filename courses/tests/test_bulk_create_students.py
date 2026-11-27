@@ -105,9 +105,7 @@ def test_rejects_empty_list(superuser_client, semester):
 
 @pytest.mark.django_db
 def test_rejects_ended_semester(superuser_client, semester):
-    today = timezone.localdate()
-    semester.start_date = today - timedelta(days=60)
-    semester.end_date = today - timedelta(days=1)
+    semester.status = Semester.Status.ENDED
     semester.save()
 
     response = superuser_client.post(

@@ -67,6 +67,7 @@ def test_my_attendance_shows_only_user_records():
         slug="fa25",
         start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
+        status=Semester.Status.STARTED,
     )
     club = Course.objects.create(
         name="Math Club",
@@ -105,6 +106,7 @@ def test_my_attendance_post_creates_record():
         slug="fa25",
         start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
+        status=Semester.Status.STARTED,
     )
     club = Course.objects.create(
         name="Math Club",
@@ -141,6 +143,7 @@ def test_my_attendance_post_duplicate_shows_error():
         slug="fa25",
         start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
+        status=Semester.Status.STARTED,
     )
     club = Course.objects.create(
         name="Math Club",
@@ -178,6 +181,7 @@ def test_my_attendance_form_only_shows_active_clubs():
         slug="active",
         start_date=(timezone.now() - timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=30)).date(),
+        status=Semester.Status.STARTED,
     )
     # Create ended semester
     ended_semester = Semester.objects.create(
@@ -185,6 +189,7 @@ def test_my_attendance_form_only_shows_active_clubs():
         slug="ended",
         start_date=(timezone.now() - timedelta(days=120)).date(),
         end_date=(timezone.now() - timedelta(days=30)).date(),
+        status=Semester.Status.ENDED,
     )
 
     active_club = Course.objects.create(
@@ -224,6 +229,7 @@ def test_my_attendance_form_excludes_non_clubs():
         slug="fa25",
         start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
+        status=Semester.Status.STARTED,
     )
     club = Course.objects.create(
         name="Math Club",

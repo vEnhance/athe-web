@@ -8,10 +8,12 @@ class SemesterAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "slug",
+        "status",
         "start_date",
         "end_date",
         "house_points_freeze_date",
     )
+    list_filter = ("status",)
     prepopulated_fields = {"slug": ("name",)}
 
 

@@ -20,6 +20,7 @@ def semester() -> Semester:
         slug="fa25",
         start_date=timezone.localdate() - timedelta(days=10),
         end_date=timezone.localdate() + timedelta(days=80),
+        status=Semester.Status.STARTED,
     )
 
 
@@ -30,6 +31,7 @@ def finished_semester() -> Semester:
         slug="sp24",
         start_date=timezone.localdate() - timedelta(days=400),
         end_date=timezone.localdate() - timedelta(days=300),
+        status=Semester.Status.ENDED,
     )
 
 

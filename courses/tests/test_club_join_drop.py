@@ -21,6 +21,7 @@ def test_join_club_active_semester():
         slug="active",
         start_date=(timezone.now() - timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=30)).date(),
+        status=Semester.Status.STARTED,
     )
 
     # Create a club
@@ -59,6 +60,7 @@ def test_join_club_fails_for_non_student():
         slug="active",
         start_date=(timezone.now() - timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=30)).date(),
+        status=Semester.Status.STARTED,
     )
 
     # Create a club
@@ -91,6 +93,7 @@ def test_join_club_inactive_semester():
         slug="past",
         start_date=(timezone.now() - timedelta(days=120)).date(),
         end_date=(timezone.now() - timedelta(days=30)).date(),
+        status=Semester.Status.ENDED,
     )
 
     # Create a club in the past semester
@@ -132,6 +135,7 @@ def test_join_club_before_the_semester_starts():
         slug="future",
         start_date=(timezone.now() + timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=120)).date(),
+        status=Semester.Status.PUBLIC_FINALIZED,
     )
     club = Course.objects.create(
         name="Future Club",
@@ -160,6 +164,7 @@ def test_join_club_without_a_student_row_is_refused():
         slug="future",
         start_date=(timezone.now() + timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=120)).date(),
+        status=Semester.Status.PUBLIC_FINALIZED,
     )
     club = Course.objects.create(
         name="Future Club",
@@ -190,6 +195,7 @@ def test_join_club_already_enrolled():
         slug="active",
         start_date=(timezone.now() - timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=30)).date(),
+        status=Semester.Status.STARTED,
     )
 
     # Create a club and enroll student
@@ -230,6 +236,7 @@ def test_join_regular_course_fails():
         slug="active",
         start_date=(timezone.now() - timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=30)).date(),
+        status=Semester.Status.STARTED,
     )
 
     # Create a regular course (not a club)
@@ -260,6 +267,7 @@ def test_drop_club_active_semester():
         slug="active",
         start_date=(timezone.now() - timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=30)).date(),
+        status=Semester.Status.STARTED,
     )
 
     # Create a club and enroll student
@@ -297,6 +305,7 @@ def test_drop_club_inactive_semester():
         slug="past",
         start_date=(timezone.now() - timedelta(days=120)).date(),
         end_date=(timezone.now() - timedelta(days=30)).date(),
+        status=Semester.Status.ENDED,
     )
 
     # Create a club and enroll student
@@ -336,6 +345,7 @@ def test_drop_club_not_enrolled():
         slug="active",
         start_date=(timezone.now() - timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=30)).date(),
+        status=Semester.Status.STARTED,
     )
 
     # Create a club but don't enroll student
@@ -370,6 +380,7 @@ def test_drop_regular_course_fails():
         slug="active",
         start_date=(timezone.now() - timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=30)).date(),
+        status=Semester.Status.STARTED,
     )
 
     # Create a regular course (not a club)
@@ -399,6 +410,7 @@ def test_join_club_requires_login():
         slug="active",
         start_date=(timezone.now() - timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=30)).date(),
+        status=Semester.Status.STARTED,
     )
     club = Course.objects.create(
         name="Music Club",
@@ -427,6 +439,7 @@ def test_drop_club_requires_login():
         slug="active",
         start_date=(timezone.now() - timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=30)).date(),
+        status=Semester.Status.STARTED,
     )
     club = Course.objects.create(
         name="Science Club",

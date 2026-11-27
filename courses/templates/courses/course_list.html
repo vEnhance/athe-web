@@ -34,8 +34,8 @@
             <p>
                 <a href="{% url 'courses:semester_list' %}">View all semesters</a>
             </p>
-            {% if not next_semester %}
-                Course list still being updated!
+            {% if semester.status == semester.Status.PUBLIC_DRAFT %}
+                <span data-testid="course-list-draft">Course list still being updated!</span>
             {% endif %}
         </div>
         {% for course in courses %}

@@ -19,6 +19,7 @@ def test_create_view_requires_login():
         slug="fa25",
         start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
+        status=Semester.Status.STARTED,
     )
     student = Student.objects.create(
         airtable_name="Test Student",
@@ -41,6 +42,7 @@ def test_create_view_only_owner_can_access():
         slug="fa25",
         start_date=timezone.localdate(),
         end_date=(timezone.now() + timedelta(days=90)).date(),
+        status=Semester.Status.STARTED,
     )
     owner = User.objects.create_user(username="owner", password="password")
     User.objects.create_user(username="other", password="password")
@@ -67,6 +69,7 @@ def test_create_view_owner_can_access():
         slug="fa25",
         start_date=(timezone.now() - timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=60)).date(),
+        status=Semester.Status.STARTED,
     )
     owner = User.objects.create_user(username="owner", password="password")
     student = Student.objects.create(
@@ -92,6 +95,7 @@ def test_create_view_denied_after_semester_ended():
         slug="fa24",
         start_date=(timezone.now() - timedelta(days=120)).date(),
         end_date=(timezone.now() - timedelta(days=30)).date(),
+        status=Semester.Status.ENDED,
     )
     owner = User.objects.create_user(username="owner", password="password")
     student = Student.objects.create(
@@ -116,6 +120,7 @@ def test_create_view_redirects_if_entry_exists():
         slug="fa25",
         start_date=(timezone.now() - timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=60)).date(),
+        status=Semester.Status.STARTED,
     )
     owner = User.objects.create_user(username="owner", password="password")
     student = Student.objects.create(
@@ -146,6 +151,7 @@ def test_create_view_successful_submission():
         slug="fa25",
         start_date=(timezone.now() - timedelta(days=30)).date(),
         end_date=(timezone.now() + timedelta(days=60)).date(),
+        status=Semester.Status.STARTED,
     )
     owner = User.objects.create_user(username="owner", password="password")
     student = Student.objects.create(

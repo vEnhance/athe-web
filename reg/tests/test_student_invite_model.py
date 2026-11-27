@@ -20,12 +20,14 @@ def student_invite_model_setup():
         slug="fall-2025",
         start_date=timezone.localdate(),
         end_date=timezone.localdate() + timedelta(days=90),
+        status=Semester.Status.STARTED,
     )
     ended_semester = Semester.objects.create(
         name="Spring 2024",
         slug="spring-2024",
         start_date=timezone.localdate() - timedelta(days=180),
         end_date=timezone.localdate() - timedelta(days=90),
+        status=Semester.Status.ENDED,
     )
 
     return {

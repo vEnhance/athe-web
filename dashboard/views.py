@@ -6,7 +6,7 @@ of ``home`` -- ``courses.models`` imports ``home.models``, so a dashboard living
 in ``home`` put the two apps on both ends of the same arrow.
 """
 
-from datetime import date, timedelta
+from datetime import timedelta
 from typing import Any, NamedTuple
 
 from django.contrib.auth.decorators import login_required
@@ -42,7 +42,7 @@ class DashboardNotice(NamedTuple):
     url: str = ""
 
 
-def _student_notice(student: Student, today: date) -> DashboardNotice | None:
+def _student_notice(student: Student) -> DashboardNotice | None:
     """What this student is still waiting on for their semester, if anything."""
     registration = StudentRegistration.objects.filter(student=student).first()
     if not wizard.is_complete(registration):
@@ -65,7 +65,7 @@ def _student_notice(student: Student, today: date) -> DashboardNotice | None:
     # registration closes but before the semester opens. An empty dashboard is
     # only worth explaining in that window; once the semester has started, the
     # course lists say "not enrolled in any classes" for themselves.
-    if student.semester.start_date <= today:
+    if student.semester.has_started:
         return None
     if Course.objects.classes().filter(students=student).exists():
         return None
@@ -93,14 +93,14 @@ def _dashboard_notice(user: User, current: Semester | None) -> DashboardNotice |
     if user.is_staff:
         return None
 
-    today = timezone.localdate()
     students = list(
-        Student.objects.filter(user=user, semester__end_date__gte=today)
+        Student.objects.filter(user=user)
+        .exclude(semester__status=Semester.Status.ENDED)
         .select_related("semester")
         .order_by("semester__start_date")
     )
     for student in students:
-        if (notice := _student_notice(student, today)) is not None:
+        if (notice := _student_notice(student)) is not None:
             return notice
     if students or current is None:
         return None
@@ -215,9 +215,7 @@ def dashboard(request: HttpRequest) -> HttpResponse:
         # Stated plainly rather than folded into the banner: a semester that
         # has not opened yet is still the one everything else is about.
         "upcoming_semester": (
-            current
-            if current is not None and current.start_date > timezone.localdate()
-            else None
+            current if current is not None and not current.has_started else None
         ),
         "upcoming_global_events": list(upcoming_events[:5]),
         "past_global_event_count": events.count() - upcoming_events.count(),
@@ -241,6 +239,6 @@ def dashboard(request: HttpRequest) -> HttpResponse:
         context["yearbook_entry"] = YearbookEntry.objects.filter(
             student=yearbook_student
         ).first()
-        context["yearbook_open"] = timezone.localdate() <= semester.end_date
+        context["yearbook_open"] = not semester.has_ended
 
     return render(request, "dashboard/index.html", context)

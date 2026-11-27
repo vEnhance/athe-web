@@ -7,7 +7,7 @@
         based on teacher availability, student availability,
         and which students are interested in which classes!
     </p>
-    {% if invite.semester.visible %}
+    {% if invite.semester.is_public %}
         <p>
             See <a href="{% url 'courses:course_list' invite.semester.slug %}">the
             {{ invite.semester }} catalog</a> for a list of classes offered this semester.
