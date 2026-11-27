@@ -6,7 +6,12 @@ from django.db import migrations, models
 def blank_class_only_fields_on_clubs(apps, schema_editor):
     Course = apps.get_model("courses", "Course")
     Course.objects.exclude(kind="class").update(
-        difficulty="", lesson_plan="", google_classroom_direct_link=""
+        difficulty="",
+        lesson_plan="",
+        google_classroom_direct_link="",
+        discord_webhook="",
+        discord_role_id="",
+        discord_reminders_enabled=False,
     )
 
 
@@ -62,6 +67,9 @@ class Migration(migrations.Migration):
                     ("kind", "class"),
                     models.Q(
                         ("difficulty", ""),
+                        ("discord_reminders_enabled", False),
+                        ("discord_role_id", ""),
+                        ("discord_webhook", ""),
                         ("google_classroom_direct_link", ""),
                         ("lesson_plan", ""),
                     ),

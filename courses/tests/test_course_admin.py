@@ -113,11 +113,16 @@ def test_adding_through_club_admin_makes_a_club(
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize(
+    "class_only", [{"lesson_plan": "Week 1"}, {"discord_reminders_enabled": True}]
+)
 def test_clubs_cannot_hold_class_only_fields(
-    make_semester: Callable[..., Semester], make_course: Callable[..., Course]
+    make_semester: Callable[..., Semester],
+    make_course: Callable[..., Course],
+    class_only: dict[str, object],
 ):
     with pytest.raises(IntegrityError):
-        make_course(make_semester(), kind=Course.Kind.CLUB, lesson_plan="Week 1")
+        make_course(make_semester(), kind=Course.Kind.CLUB, **class_only)
 
 
 @pytest.mark.django_db

@@ -133,7 +133,15 @@ class Semester(models.Model):
         )
 
 
-CLASS_ONLY_FIELDS = ("difficulty", "lesson_plan", "google_classroom_direct_link")
+CLASS_ONLY_BLANKS = {
+    "difficulty": "",
+    "lesson_plan": "",
+    "google_classroom_direct_link": "",
+    "discord_webhook": "",
+    "discord_role_id": "",
+    "discord_reminders_enabled": False,
+}
+CLASS_ONLY_FIELDS = tuple(CLASS_ONLY_BLANKS)
 
 
 class CourseQuerySet(models.QuerySet["Course"]):
@@ -354,7 +362,7 @@ class Course(models.Model):
         ordering = ("-semester__start_date", "kind", "name")
         constraints = (
             models.CheckConstraint(
-                condition=Q(kind="class") | Q(**dict.fromkeys(CLASS_ONLY_FIELDS, "")),
+                condition=Q(kind="class") | Q(**CLASS_ONLY_BLANKS),
                 name="class_only_fields_blank_for_clubs",
             ),
         )

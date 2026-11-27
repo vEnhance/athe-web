@@ -31,16 +31,16 @@ class CourseMeetingInline(admin.TabularInline):
     fields = ("start_time", "title", "reminder_sent_at")
 
 
-@admin.action(description="Activate Discord reminders for these Course objects")
+@admin.action(description="Activate Discord reminders for these classes")
 def enable_discord_reminders(modeladmin, request, queryset):  # type: ignore
     updated = queryset.update(discord_reminders_enabled=True)
-    modeladmin.message_user(request, f"{updated} courses updated.")
+    modeladmin.message_user(request, f"{updated} classes updated.")
 
 
-@admin.action(description="Deactivate Discord reminders for these Course objects")
+@admin.action(description="Deactivate Discord reminders for these classes")
 def disable_discord_reminders(modeladmin, request, queryset):  # type: ignore
     updated = queryset.update(discord_reminders_enabled=False)
-    modeladmin.message_user(request, f"{updated} courses updated.")
+    modeladmin.message_user(request, f"{updated} classes updated.")
 
 
 SHARED_COURSE_FIELDS = (
@@ -52,9 +52,6 @@ SHARED_COURSE_FIELDS = (
     "students",
     "regular_meeting_time",
     "zoom_meeting_link",
-    "discord_webhook",
-    "discord_role_id",
-    "discord_reminders_enabled",
 )
 
 
@@ -62,18 +59,12 @@ class CourseKindAdmin(admin.ModelAdmin):
     """Admin for one kind of course, which never shows or changes ``kind``."""
 
     kind: Course.Kind
-    list_display = (
-        "name",
-        "semester",
-        "instructor",
-        "discord_reminders_enabled",
-    )
+    list_display = ("name", "semester", "instructor")
     list_filter = ("semester",)
     search_fields = ("name", "description")
     autocomplete_fields = ("instructor", "subscribed_staff")
     filter_horizontal = ("students", "student_organizers")
     inlines = [CourseMeetingInline]
-    actions = [enable_discord_reminders, disable_discord_reminders]
 
     def get_queryset(self, request):  # type: ignore
         return super().get_queryset(request).filter(kind=self.kind)
@@ -101,6 +92,8 @@ class CourseKindAdmin(admin.ModelAdmin):
 class ClassAdmin(CourseKindAdmin):
     kind = Course.Kind.CLASS
     fields = (*SHARED_COURSE_FIELDS, *CLASS_ONLY_FIELDS)
+    list_display = (*CourseKindAdmin.list_display, "discord_reminders_enabled")
+    actions = [enable_discord_reminders, disable_discord_reminders]
 
 
 @admin.register(ClubProxy)
