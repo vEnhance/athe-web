@@ -154,12 +154,9 @@ def my_clubs(request: HttpRequest) -> HttpResponse:
 @login_required
 def past_clubs(request: HttpRequest) -> HttpResponse:
     """Show all clubs from visible past semesters (readonly)."""
-    today = timezone.localdate()
-
-    # Get all clubs from visible semesters that have ended
     past_clubs_queryset = (
         Course.objects.clubs()
-        .filter(semester__end_date__lt=today, semester__visible=True)
+        .filter(semester__status=Semester.Status.ENDED)
         .select_related("semester", "instructor")
     )
 
@@ -550,8 +547,7 @@ class CourseDetailView(UserPassesTestMixin, DetailView):
         if self.request.user.is_staff or course.is_managed_by(self.request.user):
             return True
 
-        # Non-staff users cannot access courses in invisible semesters
-        if not course.semester.visible:
+        if not course.semester.is_public:
             return False
 
         if course.is_club:
@@ -779,10 +775,9 @@ def _calendar_events(
             "url": event.get_absolute_url(),
             "semester": event.semester.name,
         }
-        # GlobalEvents: everyone sees all visible semesters
-        for event in GlobalEvent.objects.filter(
-            start_time__range=(start, end), semester__visible=True
-        ).select_related("semester")
+        for event in GlobalEvent.objects.filter(start_time__range=(start, end))
+        .exclude(semester__status=Semester.Status.INTERNAL_DRAFT)
+        .select_related("semester")
     ]
 
     # CourseMeetings: fetch all in range for visible semesters, annotated with
@@ -798,10 +793,8 @@ def _calendar_events(
         Course.objects.followed_by(request.user).filter(pk=OuterRef("course_id"))
     )
     meetings = (
-        CourseMeeting.objects.filter(
-            start_time__range=(start, end),
-            course__semester__visible=True,
-        )
+        CourseMeeting.objects.filter(start_time__range=(start, end))
+        .exclude(course__semester__status=Semester.Status.INTERNAL_DRAFT)
         .select_related("course", "course__semester")
         .annotate(is_mine=is_enrolled | is_following)
     )
@@ -999,8 +992,7 @@ class GlobalEventDetailView(UserPassesTestMixin, DetailView):
         if self.request.user.is_staff:
             return True
 
-        # Non-staff users cannot access events in invisible semesters
-        if not event.semester.visible:
+        if not event.semester.is_public:
             return False
 
         # Students from the event's semester can access

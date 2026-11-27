@@ -19,12 +19,10 @@ class AttendanceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         super().__init__(*args, **kwargs)
         # Default date to today
-        today = timezone.localdate()
-        self.fields["date"].initial = today
-        # Only show clubs from semesters that have not ended
+        self.fields["date"].initial = timezone.localdate()
         self.fields["club"].queryset = (  # type: ignore[attr-defined]
             Course.objects.clubs()
-            .filter(semester__end_date__gte=today)
+            .unfinished()
             .select_related("semester")
             .order_by("semester__name", "name")
         )

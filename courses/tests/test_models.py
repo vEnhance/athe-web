@@ -158,60 +158,53 @@ def test_course_meeting_creation():
     assert meeting.reminder_sent_at is None
 
 
+def _semester(slug: str, status: str, days_from_now: int) -> Semester:
+    start = timezone.localdate() + timedelta(days=days_from_now)
+    return Semester.objects.create(
+        name=slug,
+        slug=slug,
+        status=status,
+        start_date=start,
+        end_date=start + timedelta(days=90),
+    )
+
+
 @pytest.mark.django_db
-def test_semester_visible_by_default():
-    """Test that new semesters are visible by default."""
+def test_new_semesters_start_as_internal_drafts():
     semester = Semester.objects.create(
         name="Fall 2025",
         slug="fa25",
         start_date=timezone.localdate(),
-        end_date=(timezone.now() + timedelta(days=90)).date(),
+        end_date=timezone.localdate() + timedelta(days=90),
     )
-    assert semester.visible is True
+    assert semester.status == Semester.Status.INTERNAL_DRAFT
+    assert not semester.is_public
 
 
 @pytest.mark.django_db
-def test_current_semester_is_the_one_running():
-    """With a semester underway, that is the one everything is about."""
-    current = Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=(timezone.now() - timedelta(days=10)).date(),
-        end_date=(timezone.now() + timedelta(days=80)).date(),
-    )
-    Semester.objects.create(
-        name="Spring 2025",
-        slug="sp25",
-        start_date=(timezone.now() - timedelta(days=200)).date(),
-        end_date=(timezone.now() - timedelta(days=100)).date(),
-    )
-    Semester.objects.create(
-        name="Spring 2026",
-        slug="sp26",
-        start_date=(timezone.now() + timedelta(days=100)).date(),
-        end_date=(timezone.now() + timedelta(days=200)).date(),
-    )
+def test_current_semester_is_the_started_one():
+    _semester("sp25", Semester.Status.ENDED, -200)
+    started = _semester("fa25", Semester.Status.STARTED, -10)
+    _semester("sp26", Semester.Status.PUBLIC_DRAFT, 100)
 
-    assert Semester.current() == current
-    assert Semester.latest_started() == current
+    assert Semester.current() == started
+    assert Semester.latest_started() == started
+
+
+@pytest.mark.django_db
+def test_current_semester_goes_by_status_not_dates():
+    """A semester past its end date is still current until it is marked ended."""
+    overdue = _semester("sp25", Semester.Status.STARTED, -200)
+    _semester("fa25", Semester.Status.PUBLIC_DRAFT, 30)
+
+    assert Semester.current() == overdue
 
 
 @pytest.mark.django_db
 def test_current_semester_between_semesters_is_the_next_one():
-    """The gap between semesters is not a gap in what the site is about: the
-    semester being prepared is the current one, start date notwithstanding."""
-    Semester.objects.create(
-        name="Spring 2026",
-        slug="sp26",
-        start_date=(timezone.now() - timedelta(days=200)).date(),
-        end_date=(timezone.now() - timedelta(days=100)).date(),
-    )
-    upcoming = Semester.objects.create(
-        name="Fall 2026",
-        slug="fa26",
-        start_date=(timezone.now() + timedelta(days=30)).date(),
-        end_date=(timezone.now() + timedelta(days=140)).date(),
-    )
+    _semester("sp26", Semester.Status.ENDED, -200)
+    upcoming = _semester("fa26", Semester.Status.PUBLIC_DRAFT, 30)
+    _semester("sp27", Semester.Status.INTERNAL_DRAFT, 200)
 
     assert Semester.current() == upcoming
 
@@ -220,54 +213,33 @@ def test_current_semester_between_semesters_is_the_next_one():
 def test_latest_started_looks_backwards_between_semesters():
     """Its counterpart stays with what has happened, for pages that report on
     it: the standings just earned, not the empty slate ahead."""
-    finished = Semester.objects.create(
-        name="Spring 2026",
-        slug="sp26",
-        start_date=(timezone.now() - timedelta(days=200)).date(),
-        end_date=(timezone.now() - timedelta(days=100)).date(),
-    )
-    Semester.objects.create(
-        name="Fall 2026",
-        slug="fa26",
-        start_date=(timezone.now() + timedelta(days=30)).date(),
-        end_date=(timezone.now() + timedelta(days=140)).date(),
-    )
+    _semester("fa25", Semester.Status.ENDED, -400)
+    finished = _semester("sp26", Semester.Status.ENDED, -200)
+    _semester("fa26", Semester.Status.PUBLIC_FINALIZED, 30)
 
     assert Semester.latest_started() == finished
 
 
 @pytest.mark.django_db
-def test_current_semester_is_none_when_nothing_is_left():
-    """Only a site with nothing unfinished on the books has no current one."""
-    Semester.objects.create(
-        name="Spring 2025",
-        slug="sp25",
-        start_date=(timezone.now() - timedelta(days=200)).date(),
-        end_date=(timezone.now() - timedelta(days=100)).date(),
-    )
+def test_current_semester_is_none_when_everything_has_ended():
+    _semester("sp25", Semester.Status.ENDED, -200)
 
     assert Semester.current() is None
 
 
 @pytest.mark.django_db
-def test_overlapping_semesters_are_rejected_on_the_way_in():
-    """The overlap everything else assumes away is caught at write time now,
-    rather than blowing up in whichever view happened to read next."""
-    Semester.objects.create(
-        name="Fall 2025",
-        slug="fa25",
-        start_date=(timezone.now() - timedelta(days=10)).date(),
-        end_date=(timezone.now() + timedelta(days=80)).date(),
-    )
-    clash = Semester(
-        name="Winter 2025",
-        slug="wi25",
-        start_date=(timezone.now() - timedelta(days=5)).date(),
-        end_date=(timezone.now() + timedelta(days=85)).date(),
+def test_only_one_semester_may_be_started():
+    _semester("fa25", Semester.Status.STARTED, -10)
+    second = Semester(
+        name="Spring 2026",
+        slug="sp26",
+        status=Semester.Status.STARTED,
+        start_date=timezone.localdate() + timedelta(days=100),
+        end_date=timezone.localdate() + timedelta(days=200),
     )
 
-    with pytest.raises(ValidationError, match="overlap"):
-        clash.full_clean()
+    with pytest.raises(ValidationError, match="already started"):
+        second.full_clean()
 
 
 @pytest.mark.django_db

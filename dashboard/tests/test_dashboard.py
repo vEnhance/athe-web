@@ -539,7 +539,7 @@ def test_notice_hides_semesters_the_user_may_not_see(
     athe: AtheClient, semester: Semester, make_user: Callable[..., User]
 ):
     """An invisible semester is not one to send an unenrolled student after."""
-    semester.visible = False
+    semester.status = Semester.Status.INTERNAL_DRAFT
     semester.save()
     make_user(username="stranger")
 

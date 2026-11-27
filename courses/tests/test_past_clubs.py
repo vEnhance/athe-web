@@ -53,7 +53,7 @@ def test_past_clubs_excludes_invisible_semesters(
         name="Invisible Semester",
         start_date=past_semester.start_date.replace(year=2020),
         end_date=past_semester.end_date.replace(year=2020),
-        visible=False,
+        status=Semester.Status.INTERNAL_DRAFT,
     )
     make_course(past_semester, name="Visible Club", kind=Course.Kind.CLUB)
     make_course(hidden, name="Invisible Club", kind=Course.Kind.CLUB)

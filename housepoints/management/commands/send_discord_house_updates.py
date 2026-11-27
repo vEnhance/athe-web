@@ -46,7 +46,7 @@ class Command(BaseCommand):
             if verbose:
                 self.stdout.write(self.style.WARNING("No current semester found"))
             return
-        elif semester.start_date > timezone.localdate():
+        elif not semester.has_started:
             if verbose:
                 self.stdout.write(
                     self.style.WARNING(f"{semester.name} not started yet.")

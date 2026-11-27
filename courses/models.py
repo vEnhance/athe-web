@@ -15,26 +15,48 @@ from home.models import StaffPhotoListing
 
 
 class SemesterQuerySet(models.QuerySet["Semester"]):
+    def public(self) -> SemesterQuerySet:
+        return self.exclude(status=Semester.Status.INTERNAL_DRAFT)
+
     def visible_to(self, user: AbstractBaseUser | AnonymousUser) -> SemesterQuerySet:
         """Restrict to semesters this user is allowed to see."""
         if getattr(user, "is_staff", False):
             return self
-        return self.filter(visible=True)
+        return self.public()
 
     def unfinished(self) -> SemesterQuerySet:
-        """Semesters that have not ended, the nearest one first.
-
-        Ordering matters here: semesters do not overlap, so the first row is
-        the one the site is working on and the rest are still to come.
-        """
-        return self.filter(end_date__gte=timezone.localdate()).order_by("start_date")
+        """Semesters not yet marked ended, the earliest one first."""
+        return self.exclude(status=Semester.Status.ENDED).order_by("start_date")
 
 
 class Semester(models.Model):
+    class Status(models.TextChoices):
+        INTERNAL_DRAFT = "internal_draft", "Internal draft"
+        PUBLIC_DRAFT = "public_draft", "Public draft"
+        PUBLIC_FINALIZED = "public_finalized", "Public finalized"
+        STARTED = "started", "Started"
+        ENDED = "ended", "Ended"
+
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
-    start_date = models.DateField(help_text="When this semester starts")
-    end_date = models.DateField(help_text="When this semester ends")
+    status = models.CharField(
+        max_length=20,
+        choices=Status,
+        default=Status.INTERNAL_DRAFT,
+        help_text="Internal draft: hidden from non-staff, still being put together. "
+        "Public draft: shown to everyone, but the course list is marked as still "
+        "being updated. Public finalized: shown with the course list complete. "
+        "Started: underway; at most one semester can be started at a time. "
+        "Ended: over. Nothing changes status on its own; flip it by hand.",
+    )
+    start_date = models.DateField(
+        help_text="When this semester starts. Used for ordering, display, and "
+        "scheduling meetings; whether the semester has started is the status."
+    )
+    end_date = models.DateField(
+        help_text="When this semester ends. Used for display and scheduling "
+        "meetings; whether the semester has ended is the status."
+    )
     house_points_freeze_date = models.DateTimeField(
         null=True,
         blank=True,
@@ -43,10 +65,6 @@ class Semester(models.Model):
     house_points_class_threshold = models.PositiveIntegerField(
         default=14,
         help_text="Number of class attendances worth 5 points; subsequent are worth 3",
-    )
-    visible = models.BooleanField(
-        default=True,
-        help_text="If unchecked, this semester will be hidden from non-staff users",
     )
     president_name = models.CharField(
         max_length=100,
@@ -69,21 +87,30 @@ class Semester(models.Model):
             Exists(Student.objects.filter(semester=OuterRef("pk"), user=user))
         )
 
+    @property
+    def is_public(self) -> bool:
+        return self.status != self.Status.INTERNAL_DRAFT
+
+    @property
+    def has_started(self) -> bool:
+        return self.status in (self.Status.STARTED, self.Status.ENDED)
+
+    @property
+    def has_ended(self) -> bool:
+        return self.status == self.Status.ENDED
+
     @classmethod
     def current(cls) -> Semester | None:
-        """The semester the site is working on: the earliest one not yet ended.
+        """The semester the site is working on.
 
-        This is forward looking, and deliberately does not ask whether the
-        semester has started. In the weeks between one semester finishing and
-        the next opening there is still exactly one semester everything is
-        being got ready for, and saying so beats making every caller invent an
-        answer for a gap that has an obvious one. Only ``None`` when nothing
-        unfinished is on the books at all.
-
-        The start date is display and ordering, not a gate: use ``visible`` to
-        decide whether a semester has been published to students.
+        The started semester if there is one, and otherwise the earliest one
+        not yet ended, so that between semesters everything points at the one
+        being got ready. Only ``None`` when every semester has ended.
         """
-        return cls.objects.unfinished().first()
+        return (
+            cls.objects.filter(status=cls.Status.STARTED).first()
+            or cls.objects.unfinished().first()
+        )
 
     @classmethod
     def latest_started(cls) -> Semester | None:
@@ -95,33 +122,20 @@ class Semester(models.Model):
         should still show the standings people just finished earning, not the
         empty slate of the semester ahead.
         """
-        today = timezone.localdate()
         return (
-            cls.objects.filter(start_date__lte=today).order_by("-start_date").first()
+            cls.objects.filter(status=cls.Status.STARTED).first()
+            or cls.objects.filter(status=cls.Status.ENDED)
+            .order_by("-start_date")
+            .first()
             or cls.objects.order_by("start_date").first()
         )
 
     def clean(self) -> None:
-        """Keep semesters from overlapping, which everything else assumes.
-
-        Enforced on the way in so that reads can just take the first unfinished
-        semester and trust it, rather than each caller discovering a clash.
-        """
         super().clean()
         if self.start_date is None or self.end_date is None:
             return
         if self.start_date > self.end_date:
             raise ValidationError("A semester cannot end before it starts.")
-        clash = (
-            Semester.objects.exclude(pk=self.pk)
-            .filter(start_date__lte=self.end_date, end_date__gte=self.start_date)
-            .first()
-        )
-        if clash is not None:
-            raise ValidationError(
-                f"These dates overlap {clash}, which runs "
-                f"{clash.start_date} to {clash.end_date}."
-            )
 
     class Meta:
         ordering = ("-start_date",)
@@ -129,6 +143,13 @@ class Semester(models.Model):
             models.CheckConstraint(
                 condition=Q(start_date__lte=models.F("end_date")),
                 name="semester_starts_before_it_ends",
+            ),
+            UniqueConstraint(
+                fields=("status",),
+                condition=Q(status="started"),
+                name="at_most_one_started_semester",
+                violation_error_message="Another semester is already started; "
+                "mark it ended first.",
             ),
         )
 
@@ -180,7 +201,7 @@ class CourseQuerySet(models.QuerySet["Course"]):
         too, so waiting for the start date hides a class from the very people
         getting ready for it.
         """
-        return self.filter(semester__end_date__gte=timezone.localdate())
+        return self.exclude(semester__status=Semester.Status.ENDED)
 
     def classes(self) -> CourseQuerySet:
         return self.filter(kind=Course.Kind.CLASS)
@@ -336,7 +357,7 @@ class Course(models.Model):
             return True
         return (
             self.is_club
-            and self.semester.end_date >= timezone.localdate()
+            and not self.semester.has_ended
             and StaffPhotoListing.is_current_staff(user)
         )
 
@@ -459,12 +480,15 @@ class CourseMeetingQuerySet(models.QuerySet["CourseMeeting"]):
         the semester and buries the two or three sittings anyone would pick.
         """
         now = timezone.now()
-        return self.filter(
-            course__kind=Course.Kind.OFFICE_HOURS,
-            course__semester__end_date__gte=timezone.localdate(),
-            start_time__gte=now,
-            start_time__lte=now + timedelta(days=days),
-        ).select_related("course")
+        return (
+            self.filter(
+                course__kind=Course.Kind.OFFICE_HOURS,
+                start_time__gte=now,
+                start_time__lte=now + timedelta(days=days),
+            )
+            .exclude(course__semester__status=Semester.Status.ENDED)
+            .select_related("course")
+        )
 
 
 class CourseMeeting(models.Model):
@@ -493,7 +517,9 @@ class CourseMeeting(models.Model):
 class GlobalEventQuerySet(models.QuerySet["GlobalEvent"]):
     def visible_to(self, user: User) -> GlobalEventQuerySet:
         """Events in visible semesters; non-staff only see semesters they are in."""
-        qs = self.filter(semester__visible=True).select_related("semester")
+        qs = self.exclude(
+            semester__status=Semester.Status.INTERNAL_DRAFT
+        ).select_related("semester")
         if user.is_staff:
             return qs
         return qs.filter(semester__students__user=user).distinct()

@@ -92,7 +92,7 @@ def test_event_detail_invisible_semester_blocked_for_non_staff(
     make_user: Callable[..., User],
     make_student: Callable[..., Student],
 ):
-    semester.visible = False
+    semester.status = Semester.Status.INTERNAL_DRAFT
     semester.save()
     user = make_user()
     make_student(semester, user=user)

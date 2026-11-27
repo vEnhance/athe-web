@@ -46,16 +46,27 @@ def make_user() -> Callable[..., User]:
 
 @pytest.fixture
 def make_semester() -> Callable[..., Semester]:
-    """A semester that is running right now unless given other dates."""
+    """A started semester unless given other dates.
+
+    Without an explicit ``status``, one is read off the dates the way the
+    migration that introduced it did, so a semester dated in the past is ended.
+    """
 
     def _make(name: str = "Fall 2025", **kwargs: Any) -> Semester:
         today = timezone.localdate()
-        defaults = {
+        fields = {
             "slug": slugify(name),
             "start_date": today - timedelta(days=10),
             "end_date": today + timedelta(days=80),
-        }
-        return Semester.objects.create(name=name, **(defaults | kwargs))
+        } | kwargs
+        if "status" not in fields:
+            if fields["end_date"] < today:
+                fields["status"] = Semester.Status.ENDED
+            elif fields["start_date"] <= today:
+                fields["status"] = Semester.Status.STARTED
+            else:
+                fields["status"] = Semester.Status.PUBLIC_FINALIZED
+        return Semester.objects.create(name=name, **fields)
 
     return _make
 

@@ -23,6 +23,7 @@ def semester():
         slug="fall-2025",
         start_date=today - timedelta(days=1),
         end_date=today + timedelta(days=90),
+        status=Semester.Status.STARTED,
     )
 
 
@@ -175,6 +176,7 @@ def test_download_page_offers_the_current_semester_and_the_rest(
         slug="spring-2025",
         start_date=today - timedelta(days=200),
         end_date=today - timedelta(days=100),
+        status=Semester.Status.ENDED,
     )
 
     response = superuser_client.get(DOWNLOAD_URL)

@@ -23,7 +23,7 @@ def invisible(make_semester: Callable[..., Semester]) -> Semester:
         name="Invisible Semester",
         start_date=today + timedelta(days=120),
         end_date=today + timedelta(days=210),
-        visible=False,
+        status=Semester.Status.INTERNAL_DRAFT,
     )
 
 
@@ -118,7 +118,7 @@ def test_catalog_root_skips_invisible_for_non_staff(
     make_semester: Callable[..., Semester],
     make_user: Callable[..., User],
 ):
-    make_semester(name="Newer Invisible", visible=False)
+    make_semester(name="Newer Invisible", status=Semester.Status.INTERNAL_DRAFT)
 
     athe.login(make_user())
     athe.get_redirects(course_list_url(past_semester), reverse("courses:catalog_root"))
@@ -131,7 +131,7 @@ def test_catalog_root_includes_invisible_for_staff(
     make_semester: Callable[..., Semester],
     make_user: Callable[..., User],
 ):
-    newer = make_semester(name="Newer Invisible", visible=False)
+    newer = make_semester(name="Newer Invisible", status=Semester.Status.INTERNAL_DRAFT)
 
     athe.login(make_user(username="staff", is_staff=True))
     athe.get_redirects(course_list_url(newer), reverse("courses:catalog_root"))
@@ -152,7 +152,7 @@ def three_semesters(
         name="Middle Invisible",
         start_date=today - timedelta(days=100),
         end_date=today - timedelta(days=10),
-        visible=False,
+        status=Semester.Status.INTERNAL_DRAFT,
     )
     newer = make_semester(name="Newer Visible")
     return older, middle, newer
@@ -194,3 +194,28 @@ def test_course_list_navigation_includes_invisible_for_staff(
     response = athe.get_ok(course_list_url(middle))
     assert response.context["prev_semester"] == older
     assert response.context["next_semester"] == newer
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("status", "banner"),
+    [
+        (Semester.Status.PUBLIC_DRAFT, True),
+        (Semester.Status.PUBLIC_FINALIZED, False),
+        (Semester.Status.STARTED, False),
+    ],
+)
+def test_course_list_marks_only_public_drafts_as_still_updating(
+    athe: AtheClient,
+    make_semester: Callable[..., Semester],
+    status: Semester.Status,
+    banner: bool,
+):
+    semester = make_semester(status=status)
+
+    response = athe.get_ok(course_list_url(semester))
+
+    if banner:
+        athe.assert_testid(response, "course-list-draft")
+    else:
+        athe.assert_no_testid(response, "course-list-draft")

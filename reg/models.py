@@ -76,8 +76,7 @@ class StudentInviteLink(InviteLink):
         )
 
     def is_semester_ended(self) -> bool:
-        """Check if the semester has ended."""
-        return timezone.localdate() > self.semester.end_date
+        return self.semester.has_ended
 
 
 class StudentRegistration(models.Model):
