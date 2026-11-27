@@ -24,7 +24,7 @@ def backwards(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("courses", "0029_course_kind"),
+        ("courses", "0030_course_kind_proxies"),
     ]
 
     operations = [
