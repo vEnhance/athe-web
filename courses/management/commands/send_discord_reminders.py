@@ -58,9 +58,8 @@ class Command(BaseCommand):
             )
 
             # Build message content
-            kind = "event" if course.is_club else "class"
             message_parts = [
-                f"{role_mention}Reminder: the {kind} **{course.name}** is meeting soon!",
+                f"{role_mention}Reminder: the class **{course.name}** is meeting soon!",
                 f"Time: <t:{unix_timestamp}:F> in your time zone --- <t:{unix_timestamp}:R>",
             ]
             if meeting.title:

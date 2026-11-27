@@ -13,5 +13,5 @@ class AttendanceAdmin(admin.ModelAdmin):
         "user__last_name",
         "club__name",
     ]
-    autocomplete_fields = ["user", "club"]
+    autocomplete_fields = ["user"]
     date_hierarchy = "date"

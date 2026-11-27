@@ -154,6 +154,17 @@ class Semester(models.Model):
         )
 
 
+CLASS_ONLY_BLANKS = {
+    "difficulty": "",
+    "lesson_plan": "",
+    "google_classroom_direct_link": "",
+    "discord_webhook": "",
+    "discord_role_id": "",
+    "discord_reminders_enabled": False,
+}
+CLASS_ONLY_FIELDS = tuple(CLASS_ONLY_BLANKS)
+
+
 class CourseQuerySet(models.QuerySet["Course"]):
     def taught_by(self, user: AbstractBaseUser | AnonymousUser) -> CourseQuerySet:
         """Courses this user is the instructor of."""
@@ -293,6 +304,10 @@ class Course(models.Model):
     def get_absolute_url(self) -> str:
         return reverse("courses:course_detail", kwargs={"pk": self.pk})
 
+    def get_admin_url(self) -> str:
+        model_name = KIND_PROXIES[Course.Kind(self.kind)]._meta.model_name
+        return reverse(f"admin:courses_{model_name}_change", args=[self.pk])
+
     @property
     def is_club(self) -> bool:
         return self.kind != self.Kind.CLASS
@@ -366,6 +381,38 @@ class Course(models.Model):
 
     class Meta:
         ordering = ("-semester__start_date", "kind", "name")
+        constraints = (
+            models.CheckConstraint(
+                condition=Q(kind="class") | Q(**CLASS_ONLY_BLANKS),
+                name="class_only_fields_blank_for_clubs",
+            ),
+        )
+
+
+class ClassProxy(Course):
+    class Meta:
+        proxy = True
+        verbose_name_plural = "classes"
+
+
+class ClubProxy(Course):
+    class Meta:
+        proxy = True
+        verbose_name = "club/event"
+        verbose_name_plural = "clubs/events"
+
+
+class OfficeHoursProxy(Course):
+    class Meta:
+        proxy = True
+        verbose_name = verbose_name_plural = "office hours"
+
+
+KIND_PROXIES: dict[Course.Kind, type[Course]] = {
+    Course.Kind.CLASS: ClassProxy,
+    Course.Kind.CLUB: ClubProxy,
+    Course.Kind.OFFICE_HOURS: OfficeHoursProxy,
+}
 
 
 class Student(models.Model):
