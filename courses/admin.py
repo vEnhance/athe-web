@@ -1,6 +1,16 @@
 from django.contrib import admin
 
-from courses.models import Course, CourseMeeting, GlobalEvent, Semester, Student
+from courses.models import (
+    CLASS_ONLY_FIELDS,
+    Class,
+    Club,
+    Course,
+    CourseMeeting,
+    GlobalEvent,
+    OfficeHours,
+    Semester,
+    Student,
+)
 
 
 @admin.register(Semester)
@@ -33,37 +43,76 @@ def disable_discord_reminders(modeladmin, request, queryset):  # type: ignore
     modeladmin.message_user(request, f"{updated} courses updated.")
 
 
-@admin.register(Course)
-class CourseAdmin(admin.ModelAdmin):
+SHARED_COURSE_FIELDS = (
+    "name",
+    "semester",
+    "description",
+    "instructor",
+    "subscribed_staff",
+    "students",
+    "regular_meeting_time",
+    "zoom_meeting_link",
+    "discord_webhook",
+    "discord_role_id",
+    "discord_reminders_enabled",
+)
+
+
+class CourseKindAdmin(admin.ModelAdmin):
+    """Admin for one kind of course, which never shows or changes ``kind``."""
+
+    kind: Course.Kind
     list_display = (
         "name",
-        "kind",
         "semester",
         "instructor",
         "discord_reminders_enabled",
     )
-    list_filter = ("kind", "semester")
+    list_filter = ("semester",)
     search_fields = ("name", "description")
     autocomplete_fields = ("instructor", "subscribed_staff")
     filter_horizontal = ("students", "student_organizers")
     inlines = [CourseMeetingInline]
     actions = [enable_discord_reminders, disable_discord_reminders]
 
+    def get_queryset(self, request):  # type: ignore
+        return super().get_queryset(request).filter(kind=self.kind)
+
+    def save_model(self, request, obj, form, change):  # type: ignore
+        obj.kind = self.kind
+        super().save_model(request, obj, form, change)
+
     def formfield_for_manytomany(self, db_field, request, **kwargs):  # type: ignore
         """Filter students to only show students from the course's semester."""
         if db_field.name in ("students", "student_organizers"):
-            # Get the course instance being edited
             course_id = request.resolver_match.kwargs.get("object_id")  # type: ignore[attr-defined]
             if course_id:
                 try:
                     course = Course.objects.get(pk=course_id)
-                    # Filter students to only those in the course's semester
                     kwargs["queryset"] = Student.objects.filter(
                         semester=course.semester
                     )
                 except Course.DoesNotExist:
                     pass
         return super().formfield_for_manytomany(db_field, request, **kwargs)
+
+
+@admin.register(Class)
+class ClassAdmin(CourseKindAdmin):
+    kind = Course.Kind.CLASS
+    fields = (*SHARED_COURSE_FIELDS, *CLASS_ONLY_FIELDS)
+
+
+@admin.register(Club)
+class ClubAdmin(CourseKindAdmin):
+    kind = Course.Kind.CLUB
+    fields = (*SHARED_COURSE_FIELDS, "student_organizers")
+
+
+@admin.register(OfficeHours)
+class OfficeHoursAdmin(CourseKindAdmin):
+    kind = Course.Kind.OFFICE_HOURS
+    fields = (*SHARED_COURSE_FIELDS, "student_organizers")
 
 
 # Admin actions for changing student houses

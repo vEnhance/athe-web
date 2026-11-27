@@ -48,6 +48,12 @@ Local apps in `INSTALLED_APPS`:
 | `weblog`        | Blog posts, with custom markdown extensions                                                       |
 | `yearbook`      | Student yearbook entries                                                                          |
 
+A `Course` is a class, a club/event or office hours, told apart by `kind`. The Django admin
+lists each kind on its own page through the proxy models `Class`, `Club` and `OfficeHours`;
+link to a course's admin page with `course.get_admin_url()`. The proxies exist for the admin
+only: querying `Course` or following a foreign key still returns plain `Course` objects, so
+code that varies by kind checks `is_club` rather than overriding methods on a proxy.
+
 `courses.models` imports `home.models`, so anything that needs both belongs above them
 (`dashboard` or `atheweb`) rather than inside either.
 

@@ -63,7 +63,7 @@
                            class="btn btn-sm btn-outline-primary">Edit Course Info</a>
                     {% endif %}
                     {% if request.user.is_superuser %}
-                        <a href="{% url 'admin:courses_course_change' course.pk %}"
+                        <a href="{{ course.get_admin_url }}"
                            class="btn btn-sm btn-outline-secondary">Open in Django Admin</a>
                     {% endif %}
                 </div>

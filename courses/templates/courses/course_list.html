@@ -56,7 +56,7 @@
                                           margin-left: 10px">[View]</a>
                             {% endif %}
                             {% if request.user.is_superuser %}
-                                <a href="{% url 'admin:courses_course_change' course.pk %}"
+                                <a href="{{ course.get_admin_url }}"
                                    style="font-size: 0.6em;
                                           margin-left: 5px">[Edit]</a>
                             {% endif %}
