@@ -3,7 +3,7 @@ from typing import Any
 from django import forms
 from django.utils import timezone
 
-from courses.models import Course, CourseMeeting, Semester, Student
+from courses.models import CLASS_ONLY_FIELDS, Course, CourseMeeting, Semester, Student
 
 
 class CourseMeetingForm(forms.ModelForm):  # type: ignore[type-arg]
@@ -97,6 +97,12 @@ class CourseUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
             "discord_role_id": "Discord role ID to mention in reminders",
             "discord_reminders_enabled": "Whether to send Discord reminders",
         }
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        if self.instance.is_club:
+            for name in CLASS_ONLY_FIELDS:
+                del self.fields[name]
 
 
 class CourseLogisticsForm(forms.ModelForm):  # type: ignore[type-arg]
