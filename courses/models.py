@@ -43,19 +43,13 @@ class Semester(models.Model):
         max_length=20,
         choices=Status,
         default=Status.INTERNAL_DRAFT,
-        help_text="Internal draft: hidden from non-staff, still being put together. "
-        "Public draft: shown to everyone, but the course list is marked as still "
-        "being updated. Public finalized: shown with the course list complete. "
-        "Started: underway; at most one semester can be started at a time. "
-        "Ended: over. Nothing changes status on its own; flip it by hand.",
+        help_text="NOT updated automatically. Needs to be toggled by hand.",
     )
     start_date = models.DateField(
-        help_text="When this semester starts. Used for ordering, display, and "
-        "scheduling meetings; whether the semester has started is the status."
+        help_text="When this semester starts on paper. Status needs to be toggled by hand."
     )
     end_date = models.DateField(
-        help_text="When this semester ends. Used for display and scheduling "
-        "meetings; whether the semester has ended is the status."
+        help_text="When this semester ends on paper. Status needs to be toggled by hand."
     )
     house_points_freeze_date = models.DateTimeField(
         null=True,
@@ -217,7 +211,7 @@ class CourseQuerySet(models.QuerySet["Course"]):
 class Course(models.Model):
     class Kind(models.TextChoices):
         CLASS = "class", "Class"
-        CLUB = "club", "Club/Event"
+        CLUB = "club", "Club"
         OFFICE_HOURS = "office_hours", "Office hours"
 
     name = models.CharField(max_length=200)
@@ -244,11 +238,8 @@ class Course(models.Model):
         StaffPhotoListing,
         related_name="subscribed_courses",
         blank=True,
-        help_text="Staff who follow this course, whether they run it, help with "
-        "it or just want it on their calendar. Staff subscribe themselves from "
-        "the course page; it puts the course on their own pages and is not "
-        "shown to anyone else. It grants nothing: staff editing rights come "
-        "from being staff.",
+        help_text="Staff who follow this course, whether they run it or "
+        "just want it on their calendar. Grants no extra privileges.",
     )
     students = models.ManyToManyField(
         "Student",
@@ -392,14 +383,15 @@ class Course(models.Model):
 class ClassProxy(Course):
     class Meta:
         proxy = True
+        verbose_name = "class"
         verbose_name_plural = "classes"
 
 
 class ClubProxy(Course):
     class Meta:
         proxy = True
-        verbose_name = "club/event"
-        verbose_name_plural = "clubs/events"
+        verbose_name = "club"
+        verbose_name_plural = "clubs"
 
 
 class OfficeHoursProxy(Course):
